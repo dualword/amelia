@@ -1,0 +1,44 @@
+<ui version="4.0" >
+ <class>Form</class>
+ <widget class="QWidget" name="Form" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1092</width>
+    <height>971</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QPushButton" name="MenuButton" >
+     <property name="text" >
+      <string>Start AMenu</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="GeoButton" >
+     <property name="text" >
+      <string>Start AGeometry</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="QuitButton" >
+     <property name="text" >
+      <string>Quit</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>load()</slot>
+ </slots>
+</ui>

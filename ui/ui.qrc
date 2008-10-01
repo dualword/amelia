@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="ui" >
+	<file>geometry.ui</file>
+	<file>menu.ui</file>
+  </qresource>
+</RCC>

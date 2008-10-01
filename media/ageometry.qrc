@@ -1,0 +1,21 @@
+<RCC>
+  <qresource prefix="media" >
+    <file>toolbar.png</file>
+    <file>tab_deactive.png</file>
+    <file>tab_active.png</file>
+    <file>ageometry_skin.png</file>
+    <file>border_skin.png</file>
+    <file>info_skin.png</file>    
+    <file>viewporthover_skin.png</file> 
+    <file>viewport_skin.png</file>    
+    <file>tab_bg.png</file>
+    <file>eventWidget_bg.png</file>
+    <file>sphere_cam.png</file>
+    <file>free_cam.png</file>
+    <file>snapshot.png</file>
+    <file>higgs.png</file>
+    <file>higgs_next.png</file>
+    <file>table.png</file>
+    <file>AMELIA_logo.png</file>
+  </qresource>
+</RCC>

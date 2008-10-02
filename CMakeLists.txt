@@ -50,6 +50,7 @@ SET(amelia_SRCS
   src/ALayerGUI.cpp 
   src/AViewport.cpp 
   src/AEventInfoScene.cpp 
+  src/ASelectionInfoScene.cpp 
   src/CSceneNodeAnimatorCameraSphere.cpp
   src/CSceneNodeAnimatorCameraSwitch.cpp
   src/ATrackTableModel.cpp 
@@ -58,6 +59,8 @@ SET(amelia_SRCS
   src/ATrackCombination.cpp 
   src/AMainView.cpp 
   src/AAnimationGUI.cpp 
+  src/AEventManager.cpp
+  src/AEventPackage.cpp
   src/CRelativeScaleSceneNodeAnimator.cpp
   src/main.cpp
   )
@@ -75,6 +78,7 @@ SET(amelia_H
   src/ALayerGUI.h 
   src/AViewport.h 
   src/AEventInfoScene.h 
+  src/ASelectionInfoScene.h
   src/ATrackTableModel.h 
   src/AInterestingTrackTableModel.h 
   src/AComboTableModel.h
@@ -82,6 +86,8 @@ SET(amelia_H
   src/CSceneNodeAnimatorCameraSphere.h
   src/CSceneNodeAnimatorCameraSwitch.h
   src/AAnimationGUI.h 
+  src/AEventManager.h
+  src/AEventPackage.h
   src/CRelativeScaleSceneNodeAnimator.h
   src/AMainView.h
   )
@@ -101,6 +107,9 @@ TARGET_LINK_LIBRARIES(Amelia
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES}   
   Irrlicht  
+  GL
+  Xxf86vm
+  GLU
   )
   
 

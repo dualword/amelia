@@ -233,7 +233,6 @@ private:
     HelixSceneNode* trackSelection ( core::position2di pos );
     bool offsetTest;
 
-    bool Shift;
     video::ITexture *rt;
 
 };

@@ -41,7 +41,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <QWidget>
 #include <QResizeEvent>
-#include <QtUiTools>
 #include <QComboBox>
 #include <QPainter>
 #include <QDebug>

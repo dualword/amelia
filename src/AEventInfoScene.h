@@ -49,55 +49,28 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "AGeometry.h"
 #include "ATrackCombination.h"
+#include "AXmlEvent.h"
 
 class AEventInfoScene : public QGraphicsScene
 {
     Q_OBJECT
-
-
-    Q_ENUMS(infoType);
-
+      
 public:
     enum infoType {infoTrack=0, infoEvent=1};
     AEventInfoScene(QObject* parent=0);
     ~AEventInfoScene();
-
-    infoType type;
-    void init();
-    class AGeometry* geo;
-
+    
+    XmlEvent* event();
+    void setEvent(XmlEvent* e);
 public slots:
-    void updateTrackInfo ( track* strack );
-    void removeTrackInfo ( track* strack );
     void updateEventInfo();
-    void handleAddTrack();
-    void handleCombTracks();
-    void handleViewportChange(int from,int to);
 
-    void displayMessage(QString message);
-    void hideMessage();
     bool particleFilter(track* strack);
 
-signals:
-    void sig_addTrackToTable(track *strack);
-    void sig_addComboToTable(ATrackCombination *combo);
-
-    void combineButtonEnabled(bool status);
-    void addButtonEnabled(bool status);
-
 private:
-    track* selectedTrack;
-    ATrackCombination *combo;
+    void init();
 
     QGraphicsTextItem *header;
-    QGraphicsTextItem *nonSelectable;
-
-    QGraphicsTextItem *name;
-    QGraphicsTextItem *charge;
-    QGraphicsTextItem *pt;
-    QGraphicsTextItem *phi;
-    QGraphicsTextItem *eta;
-    QGraphicsTextItem *id;
 
     QGraphicsTextItem* dataComplete;
     QGraphicsTextItem* dataLabels;
@@ -106,10 +79,6 @@ private:
     QGraphicsTextItem* labelDisplayed;
     QGraphicsTextItem* labelTotal;
 
-    QGraphicsProxyWidget *addTrack;
-    QGraphicsProxyWidget *combTrack;
-    QGraphicsTextItem *message;
-
-    void refresh();
+    XmlEvent* _event;
 };
 #endif

@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="media" >
+    <file>icons/higgs.png</file>
+    <file>icons/blackhole.png</file>
     <file>toolbar.png</file>
     <file>tab_deactive.png</file>
     <file>tab_active.png</file>

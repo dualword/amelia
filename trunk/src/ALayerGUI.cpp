@@ -57,7 +57,7 @@ ALayerGUI::ALayerGUI(QWidget* parent)
 
 ALayerGUI::~ALayerGUI()
 {
-
+  delete mngr;
 }
 
 void ALayerGUI::setupElements()
@@ -69,6 +69,7 @@ void ALayerGUI::setupElements()
     tableCombinedTracks = findChild<QTableView*>("combinedTracksTable");
     tableInterestingTracks = findChild<QTableView*>("interestingTracksTable");
     geo=findChild<AGeometry*>("AGeometry");
+    menuTagCurrentEvent=window()->parent()->findChild<QMenu *>("menuTagCurrentEvent");
     QPushButton *buttonDeleteTracks = findChild<QPushButton*>("deleteTracks");
     QPushButton *buttonCombineTracks = findChild<QPushButton*>("combineTracks");
     QGraphicsView *trackInfoView=findChild<QGraphicsView *>("trackInfo");
@@ -77,7 +78,13 @@ void ALayerGUI::setupElements()
     QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
-    QPushButton *nextEventButton=findChild<QPushButton *>("nextEventButton");
+    packageList = findChild<QTreeView*>("packageList");
+    QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
+    PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
+    actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
+    actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
+    selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
+    
     geo->actFPS = actionFPS;
     geo->actSphere = actionSphere;
 
@@ -90,9 +97,9 @@ void ALayerGUI::setupElements()
     comboModel=new AComboTableModel(tableCombinedTracks);
     connect(tracksModel,SIGNAL(tracksCombined(ATrackCombination*)),
             comboModel,SLOT(addCombination(ATrackCombination*)));
-    connect(geo->XmlEvt,SIGNAL(eventUnloaded()),
+    connect(this,SIGNAL(eventUnloaded()),
             tracksModel,SLOT(clear()));
-    connect(geo->XmlEvt,SIGNAL(eventUnloaded()),
+    connect(this,SIGNAL(eventUnloaded()),
             comboModel,SLOT(clear()));
 
     //Setup Tables
@@ -127,8 +134,9 @@ void ALayerGUI::setupElements()
                 geo,SLOT(deselectTrackByID(int)));
         connect(buttonCombineTracks,SIGNAL(clicked()), //The combine button...
                 tracksModel,SLOT(combineSelectedTracks()));
-         connect(geo->XmlEvt,SIGNAL(eventLoaded(QString)),
-	  	                 interestingTracksModel,SLOT(getInterestingTracks()));
+	connect(this,SIGNAL(eventLoaded(QString)),
+		interestingTracksModel,SLOT(getInterestingTracks()));
+	  
 
     }
 
@@ -151,12 +159,9 @@ void ALayerGUI::setupElements()
     // Setup trackview
     if (trackInfoView)
     {
-        trackInfo=new AEventInfoScene;
-        trackInfo->type = AEventInfoScene::infoTrack;
-        trackInfo->init();
+        trackInfo=new ASelectionInfoScene;
         trackInfoView->setScene(trackInfo);
         trackInfoView->ensureVisible(0,0,450,300,10,10);
-        trackInfo->geo = geo;
 
         //Signals...
         connect(geo,SIGNAL(trackSelected(track*)), //track selection
@@ -182,15 +187,30 @@ void ALayerGUI::setupElements()
     if (eventInfoView)
     {
         eventInfo=new AEventInfoScene;
-        eventInfo->type = AEventInfoScene::infoEvent;
-        eventInfo->init();
+		eventInfo->setEvent(geo->XmlEvt);
         eventInfoView->setScene(eventInfo);
         eventInfoView->ensureVisible(0,0,450,300,10,10);
-        eventInfo->geo = geo;
 
         connect(geo->XmlEvt,SIGNAL(eventChanged()),
                 eventInfo,SLOT(updateEventInfo()));
     }
+
+    // Setup package list
+    mngr=new AEventManager("workspace");
+    if(packageList)
+      {
+	packageList->setModel(mngr);
+	packageList->setColumnWidth(0,200);
+	connect(packageList, SIGNAL(doubleClicked ( const QModelIndex& )),
+		this, SLOT(loadEventFromManager(const QModelIndex& )));
+	connect(this,SIGNAL(eventLoaded(QString)),
+		mngr, SLOT(eventLoaded(QString)));
+	connect(this,SIGNAL(eventUnloaded()),
+		mngr, SLOT(eventUnloaded()));
+	
+	connect(packageList, SIGNAL(clicked( const QModelIndex& )),
+		this, SLOT(updateEventTagInfo(const QModelIndex& )));
+      }
 
     // Setup random buttons
     if (buttonDeleteTracks)
@@ -203,6 +223,9 @@ void ALayerGUI::setupElements()
         connect(nextEventButton,SIGNAL(clicked()),
                 this,SLOT(loadNextEvent()));
       }
+    if(PtCutoff_Slider)
+      connect(PtCutoff_Slider,SIGNAL(valueChanged(int)),
+	      geo->XmlEvt,SLOT(PtCutoff(int)));
 
 
     //setup tour button connections
@@ -233,12 +256,6 @@ void ALayerGUI::setupElements()
 
     if (geo) //Setup signals pertaining to AGeometry
     {
-        connect(geo->XmlEvt,SIGNAL(eventLoaded(QString)),
-                this,SLOT(handleEventLoaded()));
-	connect(geo->XmlEvt,SIGNAL(eventUnloaded()),
-		this,SLOT(handleEventUnloaded()));
-
-
         signalMapper=new QSignalMapper(this);
         signalMapper->setMapping(actionSphere, AGeometry::Maya);
         signalMapper->setMapping(actionFPS, AGeometry::FPS);
@@ -249,6 +266,17 @@ void ALayerGUI::setupElements()
 		signalMapper, SLOT(map()));
 	connect(signalMapper, SIGNAL(mapped(int)),
 		geo, SLOT(setCamera(int)));
+	connect(actionTagBlackHole,SIGNAL(toggled(bool)),
+		this, SLOT(handleEventTagChange(bool)));
+	connect(actionTagHiggsBoson,SIGNAL(toggled(bool)),
+		this, SLOT(handleEventTagChange(bool)));	
+      }
+
+    selectedEventInfo=new AEventInfoScene;
+    if(selectedEventInfoView)
+      {
+	selectedEventInfoView->setScene(selectedEventInfo);
+        selectedEventInfoView->ensureVisible(0,0,450,300,10,10);
       }
 }
 
@@ -312,13 +340,6 @@ void ALayerGUI::toggleVisibilityParticles(bool toggle)
 }
 
 
-void ALayerGUI::ptCutoff(int cutoff)
-{
-    geo->XmlEvt->ptcut = cutoff/1000;
-    geo->XmlEvt->PtCutoff(geo->XmlEvt->ptcut, geo->XmlEvt->EventComplete);
-
-}
-
 void ALayerGUI::showLoadEventDialog()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Event"), "./media/events/", tr("Event Files (*.xml)"));
@@ -328,19 +349,13 @@ void ALayerGUI::showLoadEventDialog()
 
 void ALayerGUI::loadNextEvent()
 {
-    QDir directory("./media/events");
-    QStringList filters;
-    filters << "*.xml";
-    QStringList events=directory.entryList(filters);
-    int eventID=qrand()%events.size();
-    QString file=events.at(eventID);
-    QString pathToFile=directory.filePath(file);
-    loadEvent(pathToFile);
+  QModelIndex e=mngr->nextEvent();
+  loadEventFromManager(e);
 }
 
 bool ALayerGUI::loadEvent(QString fileName)
 {
-    cout << "Loading " << fileName.toAscii().data() << endl;
+  cout << "Loading " << fileName.data() << endl;
 
     //TODO Error somehow
     if (!geo) return false;
@@ -352,21 +367,57 @@ bool ALayerGUI::loadEvent(QString fileName)
       if (!fs->existFile(fileName.toAscii().data()))
         {
             QMessageBox::warning(this, tr("Application"),
-                                 tr("Cannot read file %1:\n%2.")
+                                 tr("Cannot find event file: %1!\n.")
                                  .arg(fileName));
             return false;
         }
 
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        //char* charfile = new char[200];
-        //strcpy ( charfile, fileName.toAscii().data() );
+	if(geo->XmlEvt->EventComplete.tracks.size()>0)
+	  {
+	    geo->XmlEvt->UnloadEvent();
+	    emit eventUnloaded();
+	  }
 
         geo->XmlEvt->LoadEvent(fileName.toAscii().data());
+	geo->XmlEvt->DisplayEvent(geo);
+	geo->XmlEvt->PtCutoff(PtCutoff_Slider->sliderPosition());
+	
+	tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
 
-		tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
+	handleEventLoaded();
+	emit eventLoaded(fileName);
     }
-	return true;
+    return true;
+}
+
+void ALayerGUI::loadEventFromManager(const QModelIndex& index)
+{
+  Aevent *e=mngr->getEvent(index);
+  if(e)
+    {
+      if(loadEvent(e->location))
+	  {
+	    menuTagCurrentEvent->setEnabled(true);
+	    actionTagHiggsBoson->setChecked(e->tags.contains("higgs"));
+	    actionTagBlackHole->setChecked(e->tags.contains("blackhole"));
+	  }
+    }
+  else
+    {
+      mngr->setActivePackage(index);
+
+      int count=mngr->rowCount(QModelIndex());
+      for(int i=0;i<count;i++)
+	{
+	  QModelIndex idx=mngr->index(i,0,QModelIndex());
+	  if(i==index.row())
+	    packageList->expand(idx);
+	  else
+	    packageList->collapse(idx);
+	}
+    }
 }
 
 void ALayerGUI::handleEventLoaded()
@@ -398,7 +449,35 @@ void ALayerGUI::handleEventLoaded()
 
 void ALayerGUI::handleEventUnloaded()
 {
+  menuTagCurrentEvent->setEnabled(false);
+}
 
+void ALayerGUI::updateEventTagInfo(const QModelIndex& index)
+{
+  Aevent *e=mngr->getEvent(index);
+  bool tagHiggs=false;
+  bool tagBlack=false;
+  bool enable=false;
+
+  XmlEvent *oldEvent=selectedEventInfo->event();
+  if(oldEvent)
+    oldEvent->deleteLater();
+  
+  if(e)
+    {
+      XmlEvent *event=new XmlEvent();
+      if(PtCutoff_Slider)
+	connect(PtCutoff_Slider,SIGNAL(valueChanged(int)),
+		event,SLOT(PtCutoff(int)));
+
+      event->LoadEvent(e->location.toLocal8Bit().data());
+      selectedEventInfo->setEvent(event);
+      tagHiggs=e->tags.contains("higgs");
+      tagBlack=e->tags.contains("blackhole");
+      enable=true;
+    }
+
+  
 }
 
 void ALayerGUI::show(QWidget *w)
@@ -411,6 +490,21 @@ void ALayerGUI::show(QWidget *w)
     connect(anim,SIGNAL(animationFinished()),
             anim,SLOT(deleteLater()));
     anim->play();
+}
+
+void ALayerGUI::handleEventTagChange(bool status)
+{
+  QAction *from=(QAction*)sender();
+  QString tag;
+  if(from==actionTagHiggsBoson)
+    tag="higgs";
+  else
+    tag="blackhole";
+
+  if(status)
+    mngr->tagActiveEvent(tag);
+  else
+    mngr->detagActiveEvent(tag);
 }
 
 void ALayerGUI::toggleTour ()
@@ -536,7 +630,7 @@ void ALayerGUI::prepareTours ()
     QObject::connect (tourManager, SIGNAL(tour_loadfile(QString)), this, SLOT(loadEvent(QString)));
     QObject::connect (tourManager, SIGNAL(tour_stopped()), this, SLOT(endTour()));
     QObject::connect (tourManager, SIGNAL(tour_button(char *)), this, SLOT(pressButton(char *)));
-    QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), this, SLOT(ptCutoff(int)));
+    QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), geo->XmlEvt, SLOT(PtCutoff(int)));
 
     //QCoreApplication::installEventFilter (this);
 

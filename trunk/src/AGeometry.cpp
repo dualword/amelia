@@ -201,7 +201,7 @@ void AGeometry::load()
 
 
     cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(Device->getSceneManager());
-
+	
     //Create the dynamic camera and define some variables
     camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
     camera[0]->setInputReceiverEnabled ( false );
@@ -210,7 +210,7 @@ void AGeometry::load()
     camera[0]->setFarValue ( 22000.0f );
     camera[0]->setAspectRatio ( 0.8/0.6 );
     camera[0]->setID ( 0 );
-
+    
     core::vector3df Target = camera[0]->getTarget();
     camera[0]->updateAbsolutePosition();
     Target = camera[0]->getTarget();
@@ -251,7 +251,7 @@ void AGeometry::load()
     //Device->getSceneManager()->setActiveCamera(camera[AGeometry::FPS]);
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
-
+    
     emit finishedLoading();
 
 }
@@ -362,14 +362,14 @@ void AGeometry::renderViewport(int view)
 	{
 	  rt = Device->getVideoDriver()->createRenderTargetTexture(core::dimension2d<s32>(256,256));
 	}
-
+      
       if (rt==0)
 	{
 	  emit viewportUpdated(view,QImage());
 	  return;
 	}
       }
-
+    
     //Render screenshot
     QImage image;
 
@@ -390,13 +390,13 @@ void AGeometry::renderViewport(int view)
     Device->getVideoDriver()->setRenderTarget(0);
     Device->getSceneManager()->drawAll();
     Device->getVideoDriver()->endScene();
-
+    
     uchar* tmpdata=(uchar*)rt->lock ();
-
+    
     dimension2d<s32> size=rt->getSize();
     image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
     rt->unlock();
-
+    
     emit viewportUpdated(view,image);
 
     //Device->getSceneManager()->drawAll();
@@ -835,7 +835,6 @@ void AGeometry::createAtlasGeometry()
         {
 
             Device->getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
-            //prepareAllModules ( Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) );
             /* scene::IAnimatedMesh* Pit01 = Irr->GetSceneManager()->getMesh("Pit_part01.X");
              scene::IAnimatedMesh* Pit02 = Irr->GetSceneManager()->getMesh("Pit_part02.X");
 
@@ -2180,7 +2179,6 @@ struct track* AGeometry::selectTrackByID (int ID, bool multi)
         }
     }
     return NULL;
-    qDebug() << "Invoked SelectTrackByID";
 }
 
 struct track* AGeometry::deselectTrackByID (int ID)
@@ -2236,7 +2234,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 selected=trackSelection(posMouse);
 
                 //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-                qDebug() << "Shift held down: " << Shift;
+				bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
                 if (!Shift)
                 {
                     while (!selectedTracks.isEmpty())
@@ -2300,24 +2298,6 @@ bool AGeometry::OnEvent ( const SEvent& event )
 
     if ( event.EventType == EET_KEY_INPUT_EVENT )
     {
-        if ( event.KeyInput.PressedDown == true )
-        {
-            switch ( event.KeyInput.Key )
-            {
-            case KEY_SHIFT:
-            case KEY_LSHIFT:
-            case KEY_RSHIFT:
-            case KEY_CONTROL:
-            case KEY_RCONTROL:
-            case KEY_LCONTROL:
-                Shift=true;
-                break;
-            default:
-                //Nothing
-                break;
-            }
-        }
-
         if ( event.KeyInput.PressedDown == false )
         {
             switch ( event.KeyInput.Key )
@@ -2349,24 +2329,9 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 return true;
                 break;
 
-                //Sets the orthogonal camera
-            case KEY_KEY_O:
-                setCamera(AGeometry::Maya);
-                camera[3]->setPosition(core::vector3df(0,0,500));
-                sliceMode = true;
-                return true;
-                break;
-
-                //sets the lengthwise camera
-            case KEY_KEY_L:
-                setCamera(AGeometry::Maya);
-                return true;
-                break;
-
                 //sets PtCutoff to 1GeV
             case KEY_KEY_C:
-                XmlEvt->ptcut = 1;
-                XmlEvt->PtCutoff ( 1, XmlEvt->EventComplete );
+                XmlEvt->PtCutoff ( 1 );
                 return true;
                 break;
 
@@ -2418,14 +2383,6 @@ bool AGeometry::OnEvent ( const SEvent& event )
             case KEY_KEY_7:
                 switchVisibility ( 7 );
                 return true;
-                break;
-            case KEY_SHIFT:
-            case KEY_LSHIFT:
-            case KEY_RSHIFT:
-            case KEY_CONTROL:
-            case KEY_RCONTROL:
-            case KEY_LCONTROL:
-                Shift=false;
                 break;
             case KEY_F1:
                 qDebug() << "Active Camera " << active_viewport;

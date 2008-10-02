@@ -51,7 +51,7 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 	_driverType = irr::video::EDT_DIRECT3D9;
 #else
     _driverType = irr::video::EDT_OPENGL;
-#endif;
+#endif
 
     // Irrlicht will clear the canvas for us, so tell Qt not to do it
     setAttribute( Qt::WA_OpaquePaintEvent );

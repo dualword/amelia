@@ -40,7 +40,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "AGeometry.h"
 
-
+#include <QDomNode>
+#include <QDomDocument>
 
 struct shower
 {
@@ -125,24 +126,32 @@ struct jet
 
 struct Aevent
 {
-    std::vector<track> tracks;
-    std::vector<jet> jets;
-    int numTracks;
-    int numChargedHadrons;
-    int numPhotons;
-    int numNeutralHadrons;
-    int numNeutrinos;
-    int numMuons;
-    int numElectrons;
-    std::vector<shower> LArshowers;
-    std::vector<FCALshower> FCALshowers;
-    std::vector<shower> HECshowers;
-    std::vector<shower> TILEshowers;
-    int numShowers;
-    float ETMis;
-    core::vector2df ETMisVec;
-    float CaloETMis;
-    core::vector2df CaloETMisVec;
+  QString filename;
+
+  QString location;
+
+  bool read;
+
+  QSet<QString> tags;
+
+  std::vector<track> tracks;
+  std::vector<jet> jets;
+  int numTracks;
+  int numChargedHadrons;
+  int numPhotons;
+  int numNeutralHadrons;
+  int numNeutrinos;
+  int numMuons;
+  int numElectrons;
+  std::vector<shower> LArshowers;
+  std::vector<FCALshower> FCALshowers;
+  std::vector<shower> HECshowers;
+  std::vector<shower> TILEshowers;
+  int numShowers;
+  float ETMis;
+  core::vector2df ETMisVec;
+  float CaloETMis;
+  core::vector2df CaloETMisVec;
 };
 
 
@@ -153,35 +162,35 @@ class XmlEvent : public QObject
 Q_OBJECT
 
 public:
+    static int ptcut;
+
     XmlEvent();
     virtual ~XmlEvent();
     class AGeometry* Base;
     struct Aevent Event;
     struct Aevent EventComplete;
-    struct Aevent GetEventFromFile ( const char* filename, IrrlichtDevice* device );
-    void PtCutoff ( float PtCut, struct Aevent &ievent );
+    struct Aevent GetEventFromFile ( const char* filename );
     void HideAllTracks();
     struct Aevent DisplayParticles ( vector<bool>states, struct Aevent &ievent );
     void LoadEvent ( const c8* file );
+    void UnloadEvent ( );
+    void DisplayEvent(AGeometry* device);
     vector<bool> P_checkbox_states;
-    float ptcut;
 
 public slots:
+    void PtCutoff ( int PtCut );
 
 signals:
-	// Emitted whenever the displayed event changes shape (ei: during pT cutoff)
+    // Emitted whenever the displayed event changes shape (ei: during pT cutoff)
     void eventChanged();
-    // Emitted when an event has finished loading from the JiveXML file
-    void eventLoaded(QString);
-    void eventUnloaded();
-
 
 private:
-    std::vector<int> getDataInt ( IXMLReaderUTF8* xml );
-    std::vector<float> getDataFloat ( IXMLReaderUTF8* xml );
-    std::vector <track> GetTracksFromFile ( const char* filename, IrrlichtDevice* device );
-    std::vector <shower> GetShowersFromFile ( const char* filename, IrrlichtDevice* device, char* calo );
-    std::vector <FCALshower> GetFCALShowersFromFile ( const char* filename, IrrlichtDevice* device );
+    std::vector<int> getDataInt ( QDomNode xml );
+    std::vector<float> getDataFloat ( QDomNode xml );
+    std::vector <track> GetTracksFromDOM ( QDomDocument doc );
+    std::vector <shower> GetShowersFromDOM ( QDomDocument doc, char* calo );
+    std::vector <FCALshower> GetFCALShowersFromDOM ( QDomDocument doc );
+    
 
 };
 

@@ -50,16 +50,19 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QGraphicsView>
 #include <QLabel>
 #include <QSignalMapper>
+#include <QTreeWidget>
 
 #include "ATourManager.h"
 #include "ATourBuilder.h"
 #include "AGeometry.h"
 #include "AXmlEvent.h"
 #include "AEventInfoScene.h"
+#include "ASelectionInfoScene.h"
 #include "ATrackTableModel.h"
 #include "AInterestingTrackTableModel.h"
 #include "AComboTableModel.h"
 #include "AMainView.h"
+#include "AEventManager.h"
 
 
 class ALayerGUI : public QFrame
@@ -78,20 +81,29 @@ public:
 
     //void mousePressEvent (QMouseEvent *);
 
+ signals:
+    // Emitted when an event has finished loading from the JiveXML file
+    void eventLoaded(QString);
+    void eventUnloaded();
+
 public slots:
     void actionSwitchView();
 
     //Slots for event handling
     void toggleVisibilityParticles(bool toggle);
-    void ptCutoff(int cutoff);
     void showLoadEventDialog();
     void loadNextEvent();
     bool loadEvent (QString);
+    void loadEventFromManager(const QModelIndex& index);
     void pressButton (char*);
 
     //Loaded event, sets up visibility of tables and other funfun stuff
     void handleEventLoaded();
     void handleEventUnloaded();
+
+    //Slots for event manager
+    void handleEventTagChange(bool status);
+    void updateEventTagInfo(const QModelIndex& index);
 
     //Slots for the guided tours interface
     void prepareTours ();
@@ -110,7 +122,8 @@ public slots:
 
  private:
     AEventInfoScene *eventInfo;
-    AEventInfoScene *trackInfo;
+    AEventInfoScene *selectedEventInfo;
+    ASelectionInfoScene *trackInfo;
 
     // Pointers to commonly used widgets
     AGeometry* geo;
@@ -120,12 +133,18 @@ public slots:
     QTableView *tableSelectedTracks;
     QTableView *tableCombinedTracks;
     QTableView *tableInterestingTracks;
-
-	QWidget *eventWidget;
-	AMainView *AGeometryFrame;
-
-	QMap<QString,QPoint> widgetPositions;
-	QSignalMapper *signalMapper;
+    QSlider *PtCutoff_Slider;
+    QWidget *eventWidget;
+    AMainView *AGeometryFrame;
+    QTreeView *packageList;
+    QMenu *menuTagCurrentEvent;
+    QAction *actionTagHiggsBoson;
+    QAction *actionTagBlackHole;
+    QGraphicsView *selectedEventInfoView;
+    
+    QMap<QString,QPoint> widgetPositions;
+    QSignalMapper *signalMapper;
+    AEventManager *mngr;
 };
 
 

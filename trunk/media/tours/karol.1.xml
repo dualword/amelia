@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<amtour title="Karol's demo test" description="Sample tour">
+
+	<block>
+
+		<keyframe time="0">
+
+			<camera x="1173" y="699" z="-935" />
+
+			<target x="0" y="0" z="0" />
+
+		</keyframe>
+
+		<keyframe time="5000">
+
+			<camera x="3434" y="1501" z="-1900" />
+
+		</keyframe>
+
+		<keyframe time="10000">
+
+			<camera x="0" y="0" z="-4000" />
+
+		</keyframe>
+
+		<keyframe time="14000">
+
+			<camera x="0" y="0" z="-450" />
+
+		</keyframe>
+
+                <keyframe time="14200">
+
+			<camera x="0" y="0" z="-50" />
+
+                        <action type="loadfile" data="special-higgs.xml" />
+
+                </keyframe>
+
+		<keyframe time="15000">
+
+			<camera x="0" y="0" z="-400" />
+
+		</keyframe>
+
+		<keyframe time="20000">
+
+			<camera x="1000" y="1000" z="0" />
+		
+			<target x="0" y="0" z="2000" />
+
+		</keyframe>
+
+		<keyframe time="23000">
+
+			<camera x="500" y="400" z="0" />
+
+			<target x="0" y="0" z="0" />
+
+		</keyframe>
+
+		<keyframe time="27000">
+
+			<camera x="250" y="200" z="0" />
+
+			<target x="0" y="0" z="0" />
+
+		</keyframe>
+
+		<keyframe time="33000">
+
+			<camera x="125" y="100" z="0" />
+
+			<target x="0" y="0" z="0" />
+
+		</keyframe>
+
+		<keyframe time="38000">
+
+			<camera x="0.5" y="0" z="0" />
+
+			<target x="0" y="0" z="0" />
+
+		</keyframe>
+
+	</block>
+
+</amtour>
+

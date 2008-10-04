@@ -857,7 +857,7 @@ Event</string>
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex" >
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode" >
        <enum>Qt::ElideNone</enum>
@@ -1136,15 +1136,15 @@ Event</string>
         <bool>false</bool>
        </property>
        <attribute name="title" >
-        <string> Event </string>
+        <string> Events</string>
        </attribute>
        <widget class="QGraphicsView" name="eventInfo" >
         <property name="geometry" >
          <rect>
           <x>10</x>
-          <y>20</y>
+          <y>110</y>
           <width>221</width>
-          <height>181</height>
+          <height>171</height>
          </rect>
         </property>
         <property name="frameShadow" >
@@ -1170,9 +1170,9 @@ Event</string>
         <property name="geometry" >
          <rect>
           <x>10</x>
-          <y>220</y>
+          <y>290</y>
           <width>225</width>
-          <height>171</height>
+          <height>131</height>
          </rect>
         </property>
         <property name="sizePolicy" >
@@ -1234,7 +1234,7 @@ Event</string>
         <property name="geometry" >
          <rect>
           <x>124</x>
-          <y>400</y>
+          <y>430</y>
           <width>111</width>
           <height>40</height>
          </rect>
@@ -1251,7 +1251,7 @@ Event</string>
         <property name="geometry" >
          <rect>
           <x>6</x>
-          <y>400</y>
+          <y>430</y>
           <width>111</width>
           <height>41</height>
          </rect>
@@ -1265,9 +1265,9 @@ Event</string>
         <property name="geometry" >
          <rect>
           <x>10</x>
-          <y>450</y>
+          <y>480</y>
           <width>225</width>
-          <height>171</height>
+          <height>141</height>
          </rect>
         </property>
         <property name="sizePolicy" >
@@ -1326,6 +1326,31 @@ Event</string>
         </property>
         <property name="columnCount" stdset="0" >
          <number>3</number>
+        </property>
+       </widget>
+       <widget class="QTreeView" name="packageList" >
+        <property name="geometry" >
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>221</width>
+          <height>81</height>
+         </rect>
+        </property>
+        <property name="styleSheet" >
+         <string notr="true" >color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="rootIsDecorated" >
+         <bool>false</bool>
+        </property>
+        <property name="animated" >
+         <bool>true</bool>
+        </property>
+        <property name="headerHidden" >
+         <bool>true</bool>
+        </property>
+        <property name="expandsOnDoubleClick" >
+         <bool>false</bool>
         </property>
        </widget>
       </widget>
@@ -1484,51 +1509,6 @@ Event</string>
          </property>
         </widget>
        </widget>
-      </widget>
-      <widget class="QWidget" name="tab" >
-       <attribute name="title" >
-        <string>Packages</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6" >
-        <item>
-         <widget class="QTreeView" name="packageList" >
-          <property name="styleSheet" >
-           <string notr="true" >color: rgb(0, 0, 0);</string>
-          </property>
-          <property name="rootIsDecorated" >
-           <bool>false</bool>
-          </property>
-          <property name="animated" >
-           <bool>true</bool>
-          </property>
-          <property name="headerHidden" >
-           <bool>true</bool>
-          </property>
-          <property name="expandsOnDoubleClick" >
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGraphicsView" name="selectedEventInfo" >
-          <property name="maximumSize" >
-           <size>
-            <width>16777215</width>
-            <height>200</height>
-           </size>
-          </property>
-          <property name="verticalScrollBarPolicy" >
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy" >
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="interactive" >
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </widget>
     </item>
@@ -1976,166 +1956,6 @@ Event</string>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_MuonSpectr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityMuonSpec()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>979</x>
-     <y>138</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>518</x>
-     <y>105</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Magnets</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityMagnets()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>979</x>
-     <y>165</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>482</x>
-     <y>164</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_LAr</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityLAr()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>979</x>
-     <y>291</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>563</x>
-     <y>272</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Tilecal</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityTile()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>979</x>
-     <y>245</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>499</x>
-     <y>227</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_TRT</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityTRT()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>960</x>
-     <y>359</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>546</x>
-     <y>333</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_SCT</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilitySCT()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>960</x>
-     <y>405</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>609</x>
-     <y>383</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ffTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>ffTour()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>981</x>
-     <y>288</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>recTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleRecording()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>891</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>snapshotTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>snapshotRecording()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>981</x>
-     <y>518</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>playTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleTour()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>911</x>
-     <y>288</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AGeometry</sender>
    <signal>finishedLoading()</signal>
    <receiver>ALayerGUI</receiver>
@@ -2376,22 +2196,6 @@ Event</string>
    </hints>
   </connection>
   <connection>
-   <sender>checkBox_Pixels</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>AGeometry</receiver>
-   <slot>toggleVisibilityPixels()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>891</x>
-     <y>426</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>384</x>
-     <y>317</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionAbout</sender>
    <signal>triggered()</signal>
    <receiver>ALayerGUI</receiver>
@@ -2404,6 +2208,182 @@ Event</string>
     <hint type="destinationlabel" >
      <x>511</x>
      <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Magnets</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityMagnets()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>979</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>482</x>
+     <y>164</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_LAr</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityLAr()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>979</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>563</x>
+     <y>272</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_MuonSpectr</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityMuonSpec()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>979</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>518</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_TRT</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityTRT()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>960</x>
+     <y>359</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>546</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>snapshotTourButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>snapshotRecording()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>981</x>
+     <y>518</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Tilecal</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityTile()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>979</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>499</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_SCT</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilitySCT()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>960</x>
+     <y>405</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>609</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ffTourButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>ffTour()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>981</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>recTourButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleRecording()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>891</x>
+     <y>518</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>playTourButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleTour()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>911</x>
+     <y>288</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>365</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Pixels</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AGeometry</receiver>
+   <slot>toggleVisibilityPixels()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>891</x>
+     <y>426</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>384</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>

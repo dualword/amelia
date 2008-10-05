@@ -70,8 +70,8 @@ void ALayerGUI::setupElements()
     tableInterestingTracks = findChild<QTableView*>("interestingTracksTable");
     geo=findChild<AGeometry*>("AGeometry");
     menuTagCurrentEvent=window()->parent()->findChild<QMenu *>("menuTagCurrentEvent");
-    QPushButton *buttonDeleteTracks = findChild<QPushButton*>("deleteTracks");
-    QPushButton *buttonCombineTracks = findChild<QPushButton*>("combineTracks");
+    buttonDeleteTracks = findChild<QPushButton*>("deleteTracks");
+    buttonCombineTracks = findChild<QPushButton*>("combineTracks");
     QGraphicsView *trackInfoView=findChild<QGraphicsView *>("trackInfo");
     QGraphicsView *eventInfoView=findChild<QGraphicsView *>("eventInfo");
     QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
@@ -132,12 +132,8 @@ void ALayerGUI::setupElements()
                 geo,SLOT(selectTrackByID(int,bool)));
         connect(interestingTracksModel,SIGNAL(entryDeselected(int)),
                 geo,SLOT(deselectTrackByID(int)));
-        connect(buttonCombineTracks,SIGNAL(clicked()), //The combine button...
-                tracksModel,SLOT(combineSelectedTracks()));
 	connect(this,SIGNAL(eventLoaded(QString)),
 		interestingTracksModel,SLOT(getInterestingTracks()));
-	  
-
     }
 
     if (tableCombinedTracks)
@@ -207,9 +203,10 @@ void ALayerGUI::setupElements()
 		mngr, SLOT(eventLoaded(QString)));
 	connect(this,SIGNAL(eventUnloaded()),
 		mngr, SLOT(eventUnloaded()));
-	
-	connect(packageList, SIGNAL(clicked( const QModelIndex& )),
-		this, SLOT(updateEventTagInfo(const QModelIndex& )));
+
+	//The selected event info is disabled right now...
+	//connect(packageList, SIGNAL(clicked( const QModelIndex& )),
+	//this, SLOT(updateEventTagInfo(const QModelIndex& )));
       }
 
     // Setup random buttons
@@ -394,6 +391,8 @@ bool ALayerGUI::loadEvent(QString fileName)
 
 void ALayerGUI::loadEventFromManager(const QModelIndex& index)
 {
+  if(!index.isValid()) return;
+  
   Aevent *e=mngr->getEvent(index);
   if(e)
     {
@@ -437,9 +436,12 @@ void ALayerGUI::handleEventLoaded()
     QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
     QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionTable=window()->findChild<QAction *>("actionTable");
+
     if (tabEvent) tabEvent->setEnabled(true);
     if (detailedSelectedTracksTable) detailedSelectedTracksTable->setEnabled(true);
     if (detailedCombinedTracksTable) detailedCombinedTracksTable->setEnabled(true);
+    if (buttonDeleteTracks) buttonDeleteTracks->setEnabled(true);
+    if (buttonCombineTracks) buttonCombineTracks->setEnabled(true);
     if (actionTable) actionTable->setEnabled(true);
 
     QApplication::restoreOverrideCursor();

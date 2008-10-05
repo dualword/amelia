@@ -1221,7 +1221,7 @@ color: rgb(255, 255, 0);
       </widget>
       <widget class="QWidget" name="tab_event" >
        <property name="enabled" >
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <attribute name="title" >
         <string> Events</string>
@@ -1319,6 +1319,10 @@ color: rgb(255, 255, 0);
         </property>
        </widget>
        <widget class="QPushButton" name="deleteTracks" >
+       	        <property name="enabled" >
+		         <bool>false</bool>
+			         </property>
+
         <property name="geometry" >
          <rect>
           <x>124</x>
@@ -1417,6 +1421,9 @@ color: rgb(255, 255, 0);
         </property>
        </widget>
        <widget class="QTreeView" name="packageList" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
         <property name="geometry" >
          <rect>
           <x>10</x>

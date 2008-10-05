@@ -144,6 +144,24 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
 	  if(index==activeEvent)
 	    return Qt::red;
 	}
+    case Qt::ToolTipRole:
+      if(id!=-1 && index.column()==0)
+	{
+	  AEventPackage pkg=packages[index.internalId()];
+	  Aevent *e=pkg.event(index.row());
+	  XmlEvent *event=XmlEvent::CachedEvent(e->location);
+	  
+	  QString toolTip=
+	    "<html><b>Tracks:</b> \t\t"+QString::number(event->EventComplete.numTracks)+"<br/>"
+	    "<b>Neutral Hadrons:</b> \t"+QString::number(event->EventComplete.numNeutralHadrons)+"<br/>"
+	    "<b>Charged Hadrons:</b> \t"+QString::number(event->EventComplete.numChargedHadrons)+"<br/>"
+	    "<b>Photons:</b> \t\t"+QString::number(event->EventComplete.numPhotons)+"<br/>"
+	    "<b>Muons:</b> \t\t"+QString::number(event->EventComplete.numMuons)+"<br/>"
+	    "<b>Electrons:</b> \t\t"+QString::number(event->EventComplete.numElectrons)+
+	    "</html>";
+
+	  return toolTip;
+	}
     }
   /*else if(role==Qt::DecorationRole)
     {

@@ -40,6 +40,21 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 int XmlEvent::ptcut=1000;
 
+QMap<QString,XmlEvent*> XmlEvent::cache=QMap<QString,XmlEvent*>();
+
+
+XmlEvent* XmlEvent::CachedEvent(QString file)
+{
+  if(cache.contains(file))
+    return cache[file];
+
+  XmlEvent* event=new XmlEvent();
+  event->LoadEvent(file.toLocal8Bit().data());
+  cache[file]=event;
+  return event;
+}
+
+
 XmlEvent::XmlEvent()
 {
     //Initialize the bool vector describing which type of particle is visible

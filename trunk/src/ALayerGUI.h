@@ -141,6 +141,8 @@ public slots:
     QAction *actionTagHiggsBoson;
     QAction *actionTagBlackHole;
     QGraphicsView *selectedEventInfoView;
+    QPushButton *buttonCombineTracks;
+    QPushButton *buttonDeleteTracks;
     
     QMap<QString,QPoint> widgetPositions;
     QSignalMapper *signalMapper;

@@ -163,6 +163,7 @@ Q_OBJECT
 
 public:
     static int ptcut;
+    static XmlEvent* CachedEvent(QString file);
 
     XmlEvent();
     virtual ~XmlEvent();
@@ -185,6 +186,8 @@ signals:
     void eventChanged();
 
 private:
+    static QMap<QString,XmlEvent*> cache;
+
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );
     std::vector <track> GetTracksFromDOM ( QDomDocument doc );

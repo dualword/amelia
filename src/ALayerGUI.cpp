@@ -84,7 +84,7 @@ void ALayerGUI::setupElements()
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
     selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
-    
+
     geo->actFPS = actionFPS;
     geo->actSphere = actionSphere;
 
@@ -266,7 +266,7 @@ void ALayerGUI::setupElements()
 	connect(actionTagBlackHole,SIGNAL(toggled(bool)),
 		this, SLOT(handleEventTagChange(bool)));
 	connect(actionTagHiggsBoson,SIGNAL(toggled(bool)),
-		this, SLOT(handleEventTagChange(bool)));	
+		this, SLOT(handleEventTagChange(bool)));
       }
 
     selectedEventInfo=new AEventInfoScene;
@@ -298,6 +298,11 @@ void ALayerGUI::actionSwitchView()
 }
 
 //slots for event handling
+
+void ALayerGUI::selectJetModel(QString jetType)
+{
+    geo->XmlEvt->setCurrentJetModel(jetType);
+}
 
 
 void ALayerGUI::toggleVisibilityParticles(bool toggle)
@@ -380,7 +385,7 @@ bool ALayerGUI::loadEvent(QString fileName)
         geo->XmlEvt->LoadEvent(fileName.toAscii().data());
 	geo->XmlEvt->DisplayEvent(geo);
 	geo->XmlEvt->PtCutoff(PtCutoff_Slider->sliderPosition());
-	
+
 	tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
 
 	handleEventLoaded();
@@ -392,7 +397,7 @@ bool ALayerGUI::loadEvent(QString fileName)
 void ALayerGUI::loadEventFromManager(const QModelIndex& index)
 {
   if(!index.isValid()) return;
-  
+
   Aevent *e=mngr->getEvent(index);
   if(e)
     {
@@ -464,7 +469,7 @@ void ALayerGUI::updateEventTagInfo(const QModelIndex& index)
   XmlEvent *oldEvent=selectedEventInfo->event();
   if(oldEvent)
     oldEvent->deleteLater();
-  
+
   if(e)
     {
       XmlEvent *event=new XmlEvent();
@@ -479,7 +484,7 @@ void ALayerGUI::updateEventTagInfo(const QModelIndex& index)
       enable=true;
     }
 
-  
+
 }
 
 void ALayerGUI::show(QWidget *w)

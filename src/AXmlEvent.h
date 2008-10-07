@@ -117,11 +117,18 @@ public:
 
 struct jet
 {
+    enum jType //Jet type
+    {
+        jKt4H1TopoJets,
+        jCone4H1TopoJets,
+        jKt4H1TowerJets,
+        jCone4H1TowerJets
+    };
     float eta;
     float phi;
-    float pt;
-    std::string name;
-
+    float et;
+    int numCells;
+    jType type;
 };
 
 struct Aevent
@@ -177,6 +184,7 @@ public:
     void UnloadEvent ( );
     void DisplayEvent(AGeometry* device);
     vector<bool> P_checkbox_states;
+    void setCurrentJetModel(QString jetType);
 
 public slots:
     void PtCutoff ( int PtCut );
@@ -191,9 +199,10 @@ private:
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );
     std::vector <track> GetTracksFromDOM ( QDomDocument doc );
+    std::vector <jet> GetJetsFromDOM ( QDomDocument doc );
     std::vector <shower> GetShowersFromDOM ( QDomDocument doc, char* calo );
     std::vector <FCALshower> GetFCALShowersFromDOM ( QDomDocument doc );
-    
+
 
 };
 

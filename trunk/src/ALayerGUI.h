@@ -96,6 +96,7 @@ public slots:
     bool loadEvent (QString);
     void loadEventFromManager(const QModelIndex& index);
     void pressButton (char*);
+    void selectJetModel(QString);
 
     //Loaded event, sets up visibility of tables and other funfun stuff
     void handleEventLoaded();
@@ -143,7 +144,7 @@ public slots:
     QGraphicsView *selectedEventInfoView;
     QPushButton *buttonCombineTracks;
     QPushButton *buttonDeleteTracks;
-    
+
     QMap<QString,QPoint> widgetPositions;
     QSignalMapper *signalMapper;
     AEventManager *mngr;

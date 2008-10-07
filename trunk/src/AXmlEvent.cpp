@@ -45,13 +45,13 @@ QMap<QString,XmlEvent*> XmlEvent::cache=QMap<QString,XmlEvent*>();
 
 XmlEvent* XmlEvent::CachedEvent(QString file)
 {
-  if(cache.contains(file))
-    return cache[file];
+    if (cache.contains(file))
+        return cache[file];
 
-  XmlEvent* event=new XmlEvent();
-  event->LoadEvent(file.toLocal8Bit().data());
-  cache[file]=event;
-  return event;
+    XmlEvent* event=new XmlEvent();
+    event->LoadEvent(file.toLocal8Bit().data());
+    cache[file]=event;
+    return event;
 }
 
 
@@ -80,7 +80,7 @@ std::vector<int> XmlEvent::getDataInt ( QDomNode xml )
 
     QDomText textNode=xml.firstChild().toText();
     std::string dstr = textNode.data().trimmed().toLocal8Bit().data();
-    
+
     for ( int i=0; i < dstr.size(); i++ )
     {
         if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
@@ -113,7 +113,7 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
 
     QDomText textNode=xml.firstChild().toText();
     std::string dstr = textNode.data().toLocal8Bit().data();
-    
+
     for ( int i=0; i < dstr.size(); i++ )
     {
         if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
@@ -136,171 +136,194 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
     return v;
 }
 
+std::vector <jet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
+{
+    // Get all the jet data from the XML file. There are four main jet types of interest, expressed as attributes in the file
+    // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
+
+    std::vector <jet> jets;
+    int i;
+    jet j;
+
+    //elements of the Jets
+    vector<float> eta;
+    vector<float> phi;
+    vector<float> et;
+    vector<float> numCells;
+
+
+    QDomNodeList Jets=dom.elementsByTagName("Jet");
+
+    //Load the Jets
+    for (int i=0;i<Jets.length();i++)
+    {
+        QDomElement node=Jets.at(i).toElement();
+
+        QDomAttr attr = node.attributeNode( "storeGateKey" );
+
+        et = getDataFloat ( node.elementsByTagName("et").at(0) );
+        eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
+        phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
+        numCells = getDataFloat ( node.elementsByTagName("numCells").at(0) );
+        qDebug() << "storeGateKey: " << attr.value();
+
+    }
+
+    qDebug() << "" ;
+    qDebug() << "" ;
+    qDebug() << "" ;
+    qDebug() << "######################################" ;
+    qDebug() << "######################################" ;
+    qDebug() << "######################################" ;
+    qDebug() << "######################################" ;
+    qDebug() << "" ;
+    qDebug() << "" ;
+    qDebug() << "" ;
+    qDebug() << "# Jets: " << jets.size();
+
+    for ( i = 0; i < et.size(); i++ )
+    {
+        j.et = et[i];
+        if ( i<eta.size() ) j.eta = eta[i];
+        if ( i<phi.size() ) j.phi = phi[i];
+        if ( i<numCells.size() ) j.numCells = numCells[i];
+        jets.push_back ( j );
+        qDebug() << "JET!!! " ;
+    }
+
+
+    return jets;
+
+}
 
 std::vector <track> XmlEvent::GetTracksFromDOM ( QDomDocument dom )
 {
-  // Aux variables and definitions
-  std::vector <track> tracks;
-  int i;
-  
-  track t;
-  track e;
-  
-  //elements of the simulated tracks
-  vector<int> str_code;
-  vector<float> str_eta;
-  vector<int> str_id;
-  vector<float> str_phi;
-  vector<float> str_phiVertex;
-  vector<float> str_pt;
-  vector<float> str_rhoVertex;
-  vector<float> str_zVertex;
-  vector<float> str_q;
-  vector<float> v;
-  
-  //elements of the Jets
-  vector<float> jet_eta;
-  vector<float> jet_phi;
-  vector<float> jet_et;
-  
-  
-  const int codelist[52] =
-    {
-      0, 11, 12, 13, 14, 15, 16, 22, 23, 24, 111, 113, 130,
-      211, 221, 310, 321, 411, 421, 431, 2112, 2212, 3112, 3122, 3212, 3222,
-      3312, 3322, 3334, 4122, -11, -12, -13, -14, -15, -16, -24, -211, -321,
-      -411, -421, -431, -2112, -2212, -3112, -3122, -3212, -3222, -3312,
-      -3322, -3334, -4122
-    };
-  
-  const int chargelist[52] =
-    {
-      0, -1, 0, -1, 0, -1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1,
-      0, 1, 0, 1, -1, 0, 0, 1, -1, 0, -1, 1, 1, 0, 1, 0, 1, 0, -1, -1, -1, -1, 0,
-      -1, 0, -1, 1, 0, 0, -1, 1, 0, 1, -1
-    };
-  
-  const std::string namelist[52] =
-    { "0", "e-", "nu_e", "mu-", "nu_mu", "tau-", "nu_tau",
-      "gamma", "Z0", "W+", "pi0", "rho0", "K_L0", "pi+", "eta", "K_S0", "K+",
-      "D+", "D0", "D_s+", "n0", "p+", "Sigma-", "Lambda0", "Sigma0", "Sigma+",
-      "Xi-", "Xi0", "Omega-", "Lambda_c+", "e+", "nu_ebar", "mu+", "nu_mubar",
-      "tau+", "nu_taubar", "W-", "pi-", "K-", "D-", "Dbar0", "D_s-", "nbar0",
-      "pbar-", "Sigmabar+", "Lambdabar0", "Sigmabar0", "Sigmabar-", "Xibar+",
-      "Xibar0", "Omegabar+", "Lambda_cbarminus"
-    };
-  
-  const video::SColor colorlist[52] =
-    {
-      video::SColor ( 0,0,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,0,255 ), video::SColor ( 0,55,55,55 ),
-      video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,255,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),
-      video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,111,111,111 ), video::SColor ( 0,77,77,77 ), video::SColor ( 0,255,255,255 ),
-      video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ),
-      video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,0,255 ), video::SColor ( 0,55,55,55 ),
-      video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,255,0,0 ),video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),
-      video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ),
-      video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 )
-    };
-  
-  
-  //Get the list of different types of "tracks"
-  QDomNodeList ETMis=dom.elementsByTagName("ETMis");
-  QDomNodeList STr=dom.elementsByTagName("STr");
-  QDomNodeList Jet=dom.elementsByTagName("Jet");
+    // Aux variables and definitions
+    std::vector <track> tracks;
+    int i;
 
-  //Load the cool tracks!
-  for(int i=0;i<STr.length();i++)
+    track t;
+    track e;
+
+    //elements of the simulated tracks
+    vector<int> str_code;
+    vector<float> str_eta;
+    vector<int> str_id;
+    vector<float> str_phi;
+    vector<float> str_phiVertex;
+    vector<float> str_pt;
+    vector<float> str_rhoVertex;
+    vector<float> str_zVertex;
+    vector<float> str_q;
+    vector<float> v;
+
+    const int codelist[52] =
     {
-      QDomElement node=STr.at(i).toElement();
-      str_code = getDataInt ( node.elementsByTagName("code").at(0) );
-      str_eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
-      str_id = getDataInt ( node.elementsByTagName("id").at(0) );
-      str_phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
-      str_phiVertex = getDataFloat ( node.elementsByTagName("phiVertex").at(0) );
-      str_pt = getDataFloat ( node.elementsByTagName("pt").at(0) );
-      str_rhoVertex = getDataFloat ( node.elementsByTagName("rhoVertex").at(0) );
-      str_zVertex = getDataFloat ( node.elementsByTagName("zVertex").at(0) );
+        0, 11, 12, 13, 14, 15, 16, 22, 23, 24, 111, 113, 130,
+        211, 221, 310, 321, 411, 421, 431, 2112, 2212, 3112, 3122, 3212, 3222,
+        3312, 3322, 3334, 4122, -11, -12, -13, -14, -15, -16, -24, -211, -321,
+        -411, -421, -431, -2112, -2212, -3112, -3122, -3212, -3222, -3312,
+        -3322, -3334, -4122
+    };
+
+    const int chargelist[52] =
+    {
+        0, -1, 0, -1, 0, -1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1,
+        0, 1, 0, 1, -1, 0, 0, 1, -1, 0, -1, 1, 1, 0, 1, 0, 1, 0, -1, -1, -1, -1, 0,
+        -1, 0, -1, 1, 0, 0, -1, 1, 0, 1, -1
+    };
+
+    const std::string namelist[52] =
+        { "0", "e-", "nu_e", "mu-", "nu_mu", "tau-", "nu_tau",
+          "gamma", "Z0", "W+", "pi0", "rho0", "K_L0", "pi+", "eta", "K_S0", "K+",
+          "D+", "D0", "D_s+", "n0", "p+", "Sigma-", "Lambda0", "Sigma0", "Sigma+",
+          "Xi-", "Xi0", "Omega-", "Lambda_c+", "e+", "nu_ebar", "mu+", "nu_mubar",
+          "tau+", "nu_taubar", "W-", "pi-", "K-", "D-", "Dbar0", "D_s-", "nbar0",
+          "pbar-", "Sigmabar+", "Lambdabar0", "Sigmabar0", "Sigmabar-", "Xibar+",
+          "Xibar0", "Omegabar+", "Lambda_cbarminus"
+        };
+
+    const video::SColor colorlist[52] =
+    {
+        video::SColor ( 0,0,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,0,255 ), video::SColor ( 0,55,55,55 ),
+        video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,255,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),
+        video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,111,111,111 ), video::SColor ( 0,77,77,77 ), video::SColor ( 0,255,255,255 ),
+        video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ),
+        video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,0,0,255 ), video::SColor ( 0,55,55,55 ),
+        video::SColor ( 0,255,255,0 ), video::SColor ( 0,55,55,55 ), video::SColor ( 0,255,0,0 ),video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ),
+        video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 ),
+        video::SColor ( 0,255,255,255 ), video::SColor ( 0,255,0,0 ), video::SColor ( 0,255,0,0 )
+    };
+
+
+    //Get the list of different types of "tracks"
+    QDomNodeList ETMis=dom.elementsByTagName("ETMis");
+    QDomNodeList STr=dom.elementsByTagName("STr");
+
+    //Load the cool tracks!
+    for (int i=0;i<STr.length();i++)
+    {
+        QDomElement node=STr.at(i).toElement();
+        str_code = getDataInt ( node.elementsByTagName("code").at(0) );
+        str_eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
+        str_id = getDataInt ( node.elementsByTagName("id").at(0) );
+        str_phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
+        str_phiVertex = getDataFloat ( node.elementsByTagName("phiVertex").at(0) );
+        str_pt = getDataFloat ( node.elementsByTagName("pt").at(0) );
+        str_rhoVertex = getDataFloat ( node.elementsByTagName("rhoVertex").at(0) );
+        str_zVertex = getDataFloat ( node.elementsByTagName("zVertex").at(0) );
     }
 
-  // read the jet data and store it on the jet_ vectors
-  for(int i=0;i<Jet.length();i++)
+    // read and write the ETMis data
+    for (int i=0;i<ETMis.length();i++)
     {
-      QDomElement node=Jet.at(i).toElement();
-      jet_eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
-      jet_phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
-      jet_et = getDataFloat ( node.elementsByTagName("et").at(0) );
+        QDomElement node=ETMis.at(i).toElement();
+
+        v = getDataFloat ( node.elementsByTagName("et").at(0) );
+        e.et = v[0];
+        v = getDataFloat ( node.elementsByTagName("etx").at(0) );
+        e.etx = v[0];
+        v = getDataFloat ( node.elementsByTagName("ety").at(0) );
+        e.ety = v[0];
     }
 
-  // read and write the ETMis data  
-  for(int i=0;i<ETMis.length();i++)
+    /// Write the XML data to the tracks
+
+    //Missing Energy
+    e.Type = e.eMissingEt;
+    e.name = "MissEt";
+    tracks.push_back ( e );
+
+    // Tracks section
+    int j = 0;
+    for ( i = 0; i < str_code.size(); i++ )
     {
-      QDomElement node=ETMis.at(i).toElement();
-      
-      v = getDataFloat ( node.elementsByTagName("et").at(0) );
-      e.et = v[0];
-      v = getDataFloat ( node.elementsByTagName("etx").at(0) );
-      e.etx = v[0];
-      v = getDataFloat ( node.elementsByTagName("ety").at(0) );
-      e.ety = v[0];
-    }
-  
-  /// Write the XML data to the tracks
-  
-  //Missing Energy
-  e.Type = e.eMissingEt;
-  e.name = "MissEt";
-  tracks.push_back ( e );
-  
-  // Tracks section
-  int j = 0;
-  for ( i = 0; i < str_code.size(); i++ )
-    {
-      
-      t.name = "unknown";
-      for ( j = 0; j < 52; j++ )
+
+        t.name = "unknown";
+        for ( j = 0; j < 52; j++ )
         {
-	  if ( codelist[j] == str_code[i] )
+            if ( codelist[j] == str_code[i] )
             {
-	      t.q = chargelist[j];
-	      t.name = namelist[j];
-	      t.trackColor = colorlist[j];
+                t.q = chargelist[j];
+                t.name = namelist[j];
+                t.trackColor = colorlist[j];
             }
         }
-      
-      //if ( t.name == "unknown" ) cout<<"Unkown particle code: "<<str_code[i]<<endl;
-      /*if ( t.name == "bananas" )
-        {
-	device->drop();
-	cout<<"Banana"<<endl;
-	cout<<"Split"<<endl;
-        }*/
-      
-      if ( i<str_code.size() ) t.code = str_code[i];
-      if ( i<str_eta.size() ) t.eta = str_eta[i];
-      if ( i<str_id.size() ) t.trackID = str_id[i];
-      if ( i<str_phi.size() ) t.phi = str_phi[i];
-      if ( i<str_phiVertex.size() ) t.phiVertex = str_phiVertex[i];
-      if ( i<str_pt.size() ) t.pt = str_pt[i];
-      if ( i<str_rhoVertex.size() ) t.rhoVertex = str_rhoVertex[i];
-      if ( i<str_zVertex.size() ) t.zVertex = str_zVertex[i];
-      t.Type = t.eSTrack;
-      tracks.push_back ( t );
+
+
+        if ( i<str_code.size() ) t.code = str_code[i];
+        if ( i<str_eta.size() ) t.eta = str_eta[i];
+        if ( i<str_id.size() ) t.trackID = str_id[i];
+        if ( i<str_phi.size() ) t.phi = str_phi[i];
+        if ( i<str_phiVertex.size() ) t.phiVertex = str_phiVertex[i];
+        if ( i<str_pt.size() ) t.pt = str_pt[i];
+        if ( i<str_rhoVertex.size() ) t.rhoVertex = str_rhoVertex[i];
+        if ( i<str_zVertex.size() ) t.zVertex = str_zVertex[i];
+        t.Type = t.eSTrack;
+        tracks.push_back ( t );
     }
-  
-  
-  // Jets section
-  j = 0;
-  for ( i = 0; i < jet_eta.size(); i++ )
-    {
-      t.name = "jet";
-      if ( i<jet_eta.size() ) t.eta = jet_eta[i];
-      if ( i<jet_phi.size() ) t.phi = jet_phi[i];
-      if ( i<jet_et.size() ) t.et = jet_et[i];
-      t.Type = t.eJet;
-      tracks.push_back ( t );
-    }
-  
-  return tracks;
+
+    return tracks;
 }
 
 std::vector <shower> XmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo )
@@ -322,17 +345,17 @@ std::vector <shower> XmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo 
     QDomNodeList Calo=dom.elementsByTagName(calo);
 
     //Load the calometers
-    for(int i=0;i<Calo.length();i++)
-      {
-	QDomElement node=Calo.at(i).toElement();
-	energy = getDataFloat ( node.elementsByTagName("energy").at(0) );
-	eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
-	id = getDataInt ( node.elementsByTagName("id").at(0) );
-	layer = getDataInt ( node.elementsByTagName("layer").at(0) );
-	phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
-	sub = getDataInt ( node.elementsByTagName("sub").at(0) );
-      }
-    
+    for (int i=0;i<Calo.length();i++)
+    {
+        QDomElement node=Calo.at(i).toElement();
+        energy = getDataFloat ( node.elementsByTagName("energy").at(0) );
+        eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
+        id = getDataInt ( node.elementsByTagName("id").at(0) );
+        layer = getDataInt ( node.elementsByTagName("layer").at(0) );
+        phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
+        sub = getDataInt ( node.elementsByTagName("sub").at(0) );
+    }
+
     for ( i = 0; i < energy.size(); i++ )
     {
         s.energy = energy[i];
@@ -367,19 +390,19 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
     QDomNodeList FCAL=dom.elementsByTagName("FCAL");
 
-    for(int i=0;i<FCAL.length();i++)
-      {
-	QDomElement node=FCAL.at(i).toElement();
-	dx = getDataFloat ( node.elementsByTagName("dx").at(0) );
-	dy = getDataFloat ( node.elementsByTagName("dy").at(0) );
-	energy = getDataFloat ( node.elementsByTagName("energy").at(0) );
-	id = getDataInt ( node.elementsByTagName("id").at(0) );
-	layer = getDataInt ( node.elementsByTagName("layer").at(0) );
-	sub = getDataInt ( node.elementsByTagName("sub").at(0) );
-	x = getDataFloat ( node.elementsByTagName("x").at(0) );
-	y = getDataFloat ( node.elementsByTagName("y").at(0) );
-      }
-    
+    for (int i=0;i<FCAL.length();i++)
+    {
+        QDomElement node=FCAL.at(i).toElement();
+        dx = getDataFloat ( node.elementsByTagName("dx").at(0) );
+        dy = getDataFloat ( node.elementsByTagName("dy").at(0) );
+        energy = getDataFloat ( node.elementsByTagName("energy").at(0) );
+        id = getDataInt ( node.elementsByTagName("id").at(0) );
+        layer = getDataInt ( node.elementsByTagName("layer").at(0) );
+        sub = getDataInt ( node.elementsByTagName("sub").at(0) );
+        x = getDataFloat ( node.elementsByTagName("x").at(0) );
+        y = getDataFloat ( node.elementsByTagName("y").at(0) );
+    }
+
     for ( i = 0; i < energy.size(); i++ )
     {
         if ( i<dx.size() ) s.dx = dx[i];
@@ -398,68 +421,70 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
 Aevent XmlEvent::GetEventFromFile ( const char* filename )
 {
-  Aevent e;
-  
-  QDomDocument doc("metainfo");
-  QFile fh(filename);
-  if (!fh.open(QIODevice::ReadOnly))
-    return e;
-  if (!doc.setContent(&fh)) {
-    fh.close();
-    return e;
-  }
-  fh.close();
-  
-  e.tracks = GetTracksFromDOM ( doc );
-  e.LArshowers = GetShowersFromDOM ( doc, "LAr" );
-  e.HECshowers = GetShowersFromDOM ( doc, "HEC" );
-  e.TILEshowers = GetShowersFromDOM ( doc, "TILE" );
-  e.FCALshowers = GetFCALShowersFromDOM ( doc );
-  e.numTracks = 0;
-  e.numChargedHadrons = 0;
-  e.numPhotons = 0;
-  e.numNeutralHadrons = 0;
-  e.numNeutrinos = 0;
-  e.numMuons = 0;
-  e.numElectrons = 0;
-  e.numShowers = e.LArshowers.size() + e.FCALshowers.size() + e.HECshowers.size() + e.TILEshowers.size();
-  for ( vector<track>::iterator go = e.tracks.begin(); go!=e.tracks.end(); go++ )
+    Aevent e;
+
+    QDomDocument doc("metainfo");
+    QFile fh(filename);
+    if (!fh.open(QIODevice::ReadOnly))
+        return e;
+    if (!doc.setContent(&fh))
     {
-      go->node=0;
-      if ( go->Type == go->eSTrack )
+        fh.close();
+        return e;
+    }
+    fh.close();
+
+    e.tracks = GetTracksFromDOM ( doc );
+    e.jets = GetJetsFromDOM (doc);
+    e.LArshowers = GetShowersFromDOM ( doc, "LAr" );
+    e.HECshowers = GetShowersFromDOM ( doc, "HEC" );
+    e.TILEshowers = GetShowersFromDOM ( doc, "TILE" );
+    e.FCALshowers = GetFCALShowersFromDOM ( doc );
+    e.numTracks = 0;
+    e.numChargedHadrons = 0;
+    e.numPhotons = 0;
+    e.numNeutralHadrons = 0;
+    e.numNeutrinos = 0;
+    e.numMuons = 0;
+    e.numElectrons = 0;
+    e.numShowers = e.LArshowers.size() + e.FCALshowers.size() + e.HECshowers.size() + e.TILEshowers.size();
+    for ( vector<track>::iterator go = e.tracks.begin(); go!=e.tracks.end(); go++ )
+    {
+        go->node=0;
+        if ( go->Type == go->eSTrack )
         {
-	  e.numTracks++;
-	  if ( go->name == "gamma" ) e.numPhotons++;
-	  else if ( go->name == "nu_e" || go->name == "nu_mu" || go->name == "nu_tau" || go->name == "nu_ebar" || go->name == "nu_mubar" || go->name == "nu_taubar" ) e.numNeutrinos++;
-	  else if ( go->name == "mu-" || go->name == "mu+" ) e.numMuons++;
-	  else if ( go->name == "e-" || go->name == "e+" ) e.numElectrons++;
-	  else
+            e.numTracks++;
+            if ( go->name == "gamma" ) e.numPhotons++;
+            else if ( go->name == "nu_e" || go->name == "nu_mu" || go->name == "nu_tau" || go->name == "nu_ebar" || go->name == "nu_mubar" || go->name == "nu_taubar" ) e.numNeutrinos++;
+            else if ( go->name == "mu-" || go->name == "mu+" ) e.numMuons++;
+            else if ( go->name == "e-" || go->name == "e+" ) e.numElectrons++;
+            else
             {
-	      if ( go->q == 0 ) e.numNeutralHadrons++;
-	      else e.numChargedHadrons++;
+                if ( go->q == 0 ) e.numNeutralHadrons++;
+                else e.numChargedHadrons++;
             }
         }
     }
 
-  bool inCaloETMis = false;
-  bool inETMis = false;
-  vector<float> v;
+    bool inCaloETMis = false;
+    bool inETMis = false;
+    vector<float> v;
 
-  QDomNodeList CaloETMis=doc.elementsByTagName("CaloETMis");
-  
-  for(int i=0;i<CaloETMis.length();i++)
+    QDomNodeList CaloETMis=doc.elementsByTagName("CaloETMis");
+
+    for (int i=0;i<CaloETMis.length();i++)
     {
-      QDomElement node=CaloETMis.at(i).toElement();
-      
-      v = getDataFloat ( node.elementsByTagName("et").at(0) );
-      e.CaloETMis = v[0];
-      v = getDataFloat ( node.elementsByTagName("etx").at(0) );
-      e.CaloETMis = v[0];
-      v = getDataFloat ( node.elementsByTagName("ety").at(0) );
-      e.CaloETMis = v[0];
+        QDomElement node=CaloETMis.at(i).toElement();
+
+        v = getDataFloat ( node.elementsByTagName("et").at(0) );
+        e.CaloETMis = v[0];
+        v = getDataFloat ( node.elementsByTagName("etx").at(0) );
+        e.CaloETMis = v[0];
+        v = getDataFloat ( node.elementsByTagName("ety").at(0) );
+        e.CaloETMis = v[0];
     }
-  
-  return e;
+
+    return e;
 
 }
 
@@ -480,8 +505,8 @@ void XmlEvent::HideAllTracks()
 
 void XmlEvent::PtCutoff ( int PtCutInt )
 {
-  ptcut=PtCutInt;
-  float PtCut=((float)PtCutInt)/1000;
+    ptcut=PtCutInt;
+    float PtCut=((float)PtCutInt)/1000;
     vector<track> NewEventTracks;
     Event.numTracks = 0;
     Event.numChargedHadrons = 0;
@@ -495,7 +520,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     for ( vector<track>::iterator go = EventComplete.tracks.begin(); go!=EventComplete.tracks.end(); go++ )
     {
         if ( go->Type == go->eJet )
-	  if(go->node) go->node->setTrackStyle ( 9 );
+            if (go->node) go->node->setTrackStyle ( 9 );
 
         if ( go->Type != go->eSTrack )
         {
@@ -506,14 +531,14 @@ void XmlEvent::PtCutoff ( int PtCutInt )
             if ( go->pt >= PtCut )
             {
                 NewEventTracks.push_back ( *go );
-		
-		if(go->node) go->node->setTrackStyle ( go->node->style );
+
+                if (go->node) go->node->setTrackStyle ( go->node->style );
 
                 //Set visibility according to the checkbox states
 
                 if ( go->Type == go->eSTrack )
                 {
-		  if(go->node) go->node->setVisible ( false );
+                    if (go->node) go->node->setVisible ( false );
                     for ( j = 0; j < P_checkbox_states.size(); j++ )
                     {
                         if ( P_checkbox_states[j] )
@@ -526,7 +551,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numElectrons++;
-                                    if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
 
@@ -535,7 +560,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numMuons++;
-				    				if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
 
@@ -544,7 +569,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numPhotons++;
-				   					if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
 
@@ -553,7 +578,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numNeutrinos++;
-				    				if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
                             case 4: //neutral hadrons
@@ -563,7 +588,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numNeutralHadrons++;
-				    				if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
                             case 5: //charged hadrons
@@ -574,7 +599,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
                                 {
                                     Event.numTracks++;
                                     Event.numChargedHadrons++;
-				    				if(go->node) go->node->setVisible ( true );
+                                    if (go->node) go->node->setVisible ( true );
                                 }
                                 break;
 
@@ -589,17 +614,22 @@ void XmlEvent::PtCutoff ( int PtCutInt )
             }
             else
             {
-	      if(go->node) 
-		{
-		  go->node->setTrackStyle ( 0 );
-		  go->node->setVisible ( false );
-		}
+                if (go->node)
+                {
+                    go->node->setTrackStyle ( 0 );
+                    go->node->setVisible ( false );
+                }
             }
         }
     }
     Event.tracks =  NewEventTracks;
     //Event = NewEvent;
     emit eventChanged();
+}
+
+void XmlEvent::setCurrentJetModel(QString jetType)
+{
+    qDebug() << "setCurrentJetModel: " << jetType;
 }
 
 
@@ -728,132 +758,132 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
 
 void XmlEvent::UnloadEvent()
 {
-  ISceneManager *smgr=Base->GetSceneManager();
-  for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter!=EventComplete.tracks.end(); iter++ )
-    if(iter->node)
-      iter->node->remove();
-  EventComplete.tracks.clear();
+    ISceneManager *smgr=Base->GetSceneManager();
+    for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter!=EventComplete.tracks.end(); iter++ )
+        if (iter->node)
+            iter->node->remove();
+    EventComplete.tracks.clear();
 }
 
 void XmlEvent::LoadEvent ( const c8* file )
 {
-  //if ( Base->GetTourBuilder() ) Base->GetTourBuilder()->markLoadEvent ( cstr_to_wstr ( ( char* ) file, strlen ( file ) ) );
-  core::stringc filename ( file );
-  core::stringc extension;
-  core::getFileNameExtension ( extension, filename );
-  extension.make_lower();
-  
-  if ( extension == ".xml" )
+    //if ( Base->GetTourBuilder() ) Base->GetTourBuilder()->markLoadEvent ( cstr_to_wstr ( ( char* ) file, strlen ( file ) ) );
+    core::stringc filename ( file );
+    core::stringc extension;
+    core::getFileNameExtension ( extension, filename );
+    extension.make_lower();
+
+    if ( extension == ".xml" )
     {
-      EventComplete = GetEventFromFile ( file );
-      PtCutoff(ptcut);
+        EventComplete = GetEventFromFile ( file );
+        PtCutoff(ptcut);
     }
 }
 
 void XmlEvent::DisplayEvent(AGeometry* device)
 {
-  int jetIdCounter = 0;
-      
-  for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter != EventComplete.tracks.end(); iter++ )
+    int jetIdCounter = 0;
+
+    for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter != EventComplete.tracks.end(); iter++ )
     {
-      iter->node=0;
-      
-      if ( iter->Type == 1 )
-	{
-	  HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-	  iter->node = HelixNode;
-	  iter->node->charge = iter->q;
-	  iter->node->eta = iter->eta;
-	  iter->node->phi = iter->phi;
-	  iter->node->pt = iter->pt;
-	  iter->et = iter->pt;
-	  iter->node->v_phi = iter->phiVertex;
-	  iter->node->v_rho = iter->rhoVertex;
-	  iter->node->v_z = iter->zVertex;
-	  iter->node->vividColor = iter->trackColor;
-	  iter->node->calculateDimmedColors();
-	  iter->node->setTrack ( &*iter );
-	  iter->node->type = 1; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-	  iter->style = 1;
-	  iter->node->style = 1;
-	  
-	  
-	  if ( iter->q == 0 )
-	    {
-	      std::vector<core::vector3df> StartEndNeutral = HelixNode->getNeutralPath();
-	      iter->start = StartEndNeutral.front();
-	      iter->end = StartEndNeutral.back();
-	      iter->node->start = iter->start;
-	      iter->node->end = iter->end;
-	      iter->node->curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
-	      //iter->node->createBoxesNeutral();
-	      
-	    }
-	  else
-	    {
-	      iter->maxAngle = HelixNode->getChargedMaxAngle();
-	      iter->node->maxAngle = iter->maxAngle;
-	      iter->node->createCurveVector();
-	      //iter->node->createBoxesCharged();
-	      
-	    }
-	  
-	  if ( ( iter->name == "mu-" || iter->name == "mu+" || iter->name == "e+" || iter->name == "e-" ) && iter->pt >= 2 )
-	    {
-	      iter->style = 1;
-	    }
-	  else
-	    {
-	      iter->style = 1;
-	    }
-	  
-	  iter->node->boxMode = false;
-	  iter->node->style = iter->style;
-	  iter->node->setTrackStyle ( iter->style );
-	}
-      else if ( iter->Type == 2 ) // jets
-	{
-	  HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-	  iter->node = HelixNode;
-	  iter->node->eta = iter->eta;
-	  iter->node->phi = iter->phi;
-	  iter->node->isLineVisible = false;
-	  iter->style = 7;
-	  iter->selectionID == --jetIdCounter;
-	  
-	  iter->node->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-	  iter->node->setTrack ( &*iter );
-	  iter->node->createJetPyramids();
-	}
-      else if ( iter->Type == 4 ) //Missing Et
-	{
-	  HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-	  iter->node = HelixNode;
-	  iter->node->eta = iter->eta = 0;
-	  iter->node->phi = iter->phi = 0;
-	  iter->node->pt = iter->pt = iter->et;
-	  iter->node->etx = iter->etx;
-	  iter->node->ety = iter->ety;
-	  iter->node->isLineVisible = false;
-	  iter->style = 11;
-	  
-	  iter->node->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-	  iter->node->setTrack ( &*iter );
-	  iter->node->createMisEtBoxes();
-	}
-      else
-	{
-	  qDebug() << "Unknown " << iter->Type;
-	}
-      
-      iter->tL = iter->node->tL;
-      iter->Mlv = iter->node->Mlv;
-      
-      
-      
-      
-      iter->selectionID = 0;
-      iter->isInList = false;
+        iter->node=0;
+
+        if ( iter->Type == 1 )
+        {
+            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            iter->node = HelixNode;
+            iter->node->charge = iter->q;
+            iter->node->eta = iter->eta;
+            iter->node->phi = iter->phi;
+            iter->node->pt = iter->pt;
+            iter->et = iter->pt;
+            iter->node->v_phi = iter->phiVertex;
+            iter->node->v_rho = iter->rhoVertex;
+            iter->node->v_z = iter->zVertex;
+            iter->node->vividColor = iter->trackColor;
+            iter->node->calculateDimmedColors();
+            iter->node->setTrack ( &*iter );
+            iter->node->type = 1; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+            iter->style = 1;
+            iter->node->style = 1;
+
+
+            if ( iter->q == 0 )
+            {
+                std::vector<core::vector3df> StartEndNeutral = HelixNode->getNeutralPath();
+                iter->start = StartEndNeutral.front();
+                iter->end = StartEndNeutral.back();
+                iter->node->start = iter->start;
+                iter->node->end = iter->end;
+                iter->node->curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
+                //iter->node->createBoxesNeutral();
+
+            }
+            else
+            {
+                iter->maxAngle = HelixNode->getChargedMaxAngle();
+                iter->node->maxAngle = iter->maxAngle;
+                iter->node->createCurveVector();
+                //iter->node->createBoxesCharged();
+
+            }
+
+            if ( ( iter->name == "mu-" || iter->name == "mu+" || iter->name == "e+" || iter->name == "e-" ) && iter->pt >= 2 )
+            {
+                iter->style = 1;
+            }
+            else
+            {
+                iter->style = 1;
+            }
+
+            iter->node->boxMode = false;
+            iter->node->style = iter->style;
+            iter->node->setTrackStyle ( iter->style );
+        }
+        else if ( iter->Type == 2 ) // jets
+        {
+            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            iter->node = HelixNode;
+            iter->node->eta = iter->eta;
+            iter->node->phi = iter->phi;
+            iter->node->isLineVisible = false;
+            iter->style = 7;
+            iter->selectionID == --jetIdCounter;
+
+            iter->node->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+            iter->node->setTrack ( &*iter );
+            iter->node->createJetPyramids();
+        }
+        else if ( iter->Type == 4 ) //Missing Et
+        {
+            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            iter->node = HelixNode;
+            iter->node->eta = iter->eta = 0;
+            iter->node->phi = iter->phi = 0;
+            iter->node->pt = iter->pt = iter->et;
+            iter->node->etx = iter->etx;
+            iter->node->ety = iter->ety;
+            iter->node->isLineVisible = false;
+            iter->style = 11;
+
+            iter->node->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+            iter->node->setTrack ( &*iter );
+            iter->node->createMisEtBoxes();
+        }
+        else
+        {
+            qDebug() << "Unknown " << iter->Type;
+        }
+
+        iter->tL = iter->node->tL;
+        iter->Mlv = iter->node->Mlv;
+
+
+
+
+        iter->selectionID = 0;
+        iter->isInList = false;
 
     }
 }

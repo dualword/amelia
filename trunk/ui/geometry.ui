@@ -1319,10 +1319,9 @@ color: rgb(255, 255, 0);
         </property>
        </widget>
        <widget class="QPushButton" name="deleteTracks" >
-       	        <property name="enabled" >
-		         <bool>false</bool>
-			         </property>
-
+        <property name="enabled" >
+         <bool>false</bool>
+        </property>
         <property name="geometry" >
          <rect>
           <x>124</x>
@@ -1997,6 +1996,7 @@ color: rgb(255, 255, 0);
     <slot>loadNextEvent()</slot>
     <slot>loadEvent()</slot>
     <slot>about()</slot>
+    <slot>selectJetModel(QString)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2121,7 +2121,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>126</x>
+     <x>120</x>
      <y>564</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2137,7 +2137,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>126</x>
+     <x>120</x>
      <y>583</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2153,7 +2153,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>257</x>
+     <x>251</x>
      <y>583</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2169,7 +2169,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>247</x>
+     <x>241</x>
      <y>564</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2185,7 +2185,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>336</x>
+     <x>330</x>
      <y>564</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2201,7 +2201,7 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>336</x>
+     <x>330</x>
      <y>583</y>
     </hint>
     <hint type="destinationlabel" >
@@ -2217,8 +2217,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>437</x>
-     <y>583</y>
+     <x>441</x>
+     <y>564</y>
     </hint>
     <hint type="destinationlabel" >
      <x>511</x>
@@ -2329,8 +2329,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityLAr()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>979</x>
-     <y>291</y>
+     <x>922</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel" >
      <x>563</x>
@@ -2361,8 +2361,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityTRT()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>960</x>
-     <y>359</y>
+     <x>922</x>
+     <y>369</y>
     </hint>
     <hint type="destinationlabel" >
      <x>546</x>
@@ -2393,8 +2393,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityTile()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>979</x>
-     <y>245</y>
+     <x>921</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel" >
      <x>499</x>
@@ -2409,8 +2409,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilitySCT()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>960</x>
-     <y>405</y>
+     <x>922</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel" >
      <x>609</x>
@@ -2473,12 +2473,28 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityPixels()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>891</x>
-     <y>426</y>
+     <x>922</x>
+     <y>435</y>
     </hint>
     <hint type="destinationlabel" >
      <x>384</x>
      <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>JetComboBox</sender>
+   <signal>currentIndexChanged(QString)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>selectJetModel(QString)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>360</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>396</y>
     </hint>
    </hints>
   </connection>

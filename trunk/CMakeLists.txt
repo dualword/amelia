@@ -106,10 +106,7 @@ ADD_EXECUTABLE(Amelia ${amelia_SRCS})
 TARGET_LINK_LIBRARIES(Amelia
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES}   
-  Irrlicht  
-  GL
-  Xxf86vm
-  GLU
+  Irrlicht    
   )
   
 

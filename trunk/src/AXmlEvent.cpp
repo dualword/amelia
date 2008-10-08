@@ -152,45 +152,62 @@ std::vector <jet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
     vector<float> numCells;
 
 
-    QDomNodeList Jets=dom.elementsByTagName("Jet");
+    QDomNodeList JetNodes=dom.elementsByTagName("Jet");
 
     //Load the Jets
-    for (int i=0;i<Jets.length();i++)
+    for (int i=0;i<JetNodes.length();i++)
     {
-        QDomElement node=Jets.at(i).toElement();
+        QDomElement node=JetNodes.at(i).toElement();
 
+        // storeGateKey is the attribute that distinguishes different reconstruction models apart
         QDomAttr attr = node.attributeNode( "storeGateKey" );
 
         et = getDataFloat ( node.elementsByTagName("et").at(0) );
         eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
         phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
         numCells = getDataFloat ( node.elementsByTagName("numCells").at(0) );
-        qDebug() << "storeGateKey: " << attr.value();
+        qDebug() << "" ;
+
+
+        // Now we should load every node individually, and assign the proper type to them
+        for ( int s = 0; s < et.size(); s++ )
+        {
+            j.et = et[s];
+            if ( s<eta.size() ) j.eta = eta[s];
+            if ( s<phi.size() ) j.phi = phi[s];
+            if ( s<numCells.size() ) j.numCells = numCells[s];
+
+            if (attr.value() == QString("Kt4H1TopoJets"))
+            {
+                j.type = jet::jKt4H1TopoJets;
+                qDebug() << "New Kt4H1TopoJet added ";
+            }
+            if (attr.value() == QString("Cone4H1TopoJets"))
+            {
+                j.type = jet::jCone4H1TopoJets;
+                qDebug() << "New Cone4H1TopoJet added ";
+            }
+            if (attr.value() == QString("Kt4H1TowerJets"))
+            {
+                j.type = jet::jKt4H1TowerJets;
+                qDebug() << "New Kt4H1TowerJet added ";
+            }
+            if (attr.value() == QString("Cone4H1TowerJets"))
+            {
+                j.type = jet::jCone4H1TowerJets;
+                qDebug() << "New Cone4H1TowerJet added ";
+            }
+            jets.push_back ( j );
+        }
+
+        qDebug() << "Added "<< eta.size() << " new jets of type " << attr.value();
+        qDebug() << "Total # Jets so far: " << jets.size();
+        qDebug() << "" ;
+
 
     }
 
-    qDebug() << "" ;
-    qDebug() << "" ;
-    qDebug() << "" ;
-    qDebug() << "######################################" ;
-    qDebug() << "######################################" ;
-    qDebug() << "######################################" ;
-    qDebug() << "######################################" ;
-    qDebug() << "" ;
-    qDebug() << "" ;
-    qDebug() << "" ;
-    qDebug() << "# Jets: " << jets.size();
-
-    for ( i = 0; i < et.size(); i++ )
-    {
-        j.et = et[i];
-        if ( i<eta.size() ) j.eta = eta[i];
-        if ( i<phi.size() ) j.phi = phi[i];
-        if ( i<numCells.size() ) j.numCells = numCells[i];
-        jets.push_back ( j );
-        qDebug() << "JET!!! " ;
-    }
-
+    qDebug() << "Number of Jet Nodes: " << JetNodes.length();
 
     return jets;
 

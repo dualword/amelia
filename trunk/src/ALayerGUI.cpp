@@ -160,13 +160,13 @@ void ALayerGUI::setupElements()
         trackInfoView->ensureVisible(0,0,450,300,10,10);
 
         //Signals...
-        connect(geo,SIGNAL(trackSelected(track*)), //track selection
-                trackInfo,SLOT(updateTrackInfo(track*)));
-        connect(geo,SIGNAL(trackDeselected(track*)), //track selection
-                trackInfo,SLOT(removeTrackInfo(track*)));
+        connect(geo,SIGNAL(trackSelected(ATrack*)), //track selection
+                trackInfo,SLOT(updateTrackInfo(ATrack*)));
+        connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
+                trackInfo,SLOT(removeTrackInfo(ATrack*)));
 
-        connect(trackInfo,SIGNAL(sig_addTrackToTable(track*)), //add to table button, add to table
-                tracksModel,SLOT(addTrack(track*)));
+        connect(trackInfo,SIGNAL(sig_addTrackToTable(ATrack*)), //add to table button, add to table
+                tracksModel,SLOT(addTrack(ATrack*)));
 
         connect(trackInfo,SIGNAL(sig_addComboToTable(ATrackCombination*)), //add to table button, add to table
                 comboModel,SLOT(addCombination(ATrackCombination*)));

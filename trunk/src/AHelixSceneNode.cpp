@@ -108,20 +108,20 @@ int HelixSceneNode::getTrackNumber()
     return this->trackNumber;
 }
 
-void HelixSceneNode::setTrack ( track* track )
+void HelixSceneNode::setTrack ( ATrack* track )
 {
     this->trackPointer = track;
 }
 
-track* HelixSceneNode::getTrack()
+ATrack* HelixSceneNode::getTrack()
 {
     return this->trackPointer;
 }
 
 
-track* HelixSceneNode::getTrackById ( int id )
+ATrack* HelixSceneNode::getTrackById ( int id )
 {
-    for ( vector<track>::iterator iter = Base->XmlEvt->Event.tracks.begin(); iter < Base->XmlEvt->Event.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.tracks.begin(); iter < Base->XmlEvt->Event.tracks.end(); iter++ )
     {
         if ( iter->trackID == trackID )
         {
@@ -838,7 +838,7 @@ video::SMaterial& HelixSceneNode::getMaterial ( s32 i )
 
 void HelixSceneNode::select()
 {
-    track *selectedTrack = getTrack();
+    ATrack *selectedTrack = getTrack();
 
     switch ( selectedTrack->Type )
     {

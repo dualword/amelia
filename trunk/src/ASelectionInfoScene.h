@@ -53,24 +53,24 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 class ASelectionInfoScene : public QGraphicsScene
 {
   Q_OBJECT
-    
+
 public:
     ASelectionInfoScene(QObject* parent=0);
     ~ASelectionInfoScene();
 
 public slots:
-    void updateTrackInfo ( track* strack );
-    void removeTrackInfo ( track* strack );
+    void updateTrackInfo ( ATrack* strack );
+    void removeTrackInfo ( ATrack* strack );
     void handleAddTrack();
     void handleCombTracks();
     void handleViewportChange(int from,int to);
 
     void displayMessage(QString message);
     void hideMessage();
-    bool particleFilter(track* strack);
+    bool particleFilter(ATrack* strack);
 
 signals:
-    void sig_addTrackToTable(track *strack);
+    void sig_addTrackToTable(ATrack *strack);
     void sig_addComboToTable(ATrackCombination *combo);
 
     void combineButtonEnabled(bool status);
@@ -79,7 +79,7 @@ signals:
 private:
     void init();
 
-    track* selectedTrack;
+    ATrack* selectedTrack;
     ATrackCombination *combo;
 
     QGraphicsTextItem *header;

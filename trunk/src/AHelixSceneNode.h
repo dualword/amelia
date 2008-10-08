@@ -73,7 +73,7 @@ class HelixSceneNode : public scene::ISceneNode
 		virtual ~HelixSceneNode();
 
 		AGeometry* Base;
-		struct track* trackPointer;
+		class ATrack* trackPointer;
 		int charge;
 		float eta;
 		float phi;
@@ -111,14 +111,14 @@ class HelixSceneNode : public scene::ISceneNode
 		std::vector<core::vector3df> curvePoints;
 		virtual void setBoxesVisibility ( bool boxVisibility );
 		int trackNumber;
-		struct track* getTrackById ( int id );
+		ATrack* getTrackById ( int id );
 		virtual int getTrackNumber();
 		virtual void setBoxesSelected ( bool boxesSelected );
 		virtual void setTrackStyle ( int style );
 		virtual void calculateDimmedColors();
 		int style;
-		virtual void setTrack ( track* track );
-		virtual track* getTrack();
+		virtual void setTrack ( ATrack* track );
+		virtual ATrack* getTrack();
 		int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
 
 		void createBoxes();

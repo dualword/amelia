@@ -26,11 +26,11 @@ public:
   void addTable(QAbstractItemView* table);
 
 public slots:
-  void addTrack(track* strack);
+  void addTrack(ATrack* strack);
   void deleteSelectedTracks();
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void combineSelectedTracks();
-  
+
   void clear();
 
  signals:
@@ -40,7 +40,7 @@ public slots:
   void tracksCombined(ATrackCombination* combo);
 
 private:
-  QList<track*> tracks;
+  QList<ATrack*> tracks;
 
   QItemSelectionModel *selection;
 };

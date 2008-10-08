@@ -16,7 +16,7 @@ ASelectionInfoScene::~ASelectionInfoScene()
 void ASelectionInfoScene::init()
 {
   QFont serifFont("Times", 10, QFont::Bold);
-  
+
   // Info text
   header=addText("SELECTED TRACK INFO",serifFont);
   header->setPos(0,0);
@@ -27,15 +27,15 @@ void ASelectionInfoScene::init()
   charge=addText("Charge:");
   charge->setPos(0,40);
   charge->setDefaultTextColor("white");
-  
+
   id=addText("ID");
   id->setPos(0,55);
   id->setDefaultTextColor("white");
-  
+
   nonSelectable=addText("Non Selectable");
   nonSelectable->setPos(230,25);
   nonSelectable->setDefaultTextColor("black");
-  
+
   pt=addText("Pt:");
   pt->setPos(130,25);
   pt->setDefaultTextColor("white");
@@ -45,27 +45,27 @@ void ASelectionInfoScene::init()
   phi=addText("Phi:");
   phi->setPos(130,55);
   phi->setDefaultTextColor("white");
-  
+
   // Buttons
   QPushButton *_addTrack=new QPushButton("Add to List");
   addTrack=addWidget(_addTrack);
   addTrack->setVisible(true);
   addTrack->setPos(220,20);
   connect(_addTrack,SIGNAL(clicked()),  this,SLOT(handleAddTrack()));
-  
+
   QPushButton *_combTrack=new QPushButton("Combine Tracks");
   combTrack=addWidget(_combTrack);
   combTrack->setVisible(true);
   combTrack->setPos(220,50);
   connect(_combTrack,SIGNAL(clicked()),  this,SLOT(handleCombTracks()));
-  
+
   // Main message
   serifFont.setPointSize(14);
   message=addText("",serifFont);
   message->setPos(20,10);
   message->setVisible(false);
-  
-  
+
+
   // Hide Everything by Default
   QList<QGraphicsItem*> _items=items();
   for (int i=0;i<_items.size();i++)
@@ -139,7 +139,7 @@ void ASelectionInfoScene::hideMessage()
     message->setVisible(false);
 }
 
-void ASelectionInfoScene::updateTrackInfo ( track* strack )
+void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
 {
     message->setVisible(false);
 
@@ -147,7 +147,7 @@ void ASelectionInfoScene::updateTrackInfo ( track* strack )
     refresh();
 }
 
-void ASelectionInfoScene::removeTrackInfo(track* strack)
+void ASelectionInfoScene::removeTrackInfo(ATrack* strack)
 {
     if (combo->deleteTrack(strack))
         refresh();
@@ -280,7 +280,7 @@ void ASelectionInfoScene::refresh()
     emit combineButtonEnabled(combTrack->isVisible());
 }
 
-bool ASelectionInfoScene::particleFilter(track* strack) // We don't want to allow every track to be added to the table
+bool ASelectionInfoScene::particleFilter(ATrack* strack) // We don't want to allow every track to be added to the table
 {
     if ((strack->Type == 2) || (strack->Type == 4) || (strack->name == "e-")  || (strack->name == "e+") || (strack->name == "mu-") || (strack->name == "mu+") || (strack->name == "gamma") || (strack->name == "e-"))
     {

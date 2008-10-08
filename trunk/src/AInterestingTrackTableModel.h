@@ -28,7 +28,7 @@ public:
   class AGeometry* geo;
 
 public slots:
-  void addTrack(track* strack);
+  void addTrack(ATrack* strack);
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void addToSelectedTracks();
   void getInterestingTracks();
@@ -39,10 +39,10 @@ public slots:
   void entrySelected(int trackID,bool shift);
   void entryDeselected(int trackID);
 
-  void tracksAdded(track* track);
+  void tracksAdded(ATrack* track);
 
 private:
-  QList<track*> tracks;
+  QList<ATrack*> tracks;
 
   QItemSelectionModel *selection;
 };

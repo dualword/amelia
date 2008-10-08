@@ -54,18 +54,18 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 class AEventInfoScene : public QGraphicsScene
 {
     Q_OBJECT
-      
+
 public:
     enum infoType {infoTrack=0, infoEvent=1};
     AEventInfoScene(QObject* parent=0);
     ~AEventInfoScene();
-    
+
     XmlEvent* event();
     void setEvent(XmlEvent* e);
 public slots:
     void updateEventInfo();
 
-    bool particleFilter(track* strack);
+    bool particleFilter(ATrack* strack);
 
 private:
     void init();

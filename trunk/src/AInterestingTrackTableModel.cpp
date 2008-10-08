@@ -7,7 +7,7 @@ unsigned int AInterestingTrackTableModel::selectionID=0;
 
 AInterestingTrackTableModel::AInterestingTrackTableModel(QWidget* parent):QAbstractTableModel(parent)
 {
-    tracks=QList<track*>();
+    tracks=QList<ATrack*>();
 
     //Use this for selecting tracks by clicking on the table
     selection=new QItemSelectionModel(this);//parent->selectionModel();
@@ -55,7 +55,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
             return QString::number(tracks.at(index.row())->pt);
 
         case 2:
-            if (tracks.at(index.row())->Type == track::eJet || tracks.at(index.row())->Type == track::eSTrack)
+            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
                 {
                     return QString::number(tracks.at(index.row())->eta);
                 }
@@ -65,7 +65,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
             }
 
         case 3:
-            if (tracks.at(index.row())->Type == track::eJet || tracks.at(index.row())->Type == track::eSTrack)
+            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
                 {
                     return QString::number(tracks.at(index.row())->phi);
                 }
@@ -75,7 +75,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
             }
 
         case 4:
-            if (tracks.at(index.row())->Type == track::eJet || tracks.at(index.row())->Type == track::eSTrack)
+            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
                 {
                     return QString::number(tracks.at(index.row())->trackID);
                 }
@@ -159,7 +159,7 @@ void AInterestingTrackTableModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void AInterestingTrackTableModel::addTrack(track* strack)
+void AInterestingTrackTableModel::addTrack(ATrack* strack)
 {
     if (tracks.indexOf(strack)<0) //Dupe Check
     {
@@ -239,7 +239,7 @@ void AInterestingTrackTableModel::getInterestingTracks()
     clear();
     Aevent ievent = geo->XmlEvt->EventComplete;
     int ptMinimum = 2;
-    for ( vector<track>::iterator go = ievent.tracks.begin(); go!=ievent.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = ievent.tracks.begin(); go!=ievent.tracks.end(); go++ )
     {
         if ( go->Type == go->eJet )
             addTrack(go->node->trackPointer);

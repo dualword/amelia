@@ -7,7 +7,7 @@ unsigned int ATrackTableModel::selectionID=0;
 
 ATrackTableModel::ATrackTableModel(QWidget* parent):QAbstractTableModel(parent)
 {
-    tracks=QList<track*>();
+    tracks=QList<ATrack*>();
 
     //Use this for selecting tracks by clicking on the table
 	selection=new QItemSelectionModel(this);//parent->selectionModel();
@@ -125,7 +125,7 @@ void ATrackTableModel::sort(int column, Qt::SortOrder order)
     emit layoutChanged();
 }
 
-void ATrackTableModel::addTrack(track* strack)
+void ATrackTableModel::addTrack(ATrack* strack)
 {
     if (strack->selectionID==0)
         strack->selectionID=(++ATrackTableModel::selectionID);

@@ -86,7 +86,7 @@ void AEventInfoScene::updateEventInfo()
     }
 }
 
-    bool AEventInfoScene::particleFilter(track* strack) // We don't want to allow every track to be added to the table
+    bool AEventInfoScene::particleFilter(ATrack* strack) // We don't want to allow every track to be added to the table
     {
         if ((strack->Type == 2) || (strack->Type == 4) || (strack->name == "e-")  || (strack->name == "e+") || (strack->name == "mu-") || (strack->name == "mu+") || (strack->name == "gamma") || (strack->name == "e-"))
         {

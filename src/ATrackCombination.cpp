@@ -11,13 +11,13 @@ ATrackCombination::ATrackCombination():netCharge(0)
 }
 ATrackCombination::~ATrackCombination() { }
 
-void ATrackCombination::addTrack(track* tr)
+void ATrackCombination::addTrack(ATrack* tr)
 {
     tracks.append(tr);
     recalculate();
 }
 
-bool ATrackCombination::deleteTrack(track* tr)
+bool ATrackCombination::deleteTrack(ATrack* tr)
 {
     int idx=tracks.indexOf(tr);
     if (idx>=0) //Found it
@@ -54,7 +54,7 @@ float ATrackCombination::getNetCharge()
     return netCharge;
 }
 
-track* ATrackCombination::operator[](unsigned int idx)
+ATrack* ATrackCombination::operator[](unsigned int idx)
 {
     return tracks[idx];
 }

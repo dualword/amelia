@@ -136,14 +136,14 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
     return v;
 }
 
-std::vector <jet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
+std::vector <AJet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
 {
     // Get all the jet data from the XML file. There are four main jet types of interest, expressed as attributes in the file
     // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
 
-    std::vector <jet> jets;
+    std::vector <AJet> jets;
     int i;
-    jet j;
+    AJet j;
 
     //elements of the Jets
     vector<float> eta;
@@ -179,22 +179,22 @@ std::vector <jet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
 
             if (attr.value() == QString("Kt4H1TopoJets"))
             {
-                j.type = jet::jKt4H1TopoJets;
+                j.type = AJet::jKt4H1TopoJets;
                 qDebug() << "New Kt4H1TopoJet added ";
             }
             if (attr.value() == QString("Cone4H1TopoJets"))
             {
-                j.type = jet::jCone4H1TopoJets;
+                j.type = AJet::jCone4H1TopoJets;
                 qDebug() << "New Cone4H1TopoJet added ";
             }
             if (attr.value() == QString("Kt4H1TowerJets"))
             {
-                j.type = jet::jKt4H1TowerJets;
+                j.type = AJet::jKt4H1TowerJets;
                 qDebug() << "New Kt4H1TowerJet added ";
             }
             if (attr.value() == QString("Cone4H1TowerJets"))
             {
-                j.type = jet::jCone4H1TowerJets;
+                j.type = AJet::jCone4H1TowerJets;
                 qDebug() << "New Cone4H1TowerJet added ";
             }
             jets.push_back ( j );
@@ -213,14 +213,14 @@ std::vector <jet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
 
 }
 
-std::vector <track> XmlEvent::GetTracksFromDOM ( QDomDocument dom )
+std::vector <ATrack> XmlEvent::GetTracksFromDOM ( QDomDocument dom )
 {
     // Aux variables and definitions
-    std::vector <track> tracks;
+    std::vector <ATrack> tracks;
     int i;
 
-    track t;
-    track e;
+    ATrack t;
+    ATrack e;
 
     //elements of the simulated tracks
     vector<int> str_code;
@@ -465,7 +465,7 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
     e.numMuons = 0;
     e.numElectrons = 0;
     e.numShowers = e.LArshowers.size() + e.FCALshowers.size() + e.HECshowers.size() + e.TILEshowers.size();
-    for ( vector<track>::iterator go = e.tracks.begin(); go!=e.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = e.tracks.begin(); go!=e.tracks.end(); go++ )
     {
         go->node=0;
         if ( go->Type == go->eSTrack )
@@ -507,7 +507,7 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
 
 void XmlEvent::HideAllTracks()
 {
-    for ( vector<track>::iterator go = Event.tracks.begin(); go!=Event.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = Event.tracks.begin(); go!=Event.tracks.end(); go++ )
         switch ( go->Type )
         {
         case 1:
@@ -524,7 +524,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
 {
     ptcut=PtCutInt;
     float PtCut=((float)PtCutInt)/1000;
-    vector<track> NewEventTracks;
+    vector<ATrack> NewEventTracks;
     Event.numTracks = 0;
     Event.numChargedHadrons = 0;
     Event.numPhotons = 0;
@@ -534,7 +534,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     Event.numElectrons = 0;
     Event.numShowers = EventComplete.FCALshowers.size() + EventComplete.HECshowers.size() + EventComplete.LArshowers.size() + EventComplete.TILEshowers.size();
     int j = 0;
-    for ( vector<track>::iterator go = EventComplete.tracks.begin(); go!=EventComplete.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = EventComplete.tracks.begin(); go!=EventComplete.tracks.end(); go++ )
     {
         if ( go->Type == go->eJet )
             if (go->node) go->node->setTrackStyle ( 9 );
@@ -664,7 +664,7 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
         ievent.numElectrons = 0;
         ievent.numShowers = ievent.FCALshowers.size() + ievent.HECshowers.size() + ievent.LArshowers.size() + ievent.TILEshowers.size();
 
-        vector<track>::iterator i;
+        vector<ATrack>::iterator i;
         int j = 0;
 
 
@@ -776,7 +776,7 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
 void XmlEvent::UnloadEvent()
 {
     ISceneManager *smgr=Base->GetSceneManager();
-    for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter!=EventComplete.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = EventComplete.tracks.begin(); iter!=EventComplete.tracks.end(); iter++ )
         if (iter->node)
             iter->node->remove();
     EventComplete.tracks.clear();
@@ -801,7 +801,7 @@ void XmlEvent::DisplayEvent(AGeometry* device)
 {
     int jetIdCounter = 0;
 
-    for ( vector<track>::iterator iter = EventComplete.tracks.begin(); iter != EventComplete.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = EventComplete.tracks.begin(); iter != EventComplete.tracks.end(); iter++ )
     {
         iter->node=0;
 

@@ -10,8 +10,8 @@ class ATrackCombination {
   ATrackCombination();
   ~ATrackCombination();
 
-  void addTrack(track*);
-  bool deleteTrack(track*);
+  void addTrack(ATrack*);
+  bool deleteTrack(ATrack*);
 
   int size();
   int getID();
@@ -24,18 +24,18 @@ class ATrackCombination {
 
   void fixIDs();
 
-  track* operator[](unsigned int idx);
+  ATrack* operator[](unsigned int idx);
  private:
   static unsigned int _IDS;
 
-  QList<track*> tracks;
+  QList<ATrack*> tracks;
   QString name;
   unsigned int id;
 
   float netCharge;
 
   //What exactly is this?
-  track* equivalentTrack; //a track created to add to the tracklist, pointing here
+  ATrack* equivalentTrack; //a track created to add to the tracklist, pointing here
 
   void recalculate();
 

@@ -158,8 +158,8 @@ public slots:
     void removeTarAnimator ();
     void renderViewport(int view);
 
-    struct track* selectTrackByID ( int ID ,bool multitrack=false);
-    struct track* deselectTrackByID ( int ID );
+    ATrack* selectTrackByID ( int ID ,bool multitrack=false);
+    ATrack* deselectTrackByID ( int ID );
 
     //Functions to grab and release control of the camera
     void grabControl();
@@ -171,8 +171,8 @@ signals:
     void viewportUpdated(int cam,QImage newshot);
 
     void finishedLoading ();
-    void trackSelected(track*);
-    void trackDeselected(track*);
+    void trackSelected(ATrack*);
+    void trackDeselected(ATrack*);
 
 protected:
 

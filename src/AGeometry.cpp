@@ -201,7 +201,7 @@ void AGeometry::load()
 
 
     cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(Device->getSceneManager());
-	
+
     //Create the dynamic camera and define some variables
     camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
     camera[0]->setInputReceiverEnabled ( false );
@@ -210,7 +210,7 @@ void AGeometry::load()
     camera[0]->setFarValue ( 22000.0f );
     camera[0]->setAspectRatio ( 0.8/0.6 );
     camera[0]->setID ( 0 );
-    
+
     core::vector3df Target = camera[0]->getTarget();
     camera[0]->updateAbsolutePosition();
     Target = camera[0]->getTarget();
@@ -251,7 +251,7 @@ void AGeometry::load()
     //Device->getSceneManager()->setActiveCamera(camera[AGeometry::FPS]);
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
-    
+
     emit finishedLoading();
 
 }
@@ -305,7 +305,7 @@ HelixSceneNode* AGeometry::trackSelection ( core::position2di pos )
         {
             //Base->Gui->statstext->setText(L"Checkpoint");
 
-            for ( vector<track>::iterator iter = XmlEvt->EventComplete.tracks.begin(); iter < XmlEvt->EventComplete.tracks.end(); iter++ )
+            for ( vector<ATrack>::iterator iter = XmlEvt->EventComplete.tracks.begin(); iter < XmlEvt->EventComplete.tracks.end(); iter++ )
             {
                 int control = 0;
                 if ( selectedSceneNode && iter->Type == 1 ) //tracks
@@ -362,14 +362,14 @@ void AGeometry::renderViewport(int view)
 	{
 	  rt = Device->getVideoDriver()->createRenderTargetTexture(core::dimension2d<s32>(256,256));
 	}
-      
+
       if (rt==0)
 	{
 	  emit viewportUpdated(view,QImage());
 	  return;
 	}
       }
-    
+
     //Render screenshot
     QImage image;
 
@@ -390,13 +390,13 @@ void AGeometry::renderViewport(int view)
     Device->getVideoDriver()->setRenderTarget(0);
     Device->getSceneManager()->drawAll();
     Device->getVideoDriver()->endScene();
-    
+
     uchar* tmpdata=(uchar*)rt->lock ();
-    
+
     dimension2d<s32> size=rt->getSize();
     image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
     rt->unlock();
-    
+
     emit viewportUpdated(view,image);
 
     //Device->getSceneManager()->drawAll();
@@ -2150,7 +2150,7 @@ void AGeometry::createAtlasGeometry()
 
 }
 
-struct track* AGeometry::selectTrackByID (int ID, bool multi)
+ATrack* AGeometry::selectTrackByID (int ID, bool multi)
 {
     if (!multi) //If we are not doing multiselection, the deselect anything selected
     {
@@ -2166,9 +2166,9 @@ struct track* AGeometry::selectTrackByID (int ID, bool multi)
     if ( XmlEvt->EventComplete.tracks.size() >2 )
     {
         //Loop through all the tracks...
-        for ( std::vector<track>::iterator go = XmlEvt->EventComplete.tracks.begin(); go!=XmlEvt->EventComplete.tracks.end(); go++ )
+        for ( std::vector<ATrack>::iterator go = XmlEvt->EventComplete.tracks.begin(); go!=XmlEvt->EventComplete.tracks.end(); go++ )
         {
-            track* selectedTrack = &*go;
+            ATrack* selectedTrack = &*go;
             if ( selectedTrack->trackID == ID ) //Found it
             {
                 selectedTrack->node->select();
@@ -2181,9 +2181,9 @@ struct track* AGeometry::selectTrackByID (int ID, bool multi)
     return NULL;
 }
 
-struct track* AGeometry::deselectTrackByID (int ID)
+ATrack* AGeometry::deselectTrackByID (int ID)
 {
-    track* tr;
+    ATrack* tr;
     for (int i=0;i<selectedTracks.size();i++)
     {
         tr=selectedTracks[i]->getTrack();

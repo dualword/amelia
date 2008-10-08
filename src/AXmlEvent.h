@@ -66,7 +66,7 @@ struct FCALshower
 };
 
 /// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-struct track
+class ATrack
 {
 
 public:
@@ -83,9 +83,15 @@ public:
 
     eType Type;
 
+
+    int trackID;
+    int style; //default track style, 0 1 2 3 or 4
+
+    int selectionID;
+    bool isInList;
+
     int code;
     float eta;
-    int trackID;
     float phi;
     float phiVertex;
     float pt;
@@ -107,16 +113,41 @@ public:
     shower HEC_shower;
     shower TILE_shower;
     FCALshower FCAL_shower;
-
     class HelixSceneNode* node;
-    int style; //default track style, 0 1 2 3 or 4
-
-    int selectionID;
-    bool isInList;
 };
 
-struct jet
+class AStrack : public ATrack //Objects of this class represent simulated tracks in the event (STr)
 {
+public:
+    int code;
+    float eta;
+    float phi;
+    float phiVertex;
+    float pt;
+    float rhoVertex;
+    float zVertex;
+    float tL;
+    float Mlv;
+    int q;
+    float et;
+    float etx;
+    float ety;
+    core::vector3df start;
+    core::vector3df end;
+    float maxAngle;
+    std::string name;
+    video::SColor trackColor;
+
+    shower LAr_shower;
+    shower HEC_shower;
+    shower TILE_shower;
+    FCALshower FCAL_shower;
+    class HelixSceneNode* node;
+};
+
+class AJet : public ATrack //Objects of this class represent jet in the event
+{
+public:
     enum jType //Jet type
     {
         jKt4H1TopoJets,
@@ -128,6 +159,7 @@ struct jet
     float phi;
     float et;
     int numCells;
+    int id;
     jType type;
 };
 
@@ -141,8 +173,8 @@ struct Aevent
 
   QSet<QString> tags;
 
-  std::vector<track> tracks;
-  std::vector<jet> jets;
+  std::vector<ATrack> tracks;
+  std::vector<AJet> jets;
   int numTracks;
   int numChargedHadrons;
   int numPhotons;
@@ -198,8 +230,8 @@ private:
 
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );
-    std::vector <track> GetTracksFromDOM ( QDomDocument doc );
-    std::vector <jet> GetJetsFromDOM ( QDomDocument doc );
+    std::vector <ATrack> GetTracksFromDOM ( QDomDocument doc );
+    std::vector <AJet> GetJetsFromDOM ( QDomDocument doc );
     std::vector <shower> GetShowersFromDOM ( QDomDocument doc, char* calo );
     std::vector <FCALshower> GetFCALShowersFromDOM ( QDomDocument doc );
 

@@ -376,7 +376,7 @@ bool ALayerGUI::loadEvent(QString fileName)
 
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	if(geo->XmlEvt->EventComplete.tracks.size()>0)
+	if(geo->XmlEvt->EventComplete.Tracks.size()>0)
 	  {
 	    geo->XmlEvt->UnloadEvent();
 	    emit eventUnloaded();

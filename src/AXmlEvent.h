@@ -71,6 +71,8 @@ class ATrack
 
 public:
 
+    ATrack() {}
+    ~ATrack() {}
     enum eType //element type
     {
         eUndefined,
@@ -116,10 +118,13 @@ public:
     class HelixSceneNode* node;
 };
 
-class AStrack : public ATrack //Objects of this class represent simulated tracks in the event (STr)
+class ASTrack : public ATrack //Objects of this class represent simulated tracks in the event (STr)
 {
 public:
-    int code;
+    ASTrack() {}
+    ~ASTrack() {}
+
+    /*int code;
     float eta;
     float phi;
     float phiVertex;
@@ -135,19 +140,22 @@ public:
     core::vector3df start;
     core::vector3df end;
     float maxAngle;
-    std::string name;
+
     video::SColor trackColor;
 
     shower LAr_shower;
     shower HEC_shower;
     shower TILE_shower;
     FCALshower FCAL_shower;
-    class HelixSceneNode* node;
+    class HelixSceneNode* node;*/
 };
 
 class AJet : public ATrack //Objects of this class represent jet in the event
 {
 public:
+
+    AJet() {}
+    ~AJet() {}
     enum jType //Jet type
     {
         jKt4H1TopoJets,
@@ -163,34 +171,39 @@ public:
     jType type;
 };
 
-struct Aevent
+class Aevent
 {
-  QString filename;
+public:
 
-  QString location;
+    Aevent() {};
+    ~Aevent() {};
+    QString filename;
 
-  bool read;
+    QString location;
 
-  QSet<QString> tags;
+    bool read;
 
-  std::vector<ATrack> tracks;
-  std::vector<AJet> jets;
-  int numTracks;
-  int numChargedHadrons;
-  int numPhotons;
-  int numNeutralHadrons;
-  int numNeutrinos;
-  int numMuons;
-  int numElectrons;
-  std::vector<shower> LArshowers;
-  std::vector<FCALshower> FCALshowers;
-  std::vector<shower> HECshowers;
-  std::vector<shower> TILEshowers;
-  int numShowers;
-  float ETMis;
-  core::vector2df ETMisVec;
-  float CaloETMis;
-  core::vector2df CaloETMisVec;
+    QSet<QString> tags;
+
+    std::vector<ATrack> Tracks; // Tracks are stored here
+    std::vector<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
+    std::vector<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
+    int numTracks;
+    int numChargedHadrons;
+    int numPhotons;
+    int numNeutralHadrons;
+    int numNeutrinos;
+    int numMuons;
+    int numElectrons;
+    std::vector<shower> LArshowers;
+    std::vector<FCALshower> FCALshowers;
+    std::vector<shower> HECshowers;
+    std::vector<shower> TILEshowers;
+    int numShowers;
+    float ETMis;
+    core::vector2df ETMisVec;
+    float CaloETMis;
+    core::vector2df CaloETMisVec;
 };
 
 
@@ -198,14 +211,17 @@ struct Aevent
 class XmlEvent : public QObject
 {
 
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    static int ptcut;
-    static XmlEvent* CachedEvent(QString file);
 
     XmlEvent();
     virtual ~XmlEvent();
+
+    static int ptcut;
+    static XmlEvent* CachedEvent(QString file);
+
+
     class AGeometry* Base;
     struct Aevent Event;
     struct Aevent EventComplete;
@@ -230,8 +246,8 @@ private:
 
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );
-    std::vector <ATrack> GetTracksFromDOM ( QDomDocument doc );
-    std::vector <AJet> GetJetsFromDOM ( QDomDocument doc );
+    std::vector <ASTrack*> GetSTracksFromDOM ( QDomDocument doc , Aevent* event);
+    std::vector <AJet*> GetJetsFromDOM ( QDomDocument doc , Aevent* event);
     std::vector <shower> GetShowersFromDOM ( QDomDocument doc, char* calo );
     std::vector <FCALshower> GetFCALShowersFromDOM ( QDomDocument doc );
 

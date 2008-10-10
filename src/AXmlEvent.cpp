@@ -136,14 +136,14 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
     return v;
 }
 
-std::vector <AJet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
+std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
 {
     // Get all the jet data from the XML file. There are four main jet types of interest, expressed as attributes in the file
     // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
 
-    std::vector <AJet> jets;
+    std::vector <AJet*> jets;
     int i;
-    AJet j;
+    AJet* j = new AJet();
 
     //elements of the Jets
     vector<float> eta;
@@ -172,32 +172,35 @@ std::vector <AJet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
         // Now we should load every node individually, and assign the proper type to them
         for ( int s = 0; s < et.size(); s++ )
         {
-            j.et = et[s];
-            if ( s<eta.size() ) j.eta = eta[s];
-            if ( s<phi.size() ) j.phi = phi[s];
-            if ( s<numCells.size() ) j.numCells = numCells[s];
+            j->et = et[s];
+            if ( s<eta.size() ) j->eta = eta[s];
+            if ( s<phi.size() ) j->phi = phi[s];
+            if ( s<numCells.size() ) j->numCells = numCells[s];
 
             if (attr.value() == QString("Kt4H1TopoJets"))
             {
-                j.type = AJet::jKt4H1TopoJets;
+                j->type = AJet::jKt4H1TopoJets;
                 qDebug() << "New Kt4H1TopoJet added ";
             }
             if (attr.value() == QString("Cone4H1TopoJets"))
             {
-                j.type = AJet::jCone4H1TopoJets;
+                j->type = AJet::jCone4H1TopoJets;
                 qDebug() << "New Cone4H1TopoJet added ";
             }
             if (attr.value() == QString("Kt4H1TowerJets"))
             {
-                j.type = AJet::jKt4H1TowerJets;
+                j->type = AJet::jKt4H1TowerJets;
                 qDebug() << "New Kt4H1TowerJet added ";
             }
             if (attr.value() == QString("Cone4H1TowerJets"))
             {
-                j.type = AJet::jCone4H1TowerJets;
+                j->type = AJet::jCone4H1TowerJets;
                 qDebug() << "New Cone4H1TowerJet added ";
             }
+            j->Type = j->eJet;
+            j->name = "Jet";
             jets.push_back ( j );
+            event->Tracks.push_back(*j); // This adds the Jet (as a ATrack object) to the vector "Tracks" in the event
         }
 
         qDebug() << "Added "<< eta.size() << " new jets of type " << attr.value();
@@ -213,14 +216,14 @@ std::vector <AJet> XmlEvent::GetJetsFromDOM ( QDomDocument dom )
 
 }
 
-std::vector <ATrack> XmlEvent::GetTracksFromDOM ( QDomDocument dom )
+std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* event )
 {
     // Aux variables and definitions
-    std::vector <ATrack> tracks;
+    std::vector <ASTrack*> tracks;
     int i;
 
-    ATrack t;
-    ATrack e;
+    ASTrack* t = new ASTrack();
+    ASTrack* e = new ASTrack();
 
     //elements of the simulated tracks
     vector<int> str_code;
@@ -297,47 +300,53 @@ std::vector <ATrack> XmlEvent::GetTracksFromDOM ( QDomDocument dom )
         QDomElement node=ETMis.at(i).toElement();
 
         v = getDataFloat ( node.elementsByTagName("et").at(0) );
-        e.et = v[0];
+        e->et = v[0];
         v = getDataFloat ( node.elementsByTagName("etx").at(0) );
-        e.etx = v[0];
+        e->etx = v[0];
         v = getDataFloat ( node.elementsByTagName("ety").at(0) );
-        e.ety = v[0];
+        e->ety = v[0];
     }
 
     /// Write the XML data to the tracks
 
     //Missing Energy
-    e.Type = e.eMissingEt;
-    e.name = "MissEt";
+    e->Type = e->eMissingEt;
+    e->name = "MissEt";
     tracks.push_back ( e );
+    event->Tracks.push_back(*e);
 
     // Tracks section
     int j = 0;
     for ( i = 0; i < str_code.size(); i++ )
     {
 
-        t.name = "unknown";
+        t->name = "unknown";
         for ( j = 0; j < 52; j++ )
         {
             if ( codelist[j] == str_code[i] )
             {
-                t.q = chargelist[j];
-                t.name = namelist[j];
-                t.trackColor = colorlist[j];
+                t->q = chargelist[j];
+                t->name = namelist[j];
+                t->trackColor = colorlist[j];
+                //cout << "\n STrack of type " << t->name ;
             }
         }
 
 
-        if ( i<str_code.size() ) t.code = str_code[i];
-        if ( i<str_eta.size() ) t.eta = str_eta[i];
-        if ( i<str_id.size() ) t.trackID = str_id[i];
-        if ( i<str_phi.size() ) t.phi = str_phi[i];
-        if ( i<str_phiVertex.size() ) t.phiVertex = str_phiVertex[i];
-        if ( i<str_pt.size() ) t.pt = str_pt[i];
-        if ( i<str_rhoVertex.size() ) t.rhoVertex = str_rhoVertex[i];
-        if ( i<str_zVertex.size() ) t.zVertex = str_zVertex[i];
-        t.Type = t.eSTrack;
+        if ( i<str_code.size() ) t->code = str_code[i];
+        if ( i<str_eta.size() ) t->eta = str_eta[i];
+        if ( i<str_id.size() ) t->trackID = str_id[i];
+        if ( i<str_phi.size() ) t->phi = str_phi[i];
+        if ( i<str_phiVertex.size() ) t->phiVertex = str_phiVertex[i];
+        if ( i<str_pt.size() ) t->pt = str_pt[i];
+        if ( i<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[i];
+        if ( i<str_zVertex.size() ) t->zVertex = str_zVertex[i];
+        t->Type = t->eSTrack;
+
+        //cout << "\n track of type " << t->Type ;
+        //cout << "\n name: " << t->name ;
         tracks.push_back ( t );
+        event->Tracks.push_back(*t);
     }
 
     return tracks;
@@ -438,50 +447,56 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
 Aevent XmlEvent::GetEventFromFile ( const char* filename )
 {
-    Aevent e;
+    Aevent* e = new Aevent();
 
     QDomDocument doc("metainfo");
     QFile fh(filename);
     if (!fh.open(QIODevice::ReadOnly))
-        return e;
+        return *e;
     if (!doc.setContent(&fh))
     {
         fh.close();
-        return e;
+        return *e;
     }
     fh.close();
 
-    e.tracks = GetTracksFromDOM ( doc );
-    e.jets = GetJetsFromDOM (doc);
-    e.LArshowers = GetShowersFromDOM ( doc, "LAr" );
-    e.HECshowers = GetShowersFromDOM ( doc, "HEC" );
-    e.TILEshowers = GetShowersFromDOM ( doc, "TILE" );
-    e.FCALshowers = GetFCALShowersFromDOM ( doc );
-    e.numTracks = 0;
-    e.numChargedHadrons = 0;
-    e.numPhotons = 0;
-    e.numNeutralHadrons = 0;
-    e.numNeutrinos = 0;
-    e.numMuons = 0;
-    e.numElectrons = 0;
-    e.numShowers = e.LArshowers.size() + e.FCALshowers.size() + e.HECshowers.size() + e.TILEshowers.size();
-    for ( vector<ATrack>::iterator go = e.tracks.begin(); go!=e.tracks.end(); go++ )
+    e->STracks = GetSTracksFromDOM ( doc, e );
+    e->Jets = GetJetsFromDOM (doc , e);
+    e->LArshowers = GetShowersFromDOM ( doc, "LAr" );
+    e->HECshowers = GetShowersFromDOM ( doc, "HEC" );
+    e->TILEshowers = GetShowersFromDOM ( doc, "TILE" );
+    e->FCALshowers = GetFCALShowersFromDOM ( doc );
+    e->numTracks = 0;
+    e->numChargedHadrons = 0;
+    e->numPhotons = 0;
+    e->numNeutralHadrons = 0;
+    e->numNeutrinos = 0;
+    e->numMuons = 0;
+    e->numElectrons = 0;
+    e->numShowers = e->LArshowers.size() + e->FCALshowers.size() + e->HECshowers.size() + e->TILEshowers.size();
+
+    for ( vector<ATrack>::iterator go = e->Tracks.begin(); go!= e->Tracks.end(); go++ )
     {
+        //cout << "\n In the selection, this track is of type " << go->Type ;
+        //cout << "\n The track name is " << go->name;
         go->node=0;
         if ( go->Type == go->eSTrack )
         {
-            e.numTracks++;
-            if ( go->name == "gamma" ) e.numPhotons++;
-            else if ( go->name == "nu_e" || go->name == "nu_mu" || go->name == "nu_tau" || go->name == "nu_ebar" || go->name == "nu_mubar" || go->name == "nu_taubar" ) e.numNeutrinos++;
-            else if ( go->name == "mu-" || go->name == "mu+" ) e.numMuons++;
-            else if ( go->name == "e-" || go->name == "e+" ) e.numElectrons++;
+
+
+            e->numTracks++;
+            if ( go->name == "gamma" ) e->numPhotons++;
+            else if ( go->name == "nu_e" || go->name == "nu_mu" || go->name == "nu_tau" || go->name == "nu_ebar" || go->name == "nu_mubar" || go->name == "nu_taubar" ) e->numNeutrinos++;
+            else if ( go->name == "mu-" || go->name == "mu+" ) e->numMuons++;
+            else if ( go->name == "e-" || go->name == "e+" ) e->numElectrons++;
             else
             {
-                if ( go->q == 0 ) e.numNeutralHadrons++;
-                else e.numChargedHadrons++;
+                if ( go->q == 0 ) e->numNeutralHadrons++;
+                else e->numChargedHadrons++;
             }
         }
     }
+
 
     bool inCaloETMis = false;
     bool inETMis = false;
@@ -494,20 +509,20 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
         QDomElement node=CaloETMis.at(i).toElement();
 
         v = getDataFloat ( node.elementsByTagName("et").at(0) );
-        e.CaloETMis = v[0];
+        e->CaloETMis = v[0];
         v = getDataFloat ( node.elementsByTagName("etx").at(0) );
-        e.CaloETMis = v[0];
+        e->CaloETMis = v[0];
         v = getDataFloat ( node.elementsByTagName("ety").at(0) );
-        e.CaloETMis = v[0];
+        e->CaloETMis = v[0];
     }
 
-    return e;
+    return *e;
 
 }
 
 void XmlEvent::HideAllTracks()
 {
-    for ( vector<ATrack>::iterator go = Event.tracks.begin(); go!=Event.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = Event.Tracks.begin(); go!=Event.Tracks.end(); go++ )
         switch ( go->Type )
         {
         case 1:
@@ -534,7 +549,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     Event.numElectrons = 0;
     Event.numShowers = EventComplete.FCALshowers.size() + EventComplete.HECshowers.size() + EventComplete.LArshowers.size() + EventComplete.TILEshowers.size();
     int j = 0;
-    for ( vector<ATrack>::iterator go = EventComplete.tracks.begin(); go!=EventComplete.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = EventComplete.Tracks.begin(); go!=EventComplete.Tracks.end(); go++ )
     {
         if ( go->Type == go->eJet )
             if (go->node) go->node->setTrackStyle ( 9 );
@@ -639,7 +654,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
             }
         }
     }
-    Event.tracks =  NewEventTracks;
+    Event.Tracks =  NewEventTracks;
     //Event = NewEvent;
     emit eventChanged();
 }
@@ -653,7 +668,7 @@ void XmlEvent::setCurrentJetModel(QString jetType)
 
 Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
 {
-    if ( ievent.tracks.size() >1 )
+    if ( ievent.Tracks.size() >1 )
     {
         ievent.numTracks = 0;
         ievent.numChargedHadrons = 0;
@@ -668,7 +683,7 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
         int j = 0;
 
 
-        for ( i = ievent.tracks.begin(); i!=ievent.tracks.end(); i++ )
+        for ( i = ievent.Tracks.begin(); i!=ievent.Tracks.end(); i++ )
         {
             if ( i->Type == i->eSTrack )
             {
@@ -776,10 +791,10 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
 void XmlEvent::UnloadEvent()
 {
     ISceneManager *smgr=Base->GetSceneManager();
-    for ( vector<ATrack>::iterator iter = EventComplete.tracks.begin(); iter!=EventComplete.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = EventComplete.Tracks.begin(); iter!=EventComplete.Tracks.end(); iter++ )
         if (iter->node)
             iter->node->remove();
-    EventComplete.tracks.clear();
+    EventComplete.Tracks.clear();
 }
 
 void XmlEvent::LoadEvent ( const c8* file )
@@ -793,6 +808,9 @@ void XmlEvent::LoadEvent ( const c8* file )
     if ( extension == ".xml" )
     {
         EventComplete = GetEventFromFile ( file );
+        qDebug()<< "Total number of Tracks: " << EventComplete.Tracks.size();
+        qDebug()<< "Total number of STracks: " << EventComplete.STracks.size();
+        qDebug()<< "Total number of Jets: " << EventComplete.Jets.size();
         PtCutoff(ptcut);
     }
 }
@@ -801,7 +819,7 @@ void XmlEvent::DisplayEvent(AGeometry* device)
 {
     int jetIdCounter = 0;
 
-    for ( vector<ATrack>::iterator iter = EventComplete.tracks.begin(); iter != EventComplete.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = EventComplete.Tracks.begin(); iter != EventComplete.Tracks.end(); iter++ )
     {
         iter->node=0;
 

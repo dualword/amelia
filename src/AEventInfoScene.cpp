@@ -54,7 +54,7 @@ void AEventInfoScene::setEvent(XmlEvent* e)
 void AEventInfoScene::updateEventInfo()
 {
 
-    if ( _event->EventComplete.tracks.size() > 0 )
+    if ( _event->EventComplete.Tracks.size() > 0 )
     {
         header->setHtml("<html>\n <b>SELECTED EVENT INFO</b></html>");
         labelTotal->setHtml("<b>Total</b>");

@@ -121,7 +121,7 @@ ATrack* HelixSceneNode::getTrack()
 
 ATrack* HelixSceneNode::getTrackById ( int id )
 {
-    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.tracks.begin(); iter < Base->XmlEvt->Event.tracks.end(); iter++ )
+    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
     {
         if ( iter->trackID == trackID )
         {

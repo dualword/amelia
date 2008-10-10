@@ -301,11 +301,11 @@ HelixSceneNode* AGeometry::trackSelection ( core::position2di pos )
 
         HelixSceneNode *selectedHelixNode=0;
 
-        if ( XmlEvt->EventComplete.tracks.size() >= 1 )
+        if ( XmlEvt->EventComplete.Tracks.size() >= 1 )
         {
             //Base->Gui->statstext->setText(L"Checkpoint");
 
-            for ( vector<ATrack>::iterator iter = XmlEvt->EventComplete.tracks.begin(); iter < XmlEvt->EventComplete.tracks.end(); iter++ )
+            for ( vector<ATrack>::iterator iter = XmlEvt->EventComplete.Tracks.begin(); iter < XmlEvt->EventComplete.Tracks.end(); iter++ )
             {
                 int control = 0;
                 if ( selectedSceneNode && iter->Type == 1 ) //tracks
@@ -2163,10 +2163,10 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
         }
     }
 
-    if ( XmlEvt->EventComplete.tracks.size() >2 )
+    if ( XmlEvt->EventComplete.Tracks.size() >2 )
     {
         //Loop through all the tracks...
-        for ( std::vector<ATrack>::iterator go = XmlEvt->EventComplete.tracks.begin(); go!=XmlEvt->EventComplete.tracks.end(); go++ )
+        for ( std::vector<ATrack>::iterator go = XmlEvt->EventComplete.Tracks.begin(); go!=XmlEvt->EventComplete.Tracks.end(); go++ )
         {
             ATrack* selectedTrack = &*go;
             if ( selectedTrack->trackID == ID ) //Found it
@@ -2215,7 +2215,7 @@ void AGeometry::releaseControl()
     {
       Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
       setCursor( QCursor( Qt::ArrowCursor ) );
-      allowTrackSelection=(XmlEvt->EventComplete.tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
+      allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
     }
 }
 

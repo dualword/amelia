@@ -239,7 +239,7 @@ void AInterestingTrackTableModel::getInterestingTracks()
     clear();
     Aevent ievent = geo->XmlEvt->EventComplete;
     int ptMinimum = 2;
-    for ( vector<ATrack>::iterator go = ievent.tracks.begin(); go!=ievent.tracks.end(); go++ )
+    for ( vector<ATrack>::iterator go = ievent.Tracks.begin(); go!=ievent.Tracks.end(); go++ )
     {
         if ( go->Type == go->eJet )
             addTrack(go->node->trackPointer);

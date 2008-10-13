@@ -178,14 +178,16 @@ void ASelectionInfoScene::refresh()
     {
         if ( (*combo)[0]->Type == 1 ) //track
         {
+            ASTrack* STrack = (*combo)[0]->getThisSTrack();
             header->setPlainText("SELECTED TRACK INFO");
-            name->setHtml("<b>Name:</b> "+QString((*combo)[0]->name.c_str()));
-            charge->setHtml("<b>Charge:</b> "+QString::number((*combo)[0]->node->getCharge()));
-            pt->setHtml("<b>Pt:</b> "+QString::number((*combo)[0]->node->getPt()));
-            eta->setHtml("<b>Eta:</b> "+QString::number((*combo)[0]->node->getEta()));
-            phi->setHtml("<b>Phi:</b> "+QString::number((*combo)[0]->node->getPhi()));
-            id->setHtml("<b>id:</b> "+QString::number((*combo)[0]->trackID));
+            name->setHtml("<b>Name:</b> "+QString(STrack->name.c_str()));
+            charge->setHtml("<b>Charge:</b> "+QString::number(STrack->node->getCharge()));
+            pt->setHtml("<b>Pt:</b> "+QString::number(STrack->node->getPt()));
+            eta->setHtml("<b>&#951;:</b> "+QString::number(STrack->node->getEta()));
+            phi->setHtml("<b>&#966;:</b> "+QString::number(STrack->node->getPhi()));
+            id->setHtml("<b>id:</b> "+QString::number(STrack->trackID));
             nonSelectable->setHtml("<b>This track is<br>irrelevant for<br>the analysis</b>");
+
 
             header->setVisible(true);
             name->setVisible(true);
@@ -200,11 +202,12 @@ void ASelectionInfoScene::refresh()
         }
         else if ( (*combo)[0]->Type == 2 ) //jet
         {
+            AJet* Jet = (*combo)[0]->getThisJet();
             header->setPlainText("SELECTED JET INFO");
             name->setHtml("<b>Type:</b> Jet");
-            eta->setHtml("<b>Eta:</b> "+QString::number((*combo)[0]->node->getEta()));
-            phi->setHtml("<b>Phi:</b> "+QString::number((*combo)[0]->node->getPhi()));
-            pt->setHtml("<b>Pt:</b> "+QString::number((*combo)[0]->node->getEt()));
+            eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->node->getEta()));
+            phi->setHtml("<b>&#966;</b> "+QString::number(Jet->node->getPhi()));
+            pt->setHtml("<b>Pt:</b> "+QString::number(Jet->node->getEt()));
 
             header->setVisible(true);
             name->setVisible(true);
@@ -216,11 +219,12 @@ void ASelectionInfoScene::refresh()
         }
         else if ( (*combo)[0]->Type == 4 ) //Missing Et
         {
+            ASTrack* STrack = (*combo)[0]->getThisSTrack();
             header->setPlainText("SELECTED MisEt INFO");
             name->setHtml("<b>Type:</b> Missing Et");
-            eta->setHtml("<b>etx:</b> "+QString::number((*combo)[0]->node->getEtx()));
-            phi->setHtml("<b>ety:</b> "+QString::number((*combo)[0]->node->getEty()));
-            pt->setHtml("<b>Et:</b> "+QString::number((*combo)[0]->node->getEt()));
+            eta->setHtml("<b>etx:</b> "+QString::number(STrack->node->getEtx()));
+            phi->setHtml("<b>ety:</b> "+QString::number(STrack->node->getEty()));
+            pt->setHtml("<b>Et:</b> "+QString::number(STrack->node->getEt()));
 
             header->setVisible(true);
             name->setVisible(true);

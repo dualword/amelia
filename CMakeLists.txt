@@ -62,6 +62,7 @@ SET(amelia_SRCS
   src/AEventManager.cpp
   src/AEventPackage.cpp
   src/CRelativeScaleSceneNodeAnimator.cpp
+  src/ATrack.cpp
   src/main.cpp
   )
 
@@ -90,6 +91,7 @@ SET(amelia_H
   src/AEventPackage.h
   src/CRelativeScaleSceneNodeAnimator.h
   src/AMainView.h
+  src/ATrack.h
   )
 
 SET(amelia_FILES

@@ -287,7 +287,7 @@ void AGeometry::executeMosesMode()
 
 }
 
-HelixSceneNode* AGeometry::trackSelection ( core::position2di pos )
+ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 {
     //Base->Gui->statstext->setText ( L"Track Selection" );
     if ( eventAnalysisMode )
@@ -299,7 +299,7 @@ HelixSceneNode* AGeometry::trackSelection ( core::position2di pos )
         vector3df target;
         triangle3df triangle;
 
-        HelixSceneNode *selectedHelixNode=0;
+        ATrack3DNode *selectedHelixNode=0;
 
         if ( XmlEvt->EventComplete.Tracks.size() >= 1 )
         {
@@ -320,12 +320,12 @@ HelixSceneNode* AGeometry::trackSelection ( core::position2di pos )
 
                 if ( iter->Type == 2 ) //jets
                 {
-                    selector = iter->node->Pyramid->getTriangleSelector();
-                    //if (selector) wxMessageBox(_("ToolNB created") );
+                    AJet* jet = iter->getThisJet();
+                    selector = jet->node->Pyramid->getTriangleSelector();
 
                     if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ) )
                     {
-                        selectedHelixNode = iter->node;
+                        selectedHelixNode = jet->node;
                         break;
                     }
 
@@ -2156,7 +2156,7 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
     {
         while (!selectedTracks.isEmpty())
         {
-            HelixSceneNode *node=selectedTracks.back();
+            ATrack3DNode *node=selectedTracks.back();
             node->deselect();
             selectedTracks.pop_back();
             emit trackDeselected(node->getTrack());
@@ -2228,7 +2228,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
             if (allowTrackSelection)
             {
                 core::position2di posMouse = core::position2di(event.MouseInput.X,event.MouseInput.Y);
-                HelixSceneNode *selected;
+                ATrack3DNode *selected;
 
                 //Do the actual selection
                 selected=trackSelection(posMouse);
@@ -2239,7 +2239,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 {
                     while (!selectedTracks.isEmpty())
                     {
-                        HelixSceneNode *node=selectedTracks.back();
+                        ATrack3DNode *node=selectedTracks.back();
                         node->deselect();
                         selectedTracks.pop_back();
                         emit trackDeselected(node->getTrack());

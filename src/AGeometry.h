@@ -45,6 +45,10 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AHelixSceneNode.h"
 #include "AXmlEvent.h"
 
+class ATrack;
+class XmlEvent;
+class ATrack3DNode;
+
 struct module
 {
     //store data for each module, as we need it
@@ -128,8 +132,8 @@ public:
     bool OnEvent ( const SEvent& event );
 
     //Stuff from ABase
-    class XmlEvent* XmlEvt;
-    QList<HelixSceneNode*> selectedTracks;
+    XmlEvent* XmlEvt;
+    QList<ATrack3DNode*> selectedTracks;
 
     char* directoryBase;
 
@@ -230,7 +234,7 @@ private:
     void createAtlasGeometry();
     void executeMosesMode();
     void prepareAllModules ( scene::ISceneNode* node_ );
-    HelixSceneNode* trackSelection ( core::position2di pos );
+    ATrack3DNode* trackSelection ( core::position2di pos );
     bool offsetTest;
 
     video::ITexture *rt;

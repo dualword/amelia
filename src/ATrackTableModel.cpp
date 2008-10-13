@@ -10,21 +10,21 @@ ATrackTableModel::ATrackTableModel(QWidget* parent):QAbstractTableModel(parent)
     tracks=QList<ATrack*>();
 
     //Use this for selecting tracks by clicking on the table
-	selection=new QItemSelectionModel(this);//parent->selectionModel();
-	connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
-			this,SLOT(handleSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    selection=new QItemSelectionModel(this);//parent->selectionModel();
+    connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+            this,SLOT(handleSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 ATrackTableModel::~ATrackTableModel()
 {
-	selection->deleteLater();
+    selection->deleteLater();
 }
 
 void ATrackTableModel::addTable(QAbstractItemView* table)
 {
-	table->setModel(this);
-	table->setSelectionModel(selection);
-	table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setModel(this);
+    table->setSelectionModel(selection);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 int ATrackTableModel::rowCount(const QModelIndex& root) const
@@ -52,9 +52,24 @@ QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
         case 0:
             return tracks.at(index.row())->name.c_str();
         case 1:
-            return QString::number(tracks.at(index.row())->pt);
+            if (tracks.at(index.row())->Type == 1)
+            {
+                ASTrack* STrack = tracks.at(index.row())->getThisSTrack();
+                return QString::number(STrack->pt);
+            }
+            else if (tracks.at(index.row())->Type == 2)
+            {
+                AJet* Jet = tracks.at(index.row())->getThisJet();
+                return QString::number(Jet->et);
+            }
+            else return QString("N/A");
         case 2:
-            return QString::number(tracks.at(index.row())->Mlv);
+            if (tracks.at(index.row())->Type == 1)
+            {
+                ASTrack* STrack = tracks.at(index.row())->getThisSTrack();
+                return QString::number(STrack->Mlv);
+            }
+            else return QString("N/A");
         }
     }
     return QVariant();
@@ -162,7 +177,7 @@ void ATrackTableModel::combineSelectedTracks()
     ATrackCombination *combo=new ATrackCombination(); //hold the stuff
 
     bool ok;
-	QString name=QInputDialog::getText((QWidget*)QObject::parent(),tr("Track Combination Name"),tr("Combination Name:"),QLineEdit::Normal,combo->getName(),&ok);
+    QString name=QInputDialog::getText((QWidget*)QObject::parent(),tr("Track Combination Name"),tr("Combination Name:"),QLineEdit::Normal,combo->getName(),&ok);
 
     if (ok) //Proceed only if OK clicked
     {
@@ -214,8 +229,8 @@ void ATrackTableModel::handleSelectionChanged(const QItemSelection& selected,con
 
 void ATrackTableModel::clear()
 {
-  if(tracks.size()==0) return;
-  emit beginRemoveRows(QModelIndex(),0,tracks.size()-1);
-  tracks.clear();
-  emit endRemoveRows();
+    if (tracks.size()==0) return;
+    emit beginRemoveRows(QModelIndex(),0,tracks.size()-1);
+    tracks.clear();
+    emit endRemoveRows();
 }

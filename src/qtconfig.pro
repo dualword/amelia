@@ -28,6 +28,7 @@ HEADERS += \
  CSceneNodeAnimatorCameraSphere.h\
  AAnimationGUI.h \
  CRelativeScaleSceneNodeAnimator.h\
+ ATrack.h\
  AMainView.h
 
 
@@ -51,6 +52,7 @@ SOURCES += \
  AMainView.cpp \
  AAnimationGUI.cpp \
  CRelativeScaleSceneNodeAnimator.cpp\
+ ATrack.cpp\
  main.cpp
 
 RESOURCES     = ../media/ageometry.qrc \

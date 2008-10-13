@@ -49,13 +49,34 @@ int helixSections = 10; // Number of sections in each helix track
 const float scaleEvent = 0.05; // Adjustment scaling factor
 
 
-HelixSceneNode::HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
+//First, let's define the methods of the parent class for 3D nodes in tracks
+
+ATrack3DNode::ATrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
         : scene::ISceneNode ( parent, base->GetSceneManager(), id )
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
     Base = base;
-    this->setName ( "HelixNode" );
+    this->setName ( "Track3DNode" );
 }
+
+
+ATrack3DNode::~ATrack3DNode()
+{
+    boxSizeAnim->drop();
+}
+
+
+// Then the children classes, for each type of ATrack
+
+
+HelixSceneNode::HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
+        : ATrack3DNode ( parent, base, id )
+{
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
+    Base = base;
+    this->setName ( "Track3DNode" );
+}
+
 
 HelixSceneNode::~HelixSceneNode()
 {
@@ -108,7 +129,7 @@ int HelixSceneNode::getTrackNumber()
     return this->trackNumber;
 }
 
-void HelixSceneNode::setTrack ( ATrack* track )
+void HelixSceneNode::setTrack ( ASTrack* track )
 {
     this->trackPointer = track;
 }
@@ -248,52 +269,6 @@ void HelixSceneNode::setTrackStyle ( int style )
     }// end of track styles
 
 
-
-
-
-    if ( trackPointer->Type == 2 ) //if it's a jet
-    {
-        //selected jet style
-        if ( style == 6 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = video::SColor ( 0,255,0,0 );
-            }
-        }
-
-        //unselected jet style
-        if ( style == 7 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = video::SColor ( 0,100,100,100 );
-            }
-        }
-
-        //invisible jet style
-        if ( style == 8 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( false );
-            }
-        }
-
-        //restore the jet visibility
-        if ( style == 9 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-            }
-        }
-    }
-
-
-
     if ( trackPointer->Type == 4 ) //if it's Missing Et
     {
         //selected Missing Et style
@@ -424,56 +399,6 @@ void HelixSceneNode::createBoxes()
     }
 }
 
-scene::ITriangleSelector* selector = 0;
-
-void HelixSceneNode::createJetPyramids()
-{
-    if ( type == 2 ) //jet
-    {
-        float pi = 3.1415926;
-        float c = 180/pi;
-        float theta = 2*atan ( exp ( -this->eta ) );
-        core::vector3df zero = core::vector3df ( 0,0,0 );
-        core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
-        //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
-        core::vector3df rot = core::vector3df ( -theta * c, 0, -phi * c ); //
-
-        scene::IAnimatedMesh* pyramid = Base->GetSceneManager()->getMesh ( "jet.X" );
-        scene::ISceneNode* nodeBox = 0;
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( pyramid->getMesh ( 0 ) );
-        nodeBox->setPosition ( zero );
-        nodeBox->setRotation ( rot );
-        nodeBox->updateAbsolutePosition();
-        nodeBox->setScale ( scale );
-        nodeBox->getTransformedBoundingBox();
-        nodeBox->setID ( 18 );
-
-        scene::ITriangleSelector* selector = 0;
-        selector = Base->GetSceneManager()->createOctTreeTriangleSelector ( pyramid->getMesh ( 0 ), nodeBox, 128 );
-        nodeBox->setTriangleSelector ( selector );
-        selector->drop();
-
-        video::SMaterial* m = &nodeBox->getMaterial ( 0 );
-        nodeBox->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
-        nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
-        nodeBox->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-        nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
-        nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
-        nodeBox->setAutomaticCulling ( EAC_OFF );
-        m->EmissiveColor = video::SColor ( 0,100,100,100 );
-        m->DiffuseColor = video::SColor ( 0,0,0,0 );
-        m->AmbientColor = video::SColor ( 0,0,0,0 );
-        m->Shininess = 128 ;
-
-        nodeBox->getTransformedBoundingBox();
-        nodeBox->setParent ( this );
-        //nodeBox->setDebugDataVisible(EDS_BBOX);
-        //nodeBox->setVisible(false);
-        this->boxSegments.push_back ( nodeBox );
-        this->Pyramid = nodeBox;
-
-    }
-}
 
 void HelixSceneNode::createMisEtBoxes() //for Missing Et
 {
@@ -752,9 +677,6 @@ void HelixSceneNode::setBoxesVisibility ( bool boxVisibility )
     for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
     {
         ( *it )->setVisible ( boxVisibility );
-        core::vector3df scale = ( *it )->getScale();
-        //(*it)->setScale(core::vector3df(0.2,0.2, 1));
-
     }
 }
 
@@ -783,6 +705,11 @@ void HelixSceneNode::Helix()
     }
     calculateMlv();
     tL = 0.5 * ( exp (eta) - exp (-(eta)));
+}
+
+float HelixSceneNode::getTl()
+{
+    return tL = 0.5 * ( exp (eta) - exp (-(eta)));
 }
 
 void HelixSceneNode::calculateMlv()
@@ -818,7 +745,6 @@ void HelixSceneNode::render()
 {
     if ( this->isLineVisible )
     {
-        //wxLogMessage(wxT("Render"));
         Helix();
     }
 }
@@ -858,3 +784,215 @@ void HelixSceneNode::deselect()
 {
     setTrackStyle(getTrack()->style);
 }
+
+
+
+
+// Now the Jets
+
+
+AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
+        : ATrack3DNode ( parent, base, id )
+{
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
+    Base = base;
+    this->setName ( "Track3DNode" );
+}
+
+
+AJet3DNode::~AJet3DNode()
+{
+    boxSizeAnim->drop();
+}
+
+
+float AJet3DNode::getEta()
+{
+    return this->eta;
+}
+float AJet3DNode::getPhi()
+{
+    return this->phi;
+}
+
+float AJet3DNode::getPt()
+{
+    return this->pt;
+}
+float AJet3DNode::getEt()
+{
+    return this->trackPointer->et;
+}
+int AJet3DNode::getTrackNumber()
+{
+    return this->trackNumber;
+}
+
+void AJet3DNode::setTrack ( AJet* track )
+{
+    this->trackPointer = track;
+}
+ATrack* AJet3DNode::getTrack()
+{
+    return this->trackPointer;
+}
+
+ATrack* AJet3DNode::getTrackById ( int id )
+{
+    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
+    {
+        if ( iter->trackID == trackID )
+        {
+            return &*iter;
+            break;
+        }
+    }
+}
+
+void AJet3DNode::setTrackStyle ( int style )
+{
+
+    if ( trackPointer->Type == 2 ) //if it's a jet
+    {
+        //selected jet style
+        if ( style == 6 )
+        {
+            video::SMaterial* m = &Pyramid->getMaterial ( 0 );
+            m->EmissiveColor = video::SColor ( 0,255,0,0 );
+        }
+
+        //unselected jet style
+        if ( style == 7 )
+        {
+            video::SMaterial* m = &Pyramid->getMaterial ( 0 );
+            m->EmissiveColor = video::SColor ( 0,100,100,100 );
+        }
+
+        //invisible jet style
+        if ( style == 8 )
+        {
+            Pyramid->setVisible ( false );
+        }
+
+        //restore the jet visibility
+        if ( style == 9 )
+        {
+            Pyramid->setVisible ( true );
+        }
+    }
+
+
+}
+
+void AJet3DNode::createJetPyramids()
+{
+    if ( type == 2 ) //jet
+    {
+        float pi = 3.1415926;
+        float c = 180/pi;
+        float theta = 2*atan ( exp ( -this->eta ) );
+        core::vector3df zero = core::vector3df ( 0,0,0 );
+        core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
+        //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
+        core::vector3df rot = core::vector3df ( -theta * c, 0, -phi * c ); //
+
+        scene::IAnimatedMesh* pyramid = Base->GetSceneManager()->getMesh ( "jet.X" );
+        scene::ISceneNode* nodeBox = 0;
+        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( pyramid->getMesh ( 0 ) );
+        nodeBox->setPosition ( zero );
+        nodeBox->setRotation ( rot );
+        nodeBox->updateAbsolutePosition();
+        nodeBox->setScale ( scale );
+        nodeBox->getTransformedBoundingBox();
+        nodeBox->setID ( 18 );
+
+        scene::ITriangleSelector* selector = 0;
+        selector = Base->GetSceneManager()->createOctTreeTriangleSelector ( pyramid->getMesh ( 0 ), nodeBox, 128 );
+        nodeBox->setTriangleSelector ( selector );
+        selector->drop();
+
+        video::SMaterial* m = &nodeBox->getMaterial ( 0 );
+        nodeBox->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
+        nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
+        nodeBox->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
+        nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
+        nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
+        nodeBox->setAutomaticCulling ( EAC_OFF );
+        m->EmissiveColor = video::SColor ( 0,100,100,100 );
+        m->DiffuseColor = video::SColor ( 0,0,0,0 );
+        m->AmbientColor = video::SColor ( 0,0,0,0 );
+        m->Shininess = 128 ;
+
+        nodeBox->getTransformedBoundingBox();
+        nodeBox->setParent ( this );
+        //nodeBox->setDebugDataVisible(EDS_BBOX);
+        //nodeBox->setVisible(false);
+        this->Pyramid = nodeBox;
+
+    }
+}
+
+
+void AJet3DNode::setBoxesVisibility ( bool boxVisibility )
+{
+    Pyramid->setVisible ( boxVisibility );
+}
+
+void AJet3DNode::setBoxesSelected ( bool boxesSelected )
+{
+    video::SMaterial* m = &Pyramid->getMaterial ( 0 );
+    boxesSelected ? m->EmissiveColor = video::SColor ( 0,122,122,122 ) : m->EmissiveColor = this->color ;
+}
+
+
+void AJet3DNode::OnRegisterSceneNode()
+{
+    if ( IsVisible )
+        Base->GetSceneManager()->registerNodeForRendering ( this );
+
+
+    ISceneNode::OnRegisterSceneNode();
+}
+
+
+const core::aabbox3d<f32>& AJet3DNode::getBoundingBox() const
+{
+    return Box;
+}
+
+
+
+video::SMaterial& AJet3DNode::getMaterial ( s32 i )
+{
+    return Material;
+}
+
+void AJet3DNode::select()
+{
+    ATrack *selectedTrack = getTrack();
+
+    switch ( selectedTrack->Type )
+    {
+    case 1:
+        setTrackStyle ( 3 );
+        break;
+    case 2:
+        setTrackStyle ( 6 );
+        break;
+    case 4:
+        setTrackStyle ( 10 );
+        break;
+    }
+}
+
+void AJet3DNode::deselect()
+{
+    setTrackStyle(getTrack()->style);
+}
+
+float AJet3DNode::getTl()
+{
+    float tL = 0.5 * ( exp (eta) - exp (-(eta)));
+    return tL;
+}
+

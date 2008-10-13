@@ -6,12 +6,13 @@
 
 #include "AXmlEvent.h"
 
+
 class AEventPackage
 {
 public:
   AEventPackage();
   ~AEventPackage();
-  
+
   void load(const QString&);
   void save();
 
@@ -20,10 +21,10 @@ public:
 
   int eventCount();
   Aevent* event(int);
-  
+
 private:
   QList<Aevent *> events;
-  
+
   QString _name;
   QString location;
 };

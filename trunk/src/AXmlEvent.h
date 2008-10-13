@@ -38,138 +38,20 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #ifndef AXMLEVENT_H
 #define AXMLEVENT_H
 
+#include "ATrack.h"
 #include "AGeometry.h"
+#include "AHelixSceneNode.h"
 
 #include <QDomNode>
 #include <QDomDocument>
 
-struct shower
-{
-    float energy;
-    float eta;
-    int id;
-    int layer;
-    float phi;
-    int sub;
-};
-
-struct FCALshower
-{
-    float dx;
-    float dy;
-    float energy;
-    int id;
-    int layer;
-    int sub;
-    float x;
-    float y;
-};
-
-/// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-class ATrack
-{
-
-public:
-
-    ATrack() {}
-    ~ATrack() {}
-    enum eType //element type
-    {
-        eUndefined,
-        eSTrack,
-        eJet,
-        eShower,
-        eMissingEt,
-        eCombination
-    };
-
-    eType Type;
 
 
-    int trackID;
-    int style; //default track style, 0 1 2 3 or 4
-
-    int selectionID;
-    bool isInList;
-
-    int code;
-    float eta;
-    float phi;
-    float phiVertex;
-    float pt;
-    float rhoVertex;
-    float zVertex;
-    float tL;
-    float Mlv;
-    int q;
-    float et;
-    float etx;
-    float ety;
-    core::vector3df start;
-    core::vector3df end;
-    float maxAngle;
-    std::string name;
-    video::SColor trackColor;
-
-    shower LAr_shower;
-    shower HEC_shower;
-    shower TILE_shower;
-    FCALshower FCAL_shower;
-    class HelixSceneNode* node;
-};
-
-class ASTrack : public ATrack //Objects of this class represent simulated tracks in the event (STr)
-{
-public:
-    ASTrack() {}
-    ~ASTrack() {}
-
-    /*int code;
-    float eta;
-    float phi;
-    float phiVertex;
-    float pt;
-    float rhoVertex;
-    float zVertex;
-    float tL;
-    float Mlv;
-    int q;
-    float et;
-    float etx;
-    float ety;
-    core::vector3df start;
-    core::vector3df end;
-    float maxAngle;
-
-    video::SColor trackColor;
-
-    shower LAr_shower;
-    shower HEC_shower;
-    shower TILE_shower;
-    FCALshower FCAL_shower;
-    class HelixSceneNode* node;*/
-};
-
-class AJet : public ATrack //Objects of this class represent jet in the event
-{
-public:
-
-    AJet() {}
-    ~AJet() {}
-    enum jType //Jet type
-    {
-        jKt4H1TopoJets,
-        jCone4H1TopoJets,
-        jKt4H1TowerJets,
-        jCone4H1TowerJets
-    };
-    float eta;
-    float phi;
-    float et;
-    int numCells;
-    int id;
-    jType type;
-};
+class ATrack;
+class ASTrack;
+class AJet;
+class shower;
+class FCALshower;
 
 class Aevent
 {

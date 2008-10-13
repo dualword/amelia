@@ -47,9 +47,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QGraphicsTextItem>
 #include <QGraphicsProxyWidget>
 
+#include "AXmlEvent.h"
 #include "AGeometry.h"
 #include "ATrackCombination.h"
-#include "AXmlEvent.h"
 
 class AEventInfoScene : public QGraphicsScene
 {

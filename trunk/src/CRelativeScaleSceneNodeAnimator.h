@@ -18,6 +18,9 @@ public:
 
     void animateNode(ISceneNode *node,u32 timeMs);
 
+    //! We need to define this method because it's a pure virtual function on ISceneNodeAnimator
+    virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) {};
+
 private:
     ISceneManager* smgr;
 };

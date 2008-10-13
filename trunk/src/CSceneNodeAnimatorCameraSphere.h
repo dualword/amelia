@@ -14,25 +14,28 @@ namespace irr
     class CSceneNodeAnimatorCameraSphere : public ISceneNodeAnimator
     {
     public:
-      
+
       //! constructor
       CSceneNodeAnimatorCameraSphere(gui::ICursorControl* _cursorControl,f32 moveSpeed=0.01,f32 zoomSpeed=10,f32 maxZoom=1);
-      
+
       //! destructor
       virtual ~CSceneNodeAnimatorCameraSphere();
-      
+
       //! animates a scene node
       virtual void animateNode(ISceneNode* node, u32 timeMs);
-      
+
       //! recieves events
       virtual bool OnEvent(const SEvent& event);
-      
+
       //! Returns type of the scene node animator
       virtual ESCENE_NODE_ANIMATOR_TYPE getType() const { return ESNAT_UNKNOWN; }
-      
+
       //! This animator will receive events when attached to the active camera
       virtual bool isEventReceiverEnabled() const { return true; }
-      
+
+      //! We need to define this method because it's a pure virtual function on ISceneNodeAnimator
+      virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) {};
+
     private:
       f32 zoomSpeed;
       f32 moveSpeed;

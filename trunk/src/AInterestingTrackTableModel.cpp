@@ -47,41 +47,56 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 
     if (role == Qt::DisplayRole)
     {
+        ATrack* track = tracks.at(index.row());
         switch (index.column())
         {
         case 0:
-            return tracks.at(index.row())->name.c_str();
+            return track->name.c_str();
         case 1:
-            return QString::number(tracks.at(index.row())->pt);
-
+            if (track->Type == ATrack::eJet || track->Type == ATrack::eSTrack)
+            {
+                return QString::number(track->pt);
+            }
+            else return QString("N/A");
         case 2:
-            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
-                {
-                    return QString::number(tracks.at(index.row())->eta);
-                }
+            if (track->Type == ATrack::eJet)
+            {
+                AJet* jet = track->getThisJet();
+                return QString::number(jet->eta);
+            }
+            else if (track->Type == ATrack::eSTrack)
+            {
+                ASTrack* strack = track->getThisSTrack();
+                return QString::number(strack->eta);
+            }
             else
             {
-                    return "N/A";
+                return "N/A";
             }
 
         case 3:
-            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
-                {
-                    return QString::number(tracks.at(index.row())->phi);
-                }
+           if (track->Type == ATrack::eJet)
+            {
+                AJet* jet = track->getThisJet();
+                return QString::number(jet->phi);
+            }
+            else if (track->Type == ATrack::eSTrack)
+            {
+                ASTrack* strack = track->getThisSTrack();
+                return QString::number(strack->phi);
+            }
             else
             {
-                    return "N/A";
+                return "N/A";
             }
-
         case 4:
-            if (tracks.at(index.row())->Type == ATrack::eJet || tracks.at(index.row())->Type == ATrack::eSTrack)
-                {
-                    return QString::number(tracks.at(index.row())->trackID);
-                }
-                else
+            if (track->Type == ATrack::eSTrack)
             {
-                    return "N/A";
+                return QString::number(tracks.at(index.row())->trackID);
+            }
+            else
+            {
+                return "N/A";
             }
 
 
@@ -104,9 +119,9 @@ QVariant AInterestingTrackTableModel::headerData (int section, Qt::Orientation o
         case 1:
             return "pT";
         case 2:
-            return "eta";
+            return QChar (0x3B7); //eta
         case 3:
-            return "phi";
+            return QChar (0x3C6); //phi
         case 4:
             return "ID";
         }
@@ -251,19 +266,20 @@ void AInterestingTrackTableModel::getInterestingTracks()
         {
             if ( go->Type == go->eSTrack )
             {
-                if ( go->code == 11 || go->code == -11 ) //electrons
+                ASTrack* goo = go->getThisSTrack();
+                if ( goo->code == 11 || goo->code == -11 ) //electrons
+                {
+                    addTrack(goo->node->trackPointer);
+                }
+
+                if ( abs ( goo->code ) == 13 ) //muons
                 {
                     addTrack(go->node->trackPointer);
                 }
 
-                if ( abs ( go->code ) == 13 ) //muons
+                if ( goo->code == 22 ) //photons
                 {
-                    addTrack(go->node->trackPointer);
-                }
-
-                if ( go->code == 22 ) //photons
-                {
-                    addTrack(go->node->trackPointer);
+                    addTrack(goo->node->trackPointer);
                 }
             }
         }

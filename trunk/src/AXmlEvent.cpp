@@ -173,6 +173,7 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
         for ( int s = 0; s < et.size(); s++ )
         {
             j->et = et[s];
+            j->pt = j->pt;
             if ( s<eta.size() ) j->eta = eta[s];
             if ( s<phi.size() ) j->phi = phi[s];
             if ( s<numCells.size() ) j->numCells = numCells[s];
@@ -475,23 +476,23 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
     e->numElectrons = 0;
     e->numShowers = e->LArshowers.size() + e->FCALshowers.size() + e->HECshowers.size() + e->TILEshowers.size();
 
-    for ( vector<ATrack>::iterator go = e->Tracks.begin(); go!= e->Tracks.end(); go++ )
+    for ( vector<ASTrack*>::iterator go = e->STracks.begin(); go!= e->STracks.end(); go++ )
     {
         //cout << "\n In the selection, this track is of type " << go->Type ;
         //cout << "\n The track name is " << go->name;
-        go->node=0;
-        if ( go->Type == go->eSTrack )
+        (*go)->node=0;
+        if ( (*go)->Type == (*go)->eSTrack )
         {
 
 
             e->numTracks++;
-            if ( go->name == "gamma" ) e->numPhotons++;
-            else if ( go->name == "nu_e" || go->name == "nu_mu" || go->name == "nu_tau" || go->name == "nu_ebar" || go->name == "nu_mubar" || go->name == "nu_taubar" ) e->numNeutrinos++;
-            else if ( go->name == "mu-" || go->name == "mu+" ) e->numMuons++;
-            else if ( go->name == "e-" || go->name == "e+" ) e->numElectrons++;
+            if ( (*go)->name == "gamma" ) e->numPhotons++;
+            else if ( (*go)->name == "nu_e" || (*go)->name == "nu_mu" || (*go)->name == "nu_tau" || (*go)->name == "nu_ebar" || (*go)->name == "nu_mubar" || (*go)->name == "nu_taubar" ) e->numNeutrinos++;
+            else if ( (*go)->name == "mu-" || (*go)->name == "mu+" ) e->numMuons++;
+            else if ( (*go)->name == "e-" || (*go)->name == "e+" ) e->numElectrons++;
             else
             {
-                if ( go->q == 0 ) e->numNeutralHadrons++;
+                if ( (*go)->q == 0 ) e->numNeutralHadrons++;
                 else e->numChargedHadrons++;
             }
         }
@@ -540,6 +541,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     ptcut=PtCutInt;
     float PtCut=((float)PtCutInt)/1000;
     vector<ATrack> NewEventTracks;
+    vector<ASTrack*> NewEventSTracks;
     Event.numTracks = 0;
     Event.numChargedHadrons = 0;
     Event.numPhotons = 0;
@@ -549,113 +551,114 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     Event.numElectrons = 0;
     Event.numShowers = EventComplete.FCALshowers.size() + EventComplete.HECshowers.size() + EventComplete.LArshowers.size() + EventComplete.TILEshowers.size();
     int j = 0;
-    for ( vector<ATrack>::iterator go = EventComplete.Tracks.begin(); go!=EventComplete.Tracks.end(); go++ )
-    {
-        if ( go->Type == go->eJet )
-            if (go->node) go->node->setTrackStyle ( 9 );
 
-        if ( go->Type != go->eSTrack )
+    //This is a first approach to replace the old code. We'll treat the tracks by type, using the pointer vectors
+    //First STracks
+    for ( vector<ASTrack*>::iterator it = EventComplete.STracks.begin(); it!=EventComplete.STracks.end(); it++ )
+    {
+        ASTrack* go = *it;
+
+        if ( go->pt >= PtCut )
         {
             NewEventTracks.push_back ( *go );
-        }
-        else
-        {
-            if ( go->pt >= PtCut )
+            NewEventSTracks.push_back ( go );
+
+            if (go->node) go->node->setTrackStyle ( go->node->style );
+
+            //Set visibility according to the checkbox states
+
+            if ( go->Type == go->eSTrack )
             {
-                NewEventTracks.push_back ( *go );
-
-                if (go->node) go->node->setTrackStyle ( go->node->style );
-
-                //Set visibility according to the checkbox states
-
-                if ( go->Type == go->eSTrack )
+                if (go->node) go->node->setVisible ( false );
+                for ( j = 0; j < P_checkbox_states.size(); j++ )
                 {
-                    if (go->node) go->node->setVisible ( false );
-                    for ( j = 0; j < P_checkbox_states.size(); j++ )
+                    if ( P_checkbox_states[j] )
                     {
-                        if ( P_checkbox_states[j] )
+                        switch ( j )
                         {
-                            switch ( j )
+
+                        case 0: //electrons
+                            if ( go->code == 11 || go->code == -11 )
                             {
-
-                            case 0: //electrons
-                                if ( go->code == 11 || go->code == -11 )
-                                {
-                                    Event.numTracks++;
-                                    Event.numElectrons++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-
-                            case 1: //muons
-                                if ( abs ( go->code ) == 13 )
-                                {
-                                    Event.numTracks++;
-                                    Event.numMuons++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-
-                            case 2: //photons
-                                if ( go->code == 22 )
-                                {
-                                    Event.numTracks++;
-                                    Event.numPhotons++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-
-                            case 3: //neutrinos
-                                if ( abs ( go->code==12 ) || abs ( go->code==14 ) || abs ( go->code==16 ) )
-                                {
-                                    Event.numTracks++;
-                                    Event.numNeutrinos++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-                            case 4: //neutral hadrons
-                                if ( go->code==23 || go->code==111 || go->code==113 || go->code==130 ||
-                                        go->code==221 || go->code==310 || abs ( go->code==421 ) || abs ( go->code==2212 ) ||
-                                        abs ( go->code==3122 ) || abs ( go->code==3212 ) || abs ( go->code==3322 ) )
-                                {
-                                    Event.numTracks++;
-                                    Event.numNeutralHadrons++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-                            case 5: //charged hadrons
-                                if ( abs ( go->code== 15 ) || abs ( go->code== 24 ) || abs ( go->code== 211 ) ||
-                                        abs ( go->code== 321 ) || abs ( go->code== 411 ) || abs ( go->code== 431 ) || abs ( go->code== 2212 ) ||
-                                        abs ( go->code== 3112 ) || abs ( go->code== 3222 ) || abs ( go->code== 3312 ) || abs ( go->code== 3334 ) ||
-                                        abs ( go->code== 4122 ) )
-                                {
-                                    Event.numTracks++;
-                                    Event.numChargedHadrons++;
-                                    if (go->node) go->node->setVisible ( true );
-                                }
-                                break;
-
+                                Event.numTracks++;
+                                Event.numElectrons++;
+                                if (go->node) go->node->setVisible ( true );
                             }
+                            break;
+
+                        case 1: //muons
+                            if ( abs ( go->code ) == 13 )
+                            {
+                                Event.numTracks++;
+                                Event.numMuons++;
+                                if (go->node) go->node->setVisible ( true );
+                            }
+                            break;
+
+                        case 2: //photons
+                            if ( go->code == 22 )
+                            {
+                                Event.numTracks++;
+                                Event.numPhotons++;
+                                if (go->node) go->node->setVisible ( true );
+                            }
+                            break;
+
+                        case 3: //neutrinos
+                            if ( abs ( go->code==12 ) || abs ( go->code==14 ) || abs ( go->code==16 ) )
+                            {
+                                Event.numTracks++;
+                                Event.numNeutrinos++;
+                                if (go->node) go->node->setVisible ( true );
+                            }
+                            break;
+                        case 4: //neutral hadrons
+                            if ( go->code==23 || go->code==111 || go->code==113 || go->code==130 ||
+                                    go->code==221 || go->code==310 || abs ( go->code==421 ) || abs ( go->code==2212 ) ||
+                                    abs ( go->code==3122 ) || abs ( go->code==3212 ) || abs ( go->code==3322 ) )
+                            {
+                                Event.numTracks++;
+                                Event.numNeutralHadrons++;
+                                if (go->node) go->node->setVisible ( true );
+                            }
+                            break;
+                        case 5: //charged hadrons
+                            if ( abs ( go->code== 15 ) || abs ( go->code== 24 ) || abs ( go->code== 211 ) ||
+                                    abs ( go->code== 321 ) || abs ( go->code== 411 ) || abs ( go->code== 431 ) || abs ( go->code== 2212 ) ||
+                                    abs ( go->code== 3112 ) || abs ( go->code== 3222 ) || abs ( go->code== 3312 ) || abs ( go->code== 3334 ) ||
+                                    abs ( go->code== 4122 ) )
+                            {
+                                Event.numTracks++;
+                                Event.numChargedHadrons++;
+                                if (go->node) go->node->setVisible ( true );
+                            }
+                            break;
+
                         }
                     }
                 }
-
-
-
-
-            }
-            else
-            {
-                if (go->node)
-                {
-                    go->node->setTrackStyle ( 0 );
-                    go->node->setVisible ( false );
-                }
             }
         }
+    } // End of STracks selection
+
+
+    //Now AJets
+    for ( vector<AJet*>::iterator it = EventComplete.Jets.begin(); it!=EventComplete.Jets.end(); it++ )
+    {
+        AJet* go = *it;
+        if (go->node) go->node->setTrackStyle ( 9 );
+        NewEventTracks.push_back ( *go );
     }
+
+
+
+
+
+
     Event.Tracks =  NewEventTracks;
-    //Event = NewEvent;
+    Event.STracks =  NewEventSTracks;
+    Event.Jets =  EventComplete.Jets;
+
     emit eventChanged();
 }
 
@@ -679,12 +682,15 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
         ievent.numElectrons = 0;
         ievent.numShowers = ievent.FCALshowers.size() + ievent.HECshowers.size() + ievent.LArshowers.size() + ievent.TILEshowers.size();
 
-        vector<ATrack>::iterator i;
+
+        // We do this in parts. First, STracks
+        vector<ASTrack*>::iterator ii;
         int j = 0;
 
 
-        for ( i = ievent.Tracks.begin(); i!=ievent.Tracks.end(); i++ )
+        for ( ii = ievent.STracks.begin(); ii!=ievent.STracks.end(); ii++ )
         {
+            ASTrack* i = *ii;
             if ( i->Type == i->eSTrack )
             {
                 i->node->setVisible ( false );
@@ -752,41 +758,49 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
                             }
                             break;
 
+                            if ( i->Type == i->eMissingEt )
+                            {
+                                i->node->setVisible ( false );
+                                if ( states[7] )
+                                {
+                                    if ( i->Type == 4 )
+                                    {
+                                        i->node->setVisible ( true );
+                                    }
+                                }
+                            }
+
                         }
                     }
                 }
             }
+        }
 
-            if ( i->Type == i->eJet )
+        //Then AJets
+        vector<AJet*>::iterator kk;
+
+        for ( kk = ievent.Jets.begin(); kk!=ievent.Jets.end(); kk++ )
+        {
+            AJet* k = *kk;
+            if ( k->Type == k->eJet )
             {
-                i->node->setVisible ( false );
+                k->node->setVisible ( false );
                 if ( states[6] )
                 {
-                    if ( i->Type == 2 )
+                    if ( k->Type == 2 )
                     {
-                        i->node->setVisible ( true );
+                        k->node->setVisible ( true );
                     }
                 }
             }
-
-            if ( i->Type == i->eMissingEt )
-            {
-                i->node->setVisible ( false );
-                if ( states[7] )
-                {
-                    if ( i->Type == 4 )
-                    {
-                        i->node->setVisible ( true );
-                    }
-                }
-            }
-
-
         }
+
     }
+
     emit eventChanged();
     return ievent;
 }
+
 
 void XmlEvent::UnloadEvent()
 {
@@ -819,8 +833,10 @@ void XmlEvent::DisplayEvent(AGeometry* device)
 {
     int jetIdCounter = 0;
 
-    for ( vector<ATrack>::iterator iter = EventComplete.Tracks.begin(); iter != EventComplete.Tracks.end(); iter++ )
+    //First let's take care of STracks
+    for ( vector<ASTrack*>::iterator iiter = EventComplete.STracks.begin(); iiter != EventComplete.STracks.end(); iiter++ )
     {
+        ASTrack* iter = *iiter;
         iter->node=0;
 
         if ( iter->Type == 1 )
@@ -876,20 +892,6 @@ void XmlEvent::DisplayEvent(AGeometry* device)
             iter->node->style = iter->style;
             iter->node->setTrackStyle ( iter->style );
         }
-        else if ( iter->Type == 2 ) // jets
-        {
-            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-            iter->node = HelixNode;
-            iter->node->eta = iter->eta;
-            iter->node->phi = iter->phi;
-            iter->node->isLineVisible = false;
-            iter->style = 7;
-            iter->selectionID == --jetIdCounter;
-
-            iter->node->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-            iter->node->setTrack ( &*iter );
-            iter->node->createJetPyramids();
-        }
         else if ( iter->Type == 4 ) //Missing Et
         {
             HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
@@ -906,16 +908,34 @@ void XmlEvent::DisplayEvent(AGeometry* device)
             iter->node->setTrack ( &*iter );
             iter->node->createMisEtBoxes();
         }
-        else
-        {
-            qDebug() << "Unknown " << iter->Type;
-        }
 
         iter->tL = iter->node->tL;
         iter->Mlv = iter->node->Mlv;
 
+        iter->selectionID = 0;
+        iter->isInList = false;
+    }
+
+    //Then jets.  We should create another child of ATrack3DNode for this later.
+    for ( vector<AJet*>::iterator iiter = EventComplete.Jets.begin(); iiter != EventComplete.Jets.end(); iiter++ )
+    {
+        AJet* iter = *iiter;
+        iter->node=0;
 
 
+        if ( iter->Type == 2 ) // jets
+        {
+            AJet3DNode* JetNode = new AJet3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            iter->node = JetNode;
+            iter->node->eta = iter->eta;
+            iter->node->phi = iter->phi;
+            iter->style = 7;
+            iter->selectionID == --jetIdCounter;
+
+            iter->node->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+            iter->node->setTrack ( &*iter );
+            iter->node->createJetPyramids();
+        }
 
         iter->selectionID = 0;
         iter->isInList = false;

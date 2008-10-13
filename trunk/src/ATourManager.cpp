@@ -154,7 +154,6 @@ int ATour::loadKeyframe ( ATourBlock* block, IXMLReader* reader )
 
             interpolate ( newcam, frametime, block->cam, block->camt );
 
-            //wxMessageBox(_("Camera"));
 
         }
         else if ( !wcscmp ( reader->getNodeName(), L"target" ) )
@@ -165,8 +164,6 @@ int ATour::loadKeyframe ( ATourBlock* block, IXMLReader* reader )
                                            reader->getAttributeValueAsFloat ( L"z" ) );
 
             interpolate ( newtar, frametime, block->tar, block->tart );
-
-            //wxMessageBox(_("Target"));
 
         }
         else if ( !wcscmp ( reader->getNodeName(), L"action" ) )
@@ -211,9 +208,6 @@ int ATour::loadKeyframe ( ATourBlock* block, IXMLReader* reader )
 
             block->actt->push_back ( frametime );
 
-            //wxString str;
-            //str.Printf(_("actt=%d"), *frametime);
-            //wxMessageBox(str);
 
         }
         else
@@ -224,9 +218,6 @@ int ATour::loadKeyframe ( ATourBlock* block, IXMLReader* reader )
 
     }
 
-    //wxString str;
-    //str.Printf(_("returning %d"), *frametime);
-    //wxMessageBox(str);
     return frametime;
 
 }

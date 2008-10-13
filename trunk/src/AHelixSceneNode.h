@@ -39,6 +39,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #define AHELIXSCENENODE_H
 
 
+#include "ATrack.h"
 #include "AGeometry.h"
 #include "CRelativeScaleSceneNodeAnimator.h"
 
@@ -51,130 +52,200 @@ using namespace io;
 using namespace std;
 
 class AGeometry;
+class ATrack;
+class ASTrack;
+class AJet;
 
-class HelixSceneNode : public scene::ISceneNode
+class ATrack3DNode : public scene::ISceneNode
 {
-	private:
+private:
 
-		video::SMaterial Material;
-		void generateBoxes();
-		core::aabbox3d<f32>& getBoundingBox();
-		//wxIrrlicht* Irr;
-		CRelativeScaleSceneNodeAnimator *boxSizeAnim;
+protected:
+    video::SMaterial Material;
+    void generateBoxes();
+    core::aabbox3d<f32>& getBoundingBox();
+    CRelativeScaleSceneNodeAnimator *boxSizeAnim;
 
-	public:
+public:
 
-		core::aabbox3d<f32> Box;
+    ATrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual ~ATrack3DNode();
 
-
-		HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
-
-
-		virtual ~HelixSceneNode();
-
-		AGeometry* Base;
-		class ATrack* trackPointer;
-		int charge;
-		float eta;
-		float phi;
-		float pt;
-		float v_phi;
-		float v_rho;
-		float v_z;
-		float tL;
-		int trackID;
-		float maxAngle;
-		float Mlv; //Invariant Mass
-		video::SColor color;
-		video::SColor dimmedColor;
-		video::SColor vividColor;
-		core::vector3df start;
-		core::vector3df end;
-		float etx;
-		float ety;
-
-		int getCharge();
-		float getEta();
-		float getPhi();
-		float getPt();
-		float getEt();
-		float getEtx();
-		float getEty();
-		float getV_phi();
-		float getV_rho();
-		float getV_z();
-
-		bool isLineVisible;
-		bool boxMode;
-		float boxWidth;
-		std::vector<scene::ISceneNode*> boxSegments;
-		std::vector<core::vector3df> curvePoints;
-		virtual void setBoxesVisibility ( bool boxVisibility );
-		int trackNumber;
-		ATrack* getTrackById ( int id );
-		virtual int getTrackNumber();
-		virtual void setBoxesSelected ( bool boxesSelected );
-		virtual void setTrackStyle ( int style );
-		virtual void calculateDimmedColors();
-		int style;
-		virtual void setTrack ( ATrack* track );
-		virtual ATrack* getTrack();
-		int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-
-		void createBoxes();
-		void createJetPyramids(); //for the jets
-		void createMisEtBoxes(); //for Missing Et
-		ISceneNode* Pyramid;
-
-		void calculateMlv(); //Invariant Mass for a single particle
-
-		void select();
-		void deselect();
-
-		/*********************************************************
-
-		****************NEUTRAL PARTICLE**************************
-
-		//********************************************************/
+    core::aabbox3d<f32> Box;
+    AGeometry* Base;
+    ATrack* trackPointer;
+    int style;
+    virtual void select() {}
+    virtual void deselect() {}
+    virtual ATrack* getTrack() {}
+    virtual void setTrackStyle(int style) {}
+};
 
 
-		virtual std::vector<core::vector3df> getNeutralPath();
 
-		virtual void constructNeutral();
+class HelixSceneNode : public ATrack3DNode
+{
 
-		virtual void createBoxesNeutral();
+public:
 
-		virtual void Helix();
+    HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual ~HelixSceneNode();
 
-		/*********************************************************
+    int charge;
+    float eta;
+    float phi;
+    float pt;
+    float v_phi;
+    float v_rho;
+    float v_z;
+    float tL;
+    int trackID;
+    float maxAngle;
+    float Mlv; //Invariant Mass
+    video::SColor color;
+    video::SColor dimmedColor;
+    video::SColor vividColor;
+    core::vector3df start;
+    core::vector3df end;
+    float etx;
+    float ety;
 
-		****************CHARGED PARTICLE**************************
+    int getCharge();
+    float getEta();
+    float getPhi();
+    float getPt();
+    float getEt();
+    float getEtx();
+    float getEty();
+    float getV_phi();
+    float getV_rho();
+    float getV_z();
+    float getTl();
 
-		//********************************************************/
+    ASTrack* trackPointer;
+    bool isLineVisible;
+    bool boxMode;
+    float boxWidth;
+    std::vector<scene::ISceneNode*> boxSegments;
+    std::vector<core::vector3df> curvePoints;
+    virtual void setBoxesVisibility ( bool boxVisibility );
+    int trackNumber;
+    ATrack* getTrackById ( int id );
+    virtual int getTrackNumber();
+    virtual void setBoxesSelected ( bool boxesSelected );
+    virtual void setTrackStyle ( int style );
+    virtual void calculateDimmedColors();
+    virtual void setTrack ( ASTrack* track );
+    virtual ATrack* getTrack();
+    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
 
-		virtual float x_helix ( float w, float X_CH, float R, float phi, float charge );
+    void createBoxes();
+    void createMisEtBoxes(); //for Missing Et
 
-		virtual float y_helix ( float w, float Y_CH, float R, float phi, float charge );
+    void calculateMlv(); //Invariant Mass for a single particle
 
-		virtual float z_helix ( float w, float Z_CH, float theta, float R );
+    void select();
+    void deselect();
+
+    /*********************************************************
+
+    ****************NEUTRAL PARTICLE**************************
+
+    //********************************************************/
 
 
-		virtual float getChargedMaxAngle ();
+    virtual std::vector<core::vector3df> getNeutralPath();
 
-		virtual void constructCharged();
+    virtual void constructNeutral();
 
-		virtual void createBoxesCharged();
+    virtual void createBoxesNeutral();
 
-		void createCurveVector();
+    virtual void Helix();
 
-		virtual void OnRegisterSceneNode();
+    /*********************************************************
 
-		virtual void render();
+    ****************CHARGED PARTICLE**************************
 
-		virtual const core::aabbox3d<f32>& getBoundingBox() const;
+    //********************************************************/
 
-		virtual video::SMaterial& getMaterial ( s32 i );
+    virtual float x_helix ( float w, float X_CH, float R, float phi, float charge );
 
+    virtual float y_helix ( float w, float Y_CH, float R, float phi, float charge );
+
+    virtual float z_helix ( float w, float Z_CH, float theta, float R );
+
+
+    virtual float getChargedMaxAngle ();
+
+    virtual void constructCharged();
+
+    virtual void createBoxesCharged();
+
+    void createCurveVector();
+
+    virtual void OnRegisterSceneNode();
+
+    virtual void render();
+
+    virtual const core::aabbox3d<f32>& getBoundingBox() const;
+
+    virtual video::SMaterial& getMaterial ( s32 i );
+
+};
+
+class AJet3DNode : public ATrack3DNode
+{
+public:
+    AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual ~AJet3DNode();
+
+
+    float eta;
+    float phi;
+    float pt;
+
+    int trackID;
+
+    float Mlv; //Invariant Mass
+    video::SColor color;
+    video::SColor vividColor;
+    core::vector3df start;
+    core::vector3df end;
+
+    float getEta();
+    float getPhi();
+    float getEt();
+    float getPt();
+    float getTl();
+
+    AJet* trackPointer;
+
+    bool boxMode;
+    float boxWidth;
+
+    virtual void setBoxesVisibility ( bool boxVisibility );
+    int trackNumber;
+    ATrack* getTrackById ( int id );
+    virtual int getTrackNumber();
+    virtual void setBoxesSelected ( bool boxesSelected );
+    virtual void setTrackStyle ( int style );
+    virtual void setTrack ( AJet* track );
+    virtual ATrack* getTrack();
+    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+
+    void createJetPyramids(); //for the jets
+
+    ISceneNode* Pyramid;
+
+    void select();
+    void deselect();
+
+    virtual void OnRegisterSceneNode();
+
+    virtual const core::aabbox3d<f32>& getBoundingBox() const;
+
+    virtual video::SMaterial& getMaterial ( s32 i );
+    virtual void render() {}
 };
 
 

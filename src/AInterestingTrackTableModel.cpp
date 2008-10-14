@@ -75,7 +75,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
             }
 
         case 3:
-           if (track->Type == ATrack::eJet)
+            if (track->Type == ATrack::eJet)
             {
                 AJet* jet = track->getThisJet();
                 return QString::number(jet->phi);
@@ -178,6 +178,7 @@ void AInterestingTrackTableModel::addTrack(ATrack* strack)
 {
     if (tracks.indexOf(strack)<0) //Dupe Check
     {
+        qDebug() << "AInterestingTrackTableModel::addTrack";
         beginInsertRows(QModelIndex(),0,0);
         tracks.append(strack);
         endInsertRows();
@@ -256,30 +257,47 @@ void AInterestingTrackTableModel::getInterestingTracks()
     int ptMinimum = 2;
     for ( vector<ATrack>::iterator go = ievent.Tracks.begin(); go!=ievent.Tracks.end(); go++ )
     {
+
         if ( go->Type == go->eJet )
-            addTrack(go->node->trackPointer);
+        {
+            qDebug() << "getInterestingTracks() got a Jet";
+            addTrack(&*go);
+            qDebug() << "Really got that jet. No problem.";
+        }
+
 
         if ( go->Type == go->eMissingEt )
-            addTrack(go->node->trackPointer);
-
-        if ( go->pt >= ptMinimum )
         {
-            if ( go->Type == go->eSTrack )
+            qDebug() << "getInterestingTracks() got MissingET";
+            addTrack(&*go);
+            qDebug() << "Really got that MissingEt. No problem";
+        }
+
+
+
+        if ( go->Type == go->eSTrack )
+        {
+            ASTrack* goo = static_cast<ASTrack*>(&*go);
+            if ( goo->pt >= ptMinimum )
             {
-                ASTrack* goo = go->getThisSTrack();
+
+                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt;
                 if ( goo->code == 11 || goo->code == -11 ) //electrons
                 {
-                    addTrack(goo->node->trackPointer);
+                    qDebug() << "getInterestingTracks() got an electron";
+                    addTrack(&*go);
                 }
 
                 if ( abs ( goo->code ) == 13 ) //muons
                 {
-                    addTrack(go->node->trackPointer);
+                    qDebug() << "getInterestingTracks() got a muon";
+                    addTrack(&*go);
                 }
 
                 if ( goo->code == 22 ) //photons
                 {
-                    addTrack(goo->node->trackPointer);
+                    qDebug() << "getInterestingTracks() got a photon";
+                    addTrack(&*go);
                 }
             }
         }

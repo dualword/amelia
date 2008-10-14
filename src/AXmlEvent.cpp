@@ -143,7 +143,6 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
 
     std::vector <AJet*> jets;
     int i;
-    AJet* j = new AJet();
 
     //elements of the Jets
     vector<float> eta;
@@ -172,6 +171,7 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
         // Now we should load every node individually, and assign the proper type to them
         for ( int s = 0; s < et.size(); s++ )
         {
+            AJet* j = new AJet();
             j->et = et[s];
             j->pt = j->pt;
             if ( s<eta.size() ) j->eta = eta[s];
@@ -223,8 +223,7 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* 
     std::vector <ASTrack*> tracks;
     int i;
 
-    ASTrack* t = new ASTrack();
-    ASTrack* e = new ASTrack();
+
 
     //elements of the simulated tracks
     vector<int> str_code;
@@ -300,27 +299,31 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* 
     {
         QDomElement node=ETMis.at(i).toElement();
 
+        ASTrack* e = new ASTrack();
+
         v = getDataFloat ( node.elementsByTagName("et").at(0) );
         e->et = v[0];
         v = getDataFloat ( node.elementsByTagName("etx").at(0) );
         e->etx = v[0];
         v = getDataFloat ( node.elementsByTagName("ety").at(0) );
         e->ety = v[0];
+
+
+        /// Write the XML data to the tracks
+
+        //Missing Energy
+        e->Type = e->eMissingEt;
+        e->name = "MissEt";
+        tracks.push_back ( e );
+        event->Tracks.push_back(*e);
     }
-
-    /// Write the XML data to the tracks
-
-    //Missing Energy
-    e->Type = e->eMissingEt;
-    e->name = "MissEt";
-    tracks.push_back ( e );
-    event->Tracks.push_back(*e);
 
     // Tracks section
     int j = 0;
     for ( i = 0; i < str_code.size(); i++ )
     {
 
+        ASTrack* t = new ASTrack();
         t->name = "unknown";
         for ( j = 0; j < 52; j++ )
         {
@@ -558,12 +561,15 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     {
         ASTrack* go = *it;
 
+
         if ( go->pt >= PtCut )
         {
+            qDebug() << "Adding a STrack. Type = "<< go->Type << " | eta = " << go->eta << " | phi = " << go->phi << " | Pt = " << go->pt ;
             NewEventTracks.push_back ( *go );
             NewEventSTracks.push_back ( go );
 
             if (go->node) go->node->setTrackStyle ( go->node->style );
+
 
             //Set visibility according to the checkbox states
 
@@ -641,14 +647,17 @@ void XmlEvent::PtCutoff ( int PtCutInt )
         }
     } // End of STracks selection
 
+qDebug() << "Ended STracks";
 
     //Now AJets
     for ( vector<AJet*>::iterator it = EventComplete.Jets.begin(); it!=EventComplete.Jets.end(); it++ )
     {
         AJet* go = *it;
-        if (go->node) go->node->setTrackStyle ( 9 );
+        qDebug() << "Adding a Jet. Type = "<< go->Type << " | eta = " << go->eta << " | phi = " << go->phi << " | Et = " << go->et ;
+        //if (go->node->Pyramid) go->node->setTrackStyle ( 9 );
         NewEventTracks.push_back ( *go );
     }
+    qDebug() << "Ended Jets";
 
 
 
@@ -660,6 +669,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
     Event.Jets =  EventComplete.Jets;
 
     emit eventChanged();
+    qDebug() << "Ended Pt Cutoff";
 }
 
 void XmlEvent::setCurrentJetModel(QString jetType)

@@ -53,21 +53,23 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
         case 0:
             return track->name.c_str();
         case 1:
-            if (track->Type == ATrack::eJet || track->Type == ATrack::eSTrack)
+            if (track->Type == ATrack::eJet)
             {
-                return QString::number(track->pt);
+                return QString::number((static_cast<AJet*>(track))->et);
+            }else
+            if (track->Type == ATrack::eSTrack || track->Type == ATrack::eMissingEt)
+            {
+                return QString::number((static_cast<ASTrack*>(track))->pt);
             }
             else return QString("N/A");
         case 2:
             if (track->Type == ATrack::eJet)
             {
-                AJet* jet = track->getThisJet();
-                return QString::number(jet->eta);
+                return QString::number(static_cast<AJet*>(track)->eta);
             }
             else if (track->Type == ATrack::eSTrack)
             {
-                ASTrack* strack = track->getThisSTrack();
-                return QString::number(strack->eta);
+                return QString::number(static_cast<ASTrack*>(track)->eta);
             }
             else
             {
@@ -77,13 +79,11 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
         case 3:
             if (track->Type == ATrack::eJet)
             {
-                AJet* jet = track->getThisJet();
-                return QString::number(jet->phi);
+                return QString::number(static_cast<AJet*>(track)->phi);
             }
             else if (track->Type == ATrack::eSTrack)
             {
-                ASTrack* strack = track->getThisSTrack();
-                return QString::number(strack->phi);
+                return QString::number(static_cast<ASTrack*>(track)->phi);
             }
             else
             {
@@ -253,54 +253,57 @@ void AInterestingTrackTableModel::clear()
 void AInterestingTrackTableModel::getInterestingTracks()
 {
     clear();
-    Aevent ievent = geo->XmlEvt->EventComplete;
+    AEvent ievent = geo->XmlEvt->EventComplete;
     int ptMinimum = 2;
-    for ( vector<ATrack>::iterator go = ievent.Tracks.begin(); go!=ievent.Tracks.end(); go++ )
+    for ( vector<ATrack*>::iterator go = ievent.Tracks.begin(); go!=ievent.Tracks.end(); go++ )
     {
 
-        if ( go->Type == go->eJet )
+        ATrack* t = *go;
+        if ( t->Type == t->eJet )
         {
             qDebug() << "getInterestingTracks() got a Jet";
-            addTrack(&*go);
+            addTrack(t);
             qDebug() << "Really got that jet. No problem.";
+
         }
 
 
-        if ( go->Type == go->eMissingEt )
+        if ( t->Type == t->eMissingEt )
         {
             qDebug() << "getInterestingTracks() got MissingET";
-            addTrack(&*go);
+            addTrack(t);
             qDebug() << "Really got that MissingEt. No problem";
         }
 
-
-
-        if ( go->Type == go->eSTrack )
+        if ( t->Type == t->eSTrack )
         {
-            ASTrack* goo = static_cast<ASTrack*>(&*go);
+            //cout << "\nAbout to evaluate a STrack";
+            ASTrack* goo = static_cast<ASTrack*>(t);
+            //ASTrack* goo = go->getThisSTrack();
+            //if (goo->pt >= 1) cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
             if ( goo->pt >= ptMinimum )
             {
 
-                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt;
+                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
                 if ( goo->code == 11 || goo->code == -11 ) //electrons
                 {
                     qDebug() << "getInterestingTracks() got an electron";
-                    addTrack(&*go);
+                    addTrack(t);
                 }
 
                 if ( abs ( goo->code ) == 13 ) //muons
                 {
                     qDebug() << "getInterestingTracks() got a muon";
-                    addTrack(&*go);
+                    addTrack(t);
                 }
 
                 if ( goo->code == 22 ) //photons
                 {
                     qDebug() << "getInterestingTracks() got a photon";
-                    addTrack(&*go);
+                    addTrack(t);
                 }
             }
-        }
+        }//eSTrack
     }
 }
 

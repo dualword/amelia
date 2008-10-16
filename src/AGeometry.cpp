@@ -305,22 +305,22 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
         {
             //Base->Gui->statstext->setText(L"Checkpoint");
 
-            for ( vector<ATrack>::iterator iter = XmlEvt->EventComplete.Tracks.begin(); iter < XmlEvt->EventComplete.Tracks.end(); iter++ )
+            for ( vector<ATrack*>::iterator iter = XmlEvt->EventComplete.Tracks.begin(); iter < XmlEvt->EventComplete.Tracks.end(); iter++ )
             {
                 int control = 0;
-                if ( selectedSceneNode && iter->Type == 1 ) //tracks
+                if ( selectedSceneNode && (*iter)->Type == 1 ) //tracks
                 {
-                    if ( selectedSceneNode->getParent() == iter->node )
+                    if ( selectedSceneNode->getParent() == (*iter)->node )
                     {
-                        selectedHelixNode = iter->node;
+                        selectedHelixNode = (*iter)->node;
 
                         break;
                     }
                 }
 
-                if ( iter->Type == 2 ) //jets
+                if ( (*iter)->Type == 2 ) //jets
                 {
-                    AJet* jet = iter->getThisJet();
+                    AJet* jet =  static_cast<AJet*>(*iter);
                     selector = jet->node->Pyramid->getTriangleSelector();
 
                     if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ) )
@@ -331,11 +331,11 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 
                 }
 
-                if ( iter->Type == 4 ) //Missing Et
+                if ( (*iter)->Type == 4 ) //Missing Et
                 {
-                    if ( selectedSceneNode->getParent() == iter->node )
+                    if ( selectedSceneNode->getParent() == (*iter)->node )
                     {
-                        selectedHelixNode = iter->node;
+                        selectedHelixNode = (*iter)->node;
 
                         break;
                     }
@@ -2166,9 +2166,9 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
     if ( XmlEvt->EventComplete.Tracks.size() >2 )
     {
         //Loop through all the tracks...
-        for ( std::vector<ATrack>::iterator go = XmlEvt->EventComplete.Tracks.begin(); go!=XmlEvt->EventComplete.Tracks.end(); go++ )
+        for ( std::vector<ATrack*>::iterator go = XmlEvt->EventComplete.Tracks.begin(); go!=XmlEvt->EventComplete.Tracks.end(); go++ )
         {
-            ATrack* selectedTrack = &*go;
+            ATrack* selectedTrack = *go;
             if ( selectedTrack->trackID == ID ) //Found it
             {
                 selectedTrack->node->select();

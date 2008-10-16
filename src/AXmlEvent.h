@@ -50,15 +50,16 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 class ATrack;
 class ASTrack;
 class AJet;
+class AMisET;
 class shower;
 class FCALshower;
 
-class Aevent
+class AEvent
 {
 public:
 
-    Aevent() {};
-    ~Aevent() {};
+    AEvent() {};
+    ~AEvent() {};
     QString filename;
 
     QString location;
@@ -67,9 +68,10 @@ public:
 
     QSet<QString> tags;
 
-    std::vector<ATrack> Tracks; // Tracks are stored here
+    std::vector<ATrack*> Tracks; // Tracks pointers are stored here
     std::vector<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
     std::vector<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
+    std::vector<AMisET*> MisET;  // Pointers to Jets within "EventTracks" are stored here
     int numTracks;
     int numChargedHadrons;
     int numPhotons;
@@ -105,11 +107,11 @@ public:
 
 
     class AGeometry* Base;
-    struct Aevent Event;
-    struct Aevent EventComplete;
-    struct Aevent GetEventFromFile ( const char* filename );
+    struct AEvent Event;
+    struct AEvent EventComplete;
+    struct AEvent GetEventFromFile ( const char* filename );
     void HideAllTracks();
-    struct Aevent DisplayParticles ( vector<bool>states, struct Aevent &ievent );
+    struct AEvent DisplayParticles ( vector<bool>states, struct AEvent &ievent );
     void LoadEvent ( const c8* file );
     void UnloadEvent ( );
     void DisplayEvent(AGeometry* device);
@@ -128,8 +130,9 @@ private:
 
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );
-    std::vector <ASTrack*> GetSTracksFromDOM ( QDomDocument doc , Aevent* event);
-    std::vector <AJet*> GetJetsFromDOM ( QDomDocument doc , Aevent* event);
+    std::vector <ASTrack*> GetSTracksFromDOM ( QDomDocument doc , AEvent* event);
+    std::vector <AJet*> GetJetsFromDOM ( QDomDocument doc , AEvent* event);
+    std::vector <AMisET*> GetMisETFromDOM ( QDomDocument doc , AEvent* event);
     std::vector <shower> GetShowersFromDOM ( QDomDocument doc, char* calo );
     std::vector <FCALshower> GetFCALShowersFromDOM ( QDomDocument doc );
 

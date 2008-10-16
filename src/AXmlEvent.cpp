@@ -136,7 +136,7 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
     return v;
 }
 
-std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
+std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event)
 {
     // Get all the jet data from the XML file. There are four main jet types of interest, expressed as attributes in the file
     // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
@@ -165,7 +165,6 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
         eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
         phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
         numCells = getDataFloat ( node.elementsByTagName("numCells").at(0) );
-        qDebug() << "" ;
 
 
         // Now we should load every node individually, and assign the proper type to them
@@ -173,7 +172,7 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
         {
             AJet* j = new AJet();
             j->et = et[s];
-            j->pt = j->pt;
+            j->pt = j->et;
             if ( s<eta.size() ) j->eta = eta[s];
             if ( s<phi.size() ) j->phi = phi[s];
             if ( s<numCells.size() ) j->numCells = numCells[s];
@@ -201,12 +200,12 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
             j->Type = j->eJet;
             j->name = "Jet";
             jets.push_back ( j );
-            event->Tracks.push_back(*j); // This adds the Jet (as a ATrack object) to the vector "Tracks" in the event
+            event->Tracks.push_back(j); // This adds the Jet (as a ATrack object) to the vector "Tracks" in the event
         }
 
         qDebug() << "Added "<< eta.size() << " new jets of type " << attr.value();
         qDebug() << "Total # Jets so far: " << jets.size();
-        qDebug() << "" ;
+
 
 
     }
@@ -217,7 +216,84 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , Aevent* event)
 
 }
 
-std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* event )
+std::vector <AMisET*> XmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* event)
+{
+    // Get all the Missing ET data from the XML file. There are five main types of MisET, expressed as attributes in the file
+    // Types are MET_Final, MET_RefMuon, MET_Calib, MET_RefFinal and MET_Truth
+
+    std::vector <AMisET*> MET;
+    int i;
+
+    //elements of MisET
+    vector<float> etx;
+    vector<float> ety;
+    vector<float> et;
+
+
+    QDomNodeList METNodes=dom.elementsByTagName("ETMis");
+
+    //Load the Jets
+    for (int i=0;i<METNodes.length();i++)
+    {
+        QDomElement node=METNodes.at(i).toElement();
+
+        // storeGateKey is the attribute that distinguishes different reconstruction models apart
+        QDomAttr attr = node.attributeNode( "storeGateKey" );
+
+        et = getDataFloat ( node.elementsByTagName("et").at(0) );
+        etx = getDataFloat ( node.elementsByTagName("etx").at(0) );
+        ety = getDataFloat ( node.elementsByTagName("ety").at(0) );
+
+        // Now we should load every node individually, and assign the proper type to them
+        for ( int s = 0; s < et.size(); s++ )
+        {
+            AMisET* m = new AMisET();
+            m->et = et[s];
+            m->pt = m->et;
+            if ( s<etx.size() ) m->etx = etx[s];
+            if ( s<ety.size() ) m->ety = ety[s];
+
+            if (attr.value() == QString("MET_Final"))
+            {
+                m->type = AMisET::mMET_Final;
+                qDebug() << "New MET_Finalt added ";
+            }
+            if (attr.value() == QString("MET_RefMuon"))
+            {
+                m->type = AMisET::mMET_RefMuon;
+                qDebug() << "New MET_RefMuon added ";
+            }
+            if (attr.value() == QString("MET_Calib"))
+            {
+                m->type = AMisET::mMET_Calib;
+                qDebug() << "New MET_Calib added ";
+            }
+            if (attr.value() == QString("MET_RefFinal"))
+            {
+                m->type = AMisET::mMET_RefFinal;
+                qDebug() << "New MET_RefFinal added ";
+            }
+            if (attr.value() == QString("MET_Truth"))
+            {
+                m->type = AMisET::mMET_Truth;
+                qDebug() << "New MET_Truth added ";
+            }
+            m->Type = m->eMissingEt;
+            m->name = "MissingET";
+            MET.push_back ( m );
+            event->Tracks.push_back(m); // Adds this MisET (as a ATrack object) to the vector "Tracks" in the event
+        }
+
+
+    }
+
+    qDebug() << "Number of MisET Nodes: " << METNodes.length();
+
+    return MET;
+
+}
+
+std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent* event )
 {
     // Aux variables and definitions
     std::vector <ASTrack*> tracks;
@@ -294,29 +370,6 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* 
         str_zVertex = getDataFloat ( node.elementsByTagName("zVertex").at(0) );
     }
 
-    // read and write the ETMis data
-    for (int i=0;i<ETMis.length();i++)
-    {
-        QDomElement node=ETMis.at(i).toElement();
-
-        ASTrack* e = new ASTrack();
-
-        v = getDataFloat ( node.elementsByTagName("et").at(0) );
-        e->et = v[0];
-        v = getDataFloat ( node.elementsByTagName("etx").at(0) );
-        e->etx = v[0];
-        v = getDataFloat ( node.elementsByTagName("ety").at(0) );
-        e->ety = v[0];
-
-
-        /// Write the XML data to the tracks
-
-        //Missing Energy
-        e->Type = e->eMissingEt;
-        e->name = "MissEt";
-        tracks.push_back ( e );
-        event->Tracks.push_back(*e);
-    }
 
     // Tracks section
     int j = 0;
@@ -324,6 +377,7 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* 
     {
 
         ASTrack* t = new ASTrack();
+
         t->name = "unknown";
         for ( j = 0; j < 52; j++ )
         {
@@ -350,7 +404,9 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , Aevent* 
         //cout << "\n track of type " << t->Type ;
         //cout << "\n name: " << t->name ;
         tracks.push_back ( t );
-        event->Tracks.push_back(*t);
+        event->Tracks.push_back(t);
+
+        cout << "\nSanity test. STrack code: " << t->code << " Which should be the same as " << static_cast<ASTrack*>((event->Tracks.at(event->Tracks.size()-1)))->code;
     }
 
     return tracks;
@@ -449,9 +505,9 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
     return showers;
 }
 
-Aevent XmlEvent::GetEventFromFile ( const char* filename )
+AEvent XmlEvent::GetEventFromFile ( const char* filename )
 {
-    Aevent* e = new Aevent();
+    AEvent* e = new AEvent();
 
     QDomDocument doc("metainfo");
     QFile fh(filename);
@@ -466,6 +522,7 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
 
     e->STracks = GetSTracksFromDOM ( doc, e );
     e->Jets = GetJetsFromDOM (doc , e);
+    e->MisET = GetMisETFromDOM (doc, e);
     e->LArshowers = GetShowersFromDOM ( doc, "LAr" );
     e->HECshowers = GetShowersFromDOM ( doc, "HEC" );
     e->TILEshowers = GetShowersFromDOM ( doc, "TILE" );
@@ -526,14 +583,14 @@ Aevent XmlEvent::GetEventFromFile ( const char* filename )
 
 void XmlEvent::HideAllTracks()
 {
-    for ( vector<ATrack>::iterator go = Event.Tracks.begin(); go!=Event.Tracks.end(); go++ )
-        switch ( go->Type )
+    for ( vector<ATrack*>::iterator go = Event.Tracks.begin(); go!=Event.Tracks.end(); go++ )
+        switch ( (*go)->Type )
         {
         case 1:
-            go->node->setTrackStyle ( 5 );
+            (*go)->node->setTrackStyle ( 5 );
             break;
         case 2:
-            go->node->setTrackStyle ( 8 );
+            (*go)->node->setTrackStyle ( 8 );
             break;
         }
 }
@@ -543,7 +600,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
 {
     ptcut=PtCutInt;
     float PtCut=((float)PtCutInt)/1000;
-    vector<ATrack> NewEventTracks;
+    vector<ATrack*> NewEventTracks;
     vector<ASTrack*> NewEventSTracks;
     Event.numTracks = 0;
     Event.numChargedHadrons = 0;
@@ -562,10 +619,11 @@ void XmlEvent::PtCutoff ( int PtCutInt )
         ASTrack* go = *it;
 
 
+        if (go->node) go->node->setTrackStyle ( 5 );
         if ( go->pt >= PtCut )
         {
-            qDebug() << "Adding a STrack. Type = "<< go->Type << " | eta = " << go->eta << " | phi = " << go->phi << " | Pt = " << go->pt ;
-            NewEventTracks.push_back ( *go );
+            qDebug() << "cutoff STrack. Type = "<< go->Type << " eta = " << go->eta << " phi = " << go->phi << " Pt = " << go->pt << " code = " << go->code ;
+            NewEventTracks.push_back ( go );
             NewEventSTracks.push_back ( go );
 
             if (go->node) go->node->setTrackStyle ( go->node->style );
@@ -575,7 +633,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
 
             if ( go->Type == go->eSTrack )
             {
-                if (go->node) go->node->setVisible ( false );
+                if (go->node != NULL) go->node->setVisible ( false );
                 for ( j = 0; j < P_checkbox_states.size(); j++ )
                 {
                     if ( P_checkbox_states[j] )
@@ -647,21 +705,17 @@ void XmlEvent::PtCutoff ( int PtCutInt )
         }
     } // End of STracks selection
 
-qDebug() << "Ended STracks";
+qDebug() << "Ended PtCutoff() for STracks";
 
     //Now AJets
     for ( vector<AJet*>::iterator it = EventComplete.Jets.begin(); it!=EventComplete.Jets.end(); it++ )
     {
         AJet* go = *it;
-        qDebug() << "Adding a Jet. Type = "<< go->Type << " | eta = " << go->eta << " | phi = " << go->phi << " | Et = " << go->et ;
+        //qDebug() << "Adding a Jet. Type = "<< go->Type << " | eta = " << go->eta << " | phi = " << go->phi << " | Et = " << go->et ;
         //if (go->node->Pyramid) go->node->setTrackStyle ( 9 );
-        NewEventTracks.push_back ( *go );
+        NewEventTracks.push_back ( go );
     }
-    qDebug() << "Ended Jets";
-
-
-
-
+    qDebug() << "Ended PtCutoff() for Jets";
 
 
     Event.Tracks =  NewEventTracks;
@@ -679,7 +733,7 @@ void XmlEvent::setCurrentJetModel(QString jetType)
 
 
 
-Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
+AEvent XmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
 {
     if ( ievent.Tracks.size() >1 )
     {
@@ -815,9 +869,14 @@ Aevent XmlEvent::DisplayParticles ( vector<bool>states, Aevent &ievent )
 void XmlEvent::UnloadEvent()
 {
     ISceneManager *smgr=Base->GetSceneManager();
-    for ( vector<ATrack>::iterator iter = EventComplete.Tracks.begin(); iter!=EventComplete.Tracks.end(); iter++ )
-        if (iter->node)
-            iter->node->remove();
+    for ( vector<ATrack*>::iterator iter = EventComplete.Tracks.begin(); iter!=EventComplete.Tracks.end(); iter++ )
+    {
+        if ((*iter)->node)
+        {
+            (*iter)->node->remove();
+        }
+        delete *iter;
+    }
     EventComplete.Tracks.clear();
 }
 
@@ -856,8 +915,8 @@ void XmlEvent::DisplayEvent(AGeometry* device)
             iter->node->charge = iter->q;
             iter->node->eta = iter->eta;
             iter->node->phi = iter->phi;
+            iter->pt = iter->et;
             iter->node->pt = iter->pt;
-            iter->et = iter->pt;
             iter->node->v_phi = iter->phiVertex;
             iter->node->v_rho = iter->rhoVertex;
             iter->node->v_z = iter->zVertex;

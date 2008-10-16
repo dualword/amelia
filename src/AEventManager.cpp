@@ -22,14 +22,14 @@ AEventManager::AEventManager(QString loc)
 	  packages.append(pkg);
 	}
     }
-  
+
 }
 
 QModelIndex AEventManager::index(int row, int column, const QModelIndex& parent) const
 {
   if (!hasIndex(row, column, parent))
     return QModelIndex();
-  
+
   int id;
   if (!parent.isValid())
     {
@@ -45,7 +45,7 @@ QModelIndex AEventManager::index(int row, int column, const QModelIndex& parent)
 QModelIndex AEventManager::parent(const QModelIndex& index) const
 {
   if(!index.isValid()) return QModelIndex();
-  
+
   int id=index.internalId();
   if(id==-1)
     {
@@ -67,7 +67,7 @@ int AEventManager::rowCount(const QModelIndex &index) const
       AEventPackage pkg=packages[index.row()];
       return pkg.eventCount();
     }
-  
+
   return 0;
 }
 
@@ -82,9 +82,9 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
     return QVariant();
 
   int id=index.internalId();
-  
+
   QFont font;
-      
+
   switch(role)
     {
     case Qt::FontRole:
@@ -94,7 +94,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
 	  bool read=pkg.event(index.row())->read;
 	  if(!read)
 	    font.setBold(true);
-	  
+
 	  if(activeEvent==index)
 	    {
 	      font.setItalic(true);
@@ -103,15 +103,15 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
       else
 	{ // Package Name
 	  font.setBold(true);
-	  
+
 	  if(index==activePackage)
 	    font.setItalic(true);
 
 	  font.setPointSize(14);
 	}
-      
+
       return font;
-      
+
     case Qt::DisplayRole:
       if(id==-1)
 	{
@@ -124,7 +124,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
       else
 	{
 	  AEventPackage pkg=packages[index.internalId()];
-	  Aevent *e=pkg.event(index.row());
+	  AEvent *e=pkg.event(index.row());
 	  if(index.column()==0)
 	    {
 	      return e->filename;
@@ -137,7 +137,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
 	      return tagString;
 	    }
 	}
-      
+
     case Qt::ForegroundRole:
       if(id!=-1)
 	{
@@ -148,9 +148,9 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
       if(id!=-1 && index.column()==0)
 	{
 	  AEventPackage pkg=packages[index.internalId()];
-	  Aevent *e=pkg.event(index.row());
+	  AEvent *e=pkg.event(index.row());
 	  XmlEvent *event=XmlEvent::CachedEvent(e->location);
-	  
+
 	  QString toolTip=
 	    "<html><b>Tracks:</b> \t\t"+QString::number(event->EventComplete.numTracks)+"<br/>"
 	    "<b>Neutral Hadrons:</b> \t"+QString::number(event->EventComplete.numNeutralHadrons)+"<br/>"
@@ -179,13 +179,13 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
   return QVariant();
 }
 
-Aevent* AEventManager::getEvent(const QModelIndex& index)
+AEvent* AEventManager::getEvent(const QModelIndex& index)
 {
   int id=index.internalId();
   if(id!=-1 && index.isValid())
     {
       AEventPackage pkg=packages[index.internalId()];
-      Aevent *e=pkg.event(index.row());
+      AEvent *e=pkg.event(index.row());
       return e;
     }
   return 0;
@@ -212,7 +212,7 @@ QModelIndex AEventManager::nextEvent()
 {
   if(!activePackage.isValid())
     return QModelIndex();
-  
+
   AEventPackage pkg=getPackage(activePackage);
   if(pkg.eventCount()>1)
     {
@@ -220,12 +220,12 @@ QModelIndex AEventManager::nextEvent()
       id++;
       if(id==pkg.eventCount())
 	id=0;
-      
+
       return index(id,0,activePackage);
     }
 
   return QModelIndex();
-    
+
 }
 
 void AEventManager::eventLoaded(QString loc)
@@ -234,7 +234,7 @@ void AEventManager::eventLoaded(QString loc)
     {
       for(int j=0;j<packages[i].eventCount();j++)
 	{
-	  Aevent *e=packages[i].event(j);
+	  AEvent *e=packages[i].event(j);
 	  if(e->location==loc)
 	    {
 	      e->read=true;
@@ -261,11 +261,11 @@ void AEventManager::tagActiveEvent(const QString& tag)
 
 void AEventManager::tagEvent(QModelIndex index,const QString& tag)
 {
-  Aevent *e=getEvent(index);
+  AEvent *e=getEvent(index);
   if(e)
     {
       e->tags.insert(tag);
-      
+
       packages[index.internalId()].save();
     }
 }
@@ -277,11 +277,11 @@ void AEventManager::detagActiveEvent(const QString& tag)
 
 void AEventManager::detagEvent(QModelIndex index,const QString& tag)
 {
-  Aevent *e=getEvent(index);
+  AEvent *e=getEvent(index);
   if(e)
     {
       e->tags.remove(tag);
-      
+
       packages[index.internalId()].save();
     }
 }

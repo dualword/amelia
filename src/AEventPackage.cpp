@@ -7,7 +7,7 @@
 
 AEventPackage::AEventPackage()
 {
-  
+
 }
 
 AEventPackage::~AEventPackage()
@@ -25,15 +25,15 @@ void AEventPackage::load(const QString& loc)
       int idx=elist[i].lastIndexOf(".xml");
       if(idx==elist[i].length()-4 && idx>=0)
 	{
-	  Aevent *event=new Aevent;
+	  AEvent *event=new AEvent;
 	  event->filename=elist[i];
 	  event->location=loc+"/"+elist[i];
 	  event->read=false;
-	  
+
 	  events.append(event);
 	}
     }
-  
+
   setName(dir.dirName());
 
 
@@ -98,8 +98,8 @@ void AEventPackage::save()
 
   for(int i=0;i<events.size();i++)
     {
-      Aevent *e=events[i];
-      
+      AEvent *e=events[i];
+
       if(e->read)
 	{
 	  in << "\t<event filename=\"" << e->filename << "\">" << endl;
@@ -136,7 +136,7 @@ int AEventPackage::eventCount()
   return events.size();
 }
 
-Aevent* AEventPackage::event(int idx)
+AEvent* AEventPackage::event(int idx)
 {
   return events[idx];
 }

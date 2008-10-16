@@ -20,10 +20,10 @@ public:
   QString name();
 
   int eventCount();
-  Aevent* event(int);
+  AEvent* event(int);
 
 private:
-  QList<Aevent *> events;
+  QList<AEvent *> events;
 
   QString _name;
   QString location;

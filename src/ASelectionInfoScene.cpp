@@ -178,7 +178,7 @@ void ASelectionInfoScene::refresh()
     {
         if ( (*combo)[0]->Type == 1 ) //track
         {
-            ASTrack* STrack = (*combo)[0]->getThisSTrack();
+            ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
             header->setPlainText("SELECTED TRACK INFO");
             name->setHtml("<b>Name:</b> "+QString(STrack->name.c_str()));
             charge->setHtml("<b>Charge:</b> "+QString::number(STrack->node->getCharge()));
@@ -202,7 +202,7 @@ void ASelectionInfoScene::refresh()
         }
         else if ( (*combo)[0]->Type == 2 ) //jet
         {
-            AJet* Jet = (*combo)[0]->getThisJet();
+            AJet* Jet = static_cast<AJet*>((*combo)[0]);
             header->setPlainText("SELECTED JET INFO");
             name->setHtml("<b>Type:</b> Jet");
             eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->node->getEta()));
@@ -219,7 +219,7 @@ void ASelectionInfoScene::refresh()
         }
         else if ( (*combo)[0]->Type == 4 ) //Missing Et
         {
-            ASTrack* STrack = (*combo)[0]->getThisSTrack();
+            ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
             header->setPlainText("SELECTED MisEt INFO");
             name->setHtml("<b>Type:</b> Missing Et");
             eta->setHtml("<b>etx:</b> "+QString::number(STrack->node->getEtx()));

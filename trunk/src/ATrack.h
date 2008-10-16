@@ -36,14 +36,6 @@ public:
     int q;
     float pt;
 
-    //The following is a little dirty trick. Sometimes we need to invoke a specific elements
-    //of a ATrack child class, but our primary object is represented as a ATrack (parent class)
-    //So let's define methods to retrieve a pointer to this same track, but in its specific form
-    //By default these will return NULL, but in each child class we make them return a pointer to self
-    virtual ASTrack* getThisSTrack() { return NULL;}
-    virtual AJet* getThisJet() { return NULL;}
-
-
     /*class shower LAr_shower;
     class shower HEC_shower;
     shower TILE_shower;
@@ -78,8 +70,6 @@ public:
 
     video::SColor trackColor;
     class HelixSceneNode* node;
-    virtual ASTrack* getThisSTrack() {return this;}
-
 
 };
 
@@ -103,7 +93,33 @@ public:
     int id;
     jType type;
     class AJet3DNode* node;
-    virtual AJet* getThisJet() {return this;}
+};
+
+class AMisET : public ATrack //Objects of this class represent Missing Energy
+{
+public:
+
+    AMisET() {}
+    ~AMisET() {}
+    enum mType // type
+    {
+        mMET_Final,
+        mMET_RefMuon,
+        mMET_Calib,
+        mMET_RefFinal,
+        mMET_Truth
+    };
+    float etx;
+    float ety;
+    float et;
+
+    int id;
+    mType type;
+
+    irr::core::vector3df start;
+    irr::core::vector3df end;
+    video::SColor trackColor;
+    class HelixSceneNode* node;
 };
 
 

@@ -398,7 +398,7 @@ void ALayerGUI::loadEventFromManager(const QModelIndex& index)
 {
   if(!index.isValid()) return;
 
-  Aevent *e=mngr->getEvent(index);
+  AEvent *e=mngr->getEvent(index);
   if(e)
     {
       if(loadEvent(e->location))
@@ -461,7 +461,7 @@ void ALayerGUI::handleEventUnloaded()
 
 void ALayerGUI::updateEventTagInfo(const QModelIndex& index)
 {
-  Aevent *e=mngr->getEvent(index);
+  AEvent *e=mngr->getEvent(index);
   bool tagHiggs=false;
   bool tagBlack=false;
   bool enable=false;

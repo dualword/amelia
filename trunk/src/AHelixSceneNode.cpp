@@ -142,11 +142,11 @@ ATrack* HelixSceneNode::getTrack()
 
 ATrack* HelixSceneNode::getTrackById ( int id )
 {
-    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
+    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
     {
-        if ( iter->trackID == trackID )
+        if ( (*iter)->trackID == trackID )
         {
-            return &*iter;
+            return *iter;
             break;
         }
     }
@@ -839,11 +839,11 @@ ATrack* AJet3DNode::getTrack()
 
 ATrack* AJet3DNode::getTrackById ( int id )
 {
-    for ( vector<ATrack>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
+    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
     {
-        if ( iter->trackID == trackID )
+        if ( (*iter)->trackID == trackID )
         {
-            return &*iter;
+            return *iter;
             break;
         }
     }

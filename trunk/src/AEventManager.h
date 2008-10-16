@@ -18,22 +18,22 @@ Q_OBJECT
   int columnCount(const QModelIndex&) const;
   QVariant data(const QModelIndex&, int) const;
 
-  Aevent* getEvent(const QModelIndex&);
+  AEvent* getEvent(const QModelIndex&);
   AEventPackage getPackage(const QModelIndex&);
 
   void setActivePackage(const QModelIndex&);
 
   QModelIndex nextEvent();
-  
+
  public slots:
   void eventLoaded(QString);
   void eventUnloaded();
-  
+
   void tagActiveEvent(const QString&);
   void tagEvent(QModelIndex,const QString&);
   void detagActiveEvent(const QString&);
   void detagEvent(QModelIndex,const QString&);
- 
+
  private:
   QList<AEventPackage> packages;
   QVariant *root;
@@ -41,4 +41,4 @@ Q_OBJECT
   QModelIndex activePackage,activeEvent;
 };
 
-#endif 
+#endif

@@ -54,19 +54,19 @@ QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
         case 1:
             if (tracks.at(index.row())->Type == 1)
             {
-                ASTrack* STrack = tracks.at(index.row())->getThisSTrack();
+                ASTrack* STrack = static_cast<ASTrack*>(tracks.at(index.row()));
                 return QString::number(STrack->pt);
             }
             else if (tracks.at(index.row())->Type == 2)
             {
-                AJet* Jet = tracks.at(index.row())->getThisJet();
+                AJet* Jet = static_cast<AJet*>(tracks.at(index.row()));
                 return QString::number(Jet->et);
             }
             else return QString("N/A");
         case 2:
             if (tracks.at(index.row())->Type == 1)
             {
-                ASTrack* STrack = tracks.at(index.row())->getThisSTrack();
+                ASTrack* STrack = static_cast<ASTrack*>(tracks.at(index.row()));
                 return QString::number(STrack->Mlv);
             }
             else return QString("N/A");

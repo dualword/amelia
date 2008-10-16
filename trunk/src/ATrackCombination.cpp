@@ -86,7 +86,7 @@ float ATrackCombination::calculateInvariantMass()
     {
         if (tracks[i]->Type == 1)
         {
-            ASTrack* track = track->getThisSTrack();
+            ASTrack* track = static_cast<ASTrack*>(tracks[i]);
 
             float px = fabs(track->pt) * cos(track->phi);
             float py = fabs(track->pt) * sin(track->phi);
@@ -102,7 +102,7 @@ float ATrackCombination::calculateInvariantMass()
 
         if (tracks[i]->Type == 2)
         {
-            AJet* track = track->getThisJet();
+            AJet* track = static_cast<AJet*>(tracks[i]);
 
             float px = fabs(track->pt) * cos(track->phi);
             float py = fabs(track->pt) * sin(track->phi);

@@ -84,13 +84,13 @@ public:
 
 
 
-class HelixSceneNode : public ATrack3DNode
+class ASTrack3DNode : public ATrack3DNode
 {
 
 public:
 
-    HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
-    virtual ~HelixSceneNode();
+    ASTrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual ~ASTrack3DNode();
 
     int charge;
     float eta;

@@ -13,7 +13,7 @@ HEADERS += \
  QIrrWidget.h \
  ABase.h \
  AGeometry.h \
- AHelixSceneNode.h \
+ ATrack3DNode.h \
  AMenu.h \
  ATourBuilder.h \
  ATourManager.h \
@@ -36,7 +36,7 @@ SOURCES += \
  QIrrWidget.cpp \
  ABase.cpp \
  AGeometry.cpp \
- AHelixSceneNode.cpp \
+ ATrack3DNode.cpp \
  AMenu.cpp \
  ATourBuilder.cpp \
  ATourManager.cpp \

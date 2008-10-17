@@ -69,7 +69,7 @@ public:
     float maxAngle;
 
     video::SColor trackColor;
-    class HelixSceneNode* node;
+    class ASTrack3DNode* node;
 
 };
 

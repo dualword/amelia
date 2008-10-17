@@ -910,7 +910,7 @@ void XmlEvent::DisplayEvent(AGeometry* device)
 
         if ( iter->Type == 1 )
         {
-            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            ASTrack3DNode* HelixNode = new ASTrack3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
             iter->node = HelixNode;
             iter->node->charge = iter->q;
             iter->node->eta = iter->eta;

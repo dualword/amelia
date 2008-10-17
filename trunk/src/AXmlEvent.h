@@ -40,7 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "ATrack.h"
 #include "AGeometry.h"
-#include "AHelixSceneNode.h"
+#include "ATrack3DNode.h"
 
 #include <QDomNode>
 #include <QDomDocument>

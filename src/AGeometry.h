@@ -42,7 +42,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QAction>
 
 #include "CSceneNodeAnimatorCameraSwitch.h"
-#include "AHelixSceneNode.h"
+#include "ATrack3DNode.h"
 #include "AXmlEvent.h"
 
 class ATrack;

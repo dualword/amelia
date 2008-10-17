@@ -36,7 +36,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 
 
-#include "AHelixSceneNode.h"
+#include "ATrack3DNode.h"
 
 
 static const float Length = 2500; // half-length
@@ -69,7 +69,7 @@ ATrack3DNode::~ATrack3DNode()
 // Then the children classes, for each type of ATrack
 
 
-HelixSceneNode::HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
+ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
         : ATrack3DNode ( parent, base, id )
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
@@ -78,57 +78,57 @@ HelixSceneNode::HelixSceneNode ( scene::ISceneNode* parent, AGeometry* base,  s3
 }
 
 
-HelixSceneNode::~HelixSceneNode()
+ASTrack3DNode::~ASTrack3DNode()
 {
     boxSizeAnim->drop();
 }
 
-int HelixSceneNode::getCharge()
+int ASTrack3DNode::getCharge()
 {
     return this->charge;
 }
-float HelixSceneNode::getEta()
+float ASTrack3DNode::getEta()
 {
     return this->eta;
 }
-float HelixSceneNode::getPhi()
+float ASTrack3DNode::getPhi()
 {
     return this->phi;
 }
-float HelixSceneNode::getPt()
+float ASTrack3DNode::getPt()
 {
     return this->pt;
 }
-float HelixSceneNode::getV_phi()
+float ASTrack3DNode::getV_phi()
 {
     return this->v_phi;
 }
-float HelixSceneNode::getV_rho()
+float ASTrack3DNode::getV_rho()
 {
     return this->v_rho;
 }
-float HelixSceneNode::getV_z()
+float ASTrack3DNode::getV_z()
 {
     return this->v_z;
 }
 
-int HelixSceneNode::getTrackNumber()
+int ASTrack3DNode::getTrackNumber()
 {
     return this->trackNumber;
 }
 
-void HelixSceneNode::setTrack ( ASTrack* track )
+void ASTrack3DNode::setTrack ( ASTrack* track )
 {
     this->trackPointer = track;
 }
 
-ATrack* HelixSceneNode::getTrack()
+ATrack* ASTrack3DNode::getTrack()
 {
     return this->trackPointer;
 }
 
 
-ATrack* HelixSceneNode::getTrackById ( int id )
+ATrack* ASTrack3DNode::getTrackById ( int id )
 {
     for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
     {
@@ -140,7 +140,7 @@ ATrack* HelixSceneNode::getTrackById ( int id )
     }
 }
 
-void HelixSceneNode::setTrackStyle ( int style )
+void ASTrack3DNode::setTrackStyle ( int style )
 {
 
     if ( trackPointer->Type == 1 ) //if it's a particle track
@@ -258,7 +258,7 @@ void HelixSceneNode::setTrackStyle ( int style )
 
 }
 
-void HelixSceneNode::calculateDimmedColors()
+void ASTrack3DNode::calculateDimmedColors()
 {
     //this->dimmedColor = this->vividColor.getInterpolated(video::SColor(0,0,0,0), 0.5);
     this->dimmedColor = this->vividColor;
@@ -275,7 +275,7 @@ void HelixSceneNode::calculateDimmedColors()
 //********************************************************/
 
 
-std::vector<core::vector3df> HelixSceneNode::getNeutralPath()
+std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 {
     std::vector<core::vector3df> StartEnd ( 2 );
@@ -321,7 +321,7 @@ std::vector<core::vector3df> HelixSceneNode::getNeutralPath()
 }
 
 
-void HelixSceneNode::createBoxes()
+void ASTrack3DNode::createBoxes()
 {
     if ( charge == 0 )
     {
@@ -335,7 +335,7 @@ void HelixSceneNode::createBoxes()
 
 
 
-void HelixSceneNode::createBoxesNeutral()
+void ASTrack3DNode::createBoxesNeutral()
 {
     core::vector3df vect0 = this->end - this->start;
     core::vector3df pos0 = ( vect0 ) /2 + this->start;
@@ -380,7 +380,7 @@ void HelixSceneNode::createBoxesNeutral()
 }
 
 
-void HelixSceneNode::constructNeutral()
+void ASTrack3DNode::constructNeutral()
 {
 
     video::SMaterial m;
@@ -398,25 +398,25 @@ void HelixSceneNode::constructNeutral()
 
 //********************************************************/
 
-float HelixSceneNode::x_helix ( float w, float X_CH, float R, float phi, float charge )
+float ASTrack3DNode::x_helix ( float w, float X_CH, float R, float phi, float charge )
 {
     return ( X_CH - charge * R*cos ( phi + charge*w ) );
 }
 
 
 
-float HelixSceneNode::y_helix ( float w, float Y_CH, float R, float phi, float charge )
+float ASTrack3DNode::y_helix ( float w, float Y_CH, float R, float phi, float charge )
 {
     return ( Y_CH - charge * R*sin ( phi + charge*w ) );
 }
 
-float HelixSceneNode::z_helix ( float w, float Z_CH, float theta, float R )
+float ASTrack3DNode::z_helix ( float w, float Z_CH, float theta, float R )
 {
     return ( Z_CH + w*R* ( 1/tan ( theta ) ) );
 }
 
 
-float HelixSceneNode::getChargedMaxAngle ()
+float ASTrack3DNode::getChargedMaxAngle ()
 
 {
 
@@ -450,7 +450,7 @@ float HelixSceneNode::getChargedMaxAngle ()
 }
 
 
-void HelixSceneNode::createCurveVector()
+void ASTrack3DNode::createCurveVector()
 {
     float pi = 3.1415926;
     float phiTrans = -phi + pi;
@@ -505,7 +505,7 @@ void HelixSceneNode::createCurveVector()
     }
 }
 
-void HelixSceneNode::constructCharged()
+void ASTrack3DNode::constructCharged()
 
 {
     video::SMaterial m;
@@ -523,7 +523,7 @@ void HelixSceneNode::constructCharged()
 
 }
 
-void HelixSceneNode::createBoxesCharged()
+void ASTrack3DNode::createBoxesCharged()
 {
     core::vector3df previous = this->curvePoints.at ( 0 );
     vector<core::vector3df>::iterator it;
@@ -569,7 +569,7 @@ void HelixSceneNode::createBoxesCharged()
     }
 }
 
-void HelixSceneNode::setBoxesVisibility ( bool boxVisibility )
+void ASTrack3DNode::setBoxesVisibility ( bool boxVisibility )
 {
     for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
     {
@@ -577,7 +577,7 @@ void HelixSceneNode::setBoxesVisibility ( bool boxVisibility )
     }
 }
 
-void HelixSceneNode::setBoxesSelected ( bool boxesSelected )
+void ASTrack3DNode::setBoxesSelected ( bool boxesSelected )
 {
     for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
     {
@@ -589,7 +589,7 @@ void HelixSceneNode::setBoxesSelected ( bool boxesSelected )
 }
 
 
-void HelixSceneNode::Helix()
+void ASTrack3DNode::Helix()
 {
 
     if ( charge == 0 )
@@ -604,12 +604,12 @@ void HelixSceneNode::Helix()
     tL = 0.5 * ( exp (eta) - exp (-(eta)));
 }
 
-float HelixSceneNode::getTl()
+float ASTrack3DNode::getTl()
 {
     return tL = 0.5 * ( exp (eta) - exp (-(eta)));
 }
 
-void HelixSceneNode::calculateMlv()
+void ASTrack3DNode::calculateMlv()
 {
     float ETMis = Base->XmlEvt->EventComplete.ETMis;
     float ETMisX = Base->XmlEvt->EventComplete.ETMisVec.X;
@@ -629,7 +629,7 @@ void HelixSceneNode::calculateMlv()
 
 
 
-void HelixSceneNode::OnRegisterSceneNode()
+void ASTrack3DNode::OnRegisterSceneNode()
 {
     if ( IsVisible )
         Base->GetSceneManager()->registerNodeForRendering ( this );
@@ -638,7 +638,7 @@ void HelixSceneNode::OnRegisterSceneNode()
     ISceneNode::OnRegisterSceneNode();
 }
 
-void HelixSceneNode::render()
+void ASTrack3DNode::render()
 {
     if ( this->isLineVisible )
     {
@@ -647,24 +647,24 @@ void HelixSceneNode::render()
 }
 
 
-const core::aabbox3d<f32>& HelixSceneNode::getBoundingBox() const
+const core::aabbox3d<f32>& ASTrack3DNode::getBoundingBox() const
 {
     return Box;
 }
 
 
 
-video::SMaterial& HelixSceneNode::getMaterial ( s32 i )
+video::SMaterial& ASTrack3DNode::getMaterial ( s32 i )
 {
     return Material;
 }
 
-void HelixSceneNode::select()
+void ASTrack3DNode::select()
 {
     setTrackStyle ( 3 );
 }
 
-void HelixSceneNode::deselect()
+void ASTrack3DNode::deselect()
 {
     setTrackStyle(getTrack()->style);
 }
@@ -866,23 +866,6 @@ float AJet3DNode::getTl()
     float tL = 0.5 * ( exp (eta) - exp (-(eta)));
     return tL;
 }
-
-
-
-
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
 
 
 

@@ -55,6 +55,7 @@ class AGeometry;
 class ATrack;
 class ASTrack;
 class AJet;
+class AMisET;
 
 class ATrack3DNode : public scene::ISceneNode
 {
@@ -107,16 +108,11 @@ public:
     video::SColor vividColor;
     core::vector3df start;
     core::vector3df end;
-    float etx;
-    float ety;
 
     int getCharge();
     float getEta();
     float getPhi();
     float getPt();
-    float getEt();
-    float getEtx();
-    float getEty();
     float getV_phi();
     float getV_rho();
     float getV_z();
@@ -140,7 +136,6 @@ public:
     int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
 
     void createBoxes();
-    void createMisEtBoxes(); //for Missing Et
 
     void calculateMlv(); //Invariant Mass for a single particle
 
@@ -192,6 +187,7 @@ public:
     virtual video::SMaterial& getMaterial ( s32 i );
 
 };
+
 
 class AJet3DNode : public ATrack3DNode
 {
@@ -248,6 +244,59 @@ public:
     virtual void render() {}
 };
 
+class AMisET3DNode : public ATrack3DNode
+{
+public:
+    AMisET3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual ~AMisET3DNode();
+
+
+    float Mlv; //Invariant Mass
+    video::SColor color;
+    video::SColor dimmedColor;
+    video::SColor vividColor;
+    core::vector3df start;
+    core::vector3df end;
+    float etx;
+    float ety;
+
+    float getEt();
+    float getEtx();
+    float getEty();
+
+    int trackID;
+
+    AMisET* trackPointer;
+    bool boxMode;
+    float boxWidth;
+    std::vector<scene::ISceneNode*> boxSegments;
+    virtual void setBoxesVisibility ( bool boxVisibility );
+    int trackNumber;
+    ATrack* getTrackById ( int id );
+    virtual int getTrackNumber();
+    virtual void setBoxesSelected ( bool boxesSelected );
+    virtual void setTrackStyle ( int style );
+    virtual void setTrack ( AMisET* track );
+    virtual ATrack* getTrack();
+    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+
+    void createMisEtBoxes();
+
+    void calculateMlv(); //Invariant Mass
+
+    void select();
+    void deselect();
+
+    virtual void constructNeutral();
+
+    virtual void OnRegisterSceneNode();
+
+    virtual void render() {};
+
+    virtual const core::aabbox3d<f32>& getBoundingBox() const;
+
+    virtual video::SMaterial& getMaterial ( s32 i );
+};
 
 
 

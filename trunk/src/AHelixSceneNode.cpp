@@ -95,21 +95,9 @@ float HelixSceneNode::getPhi()
 {
     return this->phi;
 }
-float HelixSceneNode::getEtx()
-{
-    return this->etx;
-}
-float HelixSceneNode::getEty()
-{
-    return this->ety;
-}
 float HelixSceneNode::getPt()
 {
     return this->pt;
-}
-float HelixSceneNode::getEt()
-{
-    return this->trackPointer->et;
 }
 float HelixSceneNode::getV_phi()
 {
@@ -268,60 +256,6 @@ void HelixSceneNode::setTrackStyle ( int style )
         }
     }// end of track styles
 
-
-    if ( trackPointer->Type == 4 ) //if it's Missing Et
-    {
-        //selected Missing Et style
-        if ( style == 10 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-
-                ( *it )->setVisible ( true );
-                ( *it )->setDebugDataVisible ( EDS_OFF );
-                ( *it )->setMaterialType ( video::EMT_SOLID );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = video::SColor ( 0,255,255,122 );
-
-
-
-                /* video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                 m->EmissiveColor = video::SColor ( 0,255,0,0 );*/
-            }
-        }
-
-        //unselected Missing Et style
-        if ( style == 11 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = video::SColor ( 0,0,0,0 );
-            }
-        }
-
-        //invisible Missing Et style
-        if ( style == 12 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( false );
-            }
-        }
-
-        //restore the Missing Et visibility
-        if ( style == 13 )
-        {
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-            }
-        }
-    }
-
-
-
 }
 
 void HelixSceneNode::calculateDimmedColors()
@@ -400,43 +334,6 @@ void HelixSceneNode::createBoxes()
 }
 
 
-void HelixSceneNode::createMisEtBoxes() //for Missing Et
-{
-    core::vector3df zero = core::vector3df ( 0,0,0 );
-    end = core::vector3df ( etx,ety,0 );
-
-    core::vector3df rot = end.getHorizontalAngle();
-    core::vector3df scale = core::vector3df ( 5,5, end.getLength() );
-
-    scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
-    scene::ISceneNode* nodeBox = 0;
-    nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube->getMesh ( 0 ) );
-    nodeBox->setPosition ( end/2 );
-    nodeBox->setRotation ( rot );
-    nodeBox->setScale ( scale );
-
-    video::SMaterial* m = &nodeBox->getMaterial ( 0 );
-    nodeBox->setMaterialType ( video::EMT_SOLID );
-    nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
-    nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
-    nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
-    nodeBox->setAutomaticCulling ( EAC_OFF );
-    nodeBox->addAnimator(boxSizeAnim);
-    color = video::SColor ( 0,0,0,0 );
-    m->EmissiveColor = this->color ;
-    m->DiffuseColor = video::SColor ( 0,0,0,0 );
-    m->AmbientColor = video::SColor ( 0,0,0,0 );
-    m->Shininess = 128 ;
-
-    nodeBox->getTransformedBoundingBox();
-    nodeBox->setParent ( this );
-    //nodeBox->setDebugDataVisible(true);
-    nodeBox->setID ( 16 );
-    nodeBox->setVisible ( true );
-    this->boxSegments.push_back ( nodeBox );
-
-
-}
 
 void HelixSceneNode::createBoxesNeutral()
 {
@@ -764,20 +661,7 @@ video::SMaterial& HelixSceneNode::getMaterial ( s32 i )
 
 void HelixSceneNode::select()
 {
-    ATrack *selectedTrack = getTrack();
-
-    switch ( selectedTrack->Type )
-    {
-    case 1:
-        setTrackStyle ( 3 );
-        break;
-    case 2:
-        setTrackStyle ( 6 );
-        break;
-    case 4:
-        setTrackStyle ( 10 );
-        break;
-    }
+    setTrackStyle ( 3 );
 }
 
 void HelixSceneNode::deselect()
@@ -921,7 +805,7 @@ void AJet3DNode::createJetPyramids()
         m->EmissiveColor = video::SColor ( 0,100,100,100 );
         m->DiffuseColor = video::SColor ( 0,0,0,0 );
         m->AmbientColor = video::SColor ( 0,0,0,0 );
-        m->Shininess = 128 ;
+        m->Shininess = 0 ;
 
         nodeBox->getTransformedBoundingBox();
         nodeBox->setParent ( this );
@@ -969,20 +853,7 @@ video::SMaterial& AJet3DNode::getMaterial ( s32 i )
 
 void AJet3DNode::select()
 {
-    ATrack *selectedTrack = getTrack();
-
-    switch ( selectedTrack->Type )
-    {
-    case 1:
-        setTrackStyle ( 3 );
-        break;
-    case 2:
-        setTrackStyle ( 6 );
-        break;
-    case 4:
-        setTrackStyle ( 10 );
-        break;
-    }
+    setTrackStyle ( 6 );
 }
 
 void AJet3DNode::deselect()
@@ -995,4 +866,254 @@ float AJet3DNode::getTl()
     float tL = 0.5 * ( exp (eta) - exp (-(eta)));
     return tL;
 }
+
+
+
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+AMisET3DNode::AMisET3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
+        : ATrack3DNode ( parent, base, id )
+{
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
+    Base = base;
+    this->setName ( "Track3DNode" );
+}
+
+
+AMisET3DNode::~AMisET3DNode()
+{
+    boxSizeAnim->drop();
+}
+
+
+float AMisET3DNode::getEtx()
+{
+    return this->etx;
+}
+float AMisET3DNode::getEty()
+{
+    return this->ety;
+}
+
+float AMisET3DNode::getEt()
+{
+    return this->trackPointer->et;
+}
+
+
+int AMisET3DNode::getTrackNumber()
+{
+    return this->trackNumber;
+}
+
+void AMisET3DNode::setTrack ( AMisET* track )
+{
+    this->trackPointer = track;
+}
+
+ATrack* AMisET3DNode::getTrack()
+{
+    return this->trackPointer;
+}
+
+
+ATrack* AMisET3DNode::getTrackById ( int id )
+{
+    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
+    {
+        if ( (*iter)->trackID == trackID )
+        {
+            return *iter;
+            break;
+        }
+    }
+}
+
+void AMisET3DNode::setTrackStyle ( int style )
+{
+
+    if ( trackPointer->Type == 4 ) //if it's Missing Et
+    {
+        //selected Missing Et style
+        if ( style == 10 )
+        {
+            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            {
+
+                ( *it )->setVisible ( true );
+                ( *it )->setDebugDataVisible ( EDS_OFF );
+                ( *it )->setMaterialType ( video::EMT_SOLID );
+                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
+                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+                m->EmissiveColor = video::SColor ( 0,255,255,122 );
+
+
+
+                /* video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+                 m->EmissiveColor = video::SColor ( 0,255,0,0 );*/
+            }
+        }
+
+        //unselected Missing Et style
+        if ( style == 11 )
+        {
+            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            {
+                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+                m->EmissiveColor = video::SColor ( 0,0,0,0 );
+            }
+        }
+
+        //invisible Missing Et style
+        if ( style == 12 )
+        {
+            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            {
+                ( *it )->setVisible ( false );
+            }
+        }
+
+        //restore the Missing Et visibility
+        if ( style == 13 )
+        {
+            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            {
+                ( *it )->setVisible ( true );
+            }
+        }
+    }
+
+
+
+}
+
+
+void AMisET3DNode::createMisEtBoxes() //for Missing Et
+{
+    core::vector3df zero = core::vector3df ( 0,0,0 );
+    end = core::vector3df ( etx,ety,0 );
+
+    core::vector3df rot = end.getHorizontalAngle();
+    core::vector3df scale = core::vector3df ( 5,5, end.getLength() );
+
+    scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
+    scene::ISceneNode* nodeBox = 0;
+    nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube->getMesh ( 0 ) );
+    nodeBox->setPosition ( end/2 );
+    nodeBox->setRotation ( rot );
+    nodeBox->setScale ( scale );
+
+    video::SMaterial* m = &nodeBox->getMaterial ( 0 );
+    nodeBox->setMaterialType ( video::EMT_SOLID );
+    nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
+    nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
+    nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
+    nodeBox->setAutomaticCulling ( EAC_OFF );
+    nodeBox->addAnimator(boxSizeAnim);
+    color = video::SColor ( 0,0,0,0 );
+    m->EmissiveColor = this->color ;
+    m->DiffuseColor = video::SColor ( 0,0,0,0 );
+    m->AmbientColor = video::SColor ( 0,0,0,0 );
+    m->Shininess = 128 ;
+
+    nodeBox->getTransformedBoundingBox();
+    nodeBox->setParent ( this );
+    //nodeBox->setDebugDataVisible(true);
+    nodeBox->setID ( 16 );
+    nodeBox->setVisible ( true );
+    this->boxSegments.push_back ( nodeBox );
+
+
+}
+
+
+void AMisET3DNode::constructNeutral()
+{
+
+    video::SMaterial m;
+    m.EmissiveColor = this->color ;
+    Base->GetDriver()->setMaterial ( m );
+
+    Base->GetDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
+    Base->GetDriver()->draw3DLine ( this->start, this->end ,this->color);
+
+}
+
+
+void AMisET3DNode::setBoxesVisibility ( bool boxVisibility )
+{
+    for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+    {
+        ( *it )->setVisible ( boxVisibility );
+    }
+}
+
+void AMisET3DNode::setBoxesSelected ( bool boxesSelected )
+{
+    for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+    {
+        video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+
+        boxesSelected ? m->EmissiveColor = video::SColor ( 0,122,122,122 ) : m->EmissiveColor = this->color ;
+
+    }
+}
+
+
+
+
+void AMisET3DNode::OnRegisterSceneNode()
+{
+    if ( IsVisible )
+        Base->GetSceneManager()->registerNodeForRendering ( this );
+
+
+    ISceneNode::OnRegisterSceneNode();
+}
+
+
+const core::aabbox3d<f32>& AMisET3DNode::getBoundingBox() const
+{
+    return Box;
+}
+
+
+
+video::SMaterial& AMisET3DNode::getMaterial ( s32 i )
+{
+    return Material;
+}
+
+void AMisET3DNode::select()
+{
+    setTrackStyle ( 10 );
+}
+
+void AMisET3DNode::deselect()
+{
+    setTrackStyle(getTrack()->style);
+}
+
+
+
+
+
+
+
+
 

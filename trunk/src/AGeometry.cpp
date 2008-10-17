@@ -289,7 +289,6 @@ void AGeometry::executeMosesMode()
 
 ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 {
-    //Base->Gui->statstext->setText ( L"Track Selection" );
     if ( eventAnalysisMode )
     {
         ISceneCollisionManager* colmgr = Device->getSceneManager()->getSceneCollisionManager();
@@ -299,20 +298,20 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
         vector3df target;
         triangle3df triangle;
 
-        ATrack3DNode *selectedHelixNode=0;
+        ATrack3DNode *selectedNode=0;
 
         if ( XmlEvt->EventComplete.Tracks.size() >= 1 )
         {
-            //Base->Gui->statstext->setText(L"Checkpoint");
 
             for ( vector<ATrack*>::iterator iter = XmlEvt->EventComplete.Tracks.begin(); iter < XmlEvt->EventComplete.Tracks.end(); iter++ )
             {
                 int control = 0;
                 if ( selectedSceneNode && (*iter)->Type == 1 ) //tracks
                 {
-                    if ( selectedSceneNode->getParent() == (*iter)->node )
+                    ASTrack* tr = static_cast<ASTrack*>(*iter);
+                    if ( selectedSceneNode->getParent() == tr->node )
                     {
-                        selectedHelixNode = (*iter)->node;
+                        selectedNode = tr->node;
 
                         break;
                     }
@@ -325,7 +324,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 
                     if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ) )
                     {
-                        selectedHelixNode = jet->node;
+                        selectedNode = jet->node;
                         break;
                     }
 
@@ -333,16 +332,17 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 
                 if ( (*iter)->Type == 4 ) //Missing Et
                 {
+                    AMisET* tr = static_cast<AMisET*>(*iter);
                     if ( selectedSceneNode->getParent() == (*iter)->node )
                     {
-                        selectedHelixNode = (*iter)->node;
+                        selectedNode = (*iter)->node;
 
                         break;
                     }
                 }
             }
         }
-        return selectedHelixNode;
+        return selectedNode;
     }
     return 0;
 }

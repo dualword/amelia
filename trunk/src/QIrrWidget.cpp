@@ -105,6 +105,9 @@ void QIrrWidget::timerEvent( QTimerEvent* event )
 
 void QIrrWidget::paintEvent( QPaintEvent* event )
 {
+	//TODO Find the optimal place to dump this check. I don't want the device to be initilazed if we have not enabled it yet... There is no point it in.
+  bool focusHack=(driverType()!=irr::video::EDT_OPENGL || QApplication::activeWindow()==window());
+  if(!isVisible() || !isEnabled() || !focusHack) return;
   Init();
   execute();
   
@@ -169,7 +172,6 @@ void QIrrWidget::leaveEvent(QEvent* event)
 
 void QIrrWidget::Init()
 {
-
 // Don't initialize more than once!
     if ( Device != 0 ) return;
 

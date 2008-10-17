@@ -7,6 +7,7 @@ SET(CPACK_PACKAGE_CONTACT "AMELIA Development Team")
 INCLUDE(CPack)
 
 SET(QT_USE_QTXML true)
+SET(QT_USE_QTOPENGL true)
 SET(QT_USE_QTUITOOLS true)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 SET(CMAKE_INCLUDE_CURRENT_DIR true)
@@ -41,7 +42,7 @@ SET(amelia_SRCS
   src/QIrrWidget.cpp 
   src/ABase.cpp 
   src/AGeometry.cpp 
-  src/AHelixSceneNode.cpp 
+  src/ATrack3DNode.cpp 
   src/AMenu.cpp 
   src/ATourBuilder.cpp 
   src/ATourManager.cpp 
@@ -70,7 +71,7 @@ SET(amelia_H
   src/QIrrWidget.h 
   src/ABase.h 
   src/AGeometry.h 
-  src/AHelixSceneNode.h 
+  src/ATrack3DNode.h 
   src/AMenu.h 
   src/ATourBuilder.h 
   src/ATourManager.h 

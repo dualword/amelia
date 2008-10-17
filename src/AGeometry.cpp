@@ -360,7 +360,7 @@ void AGeometry::renderViewport(int view)
       {
       if (Device->getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
 	{
-	  rt = Device->getVideoDriver()->createRenderTargetTexture(core::dimension2d<s32>(256,256));
+	  rt = Device->getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
 	}
 
       if (rt==0)

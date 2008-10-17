@@ -705,7 +705,7 @@ void XmlEvent::PtCutoff ( int PtCutInt )
         }
     } // End of STracks selection
 
-qDebug() << "Ended PtCutoff() for STracks";
+    qDebug() << "Ended PtCutoff() for STracks";
 
     //Now AJets
     for ( vector<AJet*>::iterator it = EventComplete.Jets.begin(); it!=EventComplete.Jets.end(); it++ )
@@ -936,7 +936,7 @@ void XmlEvent::DisplayEvent(AGeometry* device)
                 iter->node->start = iter->start;
                 iter->node->end = iter->end;
                 iter->node->curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
-                //iter->node->createBoxesNeutral();
+                iter->node->createBoxesNeutral();
 
             }
             else
@@ -944,7 +944,7 @@ void XmlEvent::DisplayEvent(AGeometry* device)
                 iter->maxAngle = HelixNode->getChargedMaxAngle();
                 iter->node->maxAngle = iter->maxAngle;
                 iter->node->createCurveVector();
-                //iter->node->createBoxesCharged();
+                iter->node->createBoxesCharged();
 
             }
 
@@ -960,22 +960,6 @@ void XmlEvent::DisplayEvent(AGeometry* device)
             iter->node->boxMode = false;
             iter->node->style = iter->style;
             iter->node->setTrackStyle ( iter->style );
-        }
-        else if ( iter->Type == 4 ) //Missing Et
-        {
-            HelixSceneNode* HelixNode = new HelixSceneNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-            iter->node = HelixNode;
-            iter->node->eta = iter->eta = 0;
-            iter->node->phi = iter->phi = 0;
-            iter->node->pt = iter->pt = iter->et;
-            iter->node->etx = iter->etx;
-            iter->node->ety = iter->ety;
-            iter->node->isLineVisible = false;
-            iter->style = 11;
-
-            iter->node->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-            iter->node->setTrack ( &*iter );
-            iter->node->createMisEtBoxes();
         }
 
         iter->tL = iter->node->tL;
@@ -1009,5 +993,25 @@ void XmlEvent::DisplayEvent(AGeometry* device)
         iter->selectionID = 0;
         iter->isInList = false;
 
+    }
+
+    // And finally Missing ET
+    for ( vector<AMisET*>::iterator iiter = EventComplete.MisET.begin(); iiter != EventComplete.MisET.end(); iiter++ )
+    {
+        AMisET* iter = *iiter;
+        if ( iter->Type == 4 ) //Missing Et dupe check
+        {
+            AMisET3DNode* MisET3DNode = new AMisET3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+            iter->node = MisET3DNode;
+            iter->node->etx = iter->etx;
+            iter->node->ety = iter->ety;
+            iter->style = 11;
+
+            iter->node->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+            iter->node->setTrack ( &*iter );
+            iter->node->createMisEtBoxes();
+            iter->selectionID = 0;
+            iter->isInList = false;
+        }
     }
 }

@@ -219,12 +219,12 @@ void ASelectionInfoScene::refresh()
         }
         else if ( (*combo)[0]->Type == 4 ) //Missing Et
         {
-            ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
+            AMisET* ET = static_cast<AMisET*>((*combo)[0]);
             header->setPlainText("SELECTED MisEt INFO");
             name->setHtml("<b>Type:</b> Missing Et");
-            eta->setHtml("<b>etx:</b> "+QString::number(STrack->node->getEtx()));
-            phi->setHtml("<b>ety:</b> "+QString::number(STrack->node->getEty()));
-            pt->setHtml("<b>Et:</b> "+QString::number(STrack->node->getEt()));
+            eta->setHtml("<b>etx:</b> "+QString::number(ET->node->getEtx()));
+            phi->setHtml("<b>ety:</b> "+QString::number(ET->node->getEty()));
+            pt->setHtml("<b>Et:</b> "+QString::number(ET->node->getEt()));
 
             header->setVisible(true);
             name->setVisible(true);

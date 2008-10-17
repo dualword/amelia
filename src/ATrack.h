@@ -119,7 +119,7 @@ public:
     irr::core::vector3df start;
     irr::core::vector3df end;
     video::SColor trackColor;
-    class HelixSceneNode* node;
+    class AMisET3DNode* node;
 };
 
 

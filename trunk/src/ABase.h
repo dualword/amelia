@@ -9,13 +9,10 @@
 #include <QToolBar>
 #include <QDebug>
 #include <QMessageBox>
-
-struct VirtualScreen {
-  QWidget* widget;
-
-  QMenuBar* menubar;
-  QList<QToolBar *> toolbars;
-};
+#include <QTimerEvent>
+#include <QWidget>
+#include <QKeyEvent>
+#include <QVBoxLayout>
 
 class ABase : public QMainWindow
 {
@@ -40,11 +37,10 @@ public slots:
 protected slots:
   void timerEvent(QTimerEvent *);
   void keyPressEvent(QKeyEvent *);
-  bool eventFilter(QObject *obj, QEvent *event);
 
 private:
   //Holds a list of the virual screens loaded
-  QMap<QString, VirtualScreen*> screens;
+  QMap<QString, QWidget*> screens;
 
   //Base widgets that control stuff
   QWidget *center;
@@ -56,8 +52,6 @@ private:
 
   //Current layout
   QString current;
-
-  bool geoNotLoaded;
 };
 
 #endif // ABASE_H

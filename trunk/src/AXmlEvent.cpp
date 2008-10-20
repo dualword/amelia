@@ -900,118 +900,12 @@ void XmlEvent::LoadEvent ( const c8* file )
 
 void XmlEvent::DisplayEvent(AGeometry* device)
 {
-    int jetIdCounter = 0;
-
-    //First let's take care of STracks
-    for ( vector<ASTrack*>::iterator iiter = EventComplete.STracks.begin(); iiter != EventComplete.STracks.end(); iiter++ )
+    for ( vector<ATrack*>::iterator iiter = EventComplete.Tracks.begin(); iiter != EventComplete.Tracks.end(); iiter++ )
     {
-        ASTrack* iter = *iiter;
+        ATrack* iter = *iiter;
         iter->node=0;
-
-        if ( iter->Type == 1 )
-        {
-            ASTrack3DNode* HelixNode = new ASTrack3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-            iter->node = HelixNode;
-            iter->node->charge = iter->q;
-            iter->node->eta = iter->eta;
-            iter->node->phi = iter->phi;
-            iter->pt = iter->et;
-            iter->node->pt = iter->pt;
-            iter->node->v_phi = iter->phiVertex;
-            iter->node->v_rho = iter->rhoVertex;
-            iter->node->v_z = iter->zVertex;
-            iter->node->vividColor = iter->trackColor;
-            iter->node->calculateDimmedColors();
-            iter->node->setTrack ( &*iter );
-            iter->node->type = 1; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-            iter->style = 1;
-            iter->node->style = 1;
-
-
-            if ( iter->q == 0 )
-            {
-                std::vector<core::vector3df> StartEndNeutral = HelixNode->getNeutralPath();
-                iter->start = StartEndNeutral.front();
-                iter->end = StartEndNeutral.back();
-                iter->node->start = iter->start;
-                iter->node->end = iter->end;
-                iter->node->curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
-                iter->node->createBoxesNeutral();
-
-            }
-            else
-            {
-                iter->maxAngle = HelixNode->getChargedMaxAngle();
-                iter->node->maxAngle = iter->maxAngle;
-                iter->node->createCurveVector();
-                iter->node->createBoxesCharged();
-
-            }
-
-            if ( ( iter->name == "mu-" || iter->name == "mu+" || iter->name == "e+" || iter->name == "e-" ) && iter->pt >= 2 )
-            {
-                iter->style = 1;
-            }
-            else
-            {
-                iter->style = 1;
-            }
-
-            iter->node->boxMode = false;
-            iter->node->style = iter->style;
-            iter->node->setTrackStyle ( iter->style );
-        }
-
-        iter->tL = iter->node->tL;
-        iter->Mlv = iter->node->Mlv;
-
-        iter->selectionID = 0;
-        iter->isInList = false;
-    }
-
-    //Then jets.  We should create another child of ATrack3DNode for this later.
-    for ( vector<AJet*>::iterator iiter = EventComplete.Jets.begin(); iiter != EventComplete.Jets.end(); iiter++ )
-    {
-        AJet* iter = *iiter;
-        iter->node=0;
-
-
-        if ( iter->Type == 2 ) // jets
-        {
-            AJet3DNode* JetNode = new AJet3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-            iter->node = JetNode;
-            iter->node->eta = iter->eta;
-            iter->node->phi = iter->phi;
-            iter->style = 7;
-            iter->selectionID == --jetIdCounter;
-
-            iter->node->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-            iter->node->setTrack ( &*iter );
-            iter->node->createJetPyramids();
-        }
-
-        iter->selectionID = 0;
-        iter->isInList = false;
+        iter->createTrackStructure( device->GetSceneManager()->getRootSceneNode(), device, 0 );
 
     }
 
-    // And finally Missing ET
-    for ( vector<AMisET*>::iterator iiter = EventComplete.MisET.begin(); iiter != EventComplete.MisET.end(); iiter++ )
-    {
-        AMisET* iter = *iiter;
-        if ( iter->Type == 4 ) //Missing Et dupe check
-        {
-            AMisET3DNode* MisET3DNode = new AMisET3DNode ( device->GetSceneManager()->getRootSceneNode(), device, 0 );
-            iter->node = MisET3DNode;
-            iter->node->etx = iter->etx;
-            iter->node->ety = iter->ety;
-            iter->style = 11;
-
-            iter->node->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-            iter->node->setTrack ( &*iter );
-            iter->node->createMisEtBoxes();
-            iter->selectionID = 0;
-            iter->isInList = false;
-        }
-    }
 }

@@ -35,6 +35,7 @@ public:
     std::string name;
     int q;
     float pt;
+    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID ) {}
 
     /*class shower LAr_shower;
     class shower HEC_shower;
@@ -70,6 +71,7 @@ public:
 
     video::SColor trackColor;
     class ASTrack3DNode* node;
+    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
 
 };
 
@@ -93,6 +95,7 @@ public:
     int id;
     jType type;
     class AJet3DNode* node;
+    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
 };
 
 class AMisET : public ATrack //Objects of this class represent Missing Energy
@@ -120,6 +123,7 @@ public:
     irr::core::vector3df end;
     video::SColor trackColor;
     class AMisET3DNode* node;
+    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
 };
 
 

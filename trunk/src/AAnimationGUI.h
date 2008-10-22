@@ -1,17 +1,12 @@
-#ifndef AANIMATIONGUI_H_INCLUDED
-#define AANIMATIONGUI_H_INCLUDED
+#ifndef AANIMATIONGUI_H_
+#define AANIMATIONGUI_H_
 
-#include <QFrame>
-#include <QWidget>
-#include <QApplication>
-#include <QGraphicsView>
-#include <QGraphicsItemAnimation>
 #include <QObject>
-#include <map>
-#include <iostream>
+#include <QPoint>
+#include <QMap>
+#include <QWidget>
+#include <QTime>
 
-
-using namespace std;
 class AAnimationGUI : public QObject
 {
     Q_OBJECT
@@ -20,7 +15,7 @@ class AAnimationGUI : public QObject
 public:
 	enum Status {Running=0, NotRunning=1};
 
-    AAnimationGUI(QWidget* w);
+    AAnimationGUI(QWidget* w=0);
     ~AAnimationGUI();
 
     enum curveShape {linear=0, easeOut=1, easeIn=2, easeInOut=3};
@@ -49,14 +44,13 @@ protected:
 
 private:
     QWidget* widget;
-    std::map<int, QPoint> keyframes;
+	QMap<int, QPoint> keyframes;
     void calculateCurrentInterval();
     QPoint positionInterval[2];
     int timeInterval[2];
     int duration;
     int timeStep;
-    int numIterations;
-    int id;
+    QTime time;
     curveShape shape;
 
 	AAnimationGUI::Status status;
@@ -64,4 +58,4 @@ private:
 };
 
 
-#endif // AANIMATIONGUI_H_INCLUDED
+#endif // AANIMATIONGUI_H_

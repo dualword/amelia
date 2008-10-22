@@ -107,12 +107,12 @@ public:
 
 
     class AGeometry* Base;
-    struct AEvent Event;
-    struct AEvent EventComplete;
-    struct AEvent GetEventFromFile ( const char* filename );
+    AEvent Event;
+    AEvent EventComplete;
+    AEvent GetEventFromFile ( QString filename );
     void HideAllTracks();
-    struct AEvent DisplayParticles ( vector<bool>states, struct AEvent &ievent );
-    void LoadEvent ( const c8* file );
+    class AEvent DisplayParticles ( vector<bool>states, class AEvent &ievent );
+    void LoadEvent ( QString file );
     void UnloadEvent ( );
     void DisplayEvent(AGeometry* device);
     vector<bool> P_checkbox_states;

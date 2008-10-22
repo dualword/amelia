@@ -13,6 +13,9 @@
 #include <QWidget>
 #include <QKeyEvent>
 #include <QVBoxLayout>
+#include <QTime>
+
+#include "AAnimationGUI.h"
 
 class ABase : public QMainWindow
 {
@@ -34,8 +37,8 @@ public slots:
   void addLevel( QString level );
   void changeToLevel(QString level);
 
+  void animationFinished();
 protected slots:
-  void timerEvent(QTimerEvent *);
   void keyPressEvent(QKeyEvent *);
 
 private:
@@ -48,7 +51,7 @@ private:
   QGridLayout *layout;
 
   //Needed amount to move to show the new layout
-  QPoint delta;
+  AAnimationGUI slider;
 
   //Current layout
   QString current;

@@ -1,6 +1,6 @@
 #include "AAnimationGUI.h"
 
-
+#include <QTimerEvent>
 
 
 AAnimationGUI::AAnimationGUI(QWidget* w)
@@ -8,14 +8,12 @@ AAnimationGUI::AAnimationGUI(QWidget* w)
 {
     widget = w;
     setDuration(0);
-    numIterations = 0;
     timeStep = 20;
     timeInterval[0]=timeInterval[1]=0;
-    positionInterval[0]=positionInterval[1] = w->pos();
-    id = 0;
+    if(w) positionInterval[0]=positionInterval[1] = w->pos();
+
     shape = linear;
 	status=AAnimationGUI::NotRunning;
-    //setKeyframe(0, w->pos());
 }
 
 AAnimationGUI::~AAnimationGUI()
@@ -46,14 +44,13 @@ void AAnimationGUI::setKeyframe(int time, QPoint point)
 void AAnimationGUI::reset()
 {
 	if(status==AAnimationGUI::Running) return;
-	numIterations=0;
 }
 
 void AAnimationGUI::play() // After we set up all the elements of the animation, we start it
 {
-
-//    keyframes.sort();
-    id = startTimer(timeStep);
+  setKeyframe(0,widget->pos());
+  time.start();
+  startTimer(timeStep);
 	status=AAnimationGUI::Running;
 }
 
@@ -115,34 +112,31 @@ void AAnimationGUI::calculateCurrentInterval()
 {
     int time = getCurrentTime();
     bool control = true;
-    for ( map<int, QPoint>::iterator iter = keyframes.begin(); iter != keyframes.end(); iter++)
+  for ( QMap<int, QPoint>::iterator iter = keyframes.begin(); iter != keyframes.end(); iter++)
     {
-        if (iter->first<= time)
+      if (iter.key()<= time)
         {
-            timeInterval[0]=(iter->first);
-            positionInterval[0]=(iter->second);
+	  timeInterval[0]=(iter.key());
+	  positionInterval[0]=(iter.value());
         }
 
-
-        if ((iter->first>= time) && control)
+      if ((iter.key()>= time) && control)
         {
-            timeInterval[1]=(iter->first);
-            positionInterval[1]=(iter->second);
+	  timeInterval[1]=(iter.key());
+	  positionInterval[1]=(iter.value());
             control = false;
             emit keyframe();
         }
-        setDuration(iter->first);
-
+      setDuration(iter.key());
     }
 }
 
 void AAnimationGUI::timerEvent(QTimerEvent * event)
 {
-    numIterations++;
     //cout <<"numIterations:  "<< numIterations << endl;
     if (getCurrentTime() >= duration)
     {
-        killTimer(id);
+      killTimer(event->timerId());
         widget->move(positionInterval[1]);
 		widget->setAttribute(Qt::WA_Moved);
         //cout <<"killed:  "<< endl;
@@ -158,7 +152,7 @@ void AAnimationGUI::timerEvent(QTimerEvent * event)
 
 int AAnimationGUI::getCurrentTime()
 {
-    return (numIterations*timeStep);
+  return time.elapsed();
 }
 
 AAnimationGUI::Status AAnimationGUI::getStatus()

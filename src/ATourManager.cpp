@@ -506,7 +506,7 @@ void ATourManager::startCamera()
 
     irr::core::list<vector3df>::Iterator iter = ( *tour->current() )->cam->begin();
 
-    int i;
+    unsigned int i;
     for ( i = 0; i < ( *tour->current() )->cam->getSize(); i++ )
     {
         //cout << ( *iter ).X << " " << ( *iter ).Y << " " << ( *iter ).Z << endl;
@@ -527,7 +527,7 @@ void ATourManager::startTarget()
 
     irr::core::list<vector3df>::Iterator iter = ( *tour->current() )->tar->begin();
 
-    int i;
+    unsigned int i;
     for ( i = 0; i < ( *tour->current() )->tar->getSize(); i++ )
     {
         p.push_back ( *iter );

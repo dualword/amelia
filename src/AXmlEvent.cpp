@@ -81,7 +81,7 @@ std::vector<int> XmlEvent::getDataInt ( QDomNode xml )
     QDomText textNode=xml.firstChild().toText();
     std::string dstr = textNode.data().trimmed().toLocal8Bit().data();
 
-    for ( int i=0; i < dstr.size(); i++ )
+    for ( unsigned int i=0; i < dstr.size(); i++ )
     {
         if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
         {
@@ -114,7 +114,7 @@ std::vector<float> XmlEvent::getDataFloat ( QDomNode xml )
     QDomText textNode=xml.firstChild().toText();
     std::string dstr = textNode.data().toLocal8Bit().data();
 
-    for ( int i=0; i < dstr.size(); i++ )
+    for ( unsigned int i=0; i < dstr.size(); i++ )
     {
         if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
         {
@@ -142,7 +142,6 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event)
     // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
 
     std::vector <AJet*> jets;
-    int i;
 
     //elements of the Jets
     vector<float> eta;
@@ -154,7 +153,7 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event)
     QDomNodeList JetNodes=dom.elementsByTagName("Jet");
 
     //Load the Jets
-    for (int i=0;i<JetNodes.length();i++)
+    for (unsigned int i=0;i<JetNodes.length();i++)
     {
         QDomElement node=JetNodes.at(i).toElement();
 
@@ -168,7 +167,7 @@ std::vector <AJet*> XmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event)
 
 
         // Now we should load every node individually, and assign the proper type to them
-        for ( int s = 0; s < et.size(); s++ )
+        for ( unsigned int s = 0; s < et.size(); s++ )
         {
             AJet* j = new AJet();
             j->et = et[s];
@@ -222,7 +221,6 @@ std::vector <AMisET*> XmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* eve
     // Types are MET_Final, MET_RefMuon, MET_Calib, MET_RefFinal and MET_Truth
 
     std::vector <AMisET*> MET;
-    int i;
 
     //elements of MisET
     vector<float> etx;
@@ -233,7 +231,7 @@ std::vector <AMisET*> XmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* eve
     QDomNodeList METNodes=dom.elementsByTagName("ETMis");
 
     //Load the Jets
-    for (int i=0;i<METNodes.length();i++)
+    for (unsigned int i=0;i<METNodes.length();i++)
     {
         QDomElement node=METNodes.at(i).toElement();
 
@@ -245,7 +243,7 @@ std::vector <AMisET*> XmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* eve
         ety = getDataFloat ( node.elementsByTagName("ety").at(0) );
 
         // Now we should load every node individually, and assign the proper type to them
-        for ( int s = 0; s < et.size(); s++ )
+        for ( unsigned int s = 0; s < et.size(); s++ )
         {
             AMisET* m = new AMisET();
             m->et = et[s];
@@ -297,7 +295,6 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent* 
 {
     // Aux variables and definitions
     std::vector <ASTrack*> tracks;
-    int i;
 
 
 
@@ -357,7 +354,7 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent* 
     QDomNodeList STr=dom.elementsByTagName("STr");
 
     //Load the cool tracks!
-    for (int i=0;i<STr.length();i++)
+    for (unsigned int i=0;i<STr.length();i++)
     {
         QDomElement node=STr.at(i).toElement();
         str_code = getDataInt ( node.elementsByTagName("code").at(0) );
@@ -372,14 +369,13 @@ std::vector <ASTrack*> XmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent* 
 
 
     // Tracks section
-    int j = 0;
-    for ( i = 0; i < str_code.size(); i++ )
+    for ( unsigned int i = 0; i < str_code.size(); i++ )
     {
 
         ASTrack* t = new ASTrack();
 
         t->name = "unknown";
-        for ( j = 0; j < 52; j++ )
+        for ( unsigned int j = 0; j < 52; j++ )
         {
             if ( codelist[j] == str_code[i] )
             {
@@ -476,7 +472,7 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
     QDomNodeList FCAL=dom.elementsByTagName("FCAL");
 
-    for (int i=0;i<FCAL.length();i++)
+    for (unsigned int i=0;i<FCAL.length();i++)
     {
         QDomElement node=FCAL.at(i).toElement();
         dx = getDataFloat ( node.elementsByTagName("dx").at(0) );
@@ -489,7 +485,7 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
         y = getDataFloat ( node.elementsByTagName("y").at(0) );
     }
 
-    for ( i = 0; i < energy.size(); i++ )
+    for (unsigned int i = 0; i < energy.size(); i++ )
     {
         if ( i<dx.size() ) s.dx = dx[i];
         if ( i<dy.size() ) s.dy = dy[i];
@@ -505,7 +501,7 @@ std::vector <FCALshower> XmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
     return showers;
 }
 
-AEvent XmlEvent::GetEventFromFile ( const char* filename )
+AEvent XmlEvent::GetEventFromFile ( QString filename )
 {
     AEvent* e = new AEvent();
 
@@ -880,10 +876,10 @@ void XmlEvent::UnloadEvent()
     EventComplete.Tracks.clear();
 }
 
-void XmlEvent::LoadEvent ( const c8* file )
+void XmlEvent::LoadEvent ( QString file )
 {
     //if ( Base->GetTourBuilder() ) Base->GetTourBuilder()->markLoadEvent ( cstr_to_wstr ( ( char* ) file, strlen ( file ) ) );
-    core::stringc filename ( file );
+	core::stringc filename ( file.toAscii().data() );
     core::stringc extension;
     core::getFileNameExtension ( extension, filename );
     extension.make_lower();

@@ -192,7 +192,7 @@ void ALayerGUI::setupElements()
     }
 
     // Setup package list
-    mngr=new AEventManager("workspace");
+	mngr=new AEventManager(QApplication::applicationDirPath()+"/workspace");
     if(packageList)
       {
 	packageList->setModel(mngr);
@@ -357,7 +357,7 @@ void ALayerGUI::loadNextEvent()
 
 bool ALayerGUI::loadEvent(QString fileName)
 {
-  cout << "Loading " << fileName.data() << endl;
+  qDebug() << "Loading " << fileName << endl;
 
     //TODO Error somehow
     if (!geo) return false;
@@ -382,7 +382,7 @@ bool ALayerGUI::loadEvent(QString fileName)
 	    emit eventUnloaded();
 	  }
 
-        geo->XmlEvt->LoadEvent(fileName.toAscii().data());
+    geo->XmlEvt->LoadEvent(fileName);
 	geo->XmlEvt->DisplayEvent(geo);
 	geo->XmlEvt->PtCutoff(PtCutoff_Slider->sliderPosition());
 

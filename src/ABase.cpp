@@ -41,7 +41,7 @@ ABase::ABase( QWidget *parent )
   : QMainWindow(parent)
 {
   //Set to the initial size.
-  resize(1024,768);
+  setFixedSize(1024,768); //Makes the widget unresizable..
   
   //Create a widget to act as the central widget.
   center=new QWidget(this);
@@ -54,6 +54,11 @@ ABase::ABase( QWidget *parent )
   //This grid layout will contain any layouts. The size of each virtual screen will approximatelly be 1024x768 for now
   layout=new QGridLayout(area);
   layout->setContentsMargins(0,0,0,0);
+
+  //Setup animaiton
+  slider.setWidget(area);
+  connect(&slider,SIGNAL(animationFinished()),
+	  this,SLOT(animationFinished()));
 }
 
 ABase::~ABase() { }
@@ -62,9 +67,6 @@ void ABase::addLevel(QString uicfile)
 {
   //Increase the size of the area widget
   area->resize(1024*(screens.size()+1),768);
-
-  //Set the initial layout to the first layout loaded
-  if(current.isEmpty()) current=uicfile;
 
   //Everything else should be an UI file (for now)
   AUILoader loader;
@@ -79,15 +81,18 @@ void ABase::addLevel(QString uicfile)
 	  return;
     }
   
-  //Setup initial dimsensions and disable everything by default
-  tmp->setEnabled(false);
+  //Set the initial layout to the first layout loaded, otherwise disable it
+  if(current.isEmpty()) current=uicfile;
+  else tmp->setEnabled(false);
 
   //TODO Implement maximum number of columns!
   //int col=screens.size()%3;
   //int row=screens.size()/3;
+
+  //Add to the layout
   layout->addWidget(tmp,0,screens.size());
   layout->setColumnMinimumWidth(screens.size(),1024);
-
+  
   //HACK (ugly) setup the conenctions of the ALayerGUI
   //TODO figure out a more general way to do this
   if(uicfile=="geometry.ui")
@@ -101,37 +106,16 @@ void ABase::changeToLevel(QString uicfile)
   //Disable the current widget
   screens[current]->setEnabled(false);
 
-  current=uicfile;
-  //Figure out the needed delta amount. Note: the position of the widget!=the final position of the area since the top of the area is not always the top of the widget.
-  delta=screens[uicfile]->pos()+area->pos();
+  slider.setKeyframe(500,-screens[uicfile]->pos());
+  slider.play();
 
-  startTimer(10);
+  current=uicfile;
 }
 
-void ABase::timerEvent(QTimerEvent *event)
+void ABase::animationFinished()
 {
-
-  QPoint at=area->pos();
-  int length=delta.manhattanLength();
-
-  //Are we there yet?
-  if(length==0)
-    {
-      //Enable it...
-      screens[current]->setEnabled(true);
-
-      killTimer(event->timerId());
-      return;
-    }
-
-  //Some math 
-  int steps=(abs(delta.x())>abs(delta.y()))?delta.x():delta.y();
-  steps=abs(steps)/100; // This sets the speed of the animation. Bigger number on the bottom means faster
-  QPoint smallDelta(delta.x()/steps,delta.y()/steps);
-  at-=smallDelta;
-  delta-=smallDelta; //Update needed delta
-
-  area->move(at); //MOVE MOVE!
+  screens[current]->setEnabled(true);
+  slider.reset();
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST

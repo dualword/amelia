@@ -216,8 +216,8 @@ public:
 
     AJet* trackPointer;
 
-    bool boxMode;
-    float boxWidth;
+    //bool boxMode;
+    //float boxWidth;
 
     virtual void setBoxesVisibility ( bool boxVisibility );
     int trackNumber;

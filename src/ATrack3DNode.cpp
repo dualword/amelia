@@ -681,6 +681,7 @@ AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
     Base = base;
     this->setName ( "Track3DNode" );
+    Pyramid = NULL;
 }
 
 
@@ -741,6 +742,7 @@ void AJet3DNode::setTrackStyle ( int style )
         //selected jet style
         if ( style == 6 )
         {
+            Pyramid->setVisible(true);
             video::SMaterial* m = &Pyramid->getMaterial ( 0 );
             m->EmissiveColor = video::SColor ( 0,255,0,0 );
         }
@@ -748,6 +750,7 @@ void AJet3DNode::setTrackStyle ( int style )
         //unselected jet style
         if ( style == 7 )
         {
+            Pyramid->setVisible(true);
             video::SMaterial* m = &Pyramid->getMaterial ( 0 );
             m->EmissiveColor = video::SColor ( 0,100,100,100 );
         }
@@ -755,7 +758,7 @@ void AJet3DNode::setTrackStyle ( int style )
         //invisible jet style
         if ( style == 8 )
         {
-            Pyramid->setVisible ( false );
+            Pyramid->setVisible(false);
         }
 
         //restore the jet visibility
@@ -774,7 +777,7 @@ void AJet3DNode::createJetPyramids()
     {
         float pi = 3.1415926;
         float c = 180/pi;
-        float theta = 2*atan ( exp ( -this->eta ) );
+        float theta = 2*atan ( exp ( -eta ) );
         core::vector3df zero = core::vector3df ( 0,0,0 );
         core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
         //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
@@ -811,7 +814,7 @@ void AJet3DNode::createJetPyramids()
         nodeBox->setParent ( this );
         //nodeBox->setDebugDataVisible(EDS_BBOX);
         //nodeBox->setVisible(false);
-        this->Pyramid = nodeBox;
+        Pyramid = nodeBox;
 
     }
 }

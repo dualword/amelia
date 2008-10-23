@@ -46,7 +46,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AXmlEvent.h"
 
 class ATrack;
-class XmlEvent;
+class AXmlEvent;
 class ATrack3DNode;
 
 struct module
@@ -132,7 +132,7 @@ public:
     bool OnEvent ( const SEvent& event );
 
     //Stuff from ABase
-    XmlEvent* XmlEvt;
+    AXmlEvent* XmlEvt;
     QList<ATrack3DNode*> selectedTracks;
 
     char* directoryBase;

@@ -149,7 +149,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
         {
             AEventPackage pkg=packages[index.internalId()];
             AEvent *e=pkg.event(index.row());
-            XmlEvent *event=XmlEvent::CachedEvent(e->location);
+            AXmlEvent *event=AXmlEvent::CachedEvent(e->location);
 
             QString toolTip=
                 "<html><b>Tracks:</b> \t\t"+QString::number(event->EventComplete.numTracks)+"<br/>"

@@ -45,7 +45,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::FPS)
+        background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::FPS)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -111,7 +111,7 @@ AGeometry::AGeometry(QWidget* parent)
 
     selectedTrackBox = NULL;
 
-    XmlEvt = new XmlEvent();
+    XmlEvt = new AXmlEvent();
     XmlEvt->Base = this;
 
     rt=0;
@@ -150,13 +150,13 @@ void AGeometry::prepareAllModules ( scene::ISceneNode* node_ )
 void AGeometry::load()
 {
     //First load stuff originally loaded by ABase...
-  //Device->getFileSystem()->addFolderFileArchive ( Device->getFileSystem()->getWorkingDirectory() );
-  Device->getFileSystem()->addFolderFileArchive ( "./media/" );
-  Device->getFileSystem()->addFolderFileArchive ( "./media/tours" );
-  Device->getFileSystem()->addFolderFileArchive ( "./media/events" );
-  Device->getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
-  Device->getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
-  Device->getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
+    //Device->getFileSystem()->addFolderFileArchive ( Device->getFileSystem()->getWorkingDirectory() );
+    Device->getFileSystem()->addFolderFileArchive ( "./media/" );
+    Device->getFileSystem()->addFolderFileArchive ( "./media/tours" );
+    Device->getFileSystem()->addFolderFileArchive ( "./media/events" );
+    Device->getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
+    Device->getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
+    Device->getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
 
 
     //These first three lines are part of an offset test for the Irrlicht ray generator
@@ -350,25 +350,25 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 
 void AGeometry::renderViewport(int view)
 {
-  int camId;
-  if(view==Cam3D) camId=active_cam;
-  else camId=view;
+    int camId;
+    if (view==Cam3D) camId=active_cam;
+    else camId=view;
 
     irr::video::SColor color (255,0,0,0);
 
     if (rt==0) //Try to create an render texture if one does not exist...
-      {
-      if (Device->getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
-	{
-	  rt = Device->getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
-	}
+    {
+        if (Device->getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
+        {
+            rt = Device->getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
+        }
 
-      if (rt==0)
-	{
-	  emit viewportUpdated(view,QImage());
-	  return;
-	}
-      }
+        if (rt==0)
+        {
+            emit viewportUpdated(view,QImage());
+            return;
+        }
+    }
 
     //Render screenshot
     QImage image;
@@ -566,10 +566,10 @@ void AGeometry::execute()
     BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
     CameraBB->setPosition ( camPos );
     if ( sliceMode == true )
-      {
+    {
         BBscale = 15000;
         CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
-      }
+    }
     CameraBB->setRotation ( Device->getSceneManager()->getActiveCamera()->getRotation() );
     CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
 
@@ -624,7 +624,7 @@ void AGeometry::execute()
 
     if ( ( frameSkipper==0 ) && ! ( MosesFreeCalm ) )
     {
-      executeMosesMode(); // every 5(?) frames
+        executeMosesMode(); // every 5(?) frames
     }
 
     CameraBB->setVisible ( false );
@@ -2200,22 +2200,22 @@ ATrack* AGeometry::deselectTrackByID (int ID)
 
 void AGeometry::grabControl()
 {
-  if ( active_viewport == AGeometry::Cam3D )
+    if ( active_viewport == AGeometry::Cam3D )
     {
-      Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( true );
-      setCursor( QCursor( Qt::BlankCursor ) );
-      allowTrackSelection=false;
-      setFocus();
+        Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( true );
+        setCursor( QCursor( Qt::BlankCursor ) );
+        allowTrackSelection=false;
+        setFocus();
     }
 }
 
 void AGeometry::releaseControl()
 {
-  if ( active_viewport == AGeometry::Cam3D )
+    if ( active_viewport == AGeometry::Cam3D )
     {
-      Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
-      setCursor( QCursor( Qt::ArrowCursor ) );
-      allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
+        Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
+        setCursor( QCursor( Qt::ArrowCursor ) );
+        allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
     }
 }
 
@@ -2234,7 +2234,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 selected=trackSelection(posMouse);
 
                 //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-				bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+                bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
                 if (!Shift)
                 {
                     while (!selectedTracks.isEmpty())
@@ -2418,52 +2418,52 @@ bool AGeometry::OnEvent ( const SEvent& event )
 //Switch the current camera, viewport clicked
 void AGeometry::setViewport(int to)
 {
-  int camId;
-  if(to==AGeometry::Cam3D) camId=active_cam;
-  else camId=to;
+    int camId;
+    if (to==AGeometry::Cam3D) camId=active_cam;
+    else camId=to;
 
-  if (camId==active_viewport) return; //Already using it
+    if (camId==active_viewport) return; //Already using it
 
-  int from=active_viewport;
+    int from=active_viewport;
 
-  Device->getSceneManager()->setActiveCamera (camera[camId]);
+    Device->getSceneManager()->setActiveCamera (camera[camId]);
 
-  setupView(to);
+    setupView(to);
 
-  emit viewportSwitched(from,to);
-  active_viewport=to;
-  renderViewport(from);
+    emit viewportSwitched(from,to);
+    active_viewport=to;
+    renderViewport(from);
 
-  qDebug() << "Active viewport switched from " << from << " to " << to;
+    qDebug() << "Active viewport switched from " << from << " to " << to;
 }
 
 void AGeometry::setCamera(int to)
 {
-  if (to==active_cam) return; //Already using it
+    if (to==active_cam) return; //Already using it
 
-  switch(to)
+    switch (to)
     {
     case AGeometry::FPS:
-      actSphere->setChecked(false);
-      actFPS->setChecked(true);
-      sliceMode=false;
-      break;
+        actSphere->setChecked(false);
+        actFPS->setChecked(true);
+        sliceMode=false;
+        break;
     case AGeometry::Maya:
-      actFPS->setChecked(false);
-      actSphere->setChecked(true);
-      sliceMode=true;
-      break;
+        actFPS->setChecked(false);
+        actSphere->setChecked(true);
+        sliceMode=true;
+        break;
     }
-  camera[to]->setInputReceiverEnabled(camera[active_cam]->isInputReceiverEnabled());
+    camera[to]->setInputReceiverEnabled(camera[active_cam]->isInputReceiverEnabled());
 
 
-  if(active_viewport==AGeometry::Cam3D)
+    if (active_viewport==AGeometry::Cam3D)
     {
-      cameraSwitcher->setTargetCamera(camera[to]);
+        cameraSwitcher->setTargetCamera(camera[to]);
     }
 
-  active_cam=to;
-  renderViewport(AGeometry::Cam3D);
+    active_cam=to;
+    renderViewport(AGeometry::Cam3D);
 }
 
 void AGeometry::setupView(int view)
@@ -2474,7 +2474,7 @@ void AGeometry::setupView(int view)
     case AGeometry::Cam3D:
         f=false;
         s=false;
-	fps=true;
+        fps=true;
         break;
     case AGeometry::Orthogonal:
         f=true;

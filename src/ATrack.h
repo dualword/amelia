@@ -93,7 +93,7 @@ public:
     float et;
     int numCells;
     int id;
-    jType type;
+    jType jtype;
     class AJet3DNode* node;
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
 };
@@ -117,7 +117,7 @@ public:
     float et;
 
     int id;
-    mType type;
+    mType mtype;
 
     irr::core::vector3df start;
     irr::core::vector3df end;

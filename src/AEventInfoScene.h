@@ -60,8 +60,8 @@ public:
     AEventInfoScene(QObject* parent=0);
     ~AEventInfoScene();
 
-    XmlEvent* event();
-    void setEvent(XmlEvent* e);
+    AXmlEvent* event();
+    void setEvent(AXmlEvent* e);
 public slots:
     void updateEventInfo();
 
@@ -79,6 +79,6 @@ private:
     QGraphicsTextItem* labelDisplayed;
     QGraphicsTextItem* labelTotal;
 
-    XmlEvent* _event;
+    AXmlEvent* _event;
 };
 #endif

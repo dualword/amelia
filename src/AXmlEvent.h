@@ -92,18 +92,18 @@ public:
 
 
 
-class XmlEvent : public QObject
+class AXmlEvent : public QObject
 {
 
     Q_OBJECT
 
 public:
 
-    XmlEvent();
-    virtual ~XmlEvent();
+    AXmlEvent();
+    virtual ~AXmlEvent();
 
     static int ptcut;
-    static XmlEvent* CachedEvent(QString file);
+    static AXmlEvent* CachedEvent(QString file);
 
 
     class AGeometry* Base;
@@ -117,6 +117,8 @@ public:
     void DisplayEvent(AGeometry* device);
     vector<bool> P_checkbox_states;
     void setCurrentJetModel(QString jetType);
+    int currentJetType; //defines the current Jet reconstruction model in use
+    int currentMisEtType; //defines the current Missing Et reconstruction model in use
 
 public slots:
     void PtCutoff ( int PtCut );
@@ -126,7 +128,7 @@ signals:
     void eventChanged();
 
 private:
-    static QMap<QString,XmlEvent*> cache;
+    static QMap<QString,AXmlEvent*> cache;
 
     std::vector<int> getDataInt ( QDomNode xml );
     std::vector<float> getDataFloat ( QDomNode xml );

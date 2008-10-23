@@ -38,12 +38,12 @@ void AEventInfoScene::init()
     dataDisplayed->setDefaultTextColor("blue");
 }
 
-XmlEvent* AEventInfoScene::event()
+AXmlEvent* AEventInfoScene::event()
 {
     return _event;
 }
 
-void AEventInfoScene::setEvent(XmlEvent* e)
+void AEventInfoScene::setEvent(AXmlEvent* e)
 {
     _event=e;
     connect(e,SIGNAL(eventChanged()),
@@ -82,19 +82,19 @@ void AEventInfoScene::updateEventInfo()
     }
     else
     {
-       header->setHtml("<html>\n <b>NO EVENT LOADED</b></html>");
+        header->setHtml("<html>\n <b>NO EVENT LOADED</b></html>");
     }
 }
 
-    bool AEventInfoScene::particleFilter(ATrack* strack) // We don't want to allow every track to be added to the table
+bool AEventInfoScene::particleFilter(ATrack* strack) // We don't want to allow every track to be added to the table
+{
+    if ((strack->Type == 2) || (strack->Type == 4) || (strack->name == "e-")  || (strack->name == "e+") || (strack->name == "mu-") || (strack->name == "mu+") || (strack->name == "gamma") || (strack->name == "e-"))
     {
-        if ((strack->Type == 2) || (strack->Type == 4) || (strack->name == "e-")  || (strack->name == "e+") || (strack->name == "mu-") || (strack->name == "mu+") || (strack->name == "gamma") || (strack->name == "e-"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
+        return true;
     }
+    else
+    {
+        return false;
+    }
+
+}

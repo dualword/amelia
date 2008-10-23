@@ -56,12 +56,13 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
             if (track->Type == ATrack::eJet)
             {
                 return QString::number((static_cast<AJet*>(track))->et);
-            }else
-            if (track->Type == ATrack::eSTrack || track->Type == ATrack::eMissingEt)
-            {
-                return QString::number((static_cast<ASTrack*>(track))->pt);
             }
-            else return QString("N/A");
+            else
+                if (track->Type == ATrack::eSTrack || track->Type == ATrack::eMissingEt)
+                {
+                    return QString::number((static_cast<ASTrack*>(track))->pt);
+                }
+                else return QString("N/A");
         case 2:
             if (track->Type == ATrack::eJet)
             {
@@ -259,16 +260,14 @@ void AInterestingTrackTableModel::getInterestingTracks()
     {
 
         ATrack* t = *go;
-        if ( t->Type == t->eJet )
+        if ( (t->Type == t->eJet) && (static_cast<AJet*>(t)->jtype == geo->XmlEvt->currentJetType) )
         {
-            qDebug() << "getInterestingTracks() got a Jet";
             addTrack(t);
-            qDebug() << "Really got that jet. No problem.";
 
         }
 
 
-        if ( t->Type == t->eMissingEt )
+        if ( (t->Type == t->eMissingEt) && (static_cast<AMisET*>(t)->mtype == geo->XmlEvt->currentMisEtType) )
         {
             qDebug() << "getInterestingTracks() got MissingET";
             addTrack(t);

@@ -47,7 +47,6 @@ int main(int argc, char **argv)
     window.addLevel("menu.ui");
     window.addLevel("geometry.ui");
     QMetaObject::connectSlotsByName(&window);
-    window.changeToLevel("menu.ui");
     
     window.show();
     return app.exec();

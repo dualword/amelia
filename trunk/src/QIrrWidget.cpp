@@ -38,7 +38,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <QAction>
 #include <QApplication>
-
+#include <QGridLayout>
 
 QIrrWidget::QIrrWidget( QWidget *parent )
         : QWidget(parent)
@@ -53,22 +53,17 @@ QIrrWidget::QIrrWidget( QWidget *parent )
     _driverType = irr::video::EDT_OPENGL;
 #endif
 
-    // Irrlicht will clear the canvas for us, so tell Qt not to do it
-    setAttribute( Qt::WA_OpaquePaintEvent );
-    //Tell Qt we will use something else for painting
-    setAttribute(Qt::WA_PaintOnScreen);
-	setAttribute(Qt::WA_NoBackground);
-	setAttribute(Qt::WA_NoSystemBackground);
+    QGridLayout *layout=new QGridLayout(this);
+    p=new QIrrWidgetPrivate(this);
+    layout->addWidget(p);
 
-	setMouseTracking(true);
-
-	setFocusPolicy(Qt::StrongFocus);
-  	setAutoFillBackground(false);
+    label=new QLabel(this);
+    layout->addWidget(label);
+    label->hide();
 }
 
 QIrrWidget::~QIrrWidget()
 {
-  killTimer(timerId);
   if ( Device != 0 )
     {
       Device->closeDevice();
@@ -98,60 +93,34 @@ irr::video::E_DRIVER_TYPE QIrrWidget::driverType()
   return _driverType;
 }
 
-void QIrrWidget::timerEvent( QTimerEvent* event )
+void QIrrWidget::toggleDisabled()
 {
-    update();
+  setEnabled(!isEnabled());
 }
 
-void QIrrWidget::paintEvent( QPaintEvent* event )
+void QIrrWidget::changeEvent(QEvent *event)
 {
-	//TODO Find the optimal place to dump this check. I don't want the device to be initilazed if we have not enabled it yet... There is no point it in.
-  bool focusHack=(driverType()!=irr::video::EDT_OPENGL || QApplication::activeWindow()==window());
-  if(!isVisible() || !isEnabled() || !focusHack) return;
-  Init();
-  execute();
-  
-  if (Device)
+  if(event->type()==QEvent::EnabledChange)
     {
-      Device->getTimer()->tick();
-      //This disables rendering when we have a popup window, like when combining
-      // tracks or loading an event. This hack is only enabled for OpenGL, because
-      // I didn't notice any performance issues.
-      bool focusHack=(driverType()!=irr::video::EDT_OPENGL || QApplication::activeWindow()==window());
-      if(isVisible() && isEnabled() && focusHack)
+      if(isEnabled())
 	{
-	  irr::video::SColor color (0,0,0,0);
-	  Device->getVideoDriver()->beginScene( isEnabled(), true, color );
-	  Device->getSceneManager()->drawAll();
-	  Device->getVideoDriver()->endScene();
+	  label->hide();
+	  label->setPixmap(0);
+	  p->show();
 	}
       else
-	Device->yield();
+	{
+	  QPixmap ss=QPixmap::grabWindow(p->winId());
+	  ss.save("qtest.png");
+	  p->hide();
+
+	  label->setPixmap(ss);
+	  label->show();
+	}
     }
-
-    emit repainted ();
-
 }
 
 void QIrrWidget::execute() { }
-
-void QIrrWidget::resizeEvent( QResizeEvent* event )
-{
-    if ( Device != 0 )
-    {
-        irr::core::dimension2d<int> size;
-        size.Width = event->size().width();
-        size.Height = event->size().height();
-        Device->getVideoDriver()->OnResize( size );
-
-        irr::scene::ICameraSceneNode *cam = Device->getSceneManager()->getActiveCamera();
-        if ( cam != 0 )
-        {
-            cam->setAspectRatio( size.Height / size.Width );
-        }
-    }
-    QWidget::resizeEvent(event);
-}
 
 bool QIrrWidget::OnEvent(const SEvent &event)
 {
@@ -160,7 +129,7 @@ bool QIrrWidget::OnEvent(const SEvent &event)
 
 void QIrrWidget::load() { }
 
-void QIrrWidget::enterEvent(QEvent* event)
+/*void QIrrWidget::enterEvent(QEvent* event)
 {
 	setFocus();
 }
@@ -168,43 +137,16 @@ void QIrrWidget::enterEvent(QEvent* event)
 void QIrrWidget::leaveEvent(QEvent* event)
 {
 	clearFocus();
-}
+	}*/
 
 void QIrrWidget::Init()
 {
-// Don't initialize more than once!
-    if ( Device != 0 ) return;
+  if(Device!=0) return;
 
-    irr::SIrrlichtCreationParameters params;
-
-    params.DriverType = driverType();
-#ifdef W_QT_X11
-    params.WindowId = (void*)parentWidget()->winId();
-#else
-    params.WindowId = (void*)winId();
-#endif
-    params.WindowSize.Width = width();
-    params.WindowSize.Height = height();
-    params.EventReceiver = this;
-    params.AntiAlias = true;
-    params.IgnoreInput = true;
-
-    Device = irr::createDeviceEx( params );
-
-#ifdef W_QT_X11
-    int _x=x(),_y=y();
-
-    SExposedVideoData videoData=Device->getVideoDriver()->getExposedVideoData();
-    WId window_id=videoData.OpenGLLinux.X11Window;
-    create(window_id);
-    move(_x,_y);
-#endif
-
-    timerId=startTimer(20);
-    load();
+  Device=p->initialize(driverType());
+  Device->setEventReceiver(this);
+  load();
 }
-
-
 
 QImage QIrrWidget::screenshot()
 {
@@ -615,4 +557,120 @@ void QIrrWidget::wheelEvent(QWheelEvent *event)
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
   if(Device->postEventFromUser(e))
     event->accept();
+}
+
+QIrrWidgetPrivate::QIrrWidgetPrivate( QIrrWidget *parent )
+  : QWidget(parent),Device(0)
+{
+  // Irrlicht will clear the canvas for us, so tell Qt not to do it
+  setAttribute( Qt::WA_OpaquePaintEvent );
+  //Tell Qt we will use something else for painting
+  setAttribute(Qt::WA_PaintOnScreen);
+  setAttribute(Qt::WA_NoBackground);
+  setAttribute(Qt::WA_NoSystemBackground);
+  
+  setMouseTracking(true);
+  
+  setFocusPolicy(Qt::StrongFocus);
+  setAutoFillBackground(false);
+}
+
+QIrrWidgetPrivate::~QIrrWidgetPrivate()
+{
+  killTimer(timerId);
+}
+
+IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverType)
+{
+  // Don't initialize more than once!
+  if ( Device != 0 ) return Device;
+  
+  irr::SIrrlichtCreationParameters params;
+  
+  params.DriverType = driverType;
+#ifdef W_QT_X11
+  params.WindowId = (void*)parentWidget()->winId();
+#else
+  params.WindowId = (void*)winId();
+#endif
+  params.WindowSize.Width = width();
+  params.WindowSize.Height = height();
+  params.AntiAlias = true;
+  params.IgnoreInput = true;
+  
+  Device = irr::createDeviceEx( params );
+  
+#ifdef W_QT_X11
+  int _x=x(),_y=y();
+  
+  SExposedVideoData videoData=Device->getVideoDriver()->getExposedVideoData();
+  WId window_id=videoData.OpenGLLinux.X11Window;
+  create(window_id);
+  move(_x,_y);
+#endif
+  
+  timerId=startTimer(20);
+  
+  return Device;
+}
+
+void QIrrWidgetPrivate::timerEvent(QTimerEvent* event)
+{
+  update();
+}
+  
+  void QIrrWidgetPrivate::paintEvent( QPaintEvent* event )
+  {
+    if(!Device)
+      {
+	QIrrWidget *parent=(QIrrWidget*)parentWidget();
+	initialize(parent->driverType());
+	parent->Device=Device;
+	parent->load();
+      }
+
+    if (Device)
+    {
+      Device->getTimer()->tick();
+      //This disables rendering when we have a popup window, like when combining
+      // tracks or loading an event. This hack is only enabled for OpenGL, because
+      // I didn't notice any performance issues.
+      //bool focusHack=(driverType()!=irr::video::EDT_OPENGL || QApplication::activeWindow()==window());
+      if(isVisible() /*&& focusHack*/)
+	{
+	  ((QIrrWidget*)this->parentWidget())->execute();
+
+	  irr::video::SColor color (0,0,0,0);
+	  Device->getVideoDriver()->beginScene( isEnabled(), true, color );
+	  Device->getSceneManager()->drawAll();
+	  Device->getVideoDriver()->endScene();
+	}
+      //else
+      //Device->yield();
+    }
+
+  //emit repainted ();
+}
+
+void QIrrWidgetPrivate::resizeEvent( QResizeEvent* event )
+{
+    if ( Device != 0 )
+    {
+        irr::core::dimension2d<int> size;
+        size.Width = event->size().width();
+        size.Height = event->size().height();
+        Device->getVideoDriver()->OnResize( size );
+
+        irr::scene::ICameraSceneNode *cam = Device->getSceneManager()->getActiveCamera();
+        if ( cam != 0 )
+	  {
+	    cam->setAspectRatio( size.Height / size.Width );
+        }
+    }
+    QWidget::resizeEvent(event);
+}
+
+QPaintEngine * QIrrWidgetPrivate::paintEngine () const
+{
+  return 0;
 }

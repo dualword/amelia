@@ -44,6 +44,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QComboBox>
 #include <QPainter>
 #include <QDebug>
+#include <QLabel>
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -93,6 +94,9 @@ public:
     static EKEY_CODE Qt2Irr_KeyCode(int keycode);
     static int Irr2Qt_KeyCode(EKEY_CODE keycode);
 
+public slots:
+  void toggleDisabled();
+
 signals:
     void repainted ();
 
@@ -105,13 +109,11 @@ protected:
     virtual bool OnEvent(const SEvent &event);
 
     /* Event */
-    virtual void paintEvent( QPaintEvent* event );
-    virtual void resizeEvent( QResizeEvent* event );
-    virtual void timerEvent( QTimerEvent* event );
-    void enterEvent(QEvent* event);
-    void leaveEvent(QEvent* event);
-    //void changeEvent(QEvent* event); //Will be used for diabled widget image caching
-
+    //virtual void paintEvent( QPaintEvent* event );
+  //void enterEvent(QEvent* event);
+  //void leaveEvent(QEvent* event);
+  void changeEvent(QEvent* event); //Will be used for diabled widget image caching
+  
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
@@ -122,10 +124,30 @@ protected:
 private:
     irr::video::E_DRIVER_TYPE _driverType;
     void Init();
-    ICameraSceneNode *cam;
 
-    QPixmap staticImage; //Used as a static image when we don't need to redraw
-    int timerId;
+    QLabel *label;
+  class QIrrWidgetPrivate *p;
+  friend class QIrrWidgetPrivate;
+};
+
+class QIrrWidgetPrivate : public QWidget
+{
+ public:
+  QIrrWidgetPrivate(QIrrWidget *parent);
+  ~QIrrWidgetPrivate();
+
+  IrrlichtDevice* initialize(irr::video::E_DRIVER_TYPE _driverType);
+
+  virtual QPaintEngine * paintEngine () const;
+
+protected:
+  virtual void paintEvent( QPaintEvent* event );
+  virtual void timerEvent( QTimerEvent* event );
+  virtual void resizeEvent( QResizeEvent* event );
+
+ private:
+  IrrlichtDevice* Device;
+  int timerId;
 };
 
 #endif // QIRRWIDGET_H

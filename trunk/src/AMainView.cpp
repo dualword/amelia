@@ -29,7 +29,7 @@ void AMainView::setCurrentIndex(int idx)
 	}
 
 	this->idx=idx;
-	setDisabled(true);
+	currentWidget()->setDisabled(true);
 
 	slideOut->reset();
 	slideOut->play();
@@ -43,13 +43,15 @@ void AMainView::toggle()
 
 void AMainView::setCurrentIndex1()
 {
-	parentWidget()->layout()->removeWidget(this);
-	QPoint p=pos();
-	hide();
-	QStackedWidget::setCurrentIndex(idx);
-	show();
-	move(p);
-
+  //By disabling the parent layout, we ensure that when we call setCurrentIndex(), we won't see quick flicker.
+  // as the index of the parent stacked widget is updated. The problem is that if we add widgets in the meantime,
+  // then they won't be "properly" layed out until we enabled the layout again at the end of the animation. But
+  // then, how often that happens?
+  //In conclusion, if you have problem with the layouts while an AMainView transition is in effect, then this is 
+  // probably the cause....
+  parentWidget()->layout()->setEnabled(false);
+  QStackedWidget::setCurrentIndex(idx);
+  
 	if(!slideIn)
 	{
 		slideIn=new AAnimationGUI(this);
@@ -63,5 +65,7 @@ void AMainView::setCurrentIndex1()
 
 void AMainView::setCurrentIndex2()
 {
-	setDisabled(false);
+  //Enable parent layout
+  currentWidget()->setDisabled(false);
+  parentWidget()->layout()->setEnabled(true);
 }

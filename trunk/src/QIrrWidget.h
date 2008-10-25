@@ -97,9 +97,6 @@ public:
 public slots:
   void toggleDisabled();
 
-signals:
-    void repainted ();
-
 protected:
     irr::IrrlichtDevice* Device;
 
@@ -109,10 +106,7 @@ protected:
     virtual bool OnEvent(const SEvent &event);
 
     /* Event */
-    //virtual void paintEvent( QPaintEvent* event );
-  //void enterEvent(QEvent* event);
-  //void leaveEvent(QEvent* event);
-  void changeEvent(QEvent* event); //Will be used for diabled widget image caching
+    void changeEvent(QEvent* event); //Will be used for diabled widget image caching
   
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
@@ -123,7 +117,6 @@ protected:
 
 private:
     irr::video::E_DRIVER_TYPE _driverType;
-    void Init();
 
     QLabel *label;
   class QIrrWidgetPrivate *p;

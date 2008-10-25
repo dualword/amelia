@@ -111,7 +111,6 @@ void QIrrWidget::changeEvent(QEvent *event)
       else
 	{
 	  QPixmap ss=QPixmap::grabWindow(p->winId());
-	  ss.save("qtest.png");
 	  p->hide();
 
 	  label->setPixmap(ss);
@@ -128,25 +127,6 @@ bool QIrrWidget::OnEvent(const SEvent &event)
 }
 
 void QIrrWidget::load() { }
-
-/*void QIrrWidget::enterEvent(QEvent* event)
-{
-	setFocus();
-}
-
-void QIrrWidget::leaveEvent(QEvent* event)
-{
-	clearFocus();
-	}*/
-
-void QIrrWidget::Init()
-{
-  if(Device!=0) return;
-
-  Device=p->initialize(driverType());
-  Device->setEventReceiver(this);
-  load();
-}
 
 QImage QIrrWidget::screenshot()
 {

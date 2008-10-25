@@ -111,7 +111,6 @@ public:
     AEvent EventComplete;
     AEvent GetEventFromFile ( QString filename );
     void HideAllTracks();
-    class AEvent DisplayParticles ( vector<bool>states, class AEvent &ievent );
     void LoadEvent ( QString file );
     void UnloadEvent ( );
     void DisplayEvent(AGeometry* device);
@@ -122,6 +121,7 @@ public:
 
 public slots:
     void PtCutoff ( int PtCut );
+    AEvent DisplayParticles ();
 
 signals:
     // Emitted whenever the displayed event changes shape (ei: during pT cutoff)

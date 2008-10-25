@@ -304,6 +304,16 @@ void ALayerGUI::selectJetModel(QString jetType)
     geo->XmlEvt->setCurrentJetModel(jetType);
 }
 
+void ALayerGUI::selectTrackModel(QString trackType)
+{
+    geo->XmlEvt->setCurrentJetModel(trackType);
+}
+
+void ALayerGUI::selectMisEtModel(QString metType)
+{
+    geo->XmlEvt->setCurrentJetModel(metType);
+}
+
 
 void ALayerGUI::toggleVisibilityParticles(bool toggle)
 {
@@ -338,7 +348,7 @@ void ALayerGUI::toggleVisibilityParticles(bool toggle)
     {
         geo->XmlEvt->P_checkbox_states[7] = toggle;
     }
-    geo->XmlEvt->Event = geo->XmlEvt->DisplayParticles(geo->XmlEvt->P_checkbox_states, geo->XmlEvt->Event);
+    geo->XmlEvt->Event = geo->XmlEvt->DisplayParticles();
 }
 
 
@@ -385,7 +395,7 @@ bool ALayerGUI::loadEvent(QString fileName)
         geo->XmlEvt->LoadEvent(fileName);
         geo->XmlEvt->DisplayEvent(geo);
         geo->XmlEvt->PtCutoff(PtCutoff_Slider->sliderPosition());
-        geo->XmlEvt->DisplayParticles(geo->XmlEvt->P_checkbox_states, geo->XmlEvt->Event);
+        geo->XmlEvt->DisplayParticles();
 
         tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
 
@@ -458,6 +468,37 @@ void ALayerGUI::handleEventLoaded()
 void ALayerGUI::handleEventUnloaded()
 {
     menuTagCurrentEvent->setEnabled(false);
+}
+
+void ALayerGUI::eventSettings()
+{
+    AUILoader loader;
+    QFile file(":/ui/eventadvanced.ui");
+    file.open(QFile::ReadOnly);
+    QWidget *content = loader.load(&file,this);
+    file.close();
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(content);
+    QDialog settings(0);
+    settings.setWindowTitle(tr("Event Settings"));
+    settings.setLayout(layout);
+
+    QDialogButtonBox* buttonBox = content->findChild<QDialogButtonBox*>("buttonBox");
+
+    AAdvancedEventSettings* evSettings = static_cast<AAdvancedEventSettings*>(content);
+
+    connect(evSettings, SIGNAL(changedJetType(QString)), this, SLOT(selectJetModel(QString)));
+    connect(evSettings, SIGNAL(changedTrackType(QString)), this, SLOT(selectTrackModel(QString)));
+    connect(evSettings, SIGNAL(changedMisEtType(QString)), this, SLOT(selectMisEtModel(QString)));
+    connect(evSettings, SIGNAL(redraw()), geo->XmlEvt,SLOT(DisplayParticles()));
+
+
+    connect(buttonBox, SIGNAL(rejected()), &settings, SLOT(close()));
+    connect(buttonBox, SIGNAL(accepted()), &settings, SLOT(close()));
+
+
+    settings.exec();
 }
 
 void ALayerGUI::updateEventTagInfo(const QModelIndex& index)

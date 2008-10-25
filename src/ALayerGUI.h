@@ -51,6 +51,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QLabel>
 #include <QSignalMapper>
 #include <QTreeWidget>
+#include <QDialogButtonBox>
 
 #include "ATourManager.h"
 #include "ATourBuilder.h"
@@ -63,6 +64,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AComboTableModel.h"
 #include "AMainView.h"
 #include "AEventManager.h"
+#include "AUILoader.h"
+#include "AAdvancedEventSettings.h"
 
 
 class ALayerGUI : public QFrame
@@ -96,7 +99,10 @@ public slots:
     bool loadEvent (QString);
     void loadEventFromManager(const QModelIndex& index);
     void pressButton (char*);
-    void selectJetModel(QString);
+    void selectJetModel(QString jetType);
+    void selectMisEtModel(QString metType);
+    void selectTrackModel(QString trackType);
+    void eventSettings();
 
     //Loaded event, sets up visibility of tables and other funfun stuff
     void handleEventLoaded();

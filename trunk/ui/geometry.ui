@@ -388,7 +388,7 @@ border: 55
             <rect>
              <x>20</x>
              <y>3</y>
-             <width>401</width>
+             <width>391</width>
              <height>57</height>
             </rect>
            </property>
@@ -460,7 +460,7 @@ color: rgb(255, 255, 0);
             </property>
             <property name="geometry" >
              <rect>
-              <x>90</x>
+              <x>95</x>
               <y>13</y>
               <width>121</width>
               <height>24</height>
@@ -482,7 +482,7 @@ color: rgb(255, 255, 0);
             </property>
             <property name="geometry" >
              <rect>
-              <x>90</x>
+              <x>95</x>
               <y>32</y>
               <width>131</width>
               <height>24</height>
@@ -504,7 +504,7 @@ color: rgb(255, 255, 0);
             </property>
             <property name="geometry" >
              <rect>
-              <x>220</x>
+              <x>230</x>
               <y>32</y>
               <width>80</width>
               <height>24</height>
@@ -526,7 +526,7 @@ color: rgb(255, 255, 0);
             </property>
             <property name="geometry" >
              <rect>
-              <x>220</x>
+              <x>230</x>
               <y>13</y>
               <width>80</width>
               <height>24</height>
@@ -548,7 +548,7 @@ color: rgb(255, 255, 0);
             </property>
             <property name="geometry" >
              <rect>
-              <x>290</x>
+              <x>302</x>
               <y>13</y>
               <width>121</width>
               <height>24</height>
@@ -563,76 +563,6 @@ color: rgb(255, 255, 0);
             <property name="checked" >
              <bool>true</bool>
             </property>
-           </widget>
-           <widget class="QComboBox" name="JetComboBox" >
-            <property name="enabled" >
-             <bool>true</bool>
-            </property>
-            <property name="geometry" >
-             <rect>
-              <x>264</x>
-              <y>36</y>
-              <width>132</width>
-              <height>15</height>
-             </rect>
-            </property>
-            <property name="font" >
-             <font>
-              <pointsize>9</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-              <underline>false</underline>
-              <strikeout>false</strikeout>
-              <kerning>true</kerning>
-             </font>
-            </property>
-            <property name="contextMenuPolicy" >
-             <enum>Qt::DefaultContextMenu</enum>
-            </property>
-            <property name="layoutDirection" >
-             <enum>Qt::LeftToRight</enum>
-            </property>
-            <property name="autoFillBackground" >
-             <bool>false</bool>
-            </property>
-            <property name="editable" >
-             <bool>false</bool>
-            </property>
-            <property name="insertPolicy" >
-             <enum>QComboBox::InsertAtBottom</enum>
-            </property>
-            <property name="sizeAdjustPolicy" >
-             <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
-            </property>
-            <property name="duplicatesEnabled" >
-             <bool>false</bool>
-            </property>
-            <property name="frame" >
-             <bool>false</bool>
-            </property>
-            <property name="modelColumn" >
-             <number>0</number>
-            </property>
-            <item>
-             <property name="text" >
-              <string>Kt4H1TowerJets</string>
-             </property>
-            </item>
-            <item>
-             <property name="text" >
-              <string>Kt4H1TopoJets</string>
-             </property>
-            </item>
-            <item>
-             <property name="text" >
-              <string>Cone4H1TowerJets</string>
-             </property>
-            </item>
-            <item>
-             <property name="text" >
-              <string>Cone4H1TopoJets</string>
-             </property>
-            </item>
            </widget>
           </widget>
           <widget class="QGroupBox" name="groupBox_PtCutoff" >
@@ -1700,6 +1630,8 @@ color: rgb(255, 255, 0);
     <addaction name="separator" />
     <addaction name="actionTable" />
     <addaction name="menuTagCurrentEvent" />
+    <addaction name="separator" />
+    <addaction name="actionAdvanced_Settings" />
    </widget>
    <widget class="QMenu" name="menuHelp" >
     <property name="title" >
@@ -1950,6 +1882,11 @@ color: rgb(255, 255, 0);
     <string>Higg's Boson</string>
    </property>
   </action>
+  <action name="actionAdvanced_Settings" >
+   <property name="text" >
+    <string>Advanced Settings</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1997,6 +1934,7 @@ color: rgb(255, 255, 0);
     <slot>loadEvent()</slot>
     <slot>about()</slot>
     <slot>selectJetModel(QString)</slot>
+    <slot>eventSettings()</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2483,14 +2421,14 @@ color: rgb(255, 255, 0);
    </hints>
   </connection>
   <connection>
-   <sender>JetComboBox</sender>
-   <signal>currentIndexChanged(QString)</signal>
+   <sender>actionAdvanced_Settings</sender>
+   <signal>triggered()</signal>
    <receiver>ALayerGUI</receiver>
-   <slot>selectJetModel(QString)</slot>
+   <slot>eventSettings()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>360</x>
-     <y>571</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel" >
      <x>511</x>

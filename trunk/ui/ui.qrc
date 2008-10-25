@@ -2,5 +2,6 @@
   <qresource prefix="ui" >
 	<file>geometry.ui</file>
 	<file>menu.ui</file>
+	<file>eventadvanced.ui</file>
   </qresource>
 </RCC>

@@ -26,7 +26,11 @@ QWidget* AUILoader::createWidget(const QString &className, QWidget* parent, cons
     else if (className == "ALayerGUI")
     {
       obj = new ALayerGUI(parent);
-    } 
+    }
+    else if (className == "AAdvancedEventSettings")
+    {
+      obj = new AAdvancedEventSettings(parent);
+    }
 	else if(className == "AMainView")
 	{
 		obj = new AMainView(parent);

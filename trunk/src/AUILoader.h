@@ -45,6 +45,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AViewport.h"
 #include "ALayerGUI.h"
 #include "AMainView.h"
+#include "AAdvancedEventSettings.h"
 
 class AUILoader : public QUiLoader {
  public:

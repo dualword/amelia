@@ -750,18 +750,18 @@ void AXmlEvent::setCurrentJetModel(QString jetType)
 
 
 
-AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
+AEvent AXmlEvent::DisplayParticles ()
 {
-    if ( ievent.Tracks.size() >1 )
+    if ( Event.Tracks.size() >1 )
     {
-        ievent.numTracks = 0;
-        ievent.numChargedHadrons = 0;
-        ievent.numPhotons = 0;
-        ievent.numNeutralHadrons = 0;
-        ievent.numNeutrinos = 0;
-        ievent.numMuons = 0;
-        ievent.numElectrons = 0;
-        ievent.numShowers = ievent.FCALshowers.size() + ievent.HECshowers.size() + ievent.LArshowers.size() + ievent.TILEshowers.size();
+        Event.numTracks = 0;
+        Event.numChargedHadrons = 0;
+        Event.numPhotons = 0;
+        Event.numNeutralHadrons = 0;
+        Event.numNeutrinos = 0;
+        Event.numMuons = 0;
+        Event.numElectrons = 0;
+        Event.numShowers = Event.FCALshowers.size() + Event.HECshowers.size() + Event.LArshowers.size() + Event.TILEshowers.size();
 
 
         // We do this in parts. First, STracks
@@ -769,15 +769,15 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
         int j = 0;
 
 
-        for ( ii = ievent.STracks.begin(); ii!=ievent.STracks.end(); ii++ )
+        for ( ii = Event.STracks.begin(); ii!=Event.STracks.end(); ii++ )
         {
             ASTrack* i = *ii;
             if ( i->Type == i->eSTrack )
             {
                 i->node->setVisible ( false );
-                for ( j = 0; j < states.size(); j++ )
+                for ( j = 0; j < P_checkbox_states.size(); j++ )
                 {
-                    if ( states[j] )
+                    if ( P_checkbox_states[j] )
                     {
                         switch ( j )
                         {
@@ -785,8 +785,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                         case 0: //electrons
                             if ( i->code == 11 || i->code == -11 )
                             {
-                                ievent.numTracks++;
-                                ievent.numElectrons++;
+                                Event.numTracks++;
+                                Event.numElectrons++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -794,8 +794,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                         case 1: //muons
                             if ( abs ( i->code ) == 13 )
                             {
-                                ievent.numTracks++;
-                                ievent.numMuons++;
+                                Event.numTracks++;
+                                Event.numMuons++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -803,8 +803,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                         case 2: //photons
                             if ( i->code == 22 )
                             {
-                                ievent.numTracks++;
-                                ievent.numPhotons++;
+                                Event.numTracks++;
+                                Event.numPhotons++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -812,8 +812,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                         case 3: //neutrinos
                             if ( abs ( i->code==12 ) || abs ( i->code==14 ) || abs ( i->code==16 ) )
                             {
-                                ievent.numTracks++;
-                                ievent.numNeutrinos++;
+                                Event.numTracks++;
+                                Event.numNeutrinos++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -822,8 +822,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                                     i->code==221 || i->code==310 || abs ( i->code==421 ) || abs ( i->code==2212 ) ||
                                     abs ( i->code==3122 ) || abs ( i->code==3212 ) || abs ( i->code==3322 ) )
                             {
-                                ievent.numTracks++;
-                                ievent.numNeutralHadrons++;
+                                Event.numTracks++;
+                                Event.numNeutralHadrons++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -833,8 +833,8 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
                                     abs ( i->code== 3112 ) || abs ( i->code== 3222 ) || abs ( i->code== 3312 ) || abs ( i->code== 3334 ) ||
                                     abs ( i->code== 4122 ) )
                             {
-                                ievent.numTracks++;
-                                ievent.numChargedHadrons++;
+                                Event.numTracks++;
+                                Event.numChargedHadrons++;
                                 i->node->setVisible ( true );
                             }
                             break;
@@ -847,13 +847,13 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
         //Then AJets
         vector<AJet*>::iterator kk;
 
-        for ( kk = ievent.Jets.begin(); kk!=ievent.Jets.end(); kk++ )
+        for ( kk = Event.Jets.begin(); kk!=Event.Jets.end(); kk++ )
         {
             AJet* k = *kk;
             if ( k->Type == k->eJet )
             {
                 k->node->setVisible ( false );
-                if ( states[6] )
+                if ( P_checkbox_states[6] )
                 {
                     if ( k->Type == 2 && k->jtype == currentJetType )  // This shows the Jet in the event if it is of the right type
                     {
@@ -865,13 +865,13 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
 
         //And Missing ET
         vector<AMisET*>::iterator mm;
-        for ( mm = ievent.MisET.begin(); mm!=ievent.MisET.end(); kk++ )
+        for ( mm = Event.MisET.begin(); mm!=Event.MisET.end(); kk++ )
         {
             AMisET* m = *mm;
             if ( m->Type == m->eMissingEt )
             {
                 m->node->setVisible ( false );
-                if ( states[7] )
+                if ( P_checkbox_states[7] )
                 {
                     if ( m->Type == 4 && m->mtype == currentMisEtType )
                     {
@@ -883,7 +883,7 @@ AEvent AXmlEvent::DisplayParticles ( vector<bool>states, AEvent &ievent )
     }
 
     emit eventChanged();
-    return ievent;
+    return Event;
 }
 
 

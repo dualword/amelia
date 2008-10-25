@@ -102,6 +102,7 @@ void QIrrWidget::changeEvent(QEvent *event)
 {
   if(event->type()==QEvent::EnabledChange)
     {
+      setUpdatesEnabled(false);
       if(isEnabled())
 	{
 	  label->hide();
@@ -116,7 +117,10 @@ void QIrrWidget::changeEvent(QEvent *event)
 	  label->setPixmap(ss);
 	  label->show();
 	}
+      setUpdatesEnabled(true);
     }
+
+  QWidget::changeEvent(event);
 }
 
 void QIrrWidget::execute() { }
@@ -430,7 +434,23 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
   return 0;
 }
 
-void QIrrWidget::keyPressEvent(QKeyEvent *event)
+void QIrrWidgetPrivate::enterEvent(QEvent* event)
+{
+  setFocus();
+  grabKeyboard();
+
+  QWidget::enterEvent(event);
+}
+
+void QIrrWidgetPrivate::leaveEvent(QEvent* event)
+{
+  clearFocus();
+  releaseKeyboard();
+
+  QWidget::leaveEvent(event);
+}
+
+void QIrrWidgetPrivate::keyPressEvent(QKeyEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -442,9 +462,11 @@ void QIrrWidget::keyPressEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::keyPressEvent(event);
 }
 
-void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
+void QIrrWidgetPrivate::keyReleaseEvent(QKeyEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -456,9 +478,11 @@ void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::keyReleaseEvent(event);
 }
 
-void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
+void QIrrWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -468,9 +492,11 @@ void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
   e.MouseInput.Y = event->y();
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::mouseMoveEvent(event);
 }
 
-void QIrrWidget::mousePressEvent(QMouseEvent *event)
+void QIrrWidgetPrivate::mousePressEvent(QMouseEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -496,9 +522,11 @@ void QIrrWidget::mousePressEvent(QMouseEvent *event)
 
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::mousePressEvent(event);
 }
 
-void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
+void QIrrWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -524,9 +552,11 @@ void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
 
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::mouseReleaseEvent(event);
 }
 
-void QIrrWidget::wheelEvent(QWheelEvent *event)
+void QIrrWidgetPrivate::wheelEvent(QWheelEvent *event)
 {
   if(!Device) return;
   SEvent e;
@@ -537,6 +567,8 @@ void QIrrWidget::wheelEvent(QWheelEvent *event)
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
   if(Device->postEventFromUser(e))
     event->accept();
+
+  QWidget::wheelEvent(event);
 }
 
 QIrrWidgetPrivate::QIrrWidgetPrivate( QIrrWidget *parent )
@@ -564,11 +596,11 @@ IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverTy
 {
   // Don't initialize more than once!
   if ( Device != 0 ) return Device;
-  
+
   irr::SIrrlichtCreationParameters params;
   
   params.DriverType = driverType;
-#ifdef W_QT_X11
+#ifdef Q_WS_X11
   params.WindowId = (void*)parentWidget()->winId();
 #else
   params.WindowId = (void*)winId();
@@ -580,7 +612,7 @@ IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverTy
   
   Device = irr::createDeviceEx( params );
   
-#ifdef W_QT_X11
+#ifdef Q_WS_X11
   int _x=x(),_y=y();
   
   SExposedVideoData videoData=Device->getVideoDriver()->getExposedVideoData();
@@ -599,17 +631,18 @@ void QIrrWidgetPrivate::timerEvent(QTimerEvent* event)
   update();
 }
   
-  void QIrrWidgetPrivate::paintEvent( QPaintEvent* event )
-  {
-    if(!Device)
-      {
-	QIrrWidget *parent=(QIrrWidget*)parentWidget();
-	initialize(parent->driverType());
-	parent->Device=Device;
-	parent->load();
-      }
-
-    if (Device)
+void QIrrWidgetPrivate::paintEvent( QPaintEvent* event )
+{
+  if(!Device)
+    {
+      QIrrWidget *parent=(QIrrWidget*)parentWidget();
+      initialize(parent->driverType());
+      Device->setEventReceiver((IEventReceiver*)parent);
+      parent->Device=Device;
+      parent->load();
+    }
+  
+  if (Device)
     {
       Device->getTimer()->tick();
       //This disables rendering when we have a popup window, like when combining
@@ -630,6 +663,8 @@ void QIrrWidgetPrivate::timerEvent(QTimerEvent* event)
     }
 
   //emit repainted ();
+  
+  QWidget::paintEvent(event);
 }
 
 void QIrrWidgetPrivate::resizeEvent( QResizeEvent* event )

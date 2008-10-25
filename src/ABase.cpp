@@ -36,28 +36,46 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ABase.h"
 
 #include "AUILoader.h"
-
+#include "QGraphicsClickablePixmapItem.h"
+#include <QGLWidget>
 ABase::ABase( QWidget *parent )
   : QMainWindow(parent)
 {
   //Set to the initial size.
   setFixedSize(1024,768); //Makes the widget unresizable..
-  
-  //Create a widget to act as the central widget.
-  center=new QWidget(this);
-  setCentralWidget(center);
- 
-  //Create a widget that acts as our moving area. All virtual screens are added here!
-  area=new QWidget(center);
-  area->resize(1024,768);
-  
-  //This grid layout will contain any layouts. The size of each virtual screen will approximatelly be 1024x768 for now
-  layout=new QGridLayout(area);
-  layout->setContentsMargins(0,0,0,0);
 
-  //Setup animaiton
-  slider.setWidget(area);
-  connect(&slider,SIGNAL(animationFinished()),
+  layout.setContentsMargins(0,0,0,0);
+  center.setLayout(&layout);
+
+  //Some settings for the scene
+  menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
+  menu.addItem(&widgetGroup);
+
+  //Initialize the widget group that handles the animations
+  widgetGroup.scale(0.2,0.2); 
+  widgetGroup.setPos(calculateScaledWidgetGroupPosition());
+  widgetGroup.setHandlesChildEvents(false); //Let the pixmap handle it's own clicks
+
+  //Make the widget without scrollbars and display it
+  menuWidget.setScene(&menu);
+  menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  menuWidget.setViewport(new QGLWidget());
+  menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
+  layout.addWidget(&menuWidget);
+
+  setCentralWidget(&center);
+
+  //This mapper will be used for connecting pixmaps to changeToLevel
+  connect(&mapper,SIGNAL(mapped(const QString&)),
+	  this,SLOT(changeToLevel(const QString&)));
+
+
+  //Used by transition animations
+  timer.setDuration(500);
+  animation.setItem(&widgetGroup);
+  animation.setTimeLine(&timer);
+  connect(&timer,SIGNAL(finished()),
 	  this,SLOT(animationFinished()));
 }
 
@@ -65,14 +83,11 @@ ABase::~ABase() { }
 
 void ABase::addLevel(QString uicfile)
 {
-  //Increase the size of the area widget
-  area->resize(1024*(screens.size()+1),768);
-
   //Everything else should be an UI file (for now)
   AUILoader loader;
   QFile file(":/ui/"+uicfile);
   file.open(QFile::ReadOnly);
-  QWidget *tmp = loader.load(&file,this);
+  QWidget *tmp = loader.load(&file);
   file.close();
 
   if (!tmp)
@@ -81,41 +96,127 @@ void ABase::addLevel(QString uicfile)
 	  return;
     }
   
-  //Set the initial layout to the first layout loaded, otherwise disable it
-  if(current.isEmpty()) current=uicfile;
-  else tmp->setEnabled(false);
+  //Make sure to disable the widget
+  tmp->setEnabled(false);
+  tmp->setFixedSize(1024,768);
+  tmp->hide();
 
   //TODO Implement maximum number of columns!
   //int col=screens.size()%3;
   //int row=screens.size()/3;
-
-  //Add to the layout
-  layout->addWidget(tmp,0,screens.size());
-  layout->setColumnMinimumWidth(screens.size(),1024);
   
   //HACK (ugly) setup the conenctions of the ALayerGUI
   //TODO figure out a more general way to do this
   if(uicfile=="geometry.ui")
-    ((ALayerGUI*)((QMainWindow*)tmp)->centralWidget())->setupElements();
+  	((ALayerGUI*)((QMainWindow*)tmp)->centralWidget())->setupElements();
   
-  screens[uicfile]=tmp;
+  //Add it to the menu item...
+  QPixmap ss=QPixmap::grabWidget(tmp);
+  QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
+  item->setPos(1024*(widgets.size()-1),0);
+  
+  //Add the pixmap to the signal map, which will let us switch menus
+  mapper.setMapping(item,uicfile);
+  connect(item,SIGNAL(clicked()),
+	  &mapper,SLOT(map()));
+  
+  //Save it all to our fancy dancy maps
+  items[uicfile]=item;
+  widgets[uicfile]=tmp;
+  layout.addWidget(tmp);
+  
+  //Update the positions of the itmers
+  if(menuWidget.isVisible() && current.isEmpty()) 
+    changeToMenu(); // Menu is currently displayed, so use an animation
+  else
+    widgetGroup.setPos(calculateScaledWidgetGroupPosition()); // Not displayed, so just move it directly
 }
 
-void ABase::changeToLevel(QString uicfile)
+void ABase::changeToMenu()
 {
-  //Disable the current widget
-  screens[current]->setEnabled(false);
+  if(timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
-  slider.setKeyframe(500,-screens[uicfile]->pos());
-  slider.play();
+  if(current.isEmpty()) return; //Already on menu..
+  else
+    {
+      widgets[current]->setEnabled(false);
+      QPixmap ss=QPixmap::grabWidget(widgets[current]);
+      items[current]->setPixmap(ss);
 
+      setUpdatesEnabled(false);
+      widgets[current]->hide();
+      menuWidget.show();
+      setUpdatesEnabled(true);
+    }
+
+  //Initial condiftions
+  if(current.isEmpty())
+    animation.setScaleAt(0,0.2,0.2);
+  else
+    animation.setScaleAt(0,1,1);
+  
+  animation.setPosAt(0,widgetGroup.pos());
+  
+  // Scale of 0.2 is
+  // widget width = 1024*0.2 = 204.8
+  // widget height = 768*0.2 = 153.6
+  animation.setScaleAt(1,0.2,0.2);
+  animation.setPosAt(1,calculateScaledWidgetGroupPosition());
+    
+  timer.start();
+
+  previous=current;
+  current=QString();
+}
+
+void ABase::changeToLevel(const QString& uicfile)
+{
+  if(timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+
+  if(uicfile==current) return; //Arealdy there...
+  else if(!current.isEmpty())
+    {
+      widgets[current]->setEnabled(false);
+      QPixmap ss=QPixmap::grabWidget(widgets[current]);
+      items[current]->setPixmap(ss);
+
+      setUpdatesEnabled(false);
+      widgets[current]->hide();
+      menuWidget.show();
+      setUpdatesEnabled(true);
+    }
+  
+  //Initial conditions
+  if(current.isEmpty())
+    animation.setScaleAt(0,0.2,0.2);
+  else
+    animation.setScaleAt(0,1,1);
+
+  animation.setPosAt(0,widgetGroup.pos());
+
+  animation.setScaleAt(1,1,1);
+  
+
+  animation.setPosAt(1,-items[uicfile]->pos());
+  
+  timer.start();
+
+  //For some reason setting previous to current here would make uicfile a "". Don't ask...
+  QString tmp=current;
   current=uicfile;
+  previous=tmp;
 }
 
 void ABase::animationFinished()
 {
-  screens[current]->setEnabled(true);
-  slider.reset();
+  if(current.isEmpty()) return;
+
+  widgets[current]->setEnabled(true);
+
+  setUpdatesEnabled(false);
+  menuWidget.hide();
+  widgets[current]->show();
+  setUpdatesEnabled(true);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST
@@ -123,16 +224,47 @@ void ABase::keyPressEvent(QKeyEvent *event)
 {
   if(event->key()==Qt::Key_Escape)
     {
-      QList<QString> keys=screens.keys();
+      if(current.isEmpty() && !previous.isEmpty())
+	changeToLevel(previous);
+      else
+	changeToMenu();
+    }
+
+  if(event->key()==Qt::Key_Delete)
+    {
+      QList<QString> keys=widgets.keys();
       int idx=keys.indexOf(current);
       idx=(idx+1)%keys.size();
       changeToLevel(keys[idx]);
     }
 }
 
+QPointF ABase::calculateScaledWidgetGroupPosition()
+{
+  //Figures out where the widget group would go if it were scaled by 0.2
+  // and centered  
+  QPointF ret= QPointF((1024-widgetGroup.sceneBoundingRect().width())/2,
+		       (768-widgetGroup.sceneBoundingRect().height())/2);
+
+  return ret;
+}
+
+void ABase::updatePixmaps()
+{
+  QList<QString> keys=widgets.keys();
+  for(int i=0;i<keys.size();i++)
+    {
+    }
+}
+
 void ABase::on_GeoButton_clicked()
 {
   changeToLevel("geometry.ui");
+}
+
+void ABase::on_CompizButton_clicked()
+{
+  changeToLevel("compiz.ui");
 }
 
 void ABase::on_MenuButton_clicked()
@@ -152,7 +284,7 @@ void ABase::on_QuitButton_clicked()
 
 void ABase::on_MenuButton_activated()
 {
-  changeToLevel("menu");
+  changeToMenu();
 }
 
 void ABase::on_BackButton_activated()

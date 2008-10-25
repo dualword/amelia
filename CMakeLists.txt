@@ -66,6 +66,7 @@ SET(amelia_SRCS
   src/AAdvancedEventSettings.cpp
   src/ATrack.cpp
   src/main.cpp
+  src/QGraphicsClickablePixmapItem.cpp
   )
 
 SET(amelia_H
@@ -95,6 +96,7 @@ SET(amelia_H
   src/AAdvancedEventSettings.h
   src/AMainView.h
   src/ATrack.h
+  src/QGraphicsClickablePixmapItem.h
   )
 
 SET(amelia_FILES

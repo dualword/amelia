@@ -107,13 +107,6 @@ protected:
 
     /* Event */
     void changeEvent(QEvent* event); //Will be used for diabled widget image caching
-  
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
 
 private:
     irr::video::E_DRIVER_TYPE _driverType;
@@ -138,6 +131,18 @@ protected:
   virtual void timerEvent( QTimerEvent* event );
   virtual void resizeEvent( QResizeEvent* event );
 
+  // Enter/leave events are used for grabbing keyboard focus on hover
+  void enterEvent(QEvent* event);
+  void leaveEvent(QEvent* event);
+  
+  //Used for converting Qt input events into Irrlich events
+  void mouseMoveEvent(QMouseEvent *event);  
+  void keyPressEvent(QKeyEvent *event);
+  void keyReleaseEvent(QKeyEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void wheelEvent(QWheelEvent *event);
+  
  private:
   IrrlichtDevice* Device;
   int timerId;

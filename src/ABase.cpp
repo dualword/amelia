@@ -60,7 +60,7 @@ ABase::ABase( QWidget *parent )
   menuWidget.setScene(&menu);
   menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  menuWidget.setViewport(new QGLWidget());
+  setupViewport();
   menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
   layout.addWidget(&menuWidget);
 
@@ -81,13 +81,29 @@ ABase::ABase( QWidget *parent )
 
 ABase::~ABase() { }
 
+void ABase::setupViewport()
+{
+	QWidget *viewport;
+
+#ifdef Q_WS_WIN
+	viewport=new QWidget(&menuWidget);
+	viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
+#else
+	QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+	glw->setAutoFillBackground(false);
+	viewport = glw;
+#endif
+	menuWidget.setCacheMode(QGraphicsView::CacheNone);
+	menuWidget.setViewport(viewport);
+}
+
 void ABase::addLevel(QString uicfile)
 {
   //Everything else should be an UI file (for now)
   AUILoader loader;
   QFile file(":/ui/"+uicfile);
   file.open(QFile::ReadOnly);
-  QWidget *tmp = loader.load(&file);
+  QWidget *tmp = loader.load(&file,this);
   file.close();
 
   if (!tmp)
@@ -269,7 +285,7 @@ void ABase::on_CompizButton_clicked()
 
 void ABase::on_MenuButton_clicked()
 {
-  changeToLevel("menu");
+  changeToLevel("menu.ui");
 }
 
 void ABase::on_BackButton_clicked()

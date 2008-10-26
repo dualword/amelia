@@ -43,7 +43,6 @@ SET(amelia_SRCS
   src/ABase.cpp 
   src/AGeometry.cpp 
   src/ATrack3DNode.cpp 
-  src/AMenu.cpp 
   src/ATourBuilder.cpp 
   src/ATourManager.cpp 
   src/AXmlEvent.cpp 
@@ -74,7 +73,6 @@ SET(amelia_H
   src/ABase.h 
   src/AGeometry.h 
   src/ATrack3DNode.h 
-  src/AMenu.h 
   src/ATourBuilder.h 
   src/ATourManager.h 
   src/AXmlEvent.h 

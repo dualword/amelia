@@ -52,6 +52,7 @@ protected:
 
   QPointF calculateScaledWidgetGroupPosition();
   void updatePixmaps();
+  void setupViewport();
 
 private:
   //Holds a list of the virual screens loaded

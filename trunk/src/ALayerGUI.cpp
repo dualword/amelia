@@ -196,7 +196,8 @@ void ALayerGUI::setupElements()
     if (packageList)
     {
         packageList->setModel(mngr);
-        packageList->setColumnWidth(0,200);
+		//This crashes QPixmap::grabWidget() when the list is not visible for some reason...
+        //packageList->setColumnWidth(0,200);
         connect(packageList, SIGNAL(doubleClicked ( const QModelIndex& )),
                 this, SLOT(loadEventFromManager(const QModelIndex& )));
         connect(this,SIGNAL(eventLoaded(QString)),

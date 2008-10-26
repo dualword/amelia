@@ -34,7 +34,7 @@ namespace irr
       virtual bool isEventReceiverEnabled() const { return true; }
 
       //! We need to define this method because it's a pure virtual function on ISceneNodeAnimator
-      virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) {};
+      virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) { return 0; };
 
     private:
       f32 zoomSpeed;

@@ -78,7 +78,7 @@ public:
     int style;
     virtual void select() {}
     virtual void deselect() {}
-    virtual ATrack* getTrack() {}
+    virtual ATrack* getTrack() { return trackPointer; }
     virtual void setTrackStyle(int style) {}
 };
 

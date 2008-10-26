@@ -146,7 +146,6 @@ std::vector <AJet*> AXmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event
     // Types are Kt4H1TopoJets, Cone4H1TopoJets, Kt4H1TowerJets and Cone4H1TowerJets
 
     std::vector <AJet*> jets;
-    int i;
 
     //elements of the Jets
     vector<float> eta;
@@ -227,7 +226,6 @@ std::vector <AMisET*> AXmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* ev
     // Types are MET_Final, MET_RefMuon, MET_Calib, MET_RefFinal and MET_Truth
 
     std::vector <AMisET*> MET;
-    int i;
 
     //elements of MisET
     vector<float> etx;
@@ -303,7 +301,6 @@ std::vector <ASTrack*> AXmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent*
 {
     // Aux variables and definitions
     std::vector <ASTrack*> tracks;
-    int i;
 
 
 
@@ -424,8 +421,6 @@ std::vector <shower> AXmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo
     std::vector <shower> showers;
     shower s;
 
-    int i;
-
     vector<float> energy;
     vector<float> eta;
     vector<int> id;
@@ -436,7 +431,7 @@ std::vector <shower> AXmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo
     QDomNodeList Calo=dom.elementsByTagName(calo);
 
     //Load the calometers
-    for (int i=0;i<Calo.length();i++)
+    for (unsigned int i=0;i<Calo.length();i++)
     {
         QDomElement node=Calo.at(i).toElement();
         energy = getDataFloat ( node.elementsByTagName("energy").at(0) );
@@ -447,7 +442,7 @@ std::vector <shower> AXmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo
         sub = getDataInt ( node.elementsByTagName("sub").at(0) );
     }
 
-    for ( i = 0; i < energy.size(); i++ )
+    for (unsigned int i = 0; i < energy.size(); i++ )
     {
         s.energy = energy[i];
         if ( i<eta.size() ) s.eta = eta[i];
@@ -570,7 +565,7 @@ AEvent AXmlEvent::GetEventFromFile ( QString filename )
 
     QDomNodeList CaloETMis=doc.elementsByTagName("CaloETMis");
 
-    for (int i=0;i<CaloETMis.length();i++)
+    for (unsigned int i=0;i<CaloETMis.length();i++)
     {
         QDomElement node=CaloETMis.at(i).toElement();
 
@@ -615,7 +610,7 @@ void AXmlEvent::PtCutoff ( int PtCutInt )
     Event.numMuons = 0;
     Event.numElectrons = 0;
     Event.numShowers = EventComplete.FCALshowers.size() + EventComplete.HECshowers.size() + EventComplete.LArshowers.size() + EventComplete.TILEshowers.size();
-    int j = 0;
+    unsigned int j = 0;
 
     //This is a first approach to replace the old code. We'll treat the tracks by type, using the pointer vectors
     //First STracks
@@ -766,7 +761,7 @@ AEvent AXmlEvent::DisplayParticles ()
 
         // We do this in parts. First, STracks
         vector<ASTrack*>::iterator ii;
-        int j = 0;
+        unsigned int j = 0;
 
 
         for ( ii = Event.STracks.begin(); ii!=Event.STracks.end(); ii++ )

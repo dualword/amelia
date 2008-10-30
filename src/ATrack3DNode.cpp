@@ -83,35 +83,6 @@ ASTrack3DNode::~ASTrack3DNode()
     boxSizeAnim->drop();
 }
 
-int ASTrack3DNode::getCharge()
-{
-    return this->charge;
-}
-float ASTrack3DNode::getEta()
-{
-    return this->eta;
-}
-float ASTrack3DNode::getPhi()
-{
-    return this->phi;
-}
-float ASTrack3DNode::getPt()
-{
-    return this->pt;
-}
-float ASTrack3DNode::getV_phi()
-{
-    return this->v_phi;
-}
-float ASTrack3DNode::getV_rho()
-{
-    return this->v_rho;
-}
-float ASTrack3DNode::getV_z()
-{
-    return this->v_z;
-}
-
 int ASTrack3DNode::getTrackNumber()
 {
     return this->trackNumber;
@@ -207,9 +178,9 @@ void ASTrack3DNode::setTrackStyle ( int style )
             {
                 createBoxes();
             }
-            this->isLineVisible = false;
-            this->boxMode = true;
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            isLineVisible = false;
+            boxMode = true;
+            for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
             {
                 ( *it )->setVisible ( true );
                 ( *it )->setDebugDataVisible ( EDS_OFF );
@@ -217,7 +188,7 @@ void ASTrack3DNode::setTrackStyle ( int style )
                 ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
                 //(*it)->getMaterial(0).EmissiveColor.set(this->color);
                 video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = this->vividColor ;
+                m->EmissiveColor = vividColor ;
             }
         }
 
@@ -228,9 +199,9 @@ void ASTrack3DNode::setTrackStyle ( int style )
             {
                 createBoxes();
             }
-            this->isLineVisible = false;
-            this->boxMode = true;
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+            isLineVisible = false;
+            boxMode = true;
+            for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
             {
                 ( *it )->setVisible ( true );
                 ( *it )->setDebugDataVisible ( EDS_OFF );
@@ -244,10 +215,10 @@ void ASTrack3DNode::setTrackStyle ( int style )
         //simple line invisible, boxes invisible if present
         if ( style == 5 )
         {
-            this->isLineVisible = false;
+            isLineVisible = false;
             if ( boxMode )
             {
-                for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+                for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
                 {
                     ( *it )->setVisible ( false );
                 }
@@ -261,7 +232,7 @@ void ASTrack3DNode::setTrackStyle ( int style )
 void ASTrack3DNode::calculateDimmedColors()
 {
     //this->dimmedColor = this->vividColor.getInterpolated(video::SColor(0,0,0,0), 0.5);
-    this->dimmedColor = this->vividColor;
+    dimmedColor = vividColor;
     /*this->dimmedColor.setRed(this->vividColor.getRed()*0.75);
     this->dimmedColor.setGreen(this->color.getGreen()*0.75);
     this->dimmedColor.setBlue(this->color.getBlue()*0.75);
@@ -281,13 +252,13 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
     std::vector<core::vector3df> StartEnd ( 2 );
     float c = 180/3.1415926;
     float sc = 0.001;
-    float theta = 2*atan ( exp ( -this->eta ) );
+    float theta = 2*atan ( exp ( -(trackPointer->eta) ) );
 
-    float X0 = this->v_rho * cos ( this->v_phi ) *sc;
-    float Y0 = this->v_rho * sin ( this->v_phi ) *sc;
-    float Z0 = this->v_z*sc;
-    float Xdir = sin ( this->phi );
-    float Ydir = cos ( this->phi );
+    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ) *sc;
+    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ) *sc;
+    float Z0 = trackPointer->zVertex*sc;
+    float Xdir = sin ( trackPointer->phi );
+    float Ydir = cos ( trackPointer->phi );
     float Zdir = 1/tan ( theta );
     //float Length_dir = sqrt(Xdir*Xdir + Ydir*Ydir + Zdir*Zdir);
 
@@ -323,7 +294,7 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 void ASTrack3DNode::createBoxes()
 {
-    if ( charge == 0 )
+    if ( trackPointer->q == 0 )
     {
         createBoxesNeutral();
     }
@@ -423,23 +394,23 @@ float ASTrack3DNode::getChargedMaxAngle ()
 
     float C = 1000./0.6;
     float sc = 0.001;
-    float theta = 2*atan ( exp ( -this->eta ) );
-    float X0 = v_rho * cos ( this->v_phi ) *sc; // The X coordinate of the vertex
-    float Y0 = v_rho * sin ( this->v_phi ) *sc; // The Y coordinate of the vertex
+    float theta = 2*atan ( exp ( -(trackPointer->eta) ) );
+    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ) *sc; // The X coordinate of the vertex
+    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ) *sc; // The Y coordinate of the vertex
     //float Z0 = v_z;                       // The Z coordinate of the vertex
-    float R = this->pt*C;
-    float X_CH = X0 + this->charge * R*cos ( this->phi ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + this->charge * R*sin ( this->phi ); //The Y coordinate of the center of the helix
-    float E = exp ( this->eta );
-    float tL = 0.5 * ( exp ( this->eta ) - exp ( -this->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
+    float R = trackPointer->pt*C;
+    float X_CH = X0 + trackPointer->q * R*cos ( trackPointer->phi ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + trackPointer->q * R*sin ( trackPointer->phi ); //The Y coordinate of the center of the helix
+    float E = exp ( trackPointer->eta );
+    float tL = 0.5 * ( exp ( trackPointer->eta ) - exp ( -trackPointer->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
     //float startPhi = phi0+adjPhi;
-    float Z_CH = this->v_z*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+    float Z_CH = trackPointer->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
     float a=0.05/RadDeg;
 
     for ( int w=0; w<=5000; w++ )
     {
-        if ( ( x_helix ( w*a, X_CH, R, this->phi, this->charge ) *x_helix ( w*a, X_CH, R, this->phi, this->charge ) + y_helix ( w*a, Y_CH, R, this->phi, this->charge ) *y_helix ( w*a, Y_CH, R, this->phi, this->charge ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
+        if ( ( x_helix ( w*a, X_CH, R, trackPointer->phi, trackPointer->q ) *x_helix ( w*a, X_CH, R, trackPointer->phi, trackPointer->q ) + y_helix ( w*a, Y_CH, R, trackPointer->phi, trackPointer->q ) *y_helix ( w*a, Y_CH, R, trackPointer->phi, trackPointer->q ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
         {
             return w*a;
             break;
@@ -453,20 +424,20 @@ float ASTrack3DNode::getChargedMaxAngle ()
 void ASTrack3DNode::createCurveVector()
 {
     float pi = 3.1415926;
-    float phiTrans = -phi + pi;
+    float phiTrans = -(trackPointer->phi) + pi;
     float C = 1000/0.6;
-    float theta = 2*atan ( exp ( - ( this->eta ) ) );
-    float X0 = this->v_rho * cos ( this->v_phi ); // The X coordinate of the vertex
-    float Y0 = this->v_rho * sin ( this->v_phi ); // The Y coordinate of the vertex
-    float Z0 = this->v_z;                       // The Z coordinate of the vertex
-    float R = this->pt*C;
-    float X_CH = X0 + this->charge * R*cos ( phiTrans ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + this->charge * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
-    float E = exp ( this->eta );
-    float tL = 0.5 * ( exp (eta) - exp ( - (eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
+    float theta = 2*atan ( exp ( - ( trackPointer->eta ) ) );
+    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ); // The X coordinate of the vertex
+    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ); // The Y coordinate of the vertex
+    float Z0 = trackPointer->zVertex;                       // The Z coordinate of the vertex
+    float R = trackPointer->pt*C;
+    float X_CH = X0 + trackPointer->q * R*cos ( phiTrans ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + trackPointer->q * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
+    float E = exp ( trackPointer->eta );
+    float tL = 0.5 * ( exp (trackPointer->eta) - exp ( - (trackPointer->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
     //float startPhi = phi0+adjPhi;
-    float Z_CH = v_z; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+    float Z_CH = trackPointer->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
 
 
     // Output:
@@ -500,7 +471,7 @@ void ASTrack3DNode::createCurveVector()
 
     for ( int w=0; w<=helixSections; w++ )
     {
-        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, this->charge ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, this->charge ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
+        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, trackPointer->q ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, trackPointer->q ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
         this->curvePoints.push_back ( point );
     }
 }
@@ -592,7 +563,7 @@ void ASTrack3DNode::setBoxesSelected ( bool boxesSelected )
 void ASTrack3DNode::Helix()
 {
 
-    if ( charge == 0 )
+    if ( trackPointer->q == 0 )
     {
         constructNeutral();
     }
@@ -600,33 +571,13 @@ void ASTrack3DNode::Helix()
     {
         constructCharged();
     }
-    calculateMlv();
-    tL = 0.5 * ( exp (eta) - exp (-(eta)));
+    tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
 }
 
 float ASTrack3DNode::getTl()
 {
-    return tL = 0.5 * ( exp (eta) - exp (-(eta)));
+    return tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
 }
-
-void ASTrack3DNode::calculateMlv()
-{
-    float ETMis = Base->XmlEvt->EventComplete.ETMis;
-    float ETMisX = Base->XmlEvt->EventComplete.ETMisVec.X;
-    float ETMisY = Base->XmlEvt->EventComplete.ETMisVec.Y;
-    if (ETMis != 0.0F)
-    {
-        float px = fabs(pt) * cos(phi);
-        float py = fabs(pt) * sin(phi);
-        Mlv = sqrt((fabs(pt) + ETMis) * (fabs(pt) + ETMis) - (px + ETMisX) * (px + ETMisX) - (py + ETMisY) * (py + ETMisY));
-    }
-    else
-    {
-        Mlv = 0.0F;
-    }
-    trackPointer->Mlv = Mlv;
-}
-
 
 
 void ASTrack3DNode::OnRegisterSceneNode()
@@ -679,24 +630,6 @@ AJet3DNode::~AJet3DNode()
     boxSizeAnim->drop();
 }
 
-
-float AJet3DNode::getEta()
-{
-    return this->eta;
-}
-float AJet3DNode::getPhi()
-{
-    return this->phi;
-}
-
-float AJet3DNode::getPt()
-{
-    return this->pt;
-}
-float AJet3DNode::getEt()
-{
-    return this->trackPointer->et;
-}
 int AJet3DNode::getTrackNumber()
 {
     return this->trackNumber;
@@ -766,11 +699,11 @@ void AJet3DNode::createJetPyramids()
     {
         float pi = 3.1415926;
         float c = 180/pi;
-        float theta = 2*atan ( exp ( -eta ) );
+        float theta = 2*atan ( exp ( -(trackPointer->eta )) );
         core::vector3df zero = core::vector3df ( 0,0,0 );
         core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
         //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
-        core::vector3df rot = core::vector3df ( -theta * c, 0, -phi * c ); //
+        core::vector3df rot = core::vector3df ( -theta * c, 0, -trackPointer->phi * c ); //
 
         scene::IAnimatedMesh* pyramid = Base->GetSceneManager()->getMesh ( "jet.X" );
         scene::ISceneNode* nodeBox = 0;
@@ -846,7 +779,7 @@ video::SMaterial& AJet3DNode::getMaterial ( s32 i )
 
 float AJet3DNode::getTl()
 {
-    float tL = 0.5 * ( exp (eta) - exp (-(eta)));
+    float tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
     return tL;
 }
 
@@ -865,22 +798,6 @@ AMisET3DNode::~AMisET3DNode()
 {
     boxSizeAnim->drop();
 }
-
-
-float AMisET3DNode::getEtx()
-{
-    return this->etx;
-}
-float AMisET3DNode::getEty()
-{
-    return this->ety;
-}
-
-float AMisET3DNode::getEt()
-{
-    return this->trackPointer->et;
-}
-
 
 int AMisET3DNode::getTrackNumber()
 {
@@ -972,7 +889,7 @@ void AMisET3DNode::setTrackStyle ( int style )
 void AMisET3DNode::createMisEtBoxes() //for Missing Et
 {
     core::vector3df zero = core::vector3df ( 0,0,0 );
-    end = core::vector3df ( etx,ety,0 );
+    end = core::vector3df ( trackPointer->etx, trackPointer->ety,0 );
 
     core::vector3df rot = end.getHorizontalAngle();
     core::vector3df scale = core::vector3df ( 5,5, end.getLength() );

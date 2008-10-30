@@ -76,6 +76,7 @@ public:
     AGeometry* Base;
     ATrack* trackPointer;
     int style;
+    int trackID;
     virtual ATrack* getTrack() { return trackPointer; }
     virtual void setTrackStyle(int style) {}
 };
@@ -90,30 +91,13 @@ public:
     ASTrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual ~ASTrack3DNode();
 
-    int charge;
-    float eta;
-    float phi;
-    float pt;
-    float v_phi;
-    float v_rho;
-    float v_z;
     float tL;
-    int trackID;
     float maxAngle;
-    float Mlv; //Invariant Mass
     video::SColor color;
     video::SColor dimmedColor;
     video::SColor vividColor;
     core::vector3df start;
     core::vector3df end;
-
-    int getCharge();
-    float getEta();
-    float getPhi();
-    float getPt();
-    float getV_phi();
-    float getV_rho();
-    float getV_z();
     float getTl();
 
     ASTrack* trackPointer;
@@ -134,8 +118,6 @@ public:
     int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
 
     void createBoxes();
-
-    void calculateMlv(); //Invariant Mass for a single particle
 
 
     /*********************************************************
@@ -191,29 +173,13 @@ public:
     AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual ~AJet3DNode();
 
-
-    float eta;
-    float phi;
-    float pt;
-
-    int trackID;
-
-    float Mlv; //Invariant Mass
     video::SColor color;
     video::SColor vividColor;
     core::vector3df start;
     core::vector3df end;
-
-    float getEta();
-    float getPhi();
-    float getEt();
-    float getPt();
     float getTl();
 
     AJet* trackPointer;
-
-    //bool boxMode;
-    //float boxWidth;
 
     virtual void setBoxesVisibility ( bool boxVisibility );
     int trackNumber;
@@ -243,21 +209,11 @@ public:
     AMisET3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual ~AMisET3DNode();
 
-
-    float Mlv; //Invariant Mass
     video::SColor color;
     video::SColor dimmedColor;
     video::SColor vividColor;
     core::vector3df start;
     core::vector3df end;
-    float etx;
-    float ety;
-
-    float getEt();
-    float getEtx();
-    float getEty();
-
-    int trackID;
 
     AMisET* trackPointer;
     bool boxMode;
@@ -275,7 +231,6 @@ public:
 
     void createMisEtBoxes();
 
-    void calculateMlv(); //Invariant Mass
 
     virtual void constructNeutral();
 

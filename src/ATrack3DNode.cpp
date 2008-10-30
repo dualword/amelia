@@ -659,17 +659,6 @@ video::SMaterial& ASTrack3DNode::getMaterial ( s32 i )
     return Material;
 }
 
-void ASTrack3DNode::select()
-{
-    setTrackStyle ( 3 );
-}
-
-void ASTrack3DNode::deselect()
-{
-    setTrackStyle(getTrack()->style);
-}
-
-
 
 
 // Now the Jets
@@ -854,15 +843,6 @@ video::SMaterial& AJet3DNode::getMaterial ( s32 i )
     return Material;
 }
 
-void AJet3DNode::select()
-{
-    setTrackStyle ( 6 );
-}
-
-void AJet3DNode::deselect()
-{
-    setTrackStyle(getTrack()->style);
-}
 
 float AJet3DNode::getTl()
 {
@@ -1085,15 +1065,6 @@ video::SMaterial& AMisET3DNode::getMaterial ( s32 i )
     return Material;
 }
 
-void AMisET3DNode::select()
-{
-    setTrackStyle ( 10 );
-}
-
-void AMisET3DNode::deselect()
-{
-    setTrackStyle(getTrack()->style);
-}
 
 
 

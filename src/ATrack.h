@@ -36,11 +36,9 @@ public:
     int q;
     float pt;
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID ) {}
+    virtual void select(){}
+    virtual void deselect(){}
 
-    /*class shower LAr_shower;
-    class shower HEC_shower;
-    shower TILE_shower;
-    FCALshower FCAL_shower;*/
     class ATrack3DNode* node;
 
 
@@ -72,6 +70,8 @@ public:
     video::SColor trackColor;
     class ASTrack3DNode* node;
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void select();
+    virtual void deselect();
 
 };
 
@@ -92,10 +92,11 @@ public:
     float phi;
     float et;
     int numCells;
-    int id;
     jType jtype;
     class AJet3DNode* node;
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void select();
+    virtual void deselect();
 };
 
 class AMisET : public ATrack //Objects of this class represent Missing Energy
@@ -116,7 +117,6 @@ public:
     float ety;
     float et;
 
-    int id;
     mType mtype;
 
     irr::core::vector3df start;
@@ -124,6 +124,8 @@ public:
     video::SColor trackColor;
     class AMisET3DNode* node;
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void select();
+    virtual void deselect();
 };
 
 
@@ -134,7 +136,6 @@ class shower : public ATrack
 public:
     float energy;
     float eta;
-    int id;
     int layer;
     float phi;
     int sub;
@@ -146,7 +147,6 @@ public:
     float dx;
     float dy;
     float energy;
-    int id;
     int layer;
     int sub;
     float x;

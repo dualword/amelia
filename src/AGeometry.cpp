@@ -333,9 +333,9 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
                 if ( (*iter)->Type == 4 ) //Missing Et
                 {
                     AMisET* tr = static_cast<AMisET*>(*iter);
-                    if ( selectedSceneNode->getParent() == (*iter)->node )
+                    if ( selectedSceneNode->getParent() == tr->node )
                     {
-                        selectedNode = (*iter)->node;
+                        selectedNode = tr->node;
 
                         break;
                     }
@@ -2157,7 +2157,7 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
         while (!selectedTracks.isEmpty())
         {
             ATrack3DNode *node=selectedTracks.back();
-            node->deselect();
+            node->getTrack()->deselect();
             selectedTracks.pop_back();
             emit trackDeselected(node->getTrack());
         }
@@ -2171,10 +2171,34 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
             ATrack* selectedTrack = *go;
             if ( selectedTrack->trackID == ID ) //Found it
             {
-                selectedTrack->node->select();
-                selectedTracks.push_back(selectedTrack->node);
-                emit trackSelected( selectedTrack );
-                return selectedTrack;
+                if (selectedTrack->Type == ATrack::eSTrack)
+                {
+                    ASTrack* tr = static_cast<ASTrack*>(selectedTrack);
+                    tr->select();
+                    selectedTracks.push_back(tr->node);
+                    emit trackSelected( tr );
+                    return tr;
+                }
+                else if (selectedTrack->Type == ATrack::eJet)
+                {
+                    AJet* tr = static_cast<AJet*>(selectedTrack);
+                    tr->select();
+                    selectedTracks.push_back(tr->node);
+                    emit trackSelected( tr );
+                    return tr;
+                }
+                else if (selectedTrack->Type == ATrack::eMissingEt)
+                {
+                    AMisET* tr = static_cast<AMisET*>(selectedTrack);
+                    tr->select();
+                    selectedTracks.push_back(tr->node);
+                    emit trackSelected( tr );
+                    return tr;
+                }
+                else
+                {
+                    return NULL;
+                }
             }
         }
     }
@@ -2189,7 +2213,7 @@ ATrack* AGeometry::deselectTrackByID (int ID)
         tr=selectedTracks[i]->getTrack();
         if (tr->trackID == ID)
         {
-            selectedTracks[i]->deselect();
+            tr->deselect();
             emit trackDeselected(tr);
             selectedTracks.removeAt(i);
             return tr;
@@ -2240,7 +2264,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                     while (!selectedTracks.isEmpty())
                     {
                         ATrack3DNode *node=selectedTracks.back();
-                        node->deselect();
+                        node->getTrack()->deselect();
                         selectedTracks.pop_back();
                         emit trackDeselected(node->getTrack());
                     }
@@ -2251,7 +2275,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                     int idx=selectedTracks.indexOf(selected);
                     if (idx==-1) //Make sure the track is not already selected
                     {
-                        selected->select();
+                        selected->getTrack()->select();
                         selectedTracks.push_back(selected);
                         emit trackSelected(selected->getTrack());
                         qDebug() << "Found and selected a track...";
@@ -2259,7 +2283,7 @@ bool AGeometry::OnEvent ( const SEvent& event )
                     else //else deselect it
                     {
                         selectedTracks.removeAt(idx);
-                        selected->deselect();
+                        selected->getTrack()->deselect();
                         emit trackDeselected(selected->getTrack());
                         qDebug() << "Found and delselected a track...";
                     }

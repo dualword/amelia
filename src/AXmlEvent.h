@@ -118,6 +118,7 @@ public:
     void setCurrentJetModel(QString jetType);
     int currentJetType; //defines the current Jet reconstruction model in use
     int currentMisEtType; //defines the current Missing Et reconstruction model in use
+    int highestTrackID;
 
 public slots:
     void PtCutoff ( int PtCut );

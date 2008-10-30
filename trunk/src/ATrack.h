@@ -59,9 +59,6 @@ public:
     float tL;
     float Mlv;
 
-    float et;
-    float etx;
-    float ety;
 
     irr::core::vector3df start;
     irr::core::vector3df end;

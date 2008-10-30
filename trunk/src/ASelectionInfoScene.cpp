@@ -15,62 +15,62 @@ ASelectionInfoScene::~ASelectionInfoScene()
 
 void ASelectionInfoScene::init()
 {
-  QFont serifFont("Times", 10, QFont::Bold);
+    QFont serifFont("Times", 10, QFont::Bold);
 
-  // Info text
-  header=addText("SELECTED TRACK INFO",serifFont);
-  header->setPos(0,0);
-  header->setDefaultTextColor("red");
-  name=addText("Name:");
-  name->setPos(0,25);
-  name->setDefaultTextColor("white");
-  charge=addText("Charge:");
-  charge->setPos(0,40);
-  charge->setDefaultTextColor("white");
+    // Info text
+    header=addText("SELECTED TRACK INFO",serifFont);
+    header->setPos(0,0);
+    header->setDefaultTextColor("red");
+    name=addText("Name:");
+    name->setPos(0,25);
+    name->setDefaultTextColor("white");
+    charge=addText("Charge:");
+    charge->setPos(0,40);
+    charge->setDefaultTextColor("white");
 
-  id=addText("ID");
-  id->setPos(0,55);
-  id->setDefaultTextColor("white");
+    id=addText("ID");
+    id->setPos(0,55);
+    id->setDefaultTextColor("white");
 
-  nonSelectable=addText("Non Selectable");
-  nonSelectable->setPos(230,25);
-  nonSelectable->setDefaultTextColor("black");
+    nonSelectable=addText("Non Selectable");
+    nonSelectable->setPos(230,25);
+    nonSelectable->setDefaultTextColor("black");
 
-  pt=addText("Pt:");
-  pt->setPos(130,25);
-  pt->setDefaultTextColor("white");
-  eta=addText("Eta:");
-  eta->setPos(130,40);
-  eta->setDefaultTextColor("white");
-  phi=addText("Phi:");
-  phi->setPos(130,55);
-  phi->setDefaultTextColor("white");
+    pt=addText("Pt:");
+    pt->setPos(130,25);
+    pt->setDefaultTextColor("white");
+    eta=addText("Eta:");
+    eta->setPos(130,40);
+    eta->setDefaultTextColor("white");
+    phi=addText("Phi:");
+    phi->setPos(130,55);
+    phi->setDefaultTextColor("white");
 
-  // Buttons
-  QPushButton *_addTrack=new QPushButton("Add to List");
-  addTrack=addWidget(_addTrack);
-  addTrack->setVisible(true);
-  addTrack->setPos(220,20);
-  connect(_addTrack,SIGNAL(clicked()),  this,SLOT(handleAddTrack()));
+    // Buttons
+    QPushButton *_addTrack=new QPushButton("Add to List");
+    addTrack=addWidget(_addTrack);
+    addTrack->setVisible(true);
+    addTrack->setPos(220,20);
+    connect(_addTrack,SIGNAL(clicked()),  this,SLOT(handleAddTrack()));
 
-  QPushButton *_combTrack=new QPushButton("Combine Tracks");
-  combTrack=addWidget(_combTrack);
-  combTrack->setVisible(true);
-  combTrack->setPos(220,50);
-  connect(_combTrack,SIGNAL(clicked()),  this,SLOT(handleCombTracks()));
+    QPushButton *_combTrack=new QPushButton("Combine Tracks");
+    combTrack=addWidget(_combTrack);
+    combTrack->setVisible(true);
+    combTrack->setPos(220,50);
+    connect(_combTrack,SIGNAL(clicked()),  this,SLOT(handleCombTracks()));
 
-  // Main message
-  serifFont.setPointSize(14);
-  message=addText("",serifFont);
-  message->setPos(20,10);
-  message->setVisible(false);
+    // Main message
+    serifFont.setPointSize(14);
+    message=addText("",serifFont);
+    message->setPos(20,10);
+    message->setVisible(false);
 
 
-  // Hide Everything by Default
-  QList<QGraphicsItem*> _items=items();
-  for (int i=0;i<_items.size();i++)
+    // Hide Everything by Default
+    QList<QGraphicsItem*> _items=items();
+    for (int i=0;i<_items.size();i++)
     {
-      _items[i]->setVisible(false);
+        _items[i]->setVisible(false);
     }
 }
 
@@ -93,7 +93,7 @@ void ASelectionInfoScene::handleCombTracks()
         combo->setName(name);
         emit sig_addComboToTable(combo);
         combTrack->setVisible(false);
-	emit combineButtonEnabled(false);
+        emit combineButtonEnabled(false);
 
         combo=new ATrackCombination(); //Make sure we release ownership of the current combination. This little baby is out in the world on it's own from now on...
     }
@@ -104,12 +104,12 @@ void ASelectionInfoScene::handleViewportChange(int from,int to)
     switch (to)
     {
     case AGeometry::Cam3D:
-      hideMessage();
-      break;
+        hideMessage();
+        break;
     case AGeometry::Orthogonal:
     case AGeometry::Projective:
-      displayMessage("Track selection only supported<br/> in first-person camera mode.");
-      break;
+        displayMessage("Track selection only supported<br/> in first-person camera mode.");
+        break;
     }
 }
 
@@ -181,10 +181,10 @@ void ASelectionInfoScene::refresh()
             ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
             header->setPlainText("SELECTED TRACK INFO");
             name->setHtml("<b>Name:</b> "+QString(STrack->name.c_str()));
-            charge->setHtml("<b>Charge:</b> "+QString::number(STrack->node->getCharge()));
-            pt->setHtml("<b>Pt:</b> "+QString::number(STrack->node->getPt()));
-            eta->setHtml("<b>&#951;:</b> "+QString::number(STrack->node->getEta()));
-            phi->setHtml("<b>&#966;:</b> "+QString::number(STrack->node->getPhi()));
+            charge->setHtml("<b>Charge:</b> "+QString::number(STrack->q));
+            pt->setHtml("<b>Pt:</b> "+QString::number(STrack->pt));
+            eta->setHtml("<b>&#951;:</b> "+QString::number(STrack->eta));
+            phi->setHtml("<b>&#966;:</b> "+QString::number(STrack->phi));
             id->setHtml("<b>id:</b> "+QString::number(STrack->trackID));
             nonSelectable->setHtml("<b>This track is<br>irrelevant for<br>the analysis</b>");
 
@@ -197,7 +197,7 @@ void ASelectionInfoScene::refresh()
             phi->setVisible(true);
             id->setVisible(true);
             combTrack->setVisible(false);
-	    emit combineButtonEnabled(false);
+            emit combineButtonEnabled(false);
             nonSelectable->setVisible(false);
         }
         else if ( (*combo)[0]->Type == 2 ) //jet
@@ -205,9 +205,9 @@ void ASelectionInfoScene::refresh()
             AJet* Jet = static_cast<AJet*>((*combo)[0]);
             header->setPlainText("SELECTED JET INFO");
             name->setHtml("<b>Type:</b> Jet");
-            eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->node->getEta()));
-            phi->setHtml("<b>&#966;</b> "+QString::number(Jet->node->getPhi()));
-            pt->setHtml("<b>Pt:</b> "+QString::number(Jet->node->getEt()));
+            eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->eta));
+            phi->setHtml("<b>&#966;</b> "+QString::number(Jet->phi));
+            pt->setHtml("<b>Pt:</b> "+QString::number(Jet->et));
 
             header->setVisible(true);
             name->setVisible(true);
@@ -222,9 +222,9 @@ void ASelectionInfoScene::refresh()
             AMisET* ET = static_cast<AMisET*>((*combo)[0]);
             header->setPlainText("SELECTED MisEt INFO");
             name->setHtml("<b>Type:</b> Missing Et");
-            eta->setHtml("<b>etx:</b> "+QString::number(ET->node->getEtx()));
-            phi->setHtml("<b>ety:</b> "+QString::number(ET->node->getEty()));
-            pt->setHtml("<b>Et:</b> "+QString::number(ET->node->getEt()));
+            eta->setHtml("<b>etx:</b> "+QString::number(ET->etx));
+            phi->setHtml("<b>ety:</b> "+QString::number(ET->ety));
+            pt->setHtml("<b>Et:</b> "+QString::number(ET->et));
 
             header->setVisible(true);
             name->setVisible(true);

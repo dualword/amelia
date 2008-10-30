@@ -103,7 +103,7 @@ class AMisET : public ATrack //Objects of this class represent Missing Energy
 {
 public:
 
-    AMisET() {}
+  AMisET() { node=0; }
     ~AMisET() {}
     enum mType // type
     {

@@ -10,7 +10,7 @@ void ASTrack::createTrackStructure( scene::ISceneNode* parent, AGeometry* base, 
     node->charge = q;
     node->eta = eta;
     node->phi = phi;
-    pt = et;
+    et = pt;
     node->pt = pt;
     node->v_phi = phiVertex;
     node->v_rho = rhoVertex;
@@ -62,6 +62,19 @@ void ASTrack::createTrackStructure( scene::ISceneNode* parent, AGeometry* base, 
     isInList = false;
 }
 
+void ASTrack::select()
+{
+    if (node)
+        node->setTrackStyle ( 3 );
+}
+
+void ASTrack::deselect()
+{
+    if (node)
+        node->setTrackStyle ( style );
+}
+
+
 
 void AJet::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s32 ID)
 {
@@ -81,6 +94,18 @@ void AJet::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s32
 
 }
 
+void AJet::select()
+{
+    if (node)
+        node->setTrackStyle ( 6 );
+}
+
+void AJet::deselect()
+{
+    if (node)
+        node->setTrackStyle ( style );
+}
+
 
 void AMisET::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s32 ID)
 {
@@ -96,6 +121,19 @@ void AMisET::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s
     selectionID = 0;
     isInList = false;
 }
+
+void AMisET::select()
+{
+    if (node)
+        node->setTrackStyle ( 10 );
+}
+
+void AMisET::deselect()
+{
+    if (node)
+        node->setTrackStyle ( style );
+}
+
 
 
 

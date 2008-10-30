@@ -279,7 +279,6 @@ void ASelectionInfoScene::refresh()
         addTrack->setVisible (false );
     }
 
-    qDebug() << "Emit! " << combTrack->isVisible();
     emit addButtonEnabled(addTrack->isVisible());
     emit combineButtonEnabled(combTrack->isVisible());
 }

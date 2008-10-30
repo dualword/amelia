@@ -76,8 +76,6 @@ public:
     AGeometry* Base;
     ATrack* trackPointer;
     int style;
-    virtual void select() {}
-    virtual void deselect() {}
     virtual ATrack* getTrack() { return trackPointer; }
     virtual void setTrackStyle(int style) {}
 };
@@ -139,8 +137,6 @@ public:
 
     void calculateMlv(); //Invariant Mass for a single particle
 
-    void select();
-    void deselect();
 
     /*********************************************************
 
@@ -233,9 +229,6 @@ public:
 
     ISceneNode* Pyramid;
 
-    void select();
-    void deselect();
-
     virtual void OnRegisterSceneNode();
 
     virtual const core::aabbox3d<f32>& getBoundingBox() const;
@@ -283,9 +276,6 @@ public:
     void createMisEtBoxes();
 
     void calculateMlv(); //Invariant Mass
-
-    void select();
-    void deselect();
 
     virtual void constructNeutral();
 

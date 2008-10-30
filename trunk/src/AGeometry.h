@@ -64,11 +64,11 @@ struct module
 
 class AGeometry : public QIrrWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-  static const int FPS=0,Maya=3;
-  static const int Cam3D=-1,Orthogonal=1,Projective=2;
+    static const int FPS=0,Maya=3;
+    static const int Cam3D=-1,Orthogonal=1,Projective=2;
 
     AGeometry(QWidget* parent=0);
     virtual ~AGeometry();

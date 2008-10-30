@@ -66,6 +66,7 @@ AXmlEvent::AXmlEvent()
     //Define the default reconstruction model for Missing ET and Jets
     currentJetType = AJet::jKt4H1TowerJets;
     currentMisEtType = AMisET::mMET_Final;
+    highestTrackID = 0;
 
 }
 
@@ -202,8 +203,10 @@ std::vector <AJet*> AXmlEvent::GetJetsFromDOM ( QDomDocument dom , AEvent* event
             }
             j->Type = j->eJet;
             j->name = "Jet";
+            j->trackID = ++highestTrackID;
             jets.push_back ( j );
             event->Tracks.push_back(j);
+
 
         }
 
@@ -282,6 +285,7 @@ std::vector <AMisET*> AXmlEvent::GetMisETFromDOM ( QDomDocument dom , AEvent* ev
                 qDebug() << "New MET_Truth added ";
             }
             m->Type = m->eMissingEt;
+            m->trackID = ++highestTrackID;
             m->name = "MissingET";
             MET.push_back ( m );
             event->Tracks.push_back(m);
@@ -402,6 +406,8 @@ std::vector <ASTrack*> AXmlEvent::GetSTracksFromDOM ( QDomDocument dom , AEvent*
         if ( i<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[i];
         if ( i<str_zVertex.size() ) t->zVertex = str_zVertex[i];
         t->Type = t->eSTrack;
+        if (t->trackID > highestTrackID)
+            highestTrackID = t->trackID;
 
         //cout << "\n track of type " << t->Type ;
         //cout << "\n name: " << t->name ;
@@ -446,7 +452,7 @@ std::vector <shower> AXmlEvent::GetShowersFromDOM ( QDomDocument dom, char* calo
     {
         s.energy = energy[i];
         if ( i<eta.size() ) s.eta = eta[i];
-        if ( i<id.size() ) s.id = id[i];
+        if ( i<id.size() ) s.trackID = id[i];
         if ( i<layer.size() ) s.layer = layer[i];
         if ( i<phi.size() ) s.phi = phi[i];
         if ( i<sub.size() ) s.sub = sub[i];
@@ -494,7 +500,7 @@ std::vector <FCALshower> AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
         if ( i<dx.size() ) s.dx = dx[i];
         if ( i<dy.size() ) s.dy = dy[i];
         s.energy = energy[i];
-        if ( i<id.size() ) s.id = id[i];
+        if ( i<id.size() ) s.trackID = id[i];
         if ( i<layer.size() ) s.layer = layer[i];
         if ( i<sub.size() ) s.sub = sub[i];
         if ( i<x.size() ) s.x = x[i];
@@ -519,6 +525,7 @@ AEvent AXmlEvent::GetEventFromFile ( QString filename )
         return *e;
     }
     fh.close();
+    highestTrackID = 0; //reset this to have consistent IDs every time we load an event
 
     e->STracks = GetSTracksFromDOM ( doc, e );
     e->Jets = GetJetsFromDOM (doc , e);
@@ -724,8 +731,10 @@ void AXmlEvent::PtCutoff ( int PtCutInt )
     for ( vector<AMisET*>::iterator it = EventComplete.MisET.begin(); it!=EventComplete.MisET.end(); it++ )
     {
         AMisET* go = *it;
+        if (go->node != NULL) go->node->setVisible ( false );
         if (go->mtype == currentMisEtType) // This adds Missing Et to the vector "Tracks" in the event if it is of the right type
         {
+            if (go->node != NULL) go->node->setVisible ( true );
             NewEventTracks.push_back ( go );
         }
     }
@@ -733,6 +742,7 @@ void AXmlEvent::PtCutoff ( int PtCutInt )
     Event.Tracks =  NewEventTracks;
     Event.STracks =  NewEventSTracks;
     Event.Jets =  EventComplete.Jets;
+    Event.MisET =  EventComplete.MisET;
 
     emit eventChanged();
     qDebug() << "Ended Pt Cutoff";
@@ -860,12 +870,12 @@ AEvent AXmlEvent::DisplayParticles ()
 
         //And Missing ET
         vector<AMisET*>::iterator mm;
-        for ( mm = Event.MisET.begin(); mm!=Event.MisET.end(); kk++ )
+        for ( mm = Event.MisET.begin(); mm!=Event.MisET.end(); mm++ )
         {
             AMisET* m = *mm;
+            m->node->setVisible ( false );
             if ( m->Type == m->eMissingEt )
             {
-                m->node->setVisible ( false );
                 if ( P_checkbox_states[7] )
                 {
                     if ( m->Type == 4 && m->mtype == currentMisEtType )

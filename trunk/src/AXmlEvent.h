@@ -116,6 +116,8 @@ public:
     void DisplayEvent(AGeometry* device);
     vector<bool> P_checkbox_states;
     void setCurrentJetModel(QString jetType);
+    void setCurrentTrackModel(QString trackType);
+    void setCurrentMisEtModel(QString metType);
     int currentJetType; //defines the current Jet reconstruction model in use
     int currentMisEtType; //defines the current Missing Et reconstruction model in use
     int highestTrackID;

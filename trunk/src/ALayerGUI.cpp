@@ -493,7 +493,7 @@ void ALayerGUI::eventSettings()
     connect(evSettings, SIGNAL(changedTrackType(QString)), this, SLOT(selectTrackModel(QString)));
     connect(evSettings, SIGNAL(changedMisEtType(QString)), this, SLOT(selectMisEtModel(QString)));
     connect(evSettings, SIGNAL(redraw()), geo->XmlEvt,SLOT(DisplayParticles()));
-
+    connect(evSettings, SIGNAL(redraw()), interestingTracksModel,SLOT(getInterestingTracks()));
 
     connect(buttonBox, SIGNAL(rejected()), &settings, SLOT(close()));
     connect(buttonBox, SIGNAL(accepted()), &settings, SLOT(close()));

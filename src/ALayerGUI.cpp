@@ -307,12 +307,12 @@ void ALayerGUI::selectJetModel(QString jetType)
 
 void ALayerGUI::selectTrackModel(QString trackType)
 {
-    geo->XmlEvt->setCurrentJetModel(trackType);
+    geo->XmlEvt->setCurrentTrackModel(trackType);
 }
 
 void ALayerGUI::selectMisEtModel(QString metType)
 {
-    geo->XmlEvt->setCurrentJetModel(metType);
+    geo->XmlEvt->setCurrentMisEtModel(metType);
 }
 
 

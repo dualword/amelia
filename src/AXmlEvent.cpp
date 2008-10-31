@@ -750,10 +750,52 @@ void AXmlEvent::PtCutoff ( int PtCutInt )
 
 void AXmlEvent::setCurrentJetModel(QString jetType)
 {
-    qDebug() << "setCurrentJetModel: " << jetType;
+    if (jetType == QString("Kt4H1TowerJets"))
+    {
+        currentJetType = AJet::jKt4H1TowerJets;
+    }
+    else if (jetType == QString("Kt4H1TopoJets"))
+    {
+        currentJetType = AJet::jKt4H1TopoJets;
+    }
+    else if (jetType == QString("Cone4H1TowerJets"))
+    {
+        currentJetType = AJet::jCone4H1TowerJets;
+    }
+    else if (jetType == QString("Cone4H1TopoJets"))
+    {
+        currentJetType = AJet::jCone4H1TopoJets;
+    }
 }
 
+void AXmlEvent::setCurrentTrackModel(QString trackType)
+{
+    //To be defined later. Once we have simulated data
+}
 
+void AXmlEvent::setCurrentMisEtModel(QString metType)
+{
+    if (metType == QString("mMET_Final"))
+    {
+        currentMisEtType = AMisET::mMET_Final;
+    }
+    else if (metType == QString("mMET_RefMuon"))
+    {
+        currentMisEtType = AMisET::mMET_RefMuon;
+    }
+    else if (metType == QString("mMET_Calib"))
+    {
+        currentMisEtType = AMisET::mMET_Calib;
+    }
+    else if (metType == QString("mMET_RefFinal"))
+    {
+        currentMisEtType = AMisET::mMET_RefFinal;
+    }
+    else if (metType == QString("mMET_Truth"))
+    {
+        currentMisEtType = AMisET::mMET_Truth;
+    }
+}
 
 AEvent AXmlEvent::DisplayParticles ()
 {

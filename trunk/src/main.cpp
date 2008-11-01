@@ -44,10 +44,11 @@ int main(int argc, char **argv)
 	QApplication    app(argc, argv);
 
     ABase window;
-    window.addLevel("menu.ui");
+    window.addLevel("wikibrowser.ui");
     window.addLevel("geometry.ui");
+    window.addLevel("newsbrowser.ui");
     QMetaObject::connectSlotsByName(&window);
-    
+
     window.show();
     return app.exec();
 }

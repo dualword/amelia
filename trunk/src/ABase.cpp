@@ -39,258 +39,263 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "QGraphicsClickablePixmapItem.h"
 #include <QGLWidget>
 ABase::ABase( QWidget *parent )
-  : QMainWindow(parent)
+        : QMainWindow(parent)
 {
-  //Set to the initial size.
-  setFixedSize(1024,768); //Makes the widget unresizable..
+    //Set to the initial size.
+    setFixedSize(1024,768); //Makes the widget unresizable..
 
-  layout.setContentsMargins(0,0,0,0);
-  center.setLayout(&layout);
+    layout.setContentsMargins(0,0,0,0);
+    center.setLayout(&layout);
 
-  //Some settings for the scene
-  menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
-  menu.addItem(&widgetGroup);
+    //Some settings for the scene
+    menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
+    menu.addItem(&widgetGroup);
 
-  //Initialize the widget group that handles the animations
-  widgetGroup.scale(0.2,0.2); 
-  widgetGroup.setPos(calculateScaledWidgetGroupPosition());
-  widgetGroup.setHandlesChildEvents(false); //Let the pixmap handle it's own clicks
+    //Initialize the widget group that handles the animations
+    widgetGroup.scale(0.25,0.25);
+    widgetGroup.setPos(calculateScaledWidgetGroupPosition());
+    widgetGroup.setHandlesChildEvents(false); //Let the pixmap handle it's own clicks
 
-  //Make the widget without scrollbars and display it
-  menuWidget.setScene(&menu);
-  menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setupViewport();
-  menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
-  layout.addWidget(&menuWidget);
+    //Make the widget without scrollbars and display it
+    menuWidget.setScene(&menu);
+    menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setupViewport();
+    menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
+    layout.addWidget(&menuWidget);
 
-  setCentralWidget(&center);
+    setCentralWidget(&center);
 
-  //This mapper will be used for connecting pixmaps to changeToLevel
-  connect(&mapper,SIGNAL(mapped(const QString&)),
-	  this,SLOT(changeToLevel(const QString&)));
+    //This mapper will be used for connecting pixmaps to changeToLevel
+    connect(&mapper,SIGNAL(mapped(const QString&)),
+            this,SLOT(changeToLevel(const QString&)));
 
 
-  //Used by transition animations
-  timer.setDuration(500);
-  animation.setItem(&widgetGroup);
-  animation.setTimeLine(&timer);
-  connect(&timer,SIGNAL(finished()),
-	  this,SLOT(animationFinished()));
+    //Used by transition animations
+    timer.setDuration(500);
+    animation.setItem(&widgetGroup);
+    animation.setTimeLine(&timer);
+    connect(&timer,SIGNAL(finished()),
+            this,SLOT(animationFinished()));
 }
 
 ABase::~ABase() { }
 
 void ABase::setupViewport()
 {
-	QWidget *viewport;
+    QWidget *viewport;
 
 #ifdef Q_WS_WIN
-	viewport=new QWidget(&menuWidget);
-	viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
+    viewport=new QWidget(&menuWidget);
+    viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
 #else
-	QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
-	glw->setAutoFillBackground(false);
-	viewport = glw;
+    QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    glw->setAutoFillBackground(false);
+    viewport = glw;
 #endif
-	menuWidget.setCacheMode(QGraphicsView::CacheNone);
-	menuWidget.setViewport(viewport);
+    menuWidget.setCacheMode(QGraphicsView::CacheNone);
+    menuWidget.setViewport(viewport);
 }
 
 void ABase::addLevel(QString uicfile)
 {
-  //Everything else should be an UI file (for now)
-  AUILoader loader;
-  QFile file(":/ui/"+uicfile);
-  file.open(QFile::ReadOnly);
-  QWidget *tmp = loader.load(&file,this);
-  file.close();
+    //Everything else should be an UI file (for now)
+    AUILoader loader;
+    QFile file(":/ui/"+uicfile);
+    file.open(QFile::ReadOnly);
+    QWidget *tmp = loader.load(&file,this);
+    file.close();
 
-  if (!tmp)
+    if (!tmp)
     {
-      QMessageBox::critical(this,"Failed to change UI","There was a problem loading the UI named \""+uicfile+"\". This could be caused by a corrupt installation.");
-	  return;
+        QMessageBox::critical(this,"Failed to change UI","There was a problem loading the UI named \""+uicfile+"\". This could be caused by a corrupt installation.");
+        return;
     }
-  
-  //Make sure to disable the widget
-  tmp->setEnabled(false);
-  tmp->setFixedSize(1024,768);
-  tmp->hide();
 
-  //TODO Implement maximum number of columns!
-  //int col=screens.size()%3;
-  //int row=screens.size()/3;
-  
-  //HACK (ugly) setup the conenctions of the ALayerGUI
-  //TODO figure out a more general way to do this
-  if(uicfile=="geometry.ui")
-  	((ALayerGUI*)((QMainWindow*)tmp)->centralWidget())->setupElements();
-  
-  //Add it to the menu item...
-  QPixmap ss=QPixmap::grabWidget(tmp);
-  QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
-  item->setPos(1024*(widgets.size()-1),0);
-  
-  //Add the pixmap to the signal map, which will let us switch menus
-  mapper.setMapping(item,uicfile);
-  connect(item,SIGNAL(clicked()),
-	  &mapper,SLOT(map()));
-  
-  //Save it all to our fancy dancy maps
-  items[uicfile]=item;
-  widgets[uicfile]=tmp;
-  layout.addWidget(tmp);
-  
-  //Update the positions of the itmers
-  if(menuWidget.isVisible() && current.isEmpty()) 
-    changeToMenu(); // Menu is currently displayed, so use an animation
-  else
-    widgetGroup.setPos(calculateScaledWidgetGroupPosition()); // Not displayed, so just move it directly
+    //Make sure to disable the widget
+    tmp->setEnabled(false);
+    tmp->setFixedSize(1024,768);
+    tmp->hide();
+
+    //TODO Implement maximum number of columns!
+    //int col=screens.size()%3;
+    //int row=screens.size()/3;
+
+    //HACK (ugly) setup the conenctions of the ALayerGUI
+    //TODO figure out a more general way to do this
+    if (uicfile=="geometry.ui")
+        ((ALayerGUI*)((QMainWindow*)tmp)->centralWidget())->setupElements();
+
+    if (uicfile == "wikibrowser.ui" || uicfile == "newsbrowser.ui")
+    {
+        //should setup the browsers to allow webpages bigger than 1024x768 when rendered. Maybe a scrollbar
+    }
+
+    //Add it to the menu item...
+    QPixmap ss=QPixmap::grabWidget(tmp);
+    QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
+    item->setPos(1024*(widgets.size()-1.5),0);
+
+    //Add the pixmap to the signal map, which will let us switch menus
+    mapper.setMapping(item,uicfile);
+    connect(item,SIGNAL(clicked()),
+            &mapper,SLOT(map()));
+
+    //Save it all to our fancy dancy maps
+    items[uicfile]=item;
+    widgets[uicfile]=tmp;
+    layout.addWidget(tmp);
+
+    //Update the positions of the itmers
+    if (menuWidget.isVisible() && current.isEmpty())
+        changeToMenu(); // Menu is currently displayed, so use an animation
+    else
+        widgetGroup.setPos(calculateScaledWidgetGroupPosition()); // Not displayed, so just move it directly
 }
 
 void ABase::changeToMenu()
 {
-  if(timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+    if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
-  if(current.isEmpty()) return; //Already on menu..
-  else
+    if (current.isEmpty()) return; //Already on menu..
+    else
     {
-      widgets[current]->setEnabled(false);
-      QPixmap ss=QPixmap::grabWidget(widgets[current]);
-      items[current]->setPixmap(ss);
+        widgets[current]->setEnabled(false);
+        QPixmap ss=QPixmap::grabWidget(widgets[current]);
+        items[current]->setPixmap(ss);
 
-      setUpdatesEnabled(false);
-      widgets[current]->hide();
-      menuWidget.show();
-      setUpdatesEnabled(true);
+        setUpdatesEnabled(false);
+        widgets[current]->hide();
+        menuWidget.show();
+        setUpdatesEnabled(true);
     }
 
-  //Initial condiftions
-  if(current.isEmpty())
-    animation.setScaleAt(0,0.2,0.2);
-  else
-    animation.setScaleAt(0,1,1);
-  
-  animation.setPosAt(0,widgetGroup.pos());
-  
-  // Scale of 0.2 is
-  // widget width = 1024*0.2 = 204.8
-  // widget height = 768*0.2 = 153.6
-  animation.setScaleAt(1,0.2,0.2);
-  animation.setPosAt(1,calculateScaledWidgetGroupPosition());
-    
-  timer.start();
+    //Initial condiftions
+    if (current.isEmpty())
+        animation.setScaleAt(0,0.25,0.25);
+    else
+        animation.setScaleAt(0,1,1);
 
-  previous=current;
-  current=QString();
+    animation.setPosAt(0,widgetGroup.pos());
+
+    // Scale of 0.2 is
+    // widget width = 1024*0.2 = 204.8
+    // widget height = 768*0.2 = 153.6
+    animation.setScaleAt(1,0.25,0.25);
+    animation.setPosAt(1,calculateScaledWidgetGroupPosition());
+
+    timer.start();
+
+    previous=current;
+    current=QString();
 }
 
 void ABase::changeToLevel(const QString& uicfile)
 {
-  if(timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+    if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
-  if(uicfile==current) return; //Arealdy there...
-  else if(!current.isEmpty())
+    if (uicfile==current) return; //Arealdy there...
+    else if (!current.isEmpty())
     {
-      widgets[current]->setEnabled(false);
-      QPixmap ss=QPixmap::grabWidget(widgets[current]);
-      items[current]->setPixmap(ss);
+        widgets[current]->setEnabled(false);
+        QPixmap ss=QPixmap::grabWidget(widgets[current]);
+        items[current]->setPixmap(ss);
 
-      setUpdatesEnabled(false);
-      widgets[current]->hide();
-      menuWidget.show();
-      setUpdatesEnabled(true);
+        setUpdatesEnabled(false);
+        widgets[current]->hide();
+        menuWidget.show();
+        setUpdatesEnabled(true);
     }
-  
-  //Initial conditions
-  if(current.isEmpty())
-    animation.setScaleAt(0,0.2,0.2);
-  else
-    animation.setScaleAt(0,1,1);
 
-  animation.setPosAt(0,widgetGroup.pos());
+    //Initial conditions
+    if (current.isEmpty())
+        animation.setScaleAt(0,0.25,0.25);
+    else
+        animation.setScaleAt(0,1,1);
 
-  animation.setScaleAt(1,1,1);
-  
+    animation.setPosAt(0,widgetGroup.pos());
 
-  animation.setPosAt(1,-items[uicfile]->pos());
-  
-  timer.start();
+    animation.setScaleAt(1,1,1);
 
-  //For some reason setting previous to current here would make uicfile a "". Don't ask...
-  QString tmp=current;
-  current=uicfile;
-  previous=tmp;
+
+    animation.setPosAt(1,-items[uicfile]->pos());
+
+    timer.start();
+
+    //For some reason setting previous to current here would make uicfile a "". Don't ask...
+    QString tmp=current;
+    current=uicfile;
+    previous=tmp;
 }
 
 void ABase::animationFinished()
 {
-  if(current.isEmpty()) return;
+    if (current.isEmpty()) return;
 
-  widgets[current]->setEnabled(true);
+    widgets[current]->setEnabled(true);
 
-  setUpdatesEnabled(false);
-  menuWidget.hide();
-  widgets[current]->show();
-  setUpdatesEnabled(true);
+    setUpdatesEnabled(false);
+    menuWidget.hide();
+    widgets[current]->show();
+    setUpdatesEnabled(true);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST
 void ABase::keyPressEvent(QKeyEvent *event)
 {
-  if(event->key()==Qt::Key_Escape)
+    if (event->key()==Qt::Key_Escape)
     {
-      if(current.isEmpty() && !previous.isEmpty())
-	changeToLevel(previous);
-      else
-	changeToMenu();
+        if (current.isEmpty() && !previous.isEmpty())
+            changeToLevel(previous);
+        else
+            changeToMenu();
     }
 
-  if(event->key()==Qt::Key_Delete)
+    if (event->key()==Qt::Key_Delete)
     {
-      QList<QString> keys=widgets.keys();
-      int idx=keys.indexOf(current);
-      idx=(idx+1)%keys.size();
-      changeToLevel(keys[idx]);
+        QList<QString> keys=widgets.keys();
+        int idx=keys.indexOf(current);
+        idx=(idx+1)%keys.size();
+        changeToLevel(keys[idx]);
     }
 }
 
 QPointF ABase::calculateScaledWidgetGroupPosition()
 {
-  //Figures out where the widget group would go if it were scaled by 0.2
-  // and centered  
-  QPointF ret= QPointF((1024-widgetGroup.sceneBoundingRect().width())/2,
-		       (768-widgetGroup.sceneBoundingRect().height())/2);
+    //Figures out where the widget group would go if it were scaled by 0.2
+    // and centered
+    QPointF ret= QPointF((1024-widgetGroup.sceneBoundingRect().width())/2,
+                         (768-widgetGroup.sceneBoundingRect().height())/2 - 200);
 
-  return ret;
+    return ret;
 }
 
 void ABase::updatePixmaps()
 {
-  QList<QString> keys=widgets.keys();
-  for(int i=0;i<keys.size();i++)
+    QList<QString> keys=widgets.keys();
+    for (int i=0;i<keys.size();i++)
     {
     }
 }
 
 void ABase::on_GeoButton_clicked()
 {
-  changeToLevel("geometry.ui");
+    changeToLevel("geometry.ui");
 }
 
 void ABase::on_CompizButton_clicked()
 {
-  changeToLevel("compiz.ui");
+    changeToLevel("compiz.ui");
 }
 
 void ABase::on_MenuButton_clicked()
 {
-  changeToLevel("menu.ui");
+    changeToLevel("wikibrowser.ui");
 }
 
 void ABase::on_BackButton_clicked()
 {
-  changeToLevel("menu.ui");
+    changeToLevel("wikibrowser.ui");
 }
 
 void ABase::on_QuitButton_clicked()
@@ -300,12 +305,12 @@ void ABase::on_QuitButton_clicked()
 
 void ABase::on_MenuButton_activated()
 {
-  changeToMenu();
+    changeToMenu();
 }
 
 void ABase::on_BackButton_activated()
 {
-  changeToLevel("menu.ui");
+    changeToLevel("wikibrowser.ui");
 }
 
 void ABase::on_QuitButton_activated()

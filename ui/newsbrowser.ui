@@ -1,0 +1,59 @@
+<ui version="4.0" >
+ <class>NewsMainWindow</class>
+ <widget class="QMainWindow" name="NewsMainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1019</width>
+    <height>737</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="NewsCentralwidget" >
+   <widget class="QWebView" name="NewsWebView" >
+    <property name="geometry" >
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1024</width>
+      <height>768</height>
+     </rect>
+    </property>
+    <property name="sizePolicy" >
+     <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="url" >
+     <url>
+      <string>http://www.google.com/</string>
+     </url>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar" />
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1019</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebView</class>
+   <extends>QWidget</extends>
+   <header>QtWebKit/QWebView</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

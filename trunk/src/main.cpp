@@ -44,6 +44,8 @@ int main(int argc, char **argv)
 	QApplication    app(argc, argv);
 
     ABase window;
+    window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
+   
     window.addLevel("wikibrowser.ui");
     window.addLevel("geometry.ui");
     window.addLevel("newsbrowser.ui");

@@ -38,6 +38,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AUILoader.h"
 #include "QGraphicsClickablePixmapItem.h"
 #include <QGLWidget>
+
 ABase::ABase( QWidget *parent )
         : QMainWindow(parent)
 {
@@ -61,6 +62,7 @@ ABase::ABase( QWidget *parent )
     menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setupViewport();
+
     menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
     layout.addWidget(&menuWidget);
 
@@ -69,6 +71,9 @@ ABase::ABase( QWidget *parent )
     //This mapper will be used for connecting pixmaps to changeToLevel
     connect(&mapper,SIGNAL(mapped(const QString&)),
             this,SLOT(changeToLevel(const QString&)));
+
+    connect(&updateMapper,SIGNAL(mapped(const QString)),
+	    this,SLOT(updatePixmap(const QString)));
 
 
     //Used by transition animations
@@ -80,6 +85,14 @@ ABase::ABase( QWidget *parent )
 }
 
 ABase::~ABase() { }
+
+void ABase::addPixmapUpdateReason(QString objectClass,const char *signal)
+{
+    QList<const char*> currentList;
+    currentList=reasonsToUpdate[objectClass];
+    currentList.push_back(signal);
+    reasonsToUpdate[objectClass]=currentList;
+}
 
 void ABase::setupViewport()
 {
@@ -126,11 +139,6 @@ void ABase::addLevel(QString uicfile)
     if (uicfile=="geometry.ui")
         ((ALayerGUI*)((QMainWindow*)tmp)->centralWidget())->setupElements();
 
-    if (uicfile == "wikibrowser.ui" || uicfile == "newsbrowser.ui")
-    {
-        //should setup the browsers to allow webpages bigger than 1024x768 when rendered. Maybe a scrollbar
-    }
-
     //Add it to the menu item...
     QPixmap ss=QPixmap::grabWidget(tmp);
     QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
@@ -141,10 +149,27 @@ void ABase::addLevel(QString uicfile)
     connect(item,SIGNAL(clicked()),
             &mapper,SLOT(map()));
 
+    //There is a few widgets that have automatic updates (ei: loading website)
+    //So loop through all the children, find the ones you want and connect the
+    // signals via the updateMapper...
+    QList<QWidget*> children=tmp->findChildren<QWidget *>();
+    for(int i=0;i<children.size();i++)
+      {
+	QObject *obj=children[i];
+	QString className=obj->metaObject()->className();
+	QList<const char *> reqs=reasonsToUpdate[className];
+	for(int j=0;j<reqs.size();j++)
+	  {
+	    qDebug() << "Add " << className;
+	    updateMapper.setMapping(obj,uicfile);
+	    connect(obj,reqs[j],
+		    &updateMapper,SLOT(map()));
+	  }
+      }
+
     //Save it all to our fancy dancy maps
     items[uicfile]=item;
     widgets[uicfile]=tmp;
-    layout.addWidget(tmp);
 
     //Update the positions of the itmers
     if (menuWidget.isVisible() && current.isEmpty())
@@ -166,6 +191,7 @@ void ABase::changeToMenu()
 
         setUpdatesEnabled(false);
         widgets[current]->hide();
+      layout.removeWidget(widgets[current]);
         menuWidget.show();
         setUpdatesEnabled(true);
     }
@@ -198,10 +224,14 @@ void ABase::changeToLevel(const QString& uicfile)
     else if (!current.isEmpty())
     {
         widgets[current]->setEnabled(false);
+
+      //Update the pixmap, in case we changed something..
         QPixmap ss=QPixmap::grabWidget(widgets[current]);
         items[current]->setPixmap(ss);
 
+      //Swap...
         setUpdatesEnabled(false);
+        layout.removeWidget(widgets[current]);
         widgets[current]->hide();
         menuWidget.show();
         setUpdatesEnabled(true);
@@ -236,8 +266,16 @@ void ABase::animationFinished()
 
     setUpdatesEnabled(false);
     menuWidget.hide();
+    layout.addWidget(widgets[current]);
     widgets[current]->show();
     setUpdatesEnabled(true);
+}
+
+void ABase::updatePixmap(const QString uifile)
+{
+  if(current!=uifile) return;
+  QPixmap ss=QPixmap::grabWidget(widgets[uifile]);
+  items[uifile]->setPixmap(ss);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST
@@ -262,20 +300,14 @@ void ABase::keyPressEvent(QKeyEvent *event)
 
 QPointF ABase::calculateScaledWidgetGroupPosition()
 {
+  if(widgets.size()==0) return QPoint();
+  
     //Figures out where the widget group would go if it were scaled by 0.2
     // and centered
     QPointF ret= QPointF((1024-widgetGroup.sceneBoundingRect().width())/2,
                          (768-widgetGroup.sceneBoundingRect().height())/2 - 200);
 
     return ret;
-}
-
-void ABase::updatePixmaps()
-{
-    QList<QString> keys=widgets.keys();
-    for (int i=0;i<keys.size();i++)
-    {
-    }
 }
 
 void ABase::on_GeoButton_clicked()

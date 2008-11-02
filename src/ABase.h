@@ -30,6 +30,8 @@ class ABase : public QMainWindow
   public:
   ABase ( QWidget *parent=0 );
   ~ABase();
+
+  void addPixmapUpdateReason(QString,const char *);
 	  
 public slots:
   void on_GeoButton_clicked();
@@ -46,12 +48,13 @@ public slots:
 
   void changeToMenu();
 
+  void updatePixmap(const QString uifile);
+
   void animationFinished();
 protected:
   void keyPressEvent(QKeyEvent *);
 
   QPointF calculateScaledWidgetGroupPosition();
-  void updatePixmaps();
   void setupViewport();
 
 private:
@@ -69,6 +72,8 @@ private:
   QGraphicsItemGroup widgetGroup;
 
   QSignalMapper mapper;
+  QSignalMapper updateMapper;
+  QMap<QString,QList<const char *> > reasonsToUpdate;
 
   //Timer used for animations
   QTimeLine timer;

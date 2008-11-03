@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <amtour title="Michael's demo test" description="Sample tour">
 
 	<block>
@@ -102,25 +101,25 @@
 
 		<keyframe time="8000">
 
-			<target x="-20" y="-50" z="30">
+			<target x="-20" y="-50" z="30"/>
 
 		</keyframe>
 
 		<keyframe time="14000">
 
-			<target x="-20" y="-50" z="-30">
+			<target x="-20" y="-50" z="-30"/>
 
 		</keyframe>
 
 		<keyframe time="17000">
 
-			<target x="-20" y="-50" z="0">
+			<target x="-20" y="-50" z="0"/>
 
 		</keyframe>
 
 		<keyframe time="18000">
 
-			<target x="-20" y="-50" z="0">
+			<target x="-20" y="-50" z="0"/>
 
 		</keyframe>
 
@@ -146,7 +145,7 @@
 
 		<keyframe time="0">
 
-			<camera x="12" y="0" z="-2">
+			<camera x="12" y="0" z="-2"/>
 
 			<target x="0" y="0" z="0" />
 

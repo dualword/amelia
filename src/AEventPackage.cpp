@@ -36,11 +36,10 @@ void AEventPackage::load(const QString& loc)
 
   setName(dir.dirName());
 
-
-  QString metainfo=loc+"/.metainfo";
-
+  /*
+   * Load the metainfo
+   */
   QFile fh(loc+"/.metainfo");
-
   QDomDocument doc("metainfo");
   if (!fh.open(QIODevice::ReadOnly))
     return;
@@ -57,9 +56,25 @@ void AEventPackage::load(const QString& loc)
   QString nameText=nameNode.firstChild().toText().data();
   if(!nameText.isEmpty()) setName(nameText);
 
+  /* END metainfo loading */
+
+  /*
+   * Load the already analyzed events
+   */
+  //QFile fh_logbook(loc+"/.logbook");
+  fh.setFileName(loc+"/.logbook");
+  doc=QDomDocument("logbooks");
+  if (!fh.open(QIODevice::ReadOnly))
+    return;
+  if (!doc.setContent(&fh)) {
+    fh.close();
+    return;
+  }
+  fh.close();
+
   //Load already analyzed events
-  QDomNode analyzedNode=package.namedItem("analyzed");
-  QDomNodeList eventNodes=analyzedNode.childNodes();
+  QDomNode eventsNode=doc.namedItem("events");
+  QDomNodeList eventNodes=eventsNode.childNodes();
   for(int i=0;i<eventNodes.size();i++)
     {
       QDomNode event=eventNodes.at(i);
@@ -94,7 +109,14 @@ void AEventPackage::save()
   in << "<?xml version=\"0.1\"?>" << endl;
   in << "<package>" << endl;
   if(!name().isEmpty()) in << "<name>" << name() << "</name>" << endl;
-  in << "<analyzed>" << endl;
+  in << "</package>";
+  metafile.close();
+  
+  QFile logbook(location+"/.logbook");
+  logbook.open(QIODevice::WriteOnly);
+  in.setDevice(&logbook);
+  in << "<?xml version=\"0.1\"?>" << endl;
+  in << "<events>" << endl;
 
   for(int i=0;i<events.size();i++)
     {
@@ -116,9 +138,9 @@ void AEventPackage::save()
 	  in << "\t</event>" << endl;
 	}
     }
-  in << "</analyzed>" << endl;
-  in << "</package>" << endl;
-  metafile.close();
+  in << "</events>" << endl;
+
+  logbook.close();
 }
 
 void AEventPackage::setName(QString name)

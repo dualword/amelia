@@ -160,7 +160,6 @@ void ABase::addLevel(QString uicfile)
 	QList<const char *> reqs=reasonsToUpdate[className];
 	for(int j=0;j<reqs.size();j++)
 	  {
-	    qDebug() << "Add " << className;
 	    updateMapper.setMapping(obj,uicfile);
 	    connect(obj,reqs[j],
 		    &updateMapper,SLOT(map()));
@@ -273,7 +272,7 @@ void ABase::animationFinished()
 
 void ABase::updatePixmap(const QString uifile)
 {
-  if(current!=uifile) return;
+  if(current==uifile) return; // No need to update the pixmap if the layout is currently being displayed
   QPixmap ss=QPixmap::grabWidget(widgets[uifile]);
   items[uifile]->setPixmap(ss);
 }

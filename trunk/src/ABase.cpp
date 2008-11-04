@@ -51,6 +51,7 @@ ABase::ABase( QWidget *parent )
     //Some settings for the scene
     menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
     menu.addItem(&widgetGroup);
+    menu.setBackgroundBrush(QPixmap(":/media/CommandersBridge.png")); //Sets a background to the QGraphicsScene which is the canvas for the menu
 
     //Initialize the widget group that handles the animations
     widgetGroup.scale(0.25,0.25);
@@ -300,7 +301,7 @@ void ABase::keyPressEvent(QKeyEvent *event)
 QPointF ABase::calculateScaledWidgetGroupPosition()
 {
   if(widgets.size()==0) return QPoint();
-  
+
     //Figures out where the widget group would go if it were scaled by 0.2
     // and centered
     QPointF ret= QPointF((1024-widgetGroup.sceneBoundingRect().width())/2,

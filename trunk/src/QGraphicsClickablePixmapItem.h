@@ -13,9 +13,13 @@ public:
 
 signals:
   void clicked();
+  void mouseEnter();
+  void mouseLeave();
 
 protected:
-  virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event );
+  virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
+  void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+  void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 };
 
 #endif //QGRAPHICSCLICABLEPIXMAPITEM_H_

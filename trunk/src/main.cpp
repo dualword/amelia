@@ -46,9 +46,9 @@ int main(int argc, char **argv)
     ABase window;
     window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
    
-    window.addLevel("wikibrowser.ui");
-    window.addLevel("geometry.ui");
-    window.addLevel("newsbrowser.ui");
+    window.addLevel("wikibrowser.ui","Watch ATLAS Videos");
+    window.addLevel("geometry.ui","Analyze some events, yo!");
+    window.addLevel("newsbrowser.ui","Wikimiki");
     QMetaObject::connectSlotsByName(&window);
 
     window.show();

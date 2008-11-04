@@ -23,6 +23,20 @@
 
 #include "QGraphicsClickablePixmapItem.h"
 
+struct ALayout
+{
+  QString uicfile;
+  QString description;
+  QWidget *widget;
+
+  QGraphicsClickablePixmapItem *item;
+  QGraphicsTextItem *descItem;
+
+  QGraphicsItemAnimation *rotateAnimation;
+  QTimeLine *descTimer;
+  QGraphicsItemAnimation *descAnimation;
+};
+
 class ABase : public QMainWindow
 {
   Q_OBJECT
@@ -43,7 +57,7 @@ public slots:
   void on_BackButton_activated();
   void on_QuitButton_activated();
   
-  void addLevel( QString level );
+  void addLevel( QString level ,QString description="");
   void changeToLevel(const QString& level);
 
   void changeToMenu();
@@ -62,8 +76,7 @@ protected:
 
 private:
   //Holds a list of the virual screens loaded
-  QMap<QString, QWidget*> widgets;
-  QMap<QString, QGraphicsClickablePixmapItem*> items;
+  QMap<QString, ALayout> widgets;
 
   //Center...
   QWidget center;

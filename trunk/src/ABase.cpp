@@ -38,6 +38,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AUILoader.h"
 #include "QGraphicsClickablePixmapItem.h"
 #include <QGLWidget>
+#include <QGraphicsSceneMouseEvent>
 
 ABase::ABase( QWidget *parent )
         : QMainWindow(parent)
@@ -51,7 +52,21 @@ ABase::ABase( QWidget *parent )
     //Some settings for the scene
     menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
     menu.addItem(&widgetGroup);
-    menu.setBackgroundBrush(QPixmap(":/media/CommandersBridge.png")); //Sets a background to the QGraphicsScene which is the canvas for the menu
+    menu.installEventFilter(this);
+
+    //Initialize the background
+    background=menu.addPixmap(QPixmap(":/media/CommandersBridge.png"));
+    background->setPos(calculateBackgroundPosition());
+
+    //Timers for restoring parallax animations
+    parallaxTimer.setDuration(1000);
+    parallaxTimer.setCurveShape(QTimeLine::EaseInOutCurve);
+    parallaxAnimation.setItem(&widgetGroup);
+    parallaxAnimation.setTimeLine(&parallaxTimer);
+    parallaxTimerBg.setDuration(1000);
+    parallaxTimerBg.setCurveShape(QTimeLine::EaseInOutCurve);
+    parallaxAnimationBg.setItem(background);
+    parallaxAnimationBg.setTimeLine(&parallaxTimerBg);
 
     //Initialize the widget group that handles the animations
     widgetGroup.scale(0.25,0.25);
@@ -78,7 +93,7 @@ ABase::ABase( QWidget *parent )
 
 
     //Used by transition animations
-    timer.setDuration(500);
+    timer.setDuration(1000);
     animation.setItem(&widgetGroup);
     animation.setTimeLine(&timer);
     connect(&timer,SIGNAL(finished()),
@@ -183,18 +198,20 @@ void ABase::changeToMenu()
     if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
     if (current.isEmpty()) return; //Already on menu..
-    else
-    {
-        widgets[current]->setEnabled(false);
-        QPixmap ss=QPixmap::grabWidget(widgets[current]);
-        items[current]->setPixmap(ss);
 
-        setUpdatesEnabled(false);
-        widgets[current]->hide();
-      layout.removeWidget(widgets[current]);
-        menuWidget.show();
-        setUpdatesEnabled(true);
-    }
+    //Restore background position
+    background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
+
+    //Reload pixmap
+    widgets[current]->setEnabled(false);
+    QPixmap ss=QPixmap::grabWidget(widgets[current]);
+    items[current]->setPixmap(ss);
+    
+    setUpdatesEnabled(false);
+    widgets[current]->hide();
+    layout.removeWidget(widgets[current]);
+    menuWidget.show();
+    setUpdatesEnabled(true);
 
     //Initial condiftions
     if (current.isEmpty())
@@ -308,6 +325,60 @@ QPointF ABase::calculateScaledWidgetGroupPosition()
                          (768-widgetGroup.sceneBoundingRect().height())/2 - 200);
 
     return ret;
+}
+
+QPointF ABase::calculateBackgroundPosition()
+{
+  return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
+}
+
+bool ABase::eventFilter(QObject *obj, QEvent *event)
+{
+  if(!current.isEmpty()) return false; //Don't care if this no mouse
+  
+  if(obj==&menu)
+    {
+      if(event->type()==QEvent::QEvent::GraphicsSceneMouseMove)
+	{
+	  QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
+	  
+	  //Need to figure out the bounding rectangle of our group widget
+	  QPointF lastPos=mEvent->lastScenePos(); 
+	  QRectF rect=widgetGroup.sceneBoundingRect();
+	  QSizeF size=widgetGroup.childrenBoundingRect().size()*0.25;
+	  rect.setSize(size); // For some reason I keep getting size of 0x0 by default
+	  rect.moveLeft(rect.x()-size.width()/2); //The top left of the bounding rect is the center of the actual widget group...
+
+	  if(rect.contains(lastPos)) //If we are hovering over top of the pixmaps, scroll
+	    {
+	      //Make sure no animation is running
+	      parallaxTimer.stop();
+	      parallaxTimerBg.stop();
+
+	      //Figure out how much we moved the mouse by
+	      QPointF delta=mEvent->lastScenePos()-mEvent->scenePos();
+	      
+	      //Move everything by the above change, but opposite and scaled
+	      delta.setY(0);
+	      widgetGroup.setPos(widgetGroup.pos()+0.1*delta);
+	      background->setPos(background->pos()+0.04*delta);
+	      menuWidget.horizontalScrollBar();
+	    }
+	  else if(parallaxTimer.state()!=QTimeLine::Running && background->pos()!=calculateBackgroundPosition()) //Restore to initial position using an animator, but only if it is not already there and an animation is not running already..
+	    {
+	      parallaxAnimation.setPosAt(0,widgetGroup.pos());
+	      parallaxAnimation.setPosAt(1,calculateScaledWidgetGroupPosition());
+	      parallaxTimer.setCurrentTime(0);
+	      parallaxTimer.start();
+
+	      parallaxAnimationBg.setPosAt(0,background->pos());
+	      parallaxAnimationBg.setPosAt(1,calculateBackgroundPosition());
+	      parallaxTimerBg.setCurrentTime(0);
+	      parallaxTimerBg.start();
+	    }
+	}
+    }
+  return false;
 }
 
 void ABase::on_GeoButton_clicked()

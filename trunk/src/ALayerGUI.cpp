@@ -674,8 +674,6 @@ void ALayerGUI::prepareTours ()
     QObject::connect (tourManager, SIGNAL(camAnimatorRemoved()), geo, SLOT(removeCamAnimator ()));
     QObject::connect (tourManager, SIGNAL(tarAnimatorRemoved()), geo, SLOT(removeTarAnimator ()));
 
-    QObject::connect (geo, SIGNAL(repainted()), tourManager, SLOT(onUpdate()));
-
     QObject::connect (tourManager, SIGNAL(tour_camera(AGeometry::CameraMode)), geo, SLOT(setViewport(AGeometry::CameraMode)));
     QObject::connect (tourManager, SIGNAL(tour_loadfile(QString)), this, SLOT(loadEvent(QString)));
     QObject::connect (tourManager, SIGNAL(tour_stopped()), this, SLOT(endTour()));

@@ -127,7 +127,7 @@ Q_OBJECT
                 int numTours;
 
         public slots:
-		void onUpdate();
+		void timerEvent(QTimerEvent *event);
 
         signals:
 

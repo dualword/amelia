@@ -51,10 +51,13 @@ public slots:
   void updatePixmap(const QString uifile);
 
   void animationFinished();
+
 protected:
   void keyPressEvent(QKeyEvent *);
+  bool eventFilter(QObject *obj, QEvent *event);
 
   QPointF calculateScaledWidgetGroupPosition();
+  QPointF calculateBackgroundPosition();
   void setupViewport();
 
 private:
@@ -70,6 +73,7 @@ private:
   QGraphicsView menuWidget;
   QGraphicsScene menu;
   QGraphicsItemGroup widgetGroup;
+  QGraphicsPixmapItem *background;
 
   QSignalMapper mapper;
   QSignalMapper updateMapper;
@@ -78,6 +82,8 @@ private:
   //Timer used for animations
   QTimeLine timer;
   QGraphicsItemAnimation animation;
+  QTimeLine parallaxTimer,parallaxTimerBg;
+  QGraphicsItemAnimation parallaxAnimation,parallaxAnimationBg;
 
   //Current layout
   QString current;

@@ -314,6 +314,7 @@ ATourManager::ATourManager (IFileSystem *fs_, ITimer *timer_)
     timer = timer_;
     tour = 0;
 
+    startTimer(0);
 }
 
 ATourManager::~ATourManager()
@@ -625,7 +626,7 @@ vector3df ATourManager::getTargetVector()
 
 
 
-void ATourManager::onUpdate()
+void ATourManager::timerEvent(QTimerEvent *event)
 {
 
     if ( !running || advancing ) return;

@@ -89,7 +89,7 @@ ABase::ABase( QWidget *parent )
             this,SLOT(changeToLevel(const QString&)));
 
     connect(&updateMapper,SIGNAL(mapped(const QString)),
-	    this,SLOT(updatePixmap(const QString)));
+            this,SLOT(updatePixmap(const QString)));
 
 
     //Used by transition animations
@@ -160,6 +160,15 @@ void ABase::addLevel(QString uicfile)
     QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
     item->setPos(1024*(widgets.size()-1.5),0);
 
+    //Rotate it. We're using here a little translation trick
+    //to make sure the widgets rotate around the center
+    QTransform t;
+    t.translate(512 , 0);
+    t.rotate(-20 + 20*(items.size()), Qt::YAxis);
+    t.translate(-512 + 200*(items.size() - 1), 0);
+    item->setTransform(t);
+
+
     //Add the pixmap to the signal map, which will let us switch menus
     mapper.setMapping(item,uicfile);
     connect(item,SIGNAL(clicked()),
@@ -169,18 +178,18 @@ void ABase::addLevel(QString uicfile)
     //So loop through all the children, find the ones you want and connect the
     // signals via the updateMapper...
     QList<QWidget*> children=tmp->findChildren<QWidget *>();
-    for(int i=0;i<children.size();i++)
-      {
-	QObject *obj=children[i];
-	QString className=obj->metaObject()->className();
-	QList<const char *> reqs=reasonsToUpdate[className];
-	for(int j=0;j<reqs.size();j++)
-	  {
-	    updateMapper.setMapping(obj,uicfile);
-	    connect(obj,reqs[j],
-		    &updateMapper,SLOT(map()));
-	  }
-      }
+    for (int i=0;i<children.size();i++)
+    {
+        QObject *obj=children[i];
+        QString className=obj->metaObject()->className();
+        QList<const char *> reqs=reasonsToUpdate[className];
+        for (int j=0;j<reqs.size();j++)
+        {
+            updateMapper.setMapping(obj,uicfile);
+            connect(obj,reqs[j],
+                    &updateMapper,SLOT(map()));
+        }
+    }
 
     //Save it all to our fancy dancy maps
     items[uicfile]=item;
@@ -206,7 +215,7 @@ void ABase::changeToMenu()
     widgets[current]->setEnabled(false);
     QPixmap ss=QPixmap::grabWidget(widgets[current]);
     items[current]->setPixmap(ss);
-    
+
     setUpdatesEnabled(false);
     widgets[current]->hide();
     layout.removeWidget(widgets[current]);
@@ -242,11 +251,11 @@ void ABase::changeToLevel(const QString& uicfile)
     {
         widgets[current]->setEnabled(false);
 
-      //Update the pixmap, in case we changed something..
+        //Update the pixmap, in case we changed something..
         QPixmap ss=QPixmap::grabWidget(widgets[current]);
         items[current]->setPixmap(ss);
 
-      //Swap...
+        //Swap...
         setUpdatesEnabled(false);
         layout.removeWidget(widgets[current]);
         widgets[current]->hide();
@@ -290,9 +299,9 @@ void ABase::animationFinished()
 
 void ABase::updatePixmap(const QString uifile)
 {
-  if(current==uifile) return; // No need to update the pixmap if the layout is currently being displayed
-  QPixmap ss=QPixmap::grabWidget(widgets[uifile]);
-  items[uifile]->setPixmap(ss);
+    if (current==uifile) return; // No need to update the pixmap if the layout is currently being displayed
+    QPixmap ss=QPixmap::grabWidget(widgets[uifile]);
+    items[uifile]->setPixmap(ss);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST
@@ -317,7 +326,7 @@ void ABase::keyPressEvent(QKeyEvent *event)
 
 QPointF ABase::calculateScaledWidgetGroupPosition()
 {
-  if(widgets.size()==0) return QPoint();
+    if (widgets.size()==0) return QPoint();
 
     //Figures out where the widget group would go if it were scaled by 0.2
     // and centered
@@ -329,56 +338,56 @@ QPointF ABase::calculateScaledWidgetGroupPosition()
 
 QPointF ABase::calculateBackgroundPosition()
 {
-  return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
+    return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
 }
 
 bool ABase::eventFilter(QObject *obj, QEvent *event)
 {
-  if(!current.isEmpty()) return false; //Don't care if this no mouse
-  
-  if(obj==&menu)
+    if (!current.isEmpty()) return false; //Don't care if this no mouse
+
+    if (obj==&menu)
     {
-      if(event->type()==QEvent::QEvent::GraphicsSceneMouseMove)
-	{
-	  QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
-	  
-	  //Need to figure out the bounding rectangle of our group widget
-	  QPointF lastPos=mEvent->lastScenePos(); 
-	  QRectF rect=widgetGroup.sceneBoundingRect();
-	  QSizeF size=widgetGroup.childrenBoundingRect().size()*0.25;
-	  rect.setSize(size); // For some reason I keep getting size of 0x0 by default
-	  rect.moveLeft(rect.x()-size.width()/2); //The top left of the bounding rect is the center of the actual widget group...
+        if (event->type()==QEvent::QEvent::GraphicsSceneMouseMove)
+        {
+            QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
 
-	  if(rect.contains(lastPos)) //If we are hovering over top of the pixmaps, scroll
-	    {
-	      //Make sure no animation is running
-	      parallaxTimer.stop();
-	      parallaxTimerBg.stop();
+            //Need to figure out the bounding rectangle of our group widget
+            QPointF lastPos=mEvent->lastScenePos();
+            QRectF rect=widgetGroup.sceneBoundingRect();
+            QSizeF size=widgetGroup.childrenBoundingRect().size()*0.25;
+            rect.setSize(size); // For some reason I keep getting size of 0x0 by default
+            rect.moveLeft(rect.x()-size.width()/2); //The top left of the bounding rect is the center of the actual widget group...
 
-	      //Figure out how much we moved the mouse by
-	      QPointF delta=mEvent->lastScenePos()-mEvent->scenePos();
-	      
-	      //Move everything by the above change, but opposite and scaled
-	      delta.setY(0);
-	      widgetGroup.setPos(widgetGroup.pos()+0.1*delta);
-	      background->setPos(background->pos()+0.04*delta);
-	      menuWidget.horizontalScrollBar();
-	    }
-	  else if(parallaxTimer.state()!=QTimeLine::Running && background->pos()!=calculateBackgroundPosition()) //Restore to initial position using an animator, but only if it is not already there and an animation is not running already..
-	    {
-	      parallaxAnimation.setPosAt(0,widgetGroup.pos());
-	      parallaxAnimation.setPosAt(1,calculateScaledWidgetGroupPosition());
-	      parallaxTimer.setCurrentTime(0);
-	      parallaxTimer.start();
+            if (rect.contains(lastPos)) //If we are hovering over top of the pixmaps, scroll
+            {
+                //Make sure no animation is running
+                parallaxTimer.stop();
+                parallaxTimerBg.stop();
 
-	      parallaxAnimationBg.setPosAt(0,background->pos());
-	      parallaxAnimationBg.setPosAt(1,calculateBackgroundPosition());
-	      parallaxTimerBg.setCurrentTime(0);
-	      parallaxTimerBg.start();
-	    }
-	}
+                //Figure out how much we moved the mouse by
+                QPointF delta=mEvent->lastScenePos()-mEvent->scenePos();
+
+                //Move everything by the above change, but opposite and scaled
+                delta.setY(0);
+                widgetGroup.setPos(widgetGroup.pos()+0.1*delta);
+                background->setPos(background->pos()+0.04*delta);
+                menuWidget.horizontalScrollBar();
+            }
+            else if (parallaxTimer.state()!=QTimeLine::Running && background->pos()!=calculateBackgroundPosition()) //Restore to initial position using an animator, but only if it is not already there and an animation is not running already..
+            {
+                parallaxAnimation.setPosAt(0,widgetGroup.pos());
+                parallaxAnimation.setPosAt(1,calculateScaledWidgetGroupPosition());
+                parallaxTimer.setCurrentTime(0);
+                parallaxTimer.start();
+
+                parallaxAnimationBg.setPosAt(0,background->pos());
+                parallaxAnimationBg.setPosAt(1,calculateBackgroundPosition());
+                parallaxTimerBg.setCurrentTime(0);
+                parallaxTimerBg.start();
+            }
+        }
     }
-  return false;
+    return false;
 }
 
 void ABase::on_GeoButton_clicked()

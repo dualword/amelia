@@ -126,7 +126,7 @@ void ABase::setupViewport()
     menuWidget.setViewport(viewport);
 }
 
-void ABase::addLevel(QString uicfile)
+void ABase::addLevel(QString uicfile,QString description)
 {
     //Everything else should be an UI file (for now)
     AUILoader loader;
@@ -159,13 +159,20 @@ void ABase::addLevel(QString uicfile)
     QPixmap ss=QPixmap::grabWidget(tmp);
     QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
     item->setPos(1024*(widgets.size()-1.5),0);
+    item->setAcceptHoverEvents(true); //For some reason doing this in the constructor of the pixmap item has no effect.
+
+    //Add a thing...
+    QGraphicsTextItem *descItem=menu.addText(description);
+    descItem->setDefaultTextColor("white");
+    descItem->setPos(QPointF(-descItem->boundingRect().width(),0));
+    //descItem->setPos(QPointF(0,widgets.size()*30));
 
     //Rotate it. We're using here a little translation trick
     //to make sure the widgets rotate around the center
     QTransform t;
     t.translate(512 , 0);
-    t.rotate(-20 + 20*(items.size()), Qt::YAxis);
-    t.translate(-512 + 200*(items.size() - 1), 0);
+    t.rotate(-20 + 20*(widgets.size()), Qt::YAxis);
+    t.translate(-512 + 200*(widgets.size() - 1), 0);
     item->setTransform(t);
 
 
@@ -192,8 +199,43 @@ void ABase::addLevel(QString uicfile)
     }
 
     //Save it all to our fancy dancy maps
-    items[uicfile]=item;
-    widgets[uicfile]=tmp;
+    ALayout infostruct;
+    infostruct.uicfile=uicfile;
+    infostruct.description=description;
+    infostruct.item=item;
+    infostruct.widget=tmp;
+
+    if(description!="")
+      { //If there is no description, then don't bother setting up the stuff..
+	qDebug() << description;
+	infostruct.descItem=descItem;
+	infostruct.descTimer=new QTimeLine;
+	infostruct.descTimer->setDuration(1000);
+	infostruct.descTimer->setCurveShape(QTimeLine::EaseInCurve);
+	infostruct.descAnimation=new QGraphicsItemAnimation(descItem);
+	infostruct.descAnimation->setTimeLine(infostruct.descTimer);
+	infostruct.descAnimation->setItem(descItem);
+	infostruct.descAnimation->setPosAt(0,QPointF(400,0));
+	infostruct.descAnimation->setPosAt(1,QPointF(-descItem->boundingRect().width(),0));
+	connect(item,SIGNAL(mouseEnter()),
+		infostruct.descTimer,SLOT(toggleDirection()));
+	
+	connect(item,SIGNAL(mouseEnter()),
+		infostruct.descTimer,SLOT(start()));
+	
+	connect(item,SIGNAL(mouseLeave()),
+		infostruct.descTimer,SLOT(toggleDirection()));
+	
+	connect(item,SIGNAL(mouseLeave()),
+		infostruct.descTimer,SLOT(start()));
+      }
+
+    /*infostruct.rotateAnimation=new QGraphicsItemAnimation(item);
+    infostruct.rotateAnimation->setTimeLine(&timer);
+    infostruct.rotateAnimation->setItem(item);
+    infostruct.rotateAnimation->setRotationAt(0,20 - 20*(widgets.size()));
+    infostruct.rotateAnimation->setRotationAt(1,0);*/
+    widgets[uicfile]=infostruct;
 
     //Update the positions of the itmers
     if (menuWidget.isVisible() && current.isEmpty())
@@ -212,13 +254,13 @@ void ABase::changeToMenu()
     background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
 
     //Reload pixmap
-    widgets[current]->setEnabled(false);
-    QPixmap ss=QPixmap::grabWidget(widgets[current]);
-    items[current]->setPixmap(ss);
+    widgets[current].widget->setEnabled(false);
+    QPixmap ss=QPixmap::grabWidget(widgets[current].widget);
+    widgets[current].item->setPixmap(ss);
 
     setUpdatesEnabled(false);
-    widgets[current]->hide();
-    layout.removeWidget(widgets[current]);
+    widgets[current].widget->hide();
+    layout.removeWidget(widgets[current].widget);
     menuWidget.show();
     setUpdatesEnabled(true);
 
@@ -247,18 +289,18 @@ void ABase::changeToLevel(const QString& uicfile)
     if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
     if (uicfile==current) return; //Arealdy there...
-    else if (!current.isEmpty())
+    else if (!current.isEmpty()) //We are right now at some widget. Switch to the graphics view...
     {
-        widgets[current]->setEnabled(false);
+        widgets[current].widget->setEnabled(false);
 
         //Update the pixmap, in case we changed something..
-        QPixmap ss=QPixmap::grabWidget(widgets[current]);
-        items[current]->setPixmap(ss);
+        QPixmap ss=QPixmap::grabWidget(widgets[current].widget);
+        widgets[current].item->setPixmap(ss);
 
         //Swap...
         setUpdatesEnabled(false);
-        layout.removeWidget(widgets[current]);
-        widgets[current]->hide();
+        layout.removeWidget(widgets[current].widget);
+        widgets[current].widget->hide();
         menuWidget.show();
         setUpdatesEnabled(true);
     }
@@ -274,7 +316,7 @@ void ABase::changeToLevel(const QString& uicfile)
     animation.setScaleAt(1,1,1);
 
 
-    animation.setPosAt(1,-items[uicfile]->pos());
+    animation.setPosAt(1,-widgets[uicfile].item->pos());
 
     timer.start();
 
@@ -288,20 +330,20 @@ void ABase::animationFinished()
 {
     if (current.isEmpty()) return;
 
-    widgets[current]->setEnabled(true);
+    widgets[current].widget->setEnabled(true);
 
     setUpdatesEnabled(false);
     menuWidget.hide();
-    layout.addWidget(widgets[current]);
-    widgets[current]->show();
+    layout.addWidget(widgets[current].widget);
+    widgets[current].widget->show();
     setUpdatesEnabled(true);
 }
 
 void ABase::updatePixmap(const QString uifile)
 {
     if (current==uifile) return; // No need to update the pixmap if the layout is currently being displayed
-    QPixmap ss=QPixmap::grabWidget(widgets[uifile]);
-    items[uifile]->setPixmap(ss);
+    QPixmap ss=QPixmap::grabWidget(widgets[uifile].widget);
+    widgets[uifile].item->setPixmap(ss);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST

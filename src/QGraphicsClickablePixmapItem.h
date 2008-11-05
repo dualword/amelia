@@ -3,6 +3,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QObject>
+#include <QTimeLine>
 
 class QGraphicsClickablePixmapItem : public QObject,public QGraphicsPixmapItem
 {
@@ -13,9 +14,12 @@ public:
     float yRot;
     float xTrans;
     int menuPosition;
+    QTimeLine::Direction animationDirection;
 
 public slots:
     void itemTransformStep(qreal step);
+    void setMenuAnimationDirectionForward();
+    void setMenuAnimationDirectionBackward();
 
 signals:
     void clicked();
@@ -27,6 +31,7 @@ protected:
     void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
     void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
     bool isFormatBig;
+    int animDirection;
 };
 
 #endif //QGRAPHICSCLICABLEPIXMAPITEM_H_

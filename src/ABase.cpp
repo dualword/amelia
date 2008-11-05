@@ -56,7 +56,7 @@ ABase::ABase( QWidget *parent )
 
     //Initialize the background
     background=menu.addPixmap(QPixmap(":/media/CommandersBridge.png"));
-	background->setZValue(0);
+    background->setZValue(0);
     background->setPos(calculateBackgroundPosition());
 
     //Timers for restoring parallax animations
@@ -73,7 +73,7 @@ ABase::ABase( QWidget *parent )
     widgetGroup.scale(0.25,0.25);
     widgetGroup.setPos(calculateScaledWidgetGroupPosition());
     widgetGroup.setHandlesChildEvents(false); //Let the pixmap handle it's own clicks
-	widgetGroup.setZValue(100);
+    widgetGroup.setZValue(100);
 
     //Make the widget without scrollbars and display it
     menuWidget.setScene(&menu);
@@ -236,6 +236,13 @@ void ABase::addLevel(QString uicfile,QString description)
         connect(&timer,SIGNAL(valueChanged(qreal)),
                 item,SLOT(itemTransformStep(qreal)));
 
+        connect(this,SIGNAL(currentMenuAnimationForward()),
+                item,SLOT(setMenuAnimationDirectionForward()));
+
+        connect(this,SIGNAL(currentMenuAnimationBackward()),
+                item,SLOT(setMenuAnimationDirectionBackward()));
+
+
     }
 
     widgets[uicfile]=infostruct;
@@ -281,7 +288,11 @@ void ABase::changeToMenu()
     animation.setScaleAt(1,0.25,0.25);
     animation.setPosAt(1,calculateScaledWidgetGroupPosition());
 
+
+    emit currentMenuAnimationBackward();
     timer.start();
+
+
 
     previous=current;
     current=QString();
@@ -322,6 +333,7 @@ void ABase::changeToLevel(const QString& uicfile)
 
     animation.setPosAt(1,-widgets[uicfile].item->pos());
 
+    emit currentMenuAnimationForward();
     timer.start();
 
     //For some reason setting previous to current here would make uicfile a "". Don't ask...
@@ -475,3 +487,4 @@ void ABase::on_QuitButton_activated()
 {
     close();
 }
+

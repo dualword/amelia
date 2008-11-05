@@ -56,6 +56,7 @@ ABase::ABase( QWidget *parent )
 
     //Initialize the background
     background=menu.addPixmap(QPixmap(":/media/CommandersBridge.png"));
+	background->setZValue(0);
     background->setPos(calculateBackgroundPosition());
 
     //Timers for restoring parallax animations
@@ -72,6 +73,7 @@ ABase::ABase( QWidget *parent )
     widgetGroup.scale(0.25,0.25);
     widgetGroup.setPos(calculateScaledWidgetGroupPosition());
     widgetGroup.setHandlesChildEvents(false); //Let the pixmap handle it's own clicks
+	widgetGroup.setZValue(100);
 
     //Make the widget without scrollbars and display it
     menuWidget.setScene(&menu);
@@ -162,10 +164,9 @@ void ABase::addLevel(QString uicfile,QString description)
     item->setAcceptHoverEvents(true); //For some reason doing this in the constructor of the pixmap item has no effect.
 
     //Add a thing...
-    QGraphicsTextItem *descItem=menu.addText(description);
-    descItem->setDefaultTextColor("white");
+    QGraphicsSimpleTextItem *descItem=menu.addSimpleText(description);
+    descItem->setBrush(QColor("white"));
     descItem->setPos(QPointF(-descItem->boundingRect().width(),0));
-    //descItem->setPos(QPointF(0,widgets.size()*30));
 
     //Rotate it. We're using here a little translation trick
     //to make sure the widgets rotate around the center
@@ -211,12 +212,11 @@ void ABase::addLevel(QString uicfile,QString description)
 
     if (description!="")
     { //If there is no description, then don't bother setting up the stuff..
-        qDebug() << description;
         infostruct.descItem=descItem;
         infostruct.descTimer=new QTimeLine;
-        infostruct.descTimer->setDuration(1000);
+        infostruct.descTimer->setDuration(500);
         infostruct.descTimer->setCurveShape(QTimeLine::EaseInCurve);
-        infostruct.descAnimation=new QGraphicsItemAnimation(descItem);
+        infostruct.descAnimation=new QGraphicsItemAnimation;
         infostruct.descAnimation->setTimeLine(infostruct.descTimer);
         infostruct.descAnimation->setItem(descItem);
         infostruct.descAnimation->setPosAt(0,QPointF(400,0));
@@ -238,11 +238,6 @@ void ABase::addLevel(QString uicfile,QString description)
 
     }
 
-    /*infostruct.rotateAnimation=new QGraphicsItemAnimation(item);
-    infostruct.rotateAnimation->setTimeLine(&timer);
-    infostruct.rotateAnimation->setItem(item);
-    infostruct.rotateAnimation->setRotationAt(0,20 - 20*(widgets.size()));
-    infostruct.rotateAnimation->setRotationAt(1,0);*/
     widgets[uicfile]=infostruct;
 
     //Update the positions of the itmers
@@ -398,7 +393,7 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
 
     if (obj==&menu)
     {
-        if (event->type()==QEvent::QEvent::GraphicsSceneMouseMove)
+        if (event->type()==QEvent::GraphicsSceneMouseMove)
         {
             QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
 

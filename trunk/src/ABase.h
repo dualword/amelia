@@ -30,9 +30,8 @@ struct ALayout
   QWidget *widget;
 
   QGraphicsClickablePixmapItem *item;
-  QGraphicsTextItem *descItem;
+  QGraphicsSimpleTextItem *descItem;
 
-  QGraphicsItemAnimation *rotateAnimation;
   QTimeLine *descTimer;
   QGraphicsItemAnimation *descAnimation;
 };

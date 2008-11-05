@@ -21,18 +21,19 @@
   <property name="styleSheet" >
    <string notr="true" >#ALayerGUI 
 {
-	background-image: url(:/media/border_skin.png) 5px 5px 5px 5px;
-	border: none;
+	background-image: url(:/media/border_skin.png);
 }
 
 #eventWidget
 {
-	background-image: url(:/media/eventWidget_bg.png) 0px 0px 0px 0px;
+	background-image: url(:/media/eventWidget_bg.png);
+	background-repeat: no-repeat;
 }
 
 #AGeometryFrame {
 	
-	background-image: url(:/media/ageometry_skin.png) 0px 0px 0px 0px;
+	background-image: url(:/media/ageometry_skin.png);
+	background-repeat: no-repeat;
 	border: none;	
 
 }
@@ -1957,38 +1958,6 @@ color: rgb(255, 255, 0);
  </resources>
  <connections>
   <connection>
-   <sender>PtCutoff_Slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBox_Pt</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>561</x>
-     <y>567</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>661</x>
-     <y>571</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox_Pt</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>PtCutoff_Slider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>661</x>
-     <y>571</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>561</x>
-     <y>567</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>AGeometry</sender>
    <signal>finishedLoading()</signal>
    <receiver>ALayerGUI</receiver>
@@ -2045,118 +2014,6 @@ color: rgb(255, 255, 0);
     <hint type="sourcelabel" >
      <x>-1</x>
      <y>-1</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Electrons</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>120</x>
-     <y>564</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Photons</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>120</x>
-     <y>583</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_ChargedHadrons</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>251</x>
-     <y>583</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_NeutralHadrons</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>241</x>
-     <y>564</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Muons</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>330</x>
-     <y>564</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_Jets</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>330</x>
-     <y>583</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>511</x>
-     <y>366</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkBox_MissingEt</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>ALayerGUI</receiver>
-   <slot>toggleVisibilityParticles(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>441</x>
-     <y>564</y>
     </hint>
     <hint type="destinationlabel" >
      <x>511</x>
@@ -2433,6 +2290,150 @@ color: rgb(255, 255, 0);
     <hint type="destinationlabel" >
      <x>511</x>
      <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PtCutoff_Slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>spinBox_Pt</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>561</x>
+     <y>567</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>661</x>
+     <y>571</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox_Pt</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>PtCutoff_Slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>661</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>561</x>
+     <y>567</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Photons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>120</x>
+     <y>583</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Electrons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>120</x>
+     <y>564</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_ChargedHadrons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>251</x>
+     <y>583</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_NeutralHadrons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>241</x>
+     <y>564</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Muons</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>330</x>
+     <y>564</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_MissingEt</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>441</x>
+     <y>564</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_Jets</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ALayerGUI</receiver>
+   <slot>toggleVisibilityParticles(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>330</x>
+     <y>583</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>511</x>
+     <y>366</y>
     </hint>
    </hints>
   </connection>

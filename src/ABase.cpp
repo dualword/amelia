@@ -119,12 +119,16 @@ void ABase::setupViewport()
 #ifdef Q_WS_WIN
     viewport=new QWidget(&menuWidget);
     viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
-#else
-    QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
-    glw->setAutoFillBackground(false);
-    viewport = glw;
-#endif
     menuWidget.setCacheMode(QGraphicsView::CacheNone);
+#else
+    //Disabled OpenGL acceleration due to problems with Irrlicht
+    //QGLWidget *glw = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    //glw->setAutoFillBackground(false);
+    viewport = new QWidget(&menuWidget);
+    menuWidget.setCacheMode(QGraphicsView::CacheBackground);
+    menuWidget.setOptimizationFlag(QGraphicsView::DontClipPainter);
+    background->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+#endif
     menuWidget.setViewport(viewport);
 }
 
@@ -162,6 +166,10 @@ void ABase::addLevel(QString uicfile,QString description)
     QGraphicsClickablePixmapItem* item=new QGraphicsClickablePixmapItem(ss,&widgetGroup);
     item->setPos(1024*(widgets.size()-1.5),0);
     item->setAcceptHoverEvents(true); //For some reason doing this in the constructor of the pixmap item has no effect.
+
+#ifdef Q_WS_X11
+    item->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+#endif
 
     //Add a thing...
     QGraphicsSimpleTextItem *descItem=menu.addSimpleText(description);

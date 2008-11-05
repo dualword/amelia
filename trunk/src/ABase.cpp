@@ -170,11 +170,15 @@ void ABase::addLevel(QString uicfile,QString description)
     //Rotate it. We're using here a little translation trick
     //to make sure the widgets rotate around the center
     QTransform t;
-    t.translate(512 , 0);
-    t.rotate(-20 + 20*(widgets.size()), Qt::YAxis);
-    t.translate(-512 + 200*(widgets.size() - 1), 0);
-    item->setTransform(t);
 
+    item->menuPosition = widgets.size();
+    item->yRot = -20 + 20*(item->menuPosition);
+    item->xTrans = 200*(item->menuPosition - 1);
+
+    t.translate(512 , 0);
+    t.rotate(item->yRot, Qt::YAxis);
+    t.translate(-512 + item->xTrans, 0);
+    item->setTransform(t);
 
     //Add the pixmap to the signal map, which will let us switch menus
     mapper.setMapping(item,uicfile);
@@ -205,30 +209,34 @@ void ABase::addLevel(QString uicfile,QString description)
     infostruct.item=item;
     infostruct.widget=tmp;
 
-    if(description!="")
-      { //If there is no description, then don't bother setting up the stuff..
-	qDebug() << description;
-	infostruct.descItem=descItem;
-	infostruct.descTimer=new QTimeLine;
-	infostruct.descTimer->setDuration(1000);
-	infostruct.descTimer->setCurveShape(QTimeLine::EaseInCurve);
-	infostruct.descAnimation=new QGraphicsItemAnimation(descItem);
-	infostruct.descAnimation->setTimeLine(infostruct.descTimer);
-	infostruct.descAnimation->setItem(descItem);
-	infostruct.descAnimation->setPosAt(0,QPointF(400,0));
-	infostruct.descAnimation->setPosAt(1,QPointF(-descItem->boundingRect().width(),0));
-	connect(item,SIGNAL(mouseEnter()),
-		infostruct.descTimer,SLOT(toggleDirection()));
-	
-	connect(item,SIGNAL(mouseEnter()),
-		infostruct.descTimer,SLOT(start()));
-	
-	connect(item,SIGNAL(mouseLeave()),
-		infostruct.descTimer,SLOT(toggleDirection()));
-	
-	connect(item,SIGNAL(mouseLeave()),
-		infostruct.descTimer,SLOT(start()));
-      }
+    if (description!="")
+    { //If there is no description, then don't bother setting up the stuff..
+        qDebug() << description;
+        infostruct.descItem=descItem;
+        infostruct.descTimer=new QTimeLine;
+        infostruct.descTimer->setDuration(1000);
+        infostruct.descTimer->setCurveShape(QTimeLine::EaseInCurve);
+        infostruct.descAnimation=new QGraphicsItemAnimation(descItem);
+        infostruct.descAnimation->setTimeLine(infostruct.descTimer);
+        infostruct.descAnimation->setItem(descItem);
+        infostruct.descAnimation->setPosAt(0,QPointF(400,0));
+        infostruct.descAnimation->setPosAt(1,QPointF(-descItem->boundingRect().width(),0));
+        connect(item,SIGNAL(mouseEnter()),
+                infostruct.descTimer,SLOT(toggleDirection()));
+
+        connect(item,SIGNAL(mouseEnter()),
+                infostruct.descTimer,SLOT(start()));
+
+        connect(item,SIGNAL(mouseLeave()),
+                infostruct.descTimer,SLOT(toggleDirection()));
+
+        connect(item,SIGNAL(mouseLeave()),
+                infostruct.descTimer,SLOT(start()));
+
+        connect(&timer,SIGNAL(valueChanged(qreal)),
+                item,SLOT(itemTransformStep(qreal)));
+
+    }
 
     /*infostruct.rotateAnimation=new QGraphicsItemAnimation(item);
     infostruct.rotateAnimation->setTimeLine(&timer);
@@ -283,6 +291,7 @@ void ABase::changeToMenu()
     previous=current;
     current=QString();
 }
+
 
 void ABase::changeToLevel(const QString& uicfile)
 {

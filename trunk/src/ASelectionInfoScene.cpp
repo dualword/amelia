@@ -47,7 +47,7 @@ void ASelectionInfoScene::init()
     phi->setDefaultTextColor("white");
 
     // Buttons
-    QPushButton *_addTrack=new QPushButton("Add to List");
+    QPushButton *_addTrack=new QPushButton("Bookmark Selected");
     addTrack=addWidget(_addTrack);
     addTrack->setVisible(true);
     addTrack->setPos(220,20);

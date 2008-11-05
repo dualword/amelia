@@ -6,20 +6,28 @@
 
 class QGraphicsClickablePixmapItem : public QObject,public QGraphicsPixmapItem
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  QGraphicsClickablePixmapItem( QGraphicsItem * parent = 0 );
-  QGraphicsClickablePixmapItem( const QPixmap & pixmap, QGraphicsItem * parent = 0 );
+    QGraphicsClickablePixmapItem( QGraphicsItem * parent = 0 );
+    QGraphicsClickablePixmapItem( const QPixmap & pixmap, QGraphicsItem * parent = 0 );
+    float yRot;
+    float xTrans;
+    int menuPosition;
+
+public slots:
+    void itemTransformStep(qreal step);
 
 signals:
-  void clicked();
-  void mouseEnter();
-  void mouseLeave();
+    void clicked();
+    void mouseEnter();
+    void mouseLeave();
 
 protected:
-  virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
-  void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-  void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void mousePressEvent( QGraphicsSceneMouseEvent *event );
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    bool isFormatBig;
 };
 
 #endif //QGRAPHICSCLICABLEPIXMAPITEM_H_
+

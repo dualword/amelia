@@ -40,13 +40,13 @@ struct ALayout
 class ABase : public QMainWindow
 {
   Q_OBJECT
-  
+
   public:
   ABase ( QWidget *parent=0 );
   ~ABase();
 
   void addPixmapUpdateReason(QString,const char *);
-	  
+
 public slots:
   void on_GeoButton_clicked();
   void on_MenuButton_clicked();
@@ -56,7 +56,7 @@ public slots:
   void on_MenuButton_activated();
   void on_BackButton_activated();
   void on_QuitButton_activated();
-  
+
   void addLevel( QString level ,QString description="");
   void changeToLevel(const QString& level);
 
@@ -102,7 +102,7 @@ private:
   QString current;
   QString previous;
 
-  
+
 };
 
 #endif // ABASE_H

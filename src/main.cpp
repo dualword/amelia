@@ -45,10 +45,10 @@ int main(int argc, char **argv)
 
     ABase window;
     window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
-   
-    window.addLevel("wikibrowser.ui","Watch ATLAS Videos");
-    window.addLevel("geometry.ui","Analyze some events, yo!");
-    window.addLevel("newsbrowser.ui","Wikimiki");
+
+    window.addLevel("wikibrowser.ui","Learn how to use AMELIA. The Wiki.");
+    window.addLevel("geometry.ui","Enter the ATLAS pit!");
+    window.addLevel("newsbrowser.ui","The AMELIA Portal!");
     QMetaObject::connectSlotsByName(&window);
 
     window.show();

@@ -777,3 +777,4 @@ void ALayerGUI::about()
     about.exec();
 }
 
+

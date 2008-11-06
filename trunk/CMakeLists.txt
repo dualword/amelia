@@ -113,9 +113,9 @@ QT4_WRAP_CPP(amelia_SRCS ${amelia_H})
 
 QT4_ADD_RESOURCES(amelia_SRCS ${amelia_FILES})
 
-ADD_EXECUTABLE(Amelia ${amelia_SRCS})
+ADD_EXECUTABLE(amelia ${amelia_SRCS})
 
-TARGET_LINK_LIBRARIES(Amelia
+TARGET_LINK_LIBRARIES(amelia
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES}   
   Irrlicht    
@@ -123,7 +123,7 @@ TARGET_LINK_LIBRARIES(Amelia
   
 
 
-INSTALL(TARGETS Amelia 
+INSTALL(TARGETS amelia 
   RUNTIME DESTINATION bin)
 INSTALL(FILES  media/AtlasGeometry.aml media/pack01.gui media/menu.aml
   DESTINATION share/amelia/media)

@@ -64,12 +64,6 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 
 QIrrWidget::~QIrrWidget()
 {
-  if ( Device != 0 )
-    {
-      Device->closeDevice();
-      Device->drop();
-      Device=0;
-    }
 }
 
 
@@ -562,6 +556,14 @@ QIrrWidgetPrivate::QIrrWidgetPrivate( QIrrWidget *parent )
 QIrrWidgetPrivate::~QIrrWidgetPrivate()
 {
   killTimer(timerId);
+  if ( Device != 0 )
+    {
+      Device->closeDevice();
+      Device->drop();
+      Device=0;
+      QIrrWidget *parent=(QIrrWidget*)parentWidget();
+      parent->Device=0;
+    }
 }
 
 IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverType)
@@ -579,7 +581,7 @@ IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverTy
 #endif
   params.WindowSize.Width = width();
   params.WindowSize.Height = height();
-  params.AntiAlias = true;
+  params.AntiAlias = false;
   params.IgnoreInput = true;
   
   Device = irr::createDeviceEx( params );

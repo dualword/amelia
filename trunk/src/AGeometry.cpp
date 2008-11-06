@@ -2372,42 +2372,6 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 return true;
                 break;
 
-            case KEY_KEY_1:
-                switchVisibility ( 1 );
-                return true;
-                break;
-
-
-            case KEY_KEY_2:
-                switchVisibility ( 2 );
-                return true;
-                break;
-
-
-            case KEY_KEY_3:
-                switchVisibility ( 3 );
-                return true;
-                break;
-
-            case KEY_KEY_4:
-                switchVisibility ( 4 );
-                return true;
-                break;
-
-            case KEY_KEY_5:
-                switchVisibility ( 5 );
-                return true;
-                break;
-
-            case KEY_KEY_6:
-                switchVisibility ( 6 );
-                return true;
-                break;
-
-            case KEY_KEY_7:
-                switchVisibility ( 7 );
-                return true;
-                break;
             case KEY_F1:
                 qDebug() << "Active Camera " << active_viewport;
                 qDebug() << "\tPosition: (" << Device->getSceneManager()->getActiveCamera()->getPosition().X << ","

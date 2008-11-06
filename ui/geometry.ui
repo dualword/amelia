@@ -123,6 +123,14 @@ border: 55
    <bool>false</bool>
   </property>
   <widget class="ALayerGUI" name="ALayerGUI" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>71</y>
+     <width>1024</width>
+     <height>659</height>
+    </rect>
+   </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2" >
     <item>
      <layout class="QVBoxLayout" name="verticalLayout" >
@@ -156,6 +164,14 @@ border: 55
          <number>0</number>
         </property>
         <widget class="QWidget" name="page_3" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>750</width>
+           <height>495</height>
+          </rect>
+         </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4" >
           <property name="topMargin" >
            <number>0</number>
@@ -185,6 +201,14 @@ border: 55
          </layout>
         </widget>
         <widget class="QWidget" name="page_4" >
+         <property name="geometry" >
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>100</width>
+           <height>30</height>
+          </rect>
+         </property>
          <layout class="QVBoxLayout" name="verticalLayout_5" >
           <item>
            <widget class="QLabel" name="label_3" >
@@ -876,12 +900,20 @@ color: rgb(255, 255, 0);
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex" >
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode" >
        <enum>Qt::ElideNone</enum>
       </property>
       <widget class="QWidget" name="tab_detector" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>230</width>
+         <height>617</height>
+        </rect>
+       </property>
        <property name="baseSize" >
         <size>
          <width>0</width>
@@ -955,6 +987,9 @@ color: rgb(255, 255, 0);
              <property name="text" >
               <string>TRT</string>
              </property>
+             <property name="shortcut" >
+              <string>5</string>
+             </property>
              <property name="checked" >
               <bool>true</bool>
              </property>
@@ -968,6 +1003,9 @@ color: rgb(255, 255, 0);
              <property name="text" >
               <string>SCT</string>
              </property>
+             <property name="shortcut" >
+              <string>6</string>
+             </property>
              <property name="checked" >
               <bool>true</bool>
              </property>
@@ -980,6 +1018,9 @@ color: rgb(255, 255, 0);
              </property>
              <property name="text" >
               <string>Pixels</string>
+             </property>
+             <property name="shortcut" >
+              <string>7</string>
              </property>
              <property name="checked" >
               <bool>true</bool>
@@ -1025,6 +1066,9 @@ color: rgb(255, 255, 0);
              <property name="text" >
               <string>Hadronic Calorimeter</string>
              </property>
+             <property name="shortcut" >
+              <string>3</string>
+             </property>
              <property name="checked" >
               <bool>true</bool>
              </property>
@@ -1037,6 +1081,9 @@ color: rgb(255, 255, 0);
              </property>
              <property name="text" >
               <string>EM Calorimeter</string>
+             </property>
+             <property name="shortcut" >
+              <string>4</string>
              </property>
              <property name="checked" >
               <bool>true</bool>
@@ -1061,6 +1108,9 @@ color: rgb(255, 255, 0);
          <property name="text" >
           <string>Muon Spectrometer</string>
          </property>
+         <property name="shortcut" >
+          <string>1</string>
+         </property>
          <property name="checked" >
           <bool>true</bool>
          </property>
@@ -1079,6 +1129,9 @@ color: rgb(255, 255, 0);
          </property>
          <property name="text" >
           <string>Magnet System</string>
+         </property>
+         <property name="shortcut" >
+          <string>2</string>
          </property>
          <property name="checked" >
           <bool>true</bool>
@@ -1153,6 +1206,14 @@ color: rgb(255, 255, 0);
       <widget class="QWidget" name="tab_event" >
        <property name="enabled" >
         <bool>true</bool>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>230</width>
+         <height>617</height>
+        </rect>
        </property>
        <attribute name="title" >
         <string> Events</string>
@@ -1380,6 +1441,14 @@ color: rgb(255, 255, 0);
        </widget>
       </widget>
       <widget class="QWidget" name="tab_tours" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>230</width>
+         <height>617</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string> Tours </string>
        </attribute>
@@ -1647,6 +1716,14 @@ color: rgb(255, 255, 0);
    <addaction name="menuHelp" />
   </widget>
   <widget class="QToolBar" name="toolBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>26</y>
+     <width>1024</width>
+     <height>45</height>
+    </rect>
+   </property>
    <property name="windowTitle" >
     <string>Camera Toolbar</string>
    </property>

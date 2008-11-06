@@ -136,5 +136,8 @@ INSTALL(FILES workspace/special/special-higgs.xml
   workspace/special/.metainfo
   DESTINATION share/amelia/workspace/special)
 
+INSTALL(FILES amelia.desktop
+  DESTINATION share/applications)
+
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

@@ -9,7 +9,7 @@ SET(CPACK_PACKAGE_VERSION "0.0.1")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
 SET(CPACK_PACKAGE_VERSION_MINOR "0")
 SET(CPACK_PACKAGE_VERSION_PATCH "1")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt4-webkit (>= 4.4), libqt4-core (>=4.4)")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt4-webkit (>= 4.4), libqt4-core (>=4.4), libqt4-gui (>=4.4)")
 INCLUDE(CPack)
 
 SET(QT_USE_QTXML true)
@@ -131,6 +131,10 @@ INSTALL(FILES media/tours/karol.1.xml media/tours/michael.1.xml media/tours/test
   DESTINATION share/amelia/tours)
 INSTALL(FILES media/events/special-higgs.xml
   DESTINATION share/amelia/events)
+
+INSTALL(FILES workspace/special/special-higgs.xml 
+  workspace/special/.metainfo
+  DESTINATION share/amelia/workspace/special)
 
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

@@ -36,21 +36,42 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <QApplication>
 #include <QDebug>
+#include <QDir>
 
 #include "ABase.h"
+#include "config.h"
 
 int main(int argc, char **argv)
 {
-	QApplication    app(argc, argv);
+  QApplication    app(argc, argv);
+ 
+  QStringList pkgPaths;
+  QString homePath=QDir::homePath();
+#ifdef Q_WS_WIN
+  homePath+="/Amelia";
+#else
+  homePath+="/.amelia";
+#endif
 
-    ABase window;
-    window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
-
-    window.addLevel("wikibrowser.ui","Learn how to use AMELIA. The Wiki.");
-    window.addLevel("geometry.ui","Enter the ATLAS pit!");
-    window.addLevel("newsbrowser.ui","The AMELIA Portal!");
-    QMetaObject::connectSlotsByName(&window);
-
-    window.show();
-    return app.exec();
+  QDir home(homePath);
+  if(!home.exists())
+    {
+      home.mkdir(homePath);
+      home.mkdir(homePath+"/workspace");
+    }
+  pkgPaths.push_back(QApplication::applicationDirPath());
+  pkgPaths.push_back(homePath);
+  pkgPaths.push_back(SHARE_PREFIX);
+  QDir::setSearchPaths("amelia",pkgPaths);
+ 
+  ABase window;
+  window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
+  
+  window.addLevel("wikibrowser.ui","Learn how to use AMELIA. The Wiki.");
+  window.addLevel("geometry.ui","Enter the ATLAS pit!");
+  window.addLevel("newsbrowser.ui","The AMELIA Portal!");
+  QMetaObject::connectSlotsByName(&window);
+  
+  window.show();
+  return app.exec();
 }

@@ -143,7 +143,7 @@ public:
 
 public slots:
     void setViewport(int to); //Switches the main screen to the specified camera
-    void setCamera(int to); //Switches the 3D camera
+    void setCamera(int to,bool animate=true); //Switches the 3D camera
 
     void toggleVisibilityPixels(); //Toggles the visibility of the pixel detector on or off
     void toggleVisibilitySCT(); //Toggles the visibility of the SCT on or off

@@ -192,7 +192,8 @@ void ALayerGUI::setupElements()
     }
 
     // Setup package list
-    mngr=new AEventManager(QApplication::applicationDirPath()+"/workspace");
+
+    mngr=new AEventManager("amelia:workspace");
     if (packageList)
     {
         packageList->setModel(mngr);
@@ -375,9 +376,9 @@ bool ALayerGUI::loadEvent(QString fileName)
 
     if (!fileName.isEmpty())
     {
-        IFileSystem *fs=geo->GetDevice()->getFileSystem();
+      QFile eventFile(fileName);
 
-        if (!fs->existFile(fileName.toAscii().data()))
+      if (!eventFile.exists())
         {
             QMessageBox::warning(this, tr("Application"),
                                  tr("Cannot find event file: %1!\n.")

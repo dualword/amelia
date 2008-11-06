@@ -111,7 +111,10 @@ void QIrrWidget::changeEvent(QEvent *event)
 	}
       else
 	{
-	  QPixmap ss=QPixmap::grabWindow(p->winId());
+	  QPixmap ss;
+	  if(Device)
+	    ss=QPixmap::grabWindow(p->winId());
+
 	  p->hide();
 
 	  label->setPixmap(ss);
@@ -131,37 +134,6 @@ bool QIrrWidget::OnEvent(const SEvent &event)
 }
 
 void QIrrWidget::load() { }
-
-QImage QIrrWidget::screenshot()
-{
-    //Take the screenshot with irrlicht
-    IImage *screen=Device->getVideoDriver()->createScreenShot();
-
-    if (!screen)
-    {
-        qWarning() << "Error grabbing screenshot of QIrrWidget " << objectName() << "..." << endl;
-        return QImage();
-    }
-
-    //Get the data
-    uchar* data=(uchar*)screen->lock ();
-
-    uchar* dataCopy=new uchar[screen->getImageDataSizeInBytes()];
-
-    //QImage does not copy the data itself, so we have to do it manually
-    memcpy(dataCopy,data,screen->getImageDataSizeInBytes());
-
-    //Create a QImage
-    QImage img(dataCopy,
-               screen->getDimension().Width,
-               screen->getDimension().Height,
-               QIrrWidget::Irr2Qt_ColorFormat(screen->getColorFormat()));
-
-    //Return the pointer to data back to the IImage. This has to be done after we created a QPixmap from it, otherwise we get crashes.
-    screen->unlock();
-    screen->drop();
-    return img;
-}
 
 QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage, QRect baseRect, QRect overlayRect)
 {

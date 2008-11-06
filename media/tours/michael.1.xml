@@ -96,7 +96,7 @@
 
 			<target x="-20" y="-50" z="-30" />
 
-			<action type="loadfile" data="special-higgs.xml" />
+			<action type="loadfile" data="amelia:special-higgs.xml" />
 
 		</keyframe>
 

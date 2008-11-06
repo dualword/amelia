@@ -203,17 +203,6 @@ void AGeometry::load()
     cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(Device->getSceneManager());
 
     //Create the dynamic camera and define some variables
-    camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
-    camera[0]->setInputReceiverEnabled ( false );
-    camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
-    camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-    camera[0]->setFarValue ( 22000.0f );
-    camera[0]->setAspectRatio ( 0.8/0.6 );
-    camera[0]->setID ( 0 );
-
-    core::vector3df Target = camera[0]->getTarget();
-    camera[0]->updateAbsolutePosition();
-    Target = camera[0]->getTarget();
 
     camera[1] = Device->getSceneManager()->addCameraSceneNode();
     camera[1]->setInputReceiverEnabled ( false );
@@ -236,6 +225,17 @@ void AGeometry::load()
     //camera[3]->addAnimator(new CSceneNodeAnimatorCameraOrbit(core::vector3df(0,0,1)));
     camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere(Device->getCursorControl()));
 
+    camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+    camera[0]->setInputReceiverEnabled ( false );
+    camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
+    camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+    camera[0]->setFarValue ( 22000.0f );
+    camera[0]->setAspectRatio ( 0.8/0.6 );
+    camera[0]->setID ( 0 );
+
+    core::vector3df Target = camera[0]->getTarget();
+    camera[0]->updateAbsolutePosition();
+    Target = camera[0]->getTarget();
 
     core::vector3df camRot = camera[0]->getRotation();
     core::vector3df DCamPos = core::vector3df ( 0,0,0 );
@@ -2461,7 +2461,7 @@ void AGeometry::setViewport(int to)
     qDebug() << "Active viewport switched from " << from << " to " << to;
 }
 
-void AGeometry::setCamera(int to)
+void AGeometry::setCamera(int to,bool animate)
 {
     if (to==active_cam) return; //Already using it
 
@@ -2481,11 +2481,13 @@ void AGeometry::setCamera(int to)
     camera[to]->setInputReceiverEnabled(camera[active_cam]->isInputReceiverEnabled());
 
 
-    if (active_viewport==AGeometry::Cam3D)
+    if (active_viewport==AGeometry::Cam3D && animate)
     {
         cameraSwitcher->setTargetCamera(camera[to]);
     }
-
+    else
+      GetSceneManager()->setActiveCamera(camera[to]);
+    
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
 }

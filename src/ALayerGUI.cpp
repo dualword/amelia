@@ -584,6 +584,10 @@ void ALayerGUI::startTour ()
     int selIndex = findChild<QComboBox *> ("tourSelector")->currentIndex ();
 
     tourManager->load (tourManager->tourFiles [selIndex]);
+
+    //Make sure we use the correct camera.
+    geo->setViewport(AGeometry::Cam3D);
+    geo->setCamera(AGeometry::FPS,false);
     tourManager->begin ();
 
 }

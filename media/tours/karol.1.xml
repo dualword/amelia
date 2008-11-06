@@ -33,7 +33,7 @@
 
 			<camera x="0" y="0" z="-50" />
 
-                        <action type="loadfile" data="special-higgs.xml" />
+                        <action type="loadfile" data="amelia:/events/special-higgs.xml" />
 
                 </keyframe>
 

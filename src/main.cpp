@@ -59,10 +59,14 @@ int main(int argc, char **argv)
       home.mkdir(homePath);
       home.mkdir(homePath+"/workspace");
     }
-  pkgPaths.push_back(QApplication::applicationDirPath());
-  pkgPaths.push_back(homePath);
-  pkgPaths.push_back(SHARE_PREFIX);
-  QDir::setSearchPaths("amelia",pkgPaths);
+  
+  QDir::addSearchPath("amelia",QApplication::applicationDirPath());
+  QDir::addSearchPath("amelia",homePath);
+  QDir::addSearchPath("amelia",SHARE_PREFIX);
+  
+  QDir::addSearchPath("event",QApplication::applicationDirPath()+"/media/events");
+  QDir::addSearchPath("event",homePath+"/events");
+  QDir::addSearchPath("event",EVENTS_PREFIX);
  
   ABase window;
   window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));

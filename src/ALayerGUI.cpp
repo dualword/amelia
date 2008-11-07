@@ -537,7 +537,7 @@ void ALayerGUI::show(QWidget *w)
     w->show();
 
     AAnimationGUI *anim=new AAnimationGUI(w);
-    anim->setKeyframe(100,widgetPositions[w->objectName()]);
+    anim->setKeyframe(1000,widgetPositions[w->objectName()]);
     connect(anim,SIGNAL(animationFinished()),
             anim,SLOT(deleteLater()));
     anim->play();

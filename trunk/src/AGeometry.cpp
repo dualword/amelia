@@ -2445,12 +2445,11 @@ void AGeometry::setCamera(int to,bool animate)
     camera[to]->setInputReceiverEnabled(camera[active_cam]->isInputReceiverEnabled());
 
 
-    if (active_viewport==AGeometry::Cam3D && animate)
-    {
+    if (active_viewport==AGeometry::Cam3D)
+      if(animate)
         cameraSwitcher->setTargetCamera(camera[to]);
-    }
-    else
-      GetSceneManager()->setActiveCamera(camera[to]);
+      else
+	GetSceneManager()->setActiveCamera(camera[to]);
     
     active_cam=to;
     renderViewport(AGeometry::Cam3D);

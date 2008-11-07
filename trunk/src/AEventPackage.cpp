@@ -112,7 +112,21 @@ void AEventPackage::save()
   in << "</package>";
   metafile.close();
   
-  QFile logbook(location+"/.logbook");
+    QString homePath=QDir::homePath();
+#ifdef Q_WS_WIN
+  homePath+="/Amelia";
+#else
+  homePath+="/.amelia";
+#endif
+  QDir dir(location);
+  QDir home(homePath+"/workspace/"+dir.dirName());
+  if(!home.exists())
+    {
+      home.cdUp();
+      home.mkdir(dir.dirName());
+    }
+
+  QFile logbook(homePath+"/workspace/"+dir.dirName()+"/.logbook");
   logbook.open(QIODevice::WriteOnly);
   in.setDevice(&logbook);
   in << "<?xml version=\"0.1\"?>" << endl;

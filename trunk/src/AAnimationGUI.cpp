@@ -1,7 +1,7 @@
 #include "AAnimationGUI.h"
 
 #include <QTimerEvent>
-
+#include <QDebug>
 
 AAnimationGUI::AAnimationGUI(QWidget* w)
         : QObject(0)
@@ -13,7 +13,7 @@ AAnimationGUI::AAnimationGUI(QWidget* w)
     if(w) positionInterval[0]=positionInterval[1] = w->pos();
 
     shape = linear;
-	status=AAnimationGUI::NotRunning;
+    status=AAnimationGUI::NotRunning;
 }
 
 AAnimationGUI::~AAnimationGUI()
@@ -51,7 +51,7 @@ void AAnimationGUI::play() // After we set up all the elements of the animation,
   setKeyframe(0,widget->pos());
   time.start();
   startTimer(timeStep);
-	status=AAnimationGUI::Running;
+  status=AAnimationGUI::Running;
 }
 
 void AAnimationGUI::animate()
@@ -134,19 +134,21 @@ void AAnimationGUI::calculateCurrentInterval()
 void AAnimationGUI::timerEvent(QTimerEvent * event)
 {
     //cout <<"numIterations:  "<< numIterations << endl;
+
     if (getCurrentTime() >= duration)
-    {
-      killTimer(event->timerId());
-        widget->move(positionInterval[1]);
-		widget->setAttribute(Qt::WA_Moved);
-        //cout <<"killed:  "<< endl;
-		status=AAnimationGUI::NotRunning;
-        emit animationFinished();
-    }
+      {
+	calculateCurrentInterval();
+	killTimer(event->timerId());
+	widget->move(positionInterval[0]);
+	widget->setAttribute(Qt::WA_Moved);
+	//cout <<"killed:  "<< endl;
+	status=AAnimationGUI::NotRunning;
+	emit animationFinished();
+      }
     else
-    {
+      {
         animate();
-    }
+      }
 
 }
 

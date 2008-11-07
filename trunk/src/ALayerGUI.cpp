@@ -193,7 +193,8 @@ void ALayerGUI::setupElements()
 
     // Setup package list
 
-    mngr=new AEventManager("amelia:workspace");
+    QDir ws("amelia:workspace");
+    mngr=new AEventManager(ws.absolutePath());
     if (packageList)
     {
         packageList->setModel(mngr);

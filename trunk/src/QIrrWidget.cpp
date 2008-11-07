@@ -581,15 +581,18 @@ IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverTy
 #endif
   params.WindowSize.Width = width();
   params.WindowSize.Height = height();
-  params.AntiAlias = false;
+  params.AntiAlias = true;
   params.IgnoreInput = true;
   
   Device = irr::createDeviceEx( params );
   
 #ifdef Q_WS_X11
+  int _x=x(),_y=y();
+
   SExposedVideoData videoData=Device->getVideoDriver()->getExposedVideoData();
   WId window_id=videoData.OpenGLLinux.X11Window;
   create(window_id);
+  move(_x,_y);
 #endif
   
   timerId=startTimer(20);

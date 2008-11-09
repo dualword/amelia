@@ -72,7 +72,7 @@ int main(int argc, char **argv)
   window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
 
   window.addLevel("wikibrowser.ui","Getting Started");
-  window.addLevel("geometry.ui","Enter the ATLAS pit!");
+  window.addLevel("geometry.ui","Enter ATLAS");
   window.addLevel("newsbrowser.ui","The AMELIA Portal!");
   QMetaObject::connectSlotsByName(&window);
 

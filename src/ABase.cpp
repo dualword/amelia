@@ -172,8 +172,17 @@ void ABase::addLevel(QString uicfile,QString description)
 #endif
 
     //Add a thing...
+
+    QFont font;
+    font.setBold( true );
+    font.setPointSize( 24 );
+    font.setStyleHint( QFont::Times );
+    font.setStyleStrategy( QFont::PreferAntialias );
+
+
     QGraphicsSimpleTextItem *descItem=menu.addSimpleText(description);
     descItem->setBrush(QColor("white"));
+    descItem->setFont(font);
     descItem->setPos(QPointF(-descItem->boundingRect().width(),0));
 
     //Rotate it. We're using here a little translation trick
@@ -227,8 +236,8 @@ void ABase::addLevel(QString uicfile,QString description)
         infostruct.descAnimation=new QGraphicsItemAnimation;
         infostruct.descAnimation->setTimeLine(infostruct.descTimer);
         infostruct.descAnimation->setItem(descItem);
-        infostruct.descAnimation->setPosAt(0,QPointF(400,0));
-        infostruct.descAnimation->setPosAt(1,QPointF(-descItem->boundingRect().width(),0));
+        infostruct.descAnimation->setPosAt(0,QPointF(400,100));
+        infostruct.descAnimation->setPosAt(1,QPointF(-descItem->boundingRect().width(),100));
         connect(item,SIGNAL(mouseEnter()),
                 infostruct.descTimer,SLOT(toggleDirection()));
 

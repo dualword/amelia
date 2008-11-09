@@ -44,7 +44,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 int main(int argc, char **argv)
 {
   QApplication    app(argc, argv);
- 
+
   QStringList pkgPaths;
   QString homePath=QDir::homePath();
 #ifdef Q_WS_WIN
@@ -59,23 +59,23 @@ int main(int argc, char **argv)
       home.mkdir(homePath);
       home.mkdir(homePath+"/workspace");
     }
-  
+
   QDir::addSearchPath("amelia",QApplication::applicationDirPath());
   QDir::addSearchPath("amelia",homePath);
   QDir::addSearchPath("amelia",SHARE_PREFIX);
-  
+
   QDir::addSearchPath("event",QApplication::applicationDirPath()+"/media/events");
   QDir::addSearchPath("event",homePath+"/events");
   QDir::addSearchPath("event",EVENTS_PREFIX);
- 
+
   ABase window;
   window.addPixmapUpdateReason("QWebView",SIGNAL(loadProgress(int)));
-  
-  window.addLevel("wikibrowser.ui","Learn how to use AMELIA. The Wiki.");
+
+  window.addLevel("wikibrowser.ui","Getting Started");
   window.addLevel("geometry.ui","Enter the ATLAS pit!");
   window.addLevel("newsbrowser.ui","The AMELIA Portal!");
   QMetaObject::connectSlotsByName(&window);
-  
+
   window.show();
   return app.exec();
 }

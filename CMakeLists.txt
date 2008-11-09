@@ -30,6 +30,7 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES} 
+	     -ljpeg
        )
 ENDIF(UNIX)
 

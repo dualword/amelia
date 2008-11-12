@@ -320,7 +320,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
                 if ( (*iter)->Type == 2 ) //jets
                 {
                     AJet* jet =  static_cast<AJet*>(*iter);
-                    selector = jet->node->Pyramid->getTriangleSelector();
+                    selector = ((AJet3DNode*)jet->node)->Pyramid->getTriangleSelector();
 
                     if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ) )
                     {

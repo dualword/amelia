@@ -84,13 +84,13 @@ float ATrackCombination::calculateInvariantMass()
     float P_sum = 0;
     for (int i = 0; i < tracks.size(); i++)
     {
-        if (tracks[i]->Type == 1)
+      if (tracks[i]->Type == ATrack::eSTrack)
         {
             ASTrack* track = static_cast<ASTrack*>(tracks[i]);
 
             float px = fabs(track->pt) * cos(track->phi);
             float py = fabs(track->pt) * sin(track->phi);
-            float pz = fabs(tracks[i]->pt) * track->node->getTl();
+            float pz = fabs(tracks[i]->pt) * ((ASTrack3DNode*)track->node)->getTl();
             float P = sqrt( (px*px)+(py*py)+(pz*pz));
 
 
@@ -100,13 +100,13 @@ float ATrackCombination::calculateInvariantMass()
             P_sum += P;
         }
 
-        if (tracks[i]->Type == 2)
+        if (tracks[i]->Type == ATrack::eJet)
         {
             AJet* track = static_cast<AJet*>(tracks[i]);
 
             float px = fabs(track->pt) * cos(track->phi);
             float py = fabs(track->pt) * sin(track->phi);
-            float pz = fabs(tracks[i]->pt) * track->node->getTl();
+            float pz = fabs(tracks[i]->pt) * ((AJet3DNode*)track->node)->getTl();
             float P = sqrt( (px*px)+(py*py)+(pz*pz));
 
 

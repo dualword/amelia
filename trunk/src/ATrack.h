@@ -65,7 +65,7 @@ public:
     float maxAngle;
 
     video::SColor trackColor;
-    class ASTrack3DNode* node;
+
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual void select();
     virtual void deselect();
@@ -90,7 +90,7 @@ public:
     float et;
     int numCells;
     jType jtype;
-    class AJet3DNode* node;
+
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual void select();
     virtual void deselect();
@@ -119,7 +119,7 @@ public:
     irr::core::vector3df start;
     irr::core::vector3df end;
     video::SColor trackColor;
-    class AMisET3DNode* node;
+
     virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
     virtual void select();
     virtual void deselect();

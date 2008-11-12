@@ -10,23 +10,23 @@
 class AEventPackage
 {
 public:
-  AEventPackage();
-  ~AEventPackage();
+    AEventPackage();
+    ~AEventPackage();
 
-  void load(const QString&);
-  void save();
+    void load(const QString&);
+    void save();
 
-  void setName(QString);
-  QString name();
+    void setName(QString);
+    QString name();
 
-  int eventCount();
-  AEvent* event(int);
+    int eventCount();
+    AEvent* event(int);
 
 private:
-  QList<AEvent *> events;
+    QList<AEvent *> events;
 
-  QString _name;
-  QString location;
+    QString _name;
+    QString location;
 };
 
 #endif

@@ -30,7 +30,7 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES} 
-	     -ljpeg
+			 -ljpeg
        )
 ENDIF(UNIX)
 
@@ -132,6 +132,10 @@ INSTALL(FILES media/tours/karol.1.xml media/tours/michael.1.xml media/tours/test
   DESTINATION share/amelia/tours)
 INSTALL(FILES media/events/special-higgs.xml
   DESTINATION share/amelia/events)
+
+INSTALL(FILES workspace/special/special-higgs.xml 
+  workspace/special/.metainfo
+  DESTINATION share/amelia/workspace/special)
 
 INSTALL(FILES amelia.desktop
   DESTINATION share/applications)

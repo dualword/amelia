@@ -30,12 +30,11 @@
     </property>
     <property name="url" >
      <url>
-      <string>http://amelia.sf.net/</string>
+      <string>http://amelia.sourceforge.net/</string>
      </url>
     </property>
    </widget>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
   <widget class="QMenuBar" name="menubar" >
    <property name="geometry" >
     <rect>

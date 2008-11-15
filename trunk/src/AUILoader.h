@@ -40,6 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QUiLoader>
 #include <QWidget>
 #include <QTableWidget>
+#include <QtWebKit>
 
 #include "AGeometry.h"
 #include "AViewport.h"

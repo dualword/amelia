@@ -41,6 +41,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ALayerGUI.h"
 
 #include "AAnimationGUI.h"
+#include "AAnimationGUI.h"
 
 #include <config.h>
 
@@ -239,7 +240,7 @@ void ALayerGUI::setupElements()
 
         QString name = b->objectName ();
 
-        cout << name.toAscii ().data() << endl;
+//        cout << name.toAscii ().data() << endl;
 
         if (name == "") continue;
         if (name == "recTourButton" || name == "snapshotTourButton" || name == "playTourButton" || name == "ffTourButton") continue;
@@ -648,7 +649,7 @@ void ALayerGUI::prepareTours ()
     // through a signal to the base app.
     // This will work for the time being
 
-    cout << "preptours called" << endl;
+//    cout << "preptours called" << endl;
 
     QComboBox* combo = parent()->findChild<QComboBox*> ("tourSelector");
 
@@ -694,7 +695,7 @@ void ALayerGUI::prepareTours ()
 void ALayerGUI::fakeCursor (int x, int y)
 {
 
-    cout << "faking " << x << " " << y << endl;
+//    cout << "faking " << x << " " << y << endl;
 
     QMouseEvent *evt = new QMouseEvent (QEvent::MouseButtonPress, QPoint (x, y), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
 
@@ -707,7 +708,7 @@ void ALayerGUI::fakeCursor (int x, int y)
     QCoreApplication::flush ();
     QCoreApplication::processEvents ();
 
-    cout << "done" << endl;
+//    cout << "done" << endl;
 
 
 }

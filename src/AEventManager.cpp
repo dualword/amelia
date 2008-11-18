@@ -144,7 +144,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
             if (index==activeEvent)
                 return Qt::red;
         }
-    case Qt::ToolTipRole:
+    /*case Qt::ToolTipRole:
         if (id!=-1 && index.column()==0)
         {
             AEventPackage pkg=packages[index.internalId()];
@@ -161,7 +161,7 @@ QVariant AEventManager::data(const QModelIndex& index, int role) const
                 "</html>";
 
             return toolTip;
-        }
+        }*/
     }
     /*else if(role==Qt::DecorationRole)
       {

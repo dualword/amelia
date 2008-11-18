@@ -115,6 +115,18 @@ AGeometry::AGeometry(QWidget* parent)
     XmlEvt->Base = this;
 
     rt=0;
+
+
+
+    message = new QLabel( this );
+    message->setText( "<font color=\"red\">MESSAGE</font>"  );
+    QFont font;
+    font.setPointSize ( 20 );
+    message->setFont( font );
+    message->hide();
+
+    //message->setAlignment( AlignBottom | AlignRight );
+
 }
 
 
@@ -704,7 +716,7 @@ void AGeometry::switchVisibility ( int modType )
                 if ( Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" ) )
                 {
                     Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->isVisible() ) );
-                    cout << "Switched Muons" << endl;
+//                    cout << "Switched Muons" << endl;
                 }
                 break;
 
@@ -1503,7 +1515,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90+22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -2298,14 +2310,14 @@ bool AGeometry::OnEvent ( const SEvent& event )
                 line3d<f32> ray = Device->getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(posMouse, Device->getSceneManager()->getActiveCamera());
                 cube->setPosition ( ray.start + ray.getVector().normalize() * 180.0 ); // put it some distance away
                 cube->updateAbsolutePosition();
-                cout << "cube X: " <<  cube->getPosition().X << "  cube Y: " <<  cube->getPosition().Y <<endl;
+/*                cout << "cube X: " <<  cube->getPosition().X << "  cube Y: " <<  cube->getPosition().Y <<endl;
                 cout << "pos2D X: " <<  posMouse.X << "  pos2D Y: " <<  posMouse.Y <<endl;
                 cout << "RayStart X: " <<  ray.start.X << "  RayStart Y: " <<  ray.start.Y <<endl;
                 cout << "RayEnd X: " <<  ray.end.X << "  RayEnd Y: " <<  ray.end.Y <<endl;
                 cout << ""  <<endl;
                 cout << ""  <<endl;
                 cout << ""  <<endl;
-                cout << "Width: " <<  width() << "  Heigth: " <<  height() <<endl;
+                cout << "Width: " <<  width() << "  Heigth: " <<  height() <<endl;*/
             }
         }
     }
@@ -2450,7 +2462,7 @@ void AGeometry::setCamera(int to,bool animate)
         cameraSwitcher->setTargetCamera(camera[to]);
       else
 	GetSceneManager()->setActiveCamera(camera[to]);
-    
+
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
 }
@@ -2498,7 +2510,7 @@ void AGeometry::addCamAnimator (irr::core::array<vector3df> p)
 
     force_target = true;
 
-    cout << "ANIMATOR" << endl;
+//    cout << "ANIMATOR" << endl;
 
 }
 

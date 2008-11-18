@@ -68,7 +68,7 @@ void ATour::loadTour ( IXMLReader* reader )
     if ( wcscmp ( reader->getNodeName(), L"amtour" ) )
     {
 
-        wcout << L"failure: " << reader->getNodeName() << endl;
+//        wcout << L"failure: " << reader->getNodeName() << endl;
         return;
 
     }
@@ -390,7 +390,7 @@ void ATourManager::load ( char* file )
 
   //fs->changeWorkingDirectoryTo ( "media/tours" );
 
-    cout << "loading " /*<< parent->directoryBase*/ << file << endl;
+//    cout << "loading " /*<< parent->directoryBase*/ << file << endl;
 
     tour = new ATour ( fs->createXMLReader ( file ) );
 
@@ -444,7 +444,7 @@ void ATourManager::advanceBlock()
     else
     {
 
-        cout << "stopping" << endl;
+//        cout << "stopping" << endl;
         stop();
         tour_stopped ();
 
@@ -555,7 +555,7 @@ void ATourManager::advanceAction()
     case ATour::AT_BUTTON:
 
     {
-        cout << "button" << endl;
+//        cout << "button" << endl;
         emit tour_button (wstr_to_cstr (v, wcslen (v)));
     }
 
@@ -594,7 +594,7 @@ void ATourManager::advanceAction()
 
     case ATour::AT_TRACKSEL :
 
-        wcout << endl << "TRACKSEL: " << v << endl << endl;
+//        wcout << endl << "TRACKSEL: " << v << endl << endl;
 
         emit tour_tracksel ( wcstol ( v, 0, 10 ) );
 

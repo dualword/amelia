@@ -283,7 +283,7 @@ void AInterestingTrackTableModel::getInterestingTracks()
             if ( goo->pt >= ptMinimum )
             {
 
-                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
+//                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
                 if ( goo->code == 11 || goo->code == -11 ) //electrons
                 {
                     qDebug() << "getInterestingTracks() got an electron";

@@ -6,7 +6,7 @@ AViewport::AViewport(QWidget* parent):QPushButton(parent)
     AGeometry* geo=parent->findChild<AGeometry*>("AGeometry");
     if (geo)
     {
-        cout << "Connect one and all!" << endl;
+//        cout << "Connect one and all!" << endl;
         connect(this,SIGNAL(requestViewportSwitch(int)),geo,SLOT(setViewport(int)));
         connect(this,SIGNAL(requestUpdate(int)),geo,SLOT(renderViewport(int)));
         connect(geo,SIGNAL(viewportSwitched(int,int)),this,SLOT(handleViewportSwitch(int,int)));
@@ -53,7 +53,7 @@ void AViewport::handleViewportUpdate(int cam,QImage newshot)
       painterN.end();
       cachedNormal=QPixmap::fromImage(normal);
 
-      QRect highlightRect=highlightSkin.rect();     
+      QRect highlightRect=highlightSkin.rect();
       highlightRect.moveTo(4,4);
       QImage highlight(QSize(160,111),QImage::Format_ARGB32);
       QPainter painterH(&highlight);
@@ -78,7 +78,7 @@ void AViewport::paintEvent(QPaintEvent* event)
       painter.drawPixmap(cachedHighlighted.rect(),cachedHighlighted);
     else
       painter.drawPixmap(cachedNormal.rect(),cachedNormal);
-    
+
     painter.end();
 }
 

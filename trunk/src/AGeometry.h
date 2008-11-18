@@ -40,6 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "QIrrWidget.h"
 #include <QAction>
+#include <QLabel>
 
 #include "CSceneNodeAnimatorCameraSwitch.h"
 #include "ATrack3DNode.h"
@@ -140,6 +141,7 @@ public:
     ICameraSceneNode *camera[4];
     QAction *actFPS;
     QAction *actSphere;
+    QLabel * message;
 
 public slots:
     void setViewport(int to); //Switches the main screen to the specified camera

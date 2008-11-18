@@ -130,6 +130,7 @@ void ABase::setupViewport()
     background->setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 #endif
     menuWidget.setViewport(viewport);
+    menuWidget.setRenderHint( QPainter::Antialiasing );
 }
 
 void ABase::addLevel(QString uicfile,QString description)

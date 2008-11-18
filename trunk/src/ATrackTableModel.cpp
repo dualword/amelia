@@ -34,7 +34,7 @@ int ATrackTableModel::rowCount(const QModelIndex& root) const
 
 int ATrackTableModel::columnCount(const QModelIndex& root) const
 {
-    return 3;
+    return 2;
 }
 
 QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
@@ -88,8 +88,8 @@ QVariant ATrackTableModel::headerData (int section, Qt::Orientation orientation,
             return "Name";
         case 1:
             return "pT";
-        case 2:
-            return "M(lv)";
+        /*case 2:
+            return "M(lv)";*/
         }
     }
 

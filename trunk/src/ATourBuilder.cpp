@@ -60,12 +60,12 @@ void ATourBuilder::startRecording ( char* filename )
 
 	if ( !wf )
 	{
-		cout << "oops" << endl;
+//		cout << "oops" << endl;
 		return;
 	}
 	else
 	{
-		cout << "yeah!" << endl;
+//		cout << "yeah!" << endl;
 	}
 	writer = fs->createXMLWriter ( wf );
 
@@ -108,7 +108,7 @@ void ATourBuilder::stopRecording()
 	writer->drop();
 	wf->drop();
 
-	cout << "done" << endl;
+//	cout << "done" << endl;
 
 }
 
@@ -218,8 +218,8 @@ void ATourBuilder::markAction ( int type, wchar_t* value )
 		case ATour::AT_PLAYSOUND :
 			atype = L"playsound";
 			break;
-		default : /* NOTREACHED */
-			cout << ( "Error: invalid action type" ) << endl;
+		//default : /* NOTREACHED */
+//			cout << ( "Error: invalid action type" ) << endl;
 
 	}
 
@@ -247,7 +247,7 @@ void ATourBuilder::markCamera()
 void ATourBuilder::markLoadEvent ( wchar_t* path )
 {
 
-        cout << "LOAD EVENT" << endl;
+//        cout << "LOAD EVENT" << endl;
 
 	if ( recording ) markAction ( ATour::AT_LOADFILE, path );
 

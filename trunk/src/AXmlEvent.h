@@ -46,7 +46,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QDomDocument>
 
 
-
 class ATrack;
 class ASTrack;
 class AJet;

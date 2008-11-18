@@ -513,6 +513,9 @@ std::vector <FCALshower> AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
 AEvent AXmlEvent::GetEventFromFile ( QString filename )
 {
+    //Base->message->setText( "<font color=\"red\">LOADING EVENT(S)</font>"  );
+    Base->message->show();
+
     AEvent* e = new AEvent();
 
     QDomDocument doc("metainfo");
@@ -584,6 +587,7 @@ AEvent AXmlEvent::GetEventFromFile ( QString filename )
         e->CaloETMis = v[0];
     }
 
+    Base->message->hide();
     return *e;
 
 }

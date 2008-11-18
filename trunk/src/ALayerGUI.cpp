@@ -39,8 +39,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QMenuBar>
 
 #include "ALayerGUI.h"
-
-#include "AAnimationGUI.h"
 #include "AAnimationGUI.h"
 
 #include <config.h>

@@ -1334,6 +1334,9 @@ void AGeometry::createAtlasGeometry()
                 nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L1 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,180,180,120 );
+
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
                 nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
@@ -1353,6 +1356,8 @@ void AGeometry::createAtlasGeometry()
                 nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L2 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
                 nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
@@ -1371,6 +1376,8 @@ void AGeometry::createAtlasGeometry()
                 nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L3 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
                 nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
@@ -1389,6 +1396,8 @@ void AGeometry::createAtlasGeometry()
                 nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L4 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
+                nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
                 nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);

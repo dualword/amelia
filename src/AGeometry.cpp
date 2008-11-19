@@ -831,6 +831,9 @@ void AGeometry::createAtlasGeometry()
     //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/AtlasGeometry.aml");
     //IFileSystem* fs = Irr->GetDevice()->getFileSystem();
     video::ITexture* reflex = Device->getVideoDriver()->getTexture ( "refmap2.jpg" );
+    Device->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, true);
+    Device->getSceneManager()->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
+
 
     scene::ISceneNode* node = 0;
     scene::ISceneNode* Atlas_Reference = Device->getSceneManager()->addEmptySceneNode();
@@ -883,7 +886,7 @@ void AGeometry::createAtlasGeometry()
         TCB_Reference->setName ( "TCB_Reference" );
 
 
-        scene::IMesh* TC = Device->getSceneManager()->getMesh ( "TC_Barrel01.x" )->getMesh ( 0 );
+        scene::IMesh* TC = Device->getSceneManager()->getMesh ( "TC_Barrel01.x" );
         scene::IMeshSceneNode* nodeModels = NULL;
 
         for ( int a = 0 ; a<64  ; a++ )
@@ -929,7 +932,7 @@ void AGeometry::createAtlasGeometry()
         EMB_Reference->setParent ( EM_Reference );
         EMB_Reference->setName ( "EMCB_Reference" );
 
-        scene::IMesh* EM_Cal_EC = Device->getSceneManager()->getMesh ( "EM_Cal_EC_1.X" )->getMesh ( 0 );
+        scene::IMesh* EM_Cal_EC = Device->getSceneManager()->getMesh ( "EM_Cal_EC_1.X" );
 
         for ( int a = 0 ; a<8 ; a++ )
         {
@@ -939,6 +942,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
             nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
 
             //reflective material
@@ -959,6 +963,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
             nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
 
             //reflective material
@@ -978,7 +983,7 @@ void AGeometry::createAtlasGeometry()
         //Load EM Calorimeter Barrel Module
 
 
-        scene::IMesh* EM_Cal_Barrel = Device->getSceneManager()->getMesh ( "LArg_Barrel.X" )->getMesh ( 0 );
+        scene::IMesh* EM_Cal_Barrel = Device->getSceneManager()->getMesh ( "LArg_Barrel.X" );
 
         for ( int a = 0 ; a<16 ; a++ )
         {
@@ -986,7 +991,8 @@ void AGeometry::createAtlasGeometry()
             nodeModels = Device->getSceneManager()->addMeshSceneNode ( EM_Cal_Barrel );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,200,200,200 );
-            //nodeModels->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            nodeModels->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
             nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
 
             nodeModels->getMaterial ( 2 ).Shininess = 1;
@@ -1012,7 +1018,7 @@ void AGeometry::createAtlasGeometry()
         //Load TC Endcap Module B
 
 
-        scene::IMesh* TC_EC = Device->getSceneManager()->getMesh ( "TC_Endcap01.X" )->getMesh ( 0 );
+        scene::IMesh* TC_EC = Device->getSceneManager()->getMesh ( "TC_Endcap01.X" );
 
         for ( int a = 0 ; a<64 ; a++ )
         {
@@ -1072,7 +1078,7 @@ void AGeometry::createAtlasGeometry()
         //Load HEC Larg Modules A
 
 
-        scene::IMesh* HEC_A = Device->getSceneManager()->getMesh ( "HEC_LArg01.x" )->getMesh ( 0 );
+        scene::IMesh* HEC_A = Device->getSceneManager()->getMesh ( "HEC_LArg01.x" );
 
 
         for ( int a = 0 ; a<32  ; a++ )
@@ -1082,9 +1088,12 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 0 ).SpecularColor.set ( 0,255,255,255 );
+            nodeModels->getMaterial ( 0 ).setTexture ( 1, reflex );
 
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
+            nodeModels->setMaterialFlag ( video::EMF_LIGHTING, true );
+            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_LIGHTING);
 
             //reflective material
             nodeModels->getMaterial ( 1 ).setTexture ( 1, reflex );
@@ -1093,7 +1102,6 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 1 ).SpecularColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,255,255,255 );
-
 
             nodeModels->setRotation ( core::vector3df ( -90 + a*11.25,90,0 ) );
             nodeModels->setParent ( EM_Reference );
@@ -1107,10 +1115,13 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 0 ).SpecularColor.set ( 0,255,255,255 );
-
+            nodeModels->getMaterial ( 0 ).setTexture ( 1, reflex );
 
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
+            nodeModels->setMaterialFlag ( video::EMF_LIGHTING, true );
+            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_LIGHTING);
+
 
             //reflective material
             nodeModels->getMaterial ( 1 ).setTexture ( 1, reflex );
@@ -1131,7 +1142,7 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* HEC_B = Device->getSceneManager()->getMesh ( "HEC_LArg02.x" )->getMesh ( 0 );
+        scene::IMesh* HEC_B = Device->getSceneManager()->getMesh ( "HEC_LArg02.x" );
 
         for ( int a = 0 ; a<32  ; a++ )
         {
@@ -1141,10 +1152,12 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 0 ).SpecularColor.set ( 0,255,255,255 );
-
+            nodeModels->getMaterial ( 0 ).setTexture ( 1, reflex );
 
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
+            nodeModels->setMaterialFlag ( video::EMF_LIGHTING, true );
+            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_LIGHTING);
 
             //reflective material
             nodeModels->getMaterial ( 1 ).setTexture ( 1, reflex );
@@ -1166,10 +1179,13 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
             nodeModels->getMaterial ( 0 ).SpecularColor.set ( 0,255,255,255 );
-
+            nodeModels->getMaterial ( 0 ).setTexture ( 1, reflex );
 
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+            nodeModels->setMaterialFlag ( video::EMF_ANISOTROPIC_FILTER, true );
+            nodeModels->setMaterialFlag ( video::EMF_LIGHTING, true );
+            nodeModels->setMaterialType ( video::EMT_LIGHTMAP_LIGHTING);
+
 
             //reflective material
             nodeModels->getMaterial ( 1 ).setTexture ( 1, reflex );
@@ -1201,7 +1217,7 @@ void AGeometry::createAtlasGeometry()
         TRTB_Reference->setName ( "TRTB_Reference" );
 
 
-        scene::IMesh* TRT_B = Device->getSceneManager()->getMesh ( "TRT_Barrel.x" )->getMesh ( 0 );
+        scene::IMesh* TRT_B = Device->getSceneManager()->getMesh ( "TRT_Barrel.x" );
 
 
         for ( int a = 0 ; a<32  ; a++ )
@@ -1265,7 +1281,7 @@ void AGeometry::createAtlasGeometry()
         Magnets_Reference->setName ( "Magnets_Reference" );
 
 
-        scene::IMesh* Toroid = Device->getSceneManager()->getMesh ( "Toroid.X" )->getMesh ( 0 );
+        scene::IMesh* Toroid = Device->getSceneManager()->getMesh ( "Toroid.X" );
 
 
         for ( int a = 0 ; a<8 ; a++ )
@@ -1302,10 +1318,10 @@ void AGeometry::createAtlasGeometry()
         SCTB_Reference->setName ( "SCTB_Reference" );
 
 
-        scene::IMesh* SCT_L1 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L1.X" )->getMesh ( 0 );
-        scene::IMesh* SCT_L2 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L2.X" )->getMesh ( 0 );
-        scene::IMesh* SCT_L3 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L3.X" )->getMesh ( 0 );
-        scene::IMesh* SCT_L4 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L4.X" )->getMesh ( 0 );
+        scene::IMesh* SCT_L1 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L1.X" );
+        scene::IMesh* SCT_L2 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L2.X" );
+        scene::IMesh* SCT_L3 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L3.X" );
+        scene::IMesh* SCT_L4 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L4.X" );
         float MDistance = 12;
 
         for ( int d = 0; d<12; d++ ) //The 12 rings per layer of the SCT barrel
@@ -1319,7 +1335,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-5.5 ) *MDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9 ) );
@@ -1338,7 +1354,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-5.5 ) *MDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9 ) );
@@ -1356,7 +1372,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-5.5 ) *MDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9 ) );
@@ -1374,7 +1390,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-5.5 ) *MDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9 ) );
@@ -1389,7 +1405,7 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* SCT_Disks = Device->getSceneManager()->getMesh ( "SCT_Disks.X" )->getMesh ( 0 );
+        scene::IMesh* SCT_Disks = Device->getSceneManager()->getMesh ( "SCT_Disks.X" );
         float DivAng = 360.0f/13.0f;
 
         for ( int a = 0 ; a<13 ; a++ )
@@ -1424,7 +1440,7 @@ void AGeometry::createAtlasGeometry()
         PixelsB_Reference->setName ( "PixelsB_Reference" );
 
 
-        scene::IMesh* TubeSection = Device->getSceneManager()->getMesh ( "TubeSection.X" )->getMesh ( 0 );
+        scene::IMesh* TubeSection = Device->getSceneManager()->getMesh ( "TubeSection.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
@@ -1462,7 +1478,7 @@ void AGeometry::createAtlasGeometry()
         /** Carbon Fiber Rings */
 
 
-        scene::IMesh* RingsTubeInt = Device->getSceneManager()->getMesh ( "RingsPixelsTube.X" )->getMesh ( 0 );
+        scene::IMesh* RingsTubeInt = Device->getSceneManager()->getMesh ( "RingsPixelsTube.X" );
 
         for ( int a = 0 ; a<3 ; a++ )
         {
@@ -1483,7 +1499,7 @@ void AGeometry::createAtlasGeometry()
         /** Metalic Rings */
 
 
-        scene::IMesh* MRingsTube = Device->getSceneManager()->getMesh ( "MRingsPixTube.X" )->getMesh ( 0 );
+        scene::IMesh* MRingsTube = Device->getSceneManager()->getMesh ( "MRingsPixTube.X" );
 
         for ( int a = 0 ; a<2 ; a++ )
         {
@@ -1506,7 +1522,7 @@ void AGeometry::createAtlasGeometry()
         /** Part I */
 
 
-        scene::IMesh* PixFrm01 = Device->getSceneManager()->getMesh ( "Pixels_Frame_Barrel.X" )->getMesh ( 0 );
+        scene::IMesh* PixFrm01 = Device->getSceneManager()->getMesh ( "Pixels_Frame_Barrel.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
@@ -1528,7 +1544,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,90 ,0 + a*90-22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1541,7 +1557,7 @@ void AGeometry::createAtlasGeometry()
         //Load Pixels Frame EC
 
 
-        scene::IMesh* PixFrm02 = Device->getSceneManager()->getMesh ( "Pixels_Frame_EC.X" )->getMesh ( 0 );
+        scene::IMesh* PixFrm02 = Device->getSceneManager()->getMesh ( "Pixels_Frame_EC.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
@@ -1552,7 +1568,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( 1,1,1 ) );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90-22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1566,7 +1582,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( 1,-1,1 ) );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90+22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1580,7 +1596,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( -1,1,1 ) );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90-22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1594,7 +1610,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( -1,-1,1 ) );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90+22.5 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1610,16 +1626,16 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* Px_L1 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L2 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L3 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L1b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1b.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L2b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2b.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L3b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3b.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L1C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1_Center.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L2C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2_Center.X" )->getMesh ( 0 );
-        scene::IMesh* Px_L3C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3_Center.X" )->getMesh ( 0 );
-        scene::IMesh* Px_Ref = Device->getSceneManager()->getMesh ( "Pixel_Barrel_Reference.X" )->getMesh ( 0 );
+        scene::IMesh* Px_L1 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1.X" );
+        scene::IMesh* Px_L2 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2.X" );
+        scene::IMesh* Px_L3 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3.X" );
+        scene::IMesh* Px_L1b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1b.X" );
+        scene::IMesh* Px_L2b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2b.X" );
+        scene::IMesh* Px_L3b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3b.X" );
+        scene::IMesh* Px_L1C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1_Center.X" );
+        scene::IMesh* Px_L2C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2_Center.X" );
+        scene::IMesh* Px_L3C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3_Center.X" );
+        scene::IMesh* Px_Ref = Device->getSceneManager()->getMesh ( "Pixel_Barrel_Reference.X" );
         float MPDistance = 6;
 
         /** Center */
@@ -1632,7 +1648,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*16.3636 ) );
             nodeModels->setParent ( PixelsB_Reference );
@@ -1648,7 +1664,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9.4737 ) );
             nodeModels->setParent ( PixelsB_Reference );
@@ -1664,7 +1680,7 @@ void AGeometry::createAtlasGeometry()
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+            nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
             //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*6.923077 ) );
             nodeModels->setParent ( PixelsB_Reference );
@@ -1686,7 +1702,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-6 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*16.3636 ) );
@@ -1700,7 +1716,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d+1 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*16.3636 ) );
@@ -1722,7 +1738,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-6 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9.4737 ) );
@@ -1736,7 +1752,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d+1 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*9.4737 ) );
@@ -1756,7 +1772,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d-6 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*6.923077 ) );
@@ -1770,7 +1786,7 @@ void AGeometry::createAtlasGeometry()
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
                 nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
+                nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 //nodeModels->setMaterialFlag(video::EMF_BACK_FACE_CULLING, false);
                 nodeModels->setPosition ( core::vector3df ( 0,0, ( d+1 ) *MPDistance ) );
                 nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*6.923077 ) );
@@ -1784,16 +1800,20 @@ void AGeometry::createAtlasGeometry()
         //Load Pixels Disks
 
 
-        scene::IMesh* Px_Dsks = Device->getSceneManager()->getMesh ( "Pixel_Disks.X" )->getMesh ( 0 );
+        scene::IMesh* Px_Dsks = Device->getSceneManager()->getMesh ( "Pixel_Disks.X" );
 
         nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_Dsks );
-        nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
-        nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
-        nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,222,222,222 );
-        //nodeModels->getMaterial(2).EmissiveColor.set(0,122,122,122);
-        //nodeModels->setMaterialFlag(video::EMF_LIGHTING, false);
-        nodeModels->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL_REF );
-        nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false ); //double sided mesh
+        video::SMaterial &mat0 = nodeModels->getMaterial(0);
+        video::SMaterial &mat1 = nodeModels->getMaterial(1);
+        mat1.DiffuseColor.set ( 222,222,222,222 );
+        mat0.DiffuseColor.set ( 222,222,222,222 );
+        mat0.EmissiveColor.set ( 222,222,222,222 );
+        mat1.EmissiveColor.set ( 222,222,222,222 );
+        nodeModels->setMaterialFlag(video::EMF_LIGHTING, true);
+		nodeModels->setMaterialType(video::EMT_TRANSPARENT_ALPHA_CHANNEL );
+        nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, true ); //double sided mesh
+        mat0.ZWriteEnable = true;
+        mat1.ZWriteEnable = true;
         nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 ) );
         nodeModels->setParent ( Pixels_Reference );
         nodeModels->setName ( "Pixels_Disks" );
@@ -1808,7 +1828,7 @@ void AGeometry::createAtlasGeometry()
         Shields_Reference->setName ( "Shields_Reference" );
 
         //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/JT.pk3");
-        scene::IMesh* jt_shd = Device->getSceneManager()->getMesh ( "JT.X" )->getMesh ( 0 );
+        scene::IMesh* jt_shd = Device->getSceneManager()->getMesh ( "JT.X" );
 
         nodeModels = Device->getSceneManager()->addMeshSceneNode ( jt_shd );
         nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
@@ -1826,7 +1846,7 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS BigWheels
 
-        scene::IMesh* bw = Device->getSceneManager()->getMesh ( "ATLAS_BigWheels.obj" )->getMesh ( 0 );
+        scene::IMesh* bw = Device->getSceneManager()->getMesh ( "ATLAS_BigWheels.obj" );
 
         Device->getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( bw, 0.0003f );
 
@@ -1843,7 +1863,7 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS EWC
 
-        scene::IMesh* ewc = Device->getSceneManager()->getMesh ( "ATLAS_EWC.obj" )->getMesh ( 0 );
+        scene::IMesh* ewc = Device->getSceneManager()->getMesh ( "ATLAS_EWC.obj" );
 
         Device->getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( ewc, 0.0003f );
 

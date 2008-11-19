@@ -726,7 +726,7 @@ void ALayerGUI::about()
     QLabel *text = new QLabel;
     text->setWordWrap(true);
     text->setText(
-        "<p><font color=red><b>AMELIA</font><br>ATLAS Multimedia Educational Lab for Interactive Analysis</b></p>"
+        "<p><font color=red><b>AMELIA</b></font><br><b>ATLAS Multimedia Educational Lab for Interactive Analysis</b><br>v0.1 - Alpha rev260</p>"
         " <p>Released as open-source software under the BSD license."
         " For more information, please read license.txt</p>"
 

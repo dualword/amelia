@@ -395,15 +395,13 @@ void AGeometry::renderViewport(int view)
     Device->getVideoDriver()->setRenderTarget(rt, true, true, color);
     Device->getVideoDriver()->beginScene(true,true,color);
     Device->getSceneManager()->drawAll();
+
+    setupView(active_viewport);
+    Device->getVideoDriver()->setRenderTarget(0);
     Device->getSceneManager()->setActiveCamera (originalCamera);
     originalCamera->drop();
-    setupView(active_viewport);
 
-    Device->getVideoDriver()->setRenderTarget(0);
-    Device->getSceneManager()->drawAll();
-    Device->getVideoDriver()->endScene();
-
-    uchar* tmpdata=(uchar*)rt->lock ();
+    uchar* tmpdata=(uchar*)rt->lock (true);
 
     dimension2d<s32> size=rt->getSize();
     image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));

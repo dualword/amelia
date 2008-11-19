@@ -323,7 +323,7 @@ void ASTrack3DNode::createBoxesNeutral()
         core::vector3df pos = vect*i + ( vect ) /2 + this->start;
 
         scene::ISceneNode* nodeBox = 0;
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube->getMesh ( 0 ) );
+        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
         nodeBox->setPosition ( pos );
         nodeBox->setRotation ( rot );
         nodeBox->setScale ( scale );
@@ -512,7 +512,7 @@ void ASTrack3DNode::createBoxesCharged()
         scene::ISceneNode* nodeBox = 0;
         //nodeBox = SceneManager->addCubeSceneNode(1.0f, 0, -1, pos, rot, scale );
 
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube->getMesh ( 0 ) );
+        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
         nodeBox->setPosition ( pos );
         nodeBox->setRotation ( rot );
         nodeBox->setScale ( scale );
@@ -707,7 +707,7 @@ void AJet3DNode::createJetPyramids()
 
         scene::IAnimatedMesh* pyramid = Base->GetSceneManager()->getMesh ( "jet.X" );
         scene::ISceneNode* nodeBox = 0;
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( pyramid->getMesh ( 0 ) );
+        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( pyramid );
         nodeBox->setPosition ( zero );
         nodeBox->setRotation ( rot );
         nodeBox->updateAbsolutePosition();
@@ -716,7 +716,7 @@ void AJet3DNode::createJetPyramids()
         nodeBox->setID ( 18 );
 
         scene::ITriangleSelector* selector = 0;
-        selector = Base->GetSceneManager()->createOctTreeTriangleSelector ( pyramid->getMesh ( 0 ), nodeBox, 128 );
+        selector = Base->GetSceneManager()->createOctTreeTriangleSelector ( pyramid, nodeBox, 128 );
         nodeBox->setTriangleSelector ( selector );
         selector->drop();
 
@@ -896,7 +896,7 @@ void AMisET3DNode::createMisEtBoxes() //for Missing Et
 
     scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
     scene::ISceneNode* nodeBox = 0;
-    nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube->getMesh ( 0 ) );
+    nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
     nodeBox->setPosition ( end/2 );
     nodeBox->setRotation ( rot );
     nodeBox->setScale ( scale );

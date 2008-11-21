@@ -235,7 +235,7 @@ void AGeometry::load()
     camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
     camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
     //camera[3]->addAnimator(new CSceneNodeAnimatorCameraOrbit(core::vector3df(0,0,1)));
-    camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere(Device->getCursorControl()));
+    camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
 
     camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
     camera[0]->setInputReceiverEnabled ( false );
@@ -2263,7 +2263,7 @@ ATrack* AGeometry::deselectTrackByID (int ID)
 
 void AGeometry::grabControl()
 {
-    if ( active_viewport == AGeometry::Cam3D )
+  if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)
     {
         Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( true );
         setCursor( QCursor( Qt::BlankCursor ) );
@@ -2274,7 +2274,7 @@ void AGeometry::grabControl()
 
 void AGeometry::releaseControl()
 {
-    if ( active_viewport == AGeometry::Cam3D )
+  if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)
     {
         Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
         setCursor( QCursor( Qt::ArrowCursor ) );
@@ -2479,10 +2479,11 @@ void AGeometry::setCamera(int to,bool animate)
         actFPS->setChecked(false);
         actSphere->setChecked(true);
         sliceMode=true;
+	camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
         break;
     }
-    camera[to]->setInputReceiverEnabled(camera[active_cam]->isInputReceiverEnabled());
-
+    camera[AGeometry::FPS]->setInputReceiverEnabled(false);
+    setCursor(Qt::ArrowCursor);
 
     if (active_viewport==AGeometry::Cam3D)
       if(animate)

@@ -16,7 +16,7 @@ namespace irr
     public:
 
       //! constructor
-      CSceneNodeAnimatorCameraSphere(gui::ICursorControl* _cursorControl,f32 moveSpeed=0.01,f32 zoomSpeed=10,f32 maxZoom=1);
+      CSceneNodeAnimatorCameraSphere(f32 moveSpeed=0.01,f32 zoomSpeed=10,f32 maxZoom=1);
 
       //! destructor
       virtual ~CSceneNodeAnimatorCameraSphere();
@@ -40,13 +40,12 @@ namespace irr
       f32 zoomSpeed;
       f32 moveSpeed;
       f32 queueZoom;
-	  f32 maxZoom;
-
-	  bool toggleMouse;
-	  core::position2df cursorPos;
-	  core::position2df cursorCenter;
-
-	  gui::ICursorControl* cursorControl;
+      f32 maxZoom;
+      
+      bool toggleMouse;
+      core::position2di cursorPos;
+      core::position2di cursorCenter;
+      
       f32 KeyControl[4];
       u32 lastUpdate;
     };

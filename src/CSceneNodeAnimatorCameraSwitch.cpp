@@ -60,7 +60,6 @@ void CSceneNodeAnimatorCameraSwitch::animateNode(scene::ISceneNode* node, u32 ti
       //We need to make sure the active cammera was not switched in the meantime...
       if(smgr->getActiveCamera()==movingCam)
 	{
-	  targetCam->setInputReceiverEnabled(enabledReceiver);
 	  smgr->setActiveCamera(targetCam);
 	}
       movingCam->setInputReceiverEnabled(false);
@@ -79,8 +78,7 @@ bool CSceneNodeAnimatorCameraSwitch::OnEvent(const SEvent& event)
 
 void CSceneNodeAnimatorCameraSwitch::setTargetCamera(scene::ICameraSceneNode *target)
 {
-  //Copy receiver states
-  enabledReceiver=smgr->getActiveCamera()->isInputReceiverEnabled();
+  //Disable the input reciever of the last camera
   smgr->getActiveCamera()->setInputReceiverEnabled(false);
 
 
@@ -95,8 +93,6 @@ void CSceneNodeAnimatorCameraSwitch::setTargetCamera(scene::ICameraSceneNode *ta
       movingCam->setPosition(smgr->getActiveCamera()->getPosition());
       movingCam->setTarget(smgr->getActiveCamera()->getTarget());
     }
-
-  movingCam->setInputReceiverEnabled(enabledReceiver);
 
   targetCam=target;
   core::vector3df t=target->getPosition();

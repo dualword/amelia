@@ -57,7 +57,6 @@ int main(int argc, char **argv)
   if(!home.exists())
     {
       home.mkdir(homePath);
-      home.mkdir(homePath+"/workspace");
     }
 
   QDir::addSearchPath("amelia",QApplication::applicationDirPath());

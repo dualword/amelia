@@ -269,6 +269,8 @@ void ALayerGUI::setupElements()
                 this, SLOT(handleEventTagChange(bool)));
         connect(actionTagHiggsBoson,SIGNAL(toggled(bool)),
                 this, SLOT(handleEventTagChange(bool)));
+		connect(this,SIGNAL(eventUnloaded()),
+				geo,SLOT(clearTrackSelection()));
     }
 
     selectedEventInfo=new AEventInfoScene;
@@ -390,8 +392,8 @@ bool ALayerGUI::loadEvent(QString fileName)
 
         if (geo->XmlEvt->EventComplete.Tracks.size()>0)
         {
+			emit eventUnloaded();
             geo->XmlEvt->UnloadEvent();
-            emit eventUnloaded();
         }
 
         geo->XmlEvt->LoadEvent(fileName);

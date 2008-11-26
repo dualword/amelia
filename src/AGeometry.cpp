@@ -2261,6 +2261,16 @@ ATrack* AGeometry::deselectTrackByID (int ID)
     return NULL;
 }
 
+void AGeometry::clearTrackSelection()
+{
+	ATrack* tr;
+    while(selectedTracks.size()>0)
+	{
+		tr=selectedTracks[0]->getTrack();
+        deselectTrackByID(tr->trackID);
+	}
+}
+
 void AGeometry::grabControl()
 {
   if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)

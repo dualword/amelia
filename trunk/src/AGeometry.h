@@ -134,7 +134,6 @@ public:
 
     //Stuff from ABase
     AXmlEvent* XmlEvt;
-    QList<ATrack3DNode*> selectedTracks;
 
     char* directoryBase;
 
@@ -166,6 +165,7 @@ public slots:
 
     ATrack* selectTrackByID ( int ID ,bool multitrack=false);
     ATrack* deselectTrackByID ( int ID );
+	void clearTrackSelection();
 
     //Functions to grab and release control of the camera
     void grabControl();
@@ -192,6 +192,7 @@ protected:
 
 
 private:
+	QList<ATrack3DNode*> selectedTracks;
 
     void switchVisibility(int modType); //Switches the visibility of the different components of the detector
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering

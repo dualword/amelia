@@ -47,13 +47,12 @@ public:
     void addPixmapUpdateReason(QString,const char *);
 
 public slots:
-    void on_GeoButton_clicked();
     void on_MenuButton_clicked();
-    void on_BackButton_clicked();
-    void on_CompizButton_clicked();
-    void on_QuitButton_clicked();
+    void on_AnalyzeButton_clicked();
+    void on_MenuButton2_clicked();
+    void on_AnalyzeButton2_clicked();
     void on_MenuButton_activated();
-    void on_BackButton_activated();
+    void on_actionGetting_Started_activated();
     void on_QuitButton_activated();
 
     void addLevel( QString level ,QString description="");

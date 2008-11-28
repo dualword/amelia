@@ -146,7 +146,6 @@ void ASTrack3DNode::setTrackStyle ( int style )
             for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
             {
                 ( *it )->setVisible ( true );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "transparent.png" ) );
                 ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 ( *it )->setDebugDataVisible ( EDS_OFF );
             }
@@ -165,7 +164,6 @@ void ASTrack3DNode::setTrackStyle ( int style )
             for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
             {
                 ( *it )->setVisible ( true );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "transparent.png" ) );
                 ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
                 ( *it )->setDebugDataVisible ( EDS_BBOX );
             }
@@ -206,7 +204,6 @@ void ASTrack3DNode::setTrackStyle ( int style )
                 ( *it )->setVisible ( true );
                 ( *it )->setDebugDataVisible ( EDS_OFF );
                 ( *it )->setMaterialType ( video::EMT_SOLID );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
                 video::SMaterial* m = & ( *it )->getMaterial ( 0 );
                 m->EmissiveColor = video::SColor ( 0,122,122,122 );
             }

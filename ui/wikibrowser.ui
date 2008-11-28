@@ -40,6 +40,32 @@
      </url>
     </property>
    </widget>
+   <widget class="QWidget" name="" >
+    <property name="geometry" >
+     <rect>
+      <x>930</x>
+      <y>10</y>
+      <width>82</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout" >
+     <item>
+      <widget class="QPushButton" name="MenuButton" >
+       <property name="text" >
+        <string>Main Menu</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="AnalyzeButton" >
+       <property name="text" >
+        <string>Analyze</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar" >
    <property name="geometry" >

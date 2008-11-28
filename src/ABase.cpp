@@ -466,29 +466,24 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-void ABase::on_GeoButton_clicked()
+void ABase::on_MenuButton_clicked()
+{
+    changeToMenu();
+}
+
+void ABase::on_AnalyzeButton_clicked()
 {
     changeToLevel("geometry.ui");
 }
 
-void ABase::on_CompizButton_clicked()
+void ABase::on_MenuButton2_clicked()
 {
-    changeToLevel("compiz.ui");
+    changeToMenu();
 }
 
-void ABase::on_MenuButton_clicked()
+void ABase::on_AnalyzeButton2_clicked()
 {
-    changeToLevel("wikibrowser.ui");
-}
-
-void ABase::on_BackButton_clicked()
-{
-    changeToLevel("wikibrowser.ui");
-}
-
-void ABase::on_QuitButton_clicked()
-{
-    close();
+    changeToLevel("geometry.ui");
 }
 
 void ABase::on_MenuButton_activated()
@@ -496,7 +491,7 @@ void ABase::on_MenuButton_activated()
     changeToMenu();
 }
 
-void ABase::on_BackButton_activated()
+void ABase::on_actionGetting_Started_activated()
 {
     changeToLevel("wikibrowser.ui");
 }

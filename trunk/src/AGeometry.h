@@ -130,8 +130,6 @@ public:
 
     scene::ISceneNode* selectedTrackBox;
 
-    bool OnEvent ( const SEvent& event );
-
     //Stuff from ABase
     AXmlEvent* XmlEvt;
 
@@ -182,6 +180,10 @@ signals:
 
 protected:
 
+    void resizeEvent( QResizeEvent* event );
+    void mousePressEvent( QMouseEvent *event );
+    void keyPressEvent( QKeyEvent* event );
+      
     module thisModule;
     core::vector3df pos;
     core::vector3df rot;

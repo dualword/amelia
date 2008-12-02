@@ -653,13 +653,11 @@ void ALayerGUI::prepareTours ()
 
     QComboBox* combo = parent()->findChild<QComboBox*> ("tourSelector");
 
-    IrrlichtDevice *dev = geo->GetDevice ();
+    tourManager = new ATourManager (geo->getFileSystem (), geo->getTimer ());
+    tourBuilder = new ATourBuilder (geo->getFileSystem (), geo->camera [0]);
 
-    tourManager = new ATourManager (dev->getFileSystem (), dev->getTimer ());
-    tourBuilder = new ATourBuilder (dev->getFileSystem (), geo->camera [0]);
-
-    dev->getFileSystem()->addFolderFileArchive ( dev->getFileSystem()->getWorkingDirectory() );
-    if (dev->getFileSystem()->existFile("media/tours"))
+    geo->getFileSystem()->addFolderFileArchive ( geo->getFileSystem()->getWorkingDirectory() );
+    if (geo->getFileSystem()->existFile("media/tours"))
         tourManager->listTours ("media/tours");
     else
         tourManager->listTours (TOURS_PREFIX);

@@ -35,7 +35,7 @@ public:
     std::string name;
     int q;
     float pt;
-    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID ) {}
+    virtual void createTrackStructure( scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID ) {}
     virtual void select(){}
     virtual void deselect(){}
 
@@ -66,7 +66,7 @@ public:
 
     video::SColor trackColor;
 
-    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void createTrackStructure( scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID );
     virtual void select();
     virtual void deselect();
 
@@ -91,7 +91,7 @@ public:
     int numCells;
     jType jtype;
 
-    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void createTrackStructure( scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID );
     virtual void select();
     virtual void deselect();
 };
@@ -120,7 +120,7 @@ public:
     irr::core::vector3df end;
     video::SColor trackColor;
 
-    virtual void createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    virtual void createTrackStructure( scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID );
     virtual void select();
     virtual void deselect();
 };

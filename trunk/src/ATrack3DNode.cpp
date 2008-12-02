@@ -51,11 +51,10 @@ const float scaleEvent = 0.05; // Adjustment scaling factor
 
 //First, let's define the methods of the parent class for 3D nodes in tracks
 
-ATrack3DNode::ATrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
-        : scene::ISceneNode ( parent, base->GetSceneManager(), id )
+ATrack3DNode::ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ATrack *_track )
+  : scene::ISceneNode ( parent, smgr, id),style(1),trackPointer(_track)
 {
-    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
-    Base = base;
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "Track3DNode" );
 }
 
@@ -65,16 +64,43 @@ ATrack3DNode::~ATrack3DNode()
     boxSizeAnim->drop();
 }
 
+void ATrack3DNode::setTrack ( ATrack* track )
+{
+  trackPointer=track;
+}
+
+ATrack* ATrack3DNode::getTrack()
+{
+    return this->trackPointer;
+}
 
 // Then the children classes, for each type of ATrack
 
 
-ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
-        : ATrack3DNode ( parent, base, id )
+ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ASTrack* track)
+  : ATrack3DNode ( parent, smgr, id ,track)
 {
-    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
-    Base = base;
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "Track3DNode" );
+
+    calculateDimmedColors();
+ 
+    if ( track->q == 0 )
+      {
+	std::vector<core::vector3df> StartEndNeutral = getNeutralPath();
+        start = StartEndNeutral.front();
+        end = StartEndNeutral.back();
+        curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
+        createBoxesNeutral();
+      }
+    else
+      {
+        maxAngle = getChargedMaxAngle();
+        createCurveVector();
+        createBoxesCharged();
+      }
+
+    boxMode=false;
 }
 
 
@@ -83,150 +109,129 @@ ASTrack3DNode::~ASTrack3DNode()
     boxSizeAnim->drop();
 }
 
+void ASTrack3DNode::setTrack ( ASTrack* track )
+{
+  ATrack3DNode::setTrack(track);
+}
+
 int ASTrack3DNode::getTrackNumber()
 {
     return this->trackNumber;
 }
 
-void ASTrack3DNode::setTrack ( ASTrack* track )
-{
-    this->trackPointer = track;
-}
-
-ATrack* ASTrack3DNode::getTrack()
-{
-    return this->trackPointer;
-}
-
-
-ATrack* ASTrack3DNode::getTrackById ( int id )
-{
-    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
-    {
-        if ( (*iter)->trackID == trackID )
-        {
-            return *iter;
-            break;
-        }
-    }
-}
-
 void ASTrack3DNode::setTrackStyle ( int style )
 {
+  if ( getTrack()->Type != ATrack::eSTrack ) return; //if it's a particle track
 
-    if ( trackPointer->Type == 1 ) //if it's a particle track
+  //simple line track, no boxes
+  if ( style == 0 )
     {
-        //simple line track, no boxes
-        if ( style == 0 )
-        {
-            if ( boxMode )
-            {
-                for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-                {
-                    Base->GetSceneManager()->addToDeletionQueue ( *it ); //smoother
-                    //(*it)->remove(); //faster
-                }
-                boxSegments.clear();
-            }
-            this->color = this->vividColor;
-
-            this->boxMode = false;
-        }
-
-        //simple line visible in vivid color, boxes present for selection but invisible
-        if ( style == 1 )
-        {
-            if ( !boxMode )
-            {
-                createBoxes();
-            }
-            this->isLineVisible = true;
-            this->boxMode = true;
-            this->color = this->vividColor;
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "transparent.png" ) );
-                ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
-                ( *it )->setDebugDataVisible ( EDS_OFF );
-            }
-        }
-
-        //simple line visible, bounding boxes visible
-        if ( style == 2 )
-        {
-            if ( !boxMode )
-            {
-                createBoxes();
-            }
-            this->isLineVisible = true;
-            this->boxMode = true;
-            this->color = this->vividColor;
-            for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "transparent.png" ) );
-                ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
-                ( *it )->setDebugDataVisible ( EDS_BBOX );
-            }
-        }
-
-        //simple line invisible, boxes visible with original color
-        if ( style == 3 )
-        {
-            if ( !boxMode )
-            {
-                createBoxes();
-            }
-            isLineVisible = false;
-            boxMode = true;
-            for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-                ( *it )->setDebugDataVisible ( EDS_OFF );
-                ( *it )->setMaterialType ( video::EMT_SOLID );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
-                //(*it)->getMaterial(0).EmissiveColor.set(this->color);
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = vividColor ;
-            }
-        }
-
-        //simple line invisible, boxes visible in grey
-        if ( style == 4 )
-        {
-            if ( !boxMode )
-            {
-                createBoxes();
-            }
-            isLineVisible = false;
-            boxMode = true;
-            for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-            {
-                ( *it )->setVisible ( true );
-                ( *it )->setDebugDataVisible ( EDS_OFF );
-                ( *it )->setMaterialType ( video::EMT_SOLID );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
-                video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-                m->EmissiveColor = video::SColor ( 0,122,122,122 );
-            }
-        }
-
-        //simple line invisible, boxes invisible if present
-        if ( style == 5 )
-        {
-            isLineVisible = false;
-            if ( boxMode )
-            {
-                for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-                {
-                    ( *it )->setVisible ( false );
-                }
-            }
-
-        }
-    }// end of track styles
-
+      if ( boxMode )
+	{
+	  for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+	    {
+	      SceneManager->addToDeletionQueue ( *it ); //smoother
+	      //(*it)->remove(); //faster
+	    }
+	  boxSegments.clear();
+	}
+      this->color = this->vividColor;
+      
+      this->boxMode = false;
+    }
+  
+  //simple line visible in vivid color, boxes present for selection but invisible
+  if ( style == 1 )
+    {
+      if ( !boxMode )
+	{
+	  createBoxes();
+	}
+      this->isLineVisible = true;
+      this->boxMode = true;
+      this->color = this->vividColor;
+      for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+	{
+	  ( *it )->setVisible ( true );
+	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "transparent.png" ) );
+	  ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
+	  ( *it )->setDebugDataVisible ( EDS_OFF );
+	  }
+    }
+  
+  //simple line visible, bounding boxes visible
+  if ( style == 2 )
+    {
+      if ( !boxMode )
+	{
+	  createBoxes();
+	}
+      this->isLineVisible = true;
+      this->boxMode = true;
+      this->color = this->vividColor;
+      for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
+	{
+	  ( *it )->setVisible ( true );
+	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "transparent.png" ) );
+	  ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
+	  ( *it )->setDebugDataVisible ( EDS_BBOX );
+	}
+    }
+  
+  //simple line invisible, boxes visible with original color
+  if ( style == 3 )
+    {
+      if ( !boxMode )
+	{
+	  createBoxes();
+	}
+      isLineVisible = false;
+      boxMode = true;
+      for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
+	{
+	  ( *it )->setVisible ( true );
+	  ( *it )->setDebugDataVisible ( EDS_OFF );
+	  ( *it )->setMaterialType ( video::EMT_SOLID );
+	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
+	  //(*it)->getMaterial(0).EmissiveColor.set(this->color);
+	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+	  m->EmissiveColor = vividColor ;
+	}
+    }
+  
+  //simple line invisible, boxes visible in grey
+  if ( style == 4 )
+    {
+      if ( !boxMode )
+	{
+	  createBoxes();
+	}
+      isLineVisible = false;
+      boxMode = true;
+      for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
+	{
+	  ( *it )->setVisible ( true );
+	  ( *it )->setDebugDataVisible ( EDS_OFF );
+	  ( *it )->setMaterialType ( video::EMT_SOLID );
+	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
+	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
+	  m->EmissiveColor = video::SColor ( 0,122,122,122 );
+	}
+    }
+  
+  //simple line invisible, boxes invisible if present
+  if ( style == 5 )
+    {
+      isLineVisible = false;
+      if ( boxMode )
+	{
+	  for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
+	    {
+	      ( *it )->setVisible ( false );
+	    }
+	}
+      
+    }
 }
 
 void ASTrack3DNode::calculateDimmedColors()
@@ -252,13 +257,13 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
     std::vector<core::vector3df> StartEnd ( 2 );
     float c = 180/3.1415926;
     float sc = 0.001;
-    float theta = 2*atan ( exp ( -(trackPointer->eta) ) );
+    float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
 
-    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ) *sc;
-    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ) *sc;
-    float Z0 = trackPointer->zVertex*sc;
-    float Xdir = sin ( trackPointer->phi );
-    float Ydir = cos ( trackPointer->phi );
+    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc;
+    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc;
+    float Z0 = ((ASTrack*)getTrack())->zVertex*sc;
+    float Xdir = sin ( ((ASTrack*)getTrack())->phi );
+    float Ydir = cos ( ((ASTrack*)getTrack())->phi );
     float Zdir = 1/tan ( theta );
     //float Length_dir = sqrt(Xdir*Xdir + Ydir*Ydir + Zdir*Zdir);
 
@@ -294,13 +299,13 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 void ASTrack3DNode::createBoxes()
 {
-    if ( trackPointer->q == 0 )
+    if ( ((ASTrack*)getTrack())->q == 0 )
     {
         createBoxesNeutral();
     }
     else
     {
-        createBoxesCharged();
+      //createBoxesCharged();
     }
 }
 
@@ -313,7 +318,7 @@ void ASTrack3DNode::createBoxesNeutral()
     core::vector3df rot = vect0.getHorizontalAngle();
     core::vector3df zero = core::vector3df ( 0,0,0 );
 
-    scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
+    scene::IAnimatedMesh* trackCube = SceneManager->getMesh ( "CubeUnit.X" );
 
 
     core::vector3df vect = vect0/10;
@@ -323,7 +328,7 @@ void ASTrack3DNode::createBoxesNeutral()
         core::vector3df pos = vect*i + ( vect ) /2 + this->start;
 
         scene::ISceneNode* nodeBox = 0;
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
+        nodeBox = SceneManager->addMeshSceneNode ( trackCube );
         nodeBox->setPosition ( pos );
         nodeBox->setRotation ( rot );
         nodeBox->setScale ( scale );
@@ -356,10 +361,10 @@ void ASTrack3DNode::constructNeutral()
 
     video::SMaterial m;
     m.EmissiveColor = this->color ;
-    Base->GetDriver()->setMaterial ( m );
+    SceneManager->getVideoDriver()->setMaterial ( m );
 
-    Base->GetDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-    Base->GetDriver()->draw3DLine ( this->start, this->end ,this->color);
+    SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
+    SceneManager->getVideoDriver()->draw3DLine ( this->start, this->end ,this->color);
 
 }
 
@@ -394,23 +399,23 @@ float ASTrack3DNode::getChargedMaxAngle ()
 
     float C = 1000./0.6;
     float sc = 0.001;
-    float theta = 2*atan ( exp ( -(trackPointer->eta) ) );
-    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ) *sc; // The X coordinate of the vertex
-    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ) *sc; // The Y coordinate of the vertex
+    float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
+    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The X coordinate of the vertex
+    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The Y coordinate of the vertex
     //float Z0 = v_z;                       // The Z coordinate of the vertex
-    float R = trackPointer->pt*C;
-    float X_CH = X0 + trackPointer->q * R*cos ( trackPointer->phi ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + trackPointer->q * R*sin ( trackPointer->phi ); //The Y coordinate of the center of the helix
-    float E = exp ( trackPointer->eta );
-    float tL = 0.5 * ( exp ( trackPointer->eta ) - exp ( -trackPointer->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
+    float R = ((ASTrack*)getTrack())->pt*C;
+    float X_CH = X0 + ((ASTrack*)getTrack())->q * R*cos ( ((ASTrack*)getTrack())->phi ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + ((ASTrack*)getTrack())->q * R*sin ( ((ASTrack*)getTrack())->phi ); //The Y coordinate of the center of the helix
+    float E = exp ( ((ASTrack*)getTrack())->eta );
+    float tL = 0.5 * ( exp ( ((ASTrack*)getTrack())->eta ) - exp ( -((ASTrack*)getTrack())->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
     //float startPhi = phi0+adjPhi;
-    float Z_CH = trackPointer->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+    float Z_CH = ((ASTrack*)getTrack())->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
     float a=0.05/RadDeg;
 
     for ( int w=0; w<=5000; w++ )
     {
-        if ( ( x_helix ( w*a, X_CH, R, trackPointer->phi, trackPointer->q ) *x_helix ( w*a, X_CH, R, trackPointer->phi, trackPointer->q ) + y_helix ( w*a, Y_CH, R, trackPointer->phi, trackPointer->q ) *y_helix ( w*a, Y_CH, R, trackPointer->phi, trackPointer->q ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
+        if ( ( x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) *x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) + y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) *y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
         {
             return w*a;
             break;
@@ -424,20 +429,20 @@ float ASTrack3DNode::getChargedMaxAngle ()
 void ASTrack3DNode::createCurveVector()
 {
     float pi = 3.1415926;
-    float phiTrans = -(trackPointer->phi) + pi;
+    float phiTrans = -(((ASTrack*)getTrack())->phi) + pi;
     float C = 1000/0.6;
-    float theta = 2*atan ( exp ( - ( trackPointer->eta ) ) );
-    float X0 = trackPointer->rhoVertex * cos ( trackPointer->phiVertex ); // The X coordinate of the vertex
-    float Y0 = trackPointer->rhoVertex * sin ( trackPointer->phiVertex ); // The Y coordinate of the vertex
-    float Z0 = trackPointer->zVertex;                       // The Z coordinate of the vertex
-    float R = trackPointer->pt*C;
-    float X_CH = X0 + trackPointer->q * R*cos ( phiTrans ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + trackPointer->q * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
-    float E = exp ( trackPointer->eta );
-    float tL = 0.5 * ( exp (trackPointer->eta) - exp ( - (trackPointer->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
+    float theta = 2*atan ( exp ( - ( ((ASTrack*)getTrack())->eta ) ) );
+    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
+    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex
+    float Z0 = ((ASTrack*)getTrack())->zVertex;                       // The Z coordinate of the vertex
+    float R = ((ASTrack*)getTrack())->pt*C;
+    float X_CH = X0 + ((ASTrack*)getTrack())->q * R*cos ( phiTrans ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + ((ASTrack*)getTrack())->q * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
+    float E = exp ( ((ASTrack*)getTrack())->eta );
+    float tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp ( - (((ASTrack*)getTrack())->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
     //float startPhi = phi0+adjPhi;
-    float Z_CH = trackPointer->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+    float Z_CH = ((ASTrack*)getTrack())->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
 
 
     // Output:
@@ -471,7 +476,7 @@ void ASTrack3DNode::createCurveVector()
 
     for ( int w=0; w<=helixSections; w++ )
     {
-        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, trackPointer->q ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, trackPointer->q ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
+        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, ((ASTrack*)getTrack())->q ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, ((ASTrack*)getTrack())->q ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
         this->curvePoints.push_back ( point );
     }
 }
@@ -485,10 +490,10 @@ void ASTrack3DNode::constructCharged()
     for ( vector<core::vector3df>::iterator it = this->curvePoints.begin() ; it < this->curvePoints.end(); it++ )
     {
         m.EmissiveColor = this->color ;
-        Base->GetDriver()->setMaterial ( m );
+        SceneManager->getVideoDriver()->setMaterial ( m );
 
-        Base->GetDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-        Base->GetDriver()->draw3DLine ( previous, *it );
+        SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
+        SceneManager->getVideoDriver()->draw3DLine ( previous, *it );
         previous = *it;
     }
 
@@ -498,11 +503,11 @@ void ASTrack3DNode::createBoxesCharged()
 {
     core::vector3df previous = this->curvePoints.at ( 0 );
     vector<core::vector3df>::iterator it;
-    scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
+    scene::IAnimatedMesh* trackCube = SceneManager->getMesh ( "CubeUnit.X" );
     for ( vector<core::vector3df>::iterator it = this->curvePoints.begin() ; it < this->curvePoints.end(); it++ )
     {
 
-        Base->GetDriver()->draw3DLine ( previous, *it );
+        SceneManager->getVideoDriver()->draw3DLine ( previous, *it );
 
         core::vector3df vect = *it - previous;
         core::vector3df pos = ( *it - previous ) /2 + previous;
@@ -512,7 +517,7 @@ void ASTrack3DNode::createBoxesCharged()
         scene::ISceneNode* nodeBox = 0;
         //nodeBox = SceneManager->addCubeSceneNode(1.0f, 0, -1, pos, rot, scale );
 
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
+        nodeBox = SceneManager->addMeshSceneNode ( trackCube );
         nodeBox->setPosition ( pos );
         nodeBox->setRotation ( rot );
         nodeBox->setScale ( scale );
@@ -563,7 +568,7 @@ void ASTrack3DNode::setBoxesSelected ( bool boxesSelected )
 void ASTrack3DNode::Helix()
 {
 
-    if ( trackPointer->q == 0 )
+    if ( ((ASTrack*)getTrack())->q == 0 )
     {
         constructNeutral();
     }
@@ -571,19 +576,19 @@ void ASTrack3DNode::Helix()
     {
         constructCharged();
     }
-    tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
+    tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp (-(((ASTrack*)getTrack())->eta)));
 }
 
 float ASTrack3DNode::getTl()
 {
-    return tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
+    return tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp (-(((ASTrack*)getTrack())->eta)));
 }
 
 
 void ASTrack3DNode::OnRegisterSceneNode()
 {
     if ( IsVisible )
-        Base->GetSceneManager()->registerNodeForRendering ( this );
+        SceneManager->registerNodeForRendering ( this );
 
 
     ISceneNode::OnRegisterSceneNode();
@@ -615,11 +620,10 @@ video::SMaterial& ASTrack3DNode::getMaterial ( s32 i )
 // Now the Jets
 
 
-AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
-        : ATrack3DNode ( parent, base, id )
+AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id )
+        : ATrack3DNode ( parent, smgr, id )
 {
-    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
-    Base = base;
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "Track3DNode" );
     Pyramid = NULL;
 }
@@ -637,29 +641,13 @@ int AJet3DNode::getTrackNumber()
 
 void AJet3DNode::setTrack ( AJet* track )
 {
-    this->trackPointer = track;
-}
-ATrack* AJet3DNode::getTrack()
-{
-    return this->trackPointer;
-}
-
-ATrack* AJet3DNode::getTrackById ( int id )
-{
-    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
-    {
-        if ( (*iter)->trackID == trackID )
-        {
-            return *iter;
-            break;
-        }
-    }
+  ATrack3DNode::setTrack(track);
 }
 
 void AJet3DNode::setTrackStyle ( int style )
 {
 
-    if ( trackPointer->Type == 2 ) //if it's a jet
+    if ( getTrack()->Type == 2 ) //if it's a jet
     {
         //selected jet style
         if ( style == 6 )
@@ -695,50 +683,46 @@ void AJet3DNode::setTrackStyle ( int style )
 
 void AJet3DNode::createJetPyramids()
 {
-    if ( type == 2 ) //jet
-    {
-        float pi = 3.1415926;
-        float c = 180/pi;
-        float theta = 2*atan ( exp ( -(trackPointer->eta )) );
-        core::vector3df zero = core::vector3df ( 0,0,0 );
-        core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
-        //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
-        core::vector3df rot = core::vector3df ( -theta * c, 0, -trackPointer->phi * c ); //
-
-        scene::IAnimatedMesh* pyramid = Base->GetSceneManager()->getMesh ( "jet.X" );
-        scene::ISceneNode* nodeBox = 0;
-        nodeBox = Base->GetSceneManager()->addMeshSceneNode ( pyramid );
-        nodeBox->setPosition ( zero );
-        nodeBox->setRotation ( rot );
-        nodeBox->updateAbsolutePosition();
-        nodeBox->setScale ( scale );
-        nodeBox->getTransformedBoundingBox();
-        nodeBox->setID ( 18 );
-
-        scene::ITriangleSelector* selector = 0;
-        selector = Base->GetSceneManager()->createOctTreeTriangleSelector ( pyramid, nodeBox, 128 );
-        nodeBox->setTriangleSelector ( selector );
-        selector->drop();
-
-        video::SMaterial* m = &nodeBox->getMaterial ( 0 );
-        nodeBox->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
-        nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
-        nodeBox->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
-        nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
-        nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
-        nodeBox->setAutomaticCulling ( EAC_OFF );
-        m->EmissiveColor = video::SColor ( 0,100,100,100 );
-        m->DiffuseColor = video::SColor ( 0,0,0,0 );
-        m->AmbientColor = video::SColor ( 0,0,0,0 );
-        m->Shininess = 0 ;
-
-        nodeBox->getTransformedBoundingBox();
-        nodeBox->setParent ( this );
-        //nodeBox->setDebugDataVisible(EDS_BBOX);
-        //nodeBox->setVisible(false);
-        Pyramid = nodeBox;
-
-    }
+  float pi = 3.1415926;
+  float c = 180/pi;
+  float theta = 2*atan ( exp ( -(((AJet*)getTrack())->eta )) );
+  core::vector3df zero = core::vector3df ( 0,0,0 );
+  core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
+  //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
+  core::vector3df rot = core::vector3df ( -theta * c, 0, -((AJet*)getTrack())->phi * c ); //
+  
+  scene::IAnimatedMesh* pyramid = SceneManager->getMesh ( "jet.X" );
+  scene::ISceneNode* nodeBox = 0;
+  nodeBox = SceneManager->addMeshSceneNode ( pyramid );
+  nodeBox->setPosition ( zero );
+  nodeBox->setRotation ( rot );
+  nodeBox->updateAbsolutePosition();
+  nodeBox->setScale ( scale );
+  nodeBox->getTransformedBoundingBox();
+  nodeBox->setID ( 18 );
+  
+  scene::ITriangleSelector* selector = 0;
+  selector = SceneManager->createOctTreeTriangleSelector ( pyramid, nodeBox, 128 );
+  nodeBox->setTriangleSelector ( selector );
+  selector->drop();
+  
+  video::SMaterial* m = &nodeBox->getMaterial ( 0 );
+  nodeBox->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
+  nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
+  nodeBox->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
+  nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
+  nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
+  nodeBox->setAutomaticCulling ( EAC_OFF );
+  m->EmissiveColor = video::SColor ( 0,100,100,100 );
+  m->DiffuseColor = video::SColor ( 0,0,0,0 );
+  m->AmbientColor = video::SColor ( 0,0,0,0 );
+  m->Shininess = 0 ;
+  
+  nodeBox->getTransformedBoundingBox();
+  nodeBox->setParent ( this );
+  //nodeBox->setDebugDataVisible(EDS_BBOX);
+  //nodeBox->setVisible(false);
+  Pyramid = nodeBox;
 }
 
 
@@ -757,7 +741,7 @@ void AJet3DNode::setBoxesSelected ( bool boxesSelected )
 void AJet3DNode::OnRegisterSceneNode()
 {
     if ( IsVisible )
-        Base->GetSceneManager()->registerNodeForRendering ( this );
+        SceneManager->registerNodeForRendering ( this );
 
 
     ISceneNode::OnRegisterSceneNode();
@@ -779,17 +763,16 @@ video::SMaterial& AJet3DNode::getMaterial ( s32 i )
 
 float AJet3DNode::getTl()
 {
-    float tL = 0.5 * ( exp (trackPointer->eta) - exp (-(trackPointer->eta)));
+  float tL = 0.5 * ( exp (((AJet*)getTrack())->eta) - exp (-(((AJet*)getTrack())->eta)));
     return tL;
 }
 
 
 
-AMisET3DNode::AMisET3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 id )
-        : ATrack3DNode ( parent, base, id )
+AMisET3DNode::AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id )
+        : ATrack3DNode ( parent, smgr, id )
 {
-    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(base->GetSceneManager());
-    Base = base;
+    boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "Track3DNode" );
 }
 
@@ -806,31 +789,13 @@ int AMisET3DNode::getTrackNumber()
 
 void AMisET3DNode::setTrack ( AMisET* track )
 {
-    this->trackPointer = track;
-}
-
-ATrack* AMisET3DNode::getTrack()
-{
-    return this->trackPointer;
-}
-
-
-ATrack* AMisET3DNode::getTrackById ( int id )
-{
-    for ( vector<ATrack*>::iterator iter = Base->XmlEvt->Event.Tracks.begin(); iter < Base->XmlEvt->Event.Tracks.end(); iter++ )
-    {
-        if ( (*iter)->trackID == trackID )
-        {
-            return *iter;
-            break;
-        }
-    }
+  ATrack3DNode::setTrack(track);
 }
 
 void AMisET3DNode::setTrackStyle ( int style )
 {
 
-    if ( trackPointer->Type == 4 ) //if it's Missing Et
+    if ( getTrack()->Type == 4 ) //if it's Missing Et
     {
         //selected Missing Et style
         if ( style == 10 )
@@ -841,7 +806,7 @@ void AMisET3DNode::setTrackStyle ( int style )
                 ( *it )->setVisible ( true );
                 ( *it )->setDebugDataVisible ( EDS_OFF );
                 ( *it )->setMaterialType ( video::EMT_SOLID );
-                ( *it )->setMaterialTexture ( 0, Base->GetDriver()->getTexture ( "" ) );
+                ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
                 video::SMaterial* m = & ( *it )->getMaterial ( 0 );
                 m->EmissiveColor = video::SColor ( 0,255,255,122 );
 
@@ -889,14 +854,14 @@ void AMisET3DNode::setTrackStyle ( int style )
 void AMisET3DNode::createMisEtBoxes() //for Missing Et
 {
     core::vector3df zero = core::vector3df ( 0,0,0 );
-    end = core::vector3df ( trackPointer->etx, trackPointer->ety,0 );
+    end = core::vector3df ( ((AMisET*)getTrack())->etx, ((AMisET*)getTrack())->ety,0 );
 
     core::vector3df rot = end.getHorizontalAngle();
     core::vector3df scale = core::vector3df ( 5,5, end.getLength() );
 
-    scene::IAnimatedMesh* trackCube = Base->GetSceneManager()->getMesh ( "CubeUnit.X" );
+    scene::IAnimatedMesh* trackCube = SceneManager->getMesh ( "CubeUnit.X" );
     scene::ISceneNode* nodeBox = 0;
-    nodeBox = Base->GetSceneManager()->addMeshSceneNode ( trackCube );
+    nodeBox = SceneManager->addMeshSceneNode ( trackCube );
     nodeBox->setPosition ( end/2 );
     nodeBox->setRotation ( rot );
     nodeBox->setScale ( scale );
@@ -930,10 +895,10 @@ void AMisET3DNode::constructNeutral()
 
     video::SMaterial m;
     m.EmissiveColor = this->color ;
-    Base->GetDriver()->setMaterial ( m );
+    SceneManager->getVideoDriver()->setMaterial ( m );
 
-    Base->GetDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-    Base->GetDriver()->draw3DLine ( this->start, this->end ,this->color);
+    SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
+    SceneManager->getVideoDriver()->draw3DLine ( this->start, this->end ,this->color);
 
 }
 
@@ -963,7 +928,7 @@ void AMisET3DNode::setBoxesSelected ( bool boxesSelected )
 void AMisET3DNode::OnRegisterSceneNode()
 {
     if ( IsVisible )
-        Base->GetSceneManager()->registerNodeForRendering ( this );
+        SceneManager->registerNodeForRendering ( this );
 
 
     ISceneNode::OnRegisterSceneNode();

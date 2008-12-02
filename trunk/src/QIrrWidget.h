@@ -45,6 +45,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QPainter>
 #include <QDebug>
 #include <QLabel>
+#include <QGLWidget>
+#include <QTime>
+#include <QTimer>
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -70,6 +73,69 @@ using namespace gui;
 
 #pragma comment(lib, "irrlicht.lib")
 
+namespace irr
+{
+  class CTimer : public ITimer
+  {
+    virtual u32 getRealTime() const;
+    virtual u32 getTime() const;
+    virtual void setTime(u32 time);
+    virtual void stop();
+
+    virtual void start();
+    virtual void setSpeed(f32 speed = 1.0f);
+    virtual bool isStopped() const;
+    virtual void tick();
+    virtual f32 getSpeed() const;
+  };
+
+#ifdef Q_WS_MAC
+  class CIrrDeviceMacOSX;
+#endif
+  
+  namespace video
+    {	
+#ifdef Q_WS_MAC
+      IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& param, irr::io::IFileSystem* io, CIrrDeviceMacOSX *device);
+#else
+      IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io);
+#endif
+      
+#ifdef Q_WS_WIN
+      IVideoDriver* createDirectX9Driver(const core::dimension2d<s32>& screenSize, HWND window,
+					 u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
+					 bool pureSoftware, bool highPrecisionFPU, bool vsync, bool antiAlias);
+#endif
+
+  }
+  
+  namespace scene
+  {
+    ISceneManager* createSceneManager(video::IVideoDriver* driver,
+                                      io::IFileSystem* fs, gui::ICursorControl* cc, gui::IGUIEnvironment *gui);
+  }
+  namespace io
+  {
+    IFileSystem* createFileSystem();
+  }
+  
+  namespace gui
+  {
+    IGUIEnvironment* createGUIEnvironment(irr::io::IFileSystem* fs,
+                                          video::IVideoDriver* Driver, IOSOperator* op);
+  }
+  
+  namespace os
+  {
+    class Timer
+    {
+    public:
+      static void initTimer();
+    };
+  }
+  
+
+} // end namespace irr
 
 class QIrrWidget : public QWidget,public IEventReceiver
 {
@@ -79,14 +145,16 @@ public:
     QIrrWidget( QWidget *parent=0 );
     ~QIrrWidget();
 
-    irr::IrrlichtDevice* GetDevice();
-    ISceneManager* GetSceneManager();
-    video::IVideoDriver* GetDriver();
+    ISceneManager* getSceneManager();
+    IVideoDriver* getVideoDriver();
+    IGUIEnvironment* getGUIEnvironment();
+    IFileSystem* getFileSystem();
+    ITimer* getTimer();
+    ICursorControl* getCursorControl();
 
     void setDriverType( irr::video::E_DRIVER_TYPE driver );
     irr::video::E_DRIVER_TYPE driverType();
 
-    QImage screenshot(); //Returns the screenshot of the current rendered scene
     QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage,QRect baseRect=QRect() ,QRect overlayRect=QRect()); // Composites an overlayed image over another, with alpha channel
 
     /* STATIC HELPER FUNCTIONS */
@@ -98,8 +166,6 @@ public slots:
   void toggleDisabled();
 
 protected:
-    irr::IrrlichtDevice* Device;
-
     /* Override these 3 functions in QIrrWidgets */
     virtual void load();
     virtual void execute();
@@ -107,45 +173,75 @@ protected:
 
     /* Event */
     void changeEvent(QEvent* event); //Will be used for diabled widget image caching
+    void resizeEvent( QResizeEvent* event );
+
+    void enterEvent(QEvent* event);
+    void leaveEvent(QEvent* event);
+
+    void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
+    
+    bool postEventFromUser(const SEvent& event);
 
 private:
     irr::video::E_DRIVER_TYPE _driverType;
-
+    
     QLabel *label;
-  class QIrrWidgetPrivate *p;
-  friend class QIrrWidgetPrivate;
+    QWidget *p;
+
+    IVideoDriver* driver;
+    ISceneManager* smgr;
+    IFileSystem* fs;
+    IGUIEnvironment* gui;
+    ICursorControl* cursorcontrol;
+    ITimer *timer;
+
+    friend class QIrrGLWidgetPrivate;
+    friend class QIrrD3DWidgetPrivate;
 };
 
-class QIrrWidgetPrivate : public QWidget
+class QIrrD3DWidgetPrivate : public QWidget
 {
+  Q_OBJECT
+
  public:
-  QIrrWidgetPrivate(QIrrWidget *parent);
-  ~QIrrWidgetPrivate();
+  QIrrD3DWidgetPrivate(QIrrWidget *parent);
+  ~QIrrD3DWidgetPrivate();
 
-  IrrlichtDevice* initialize(irr::video::E_DRIVER_TYPE _driverType);
 
-  virtual QPaintEngine * paintEngine () const;
-
-protected:
-  virtual void paintEvent( QPaintEvent* event );
+ protected:
   virtual void timerEvent( QTimerEvent* event );
-  virtual void resizeEvent( QResizeEvent* event );
+  virtual void paintEvent( QPaintEvent* event );
 
-  // Enter/leave events are used for grabbing keyboard focus on hover
-  void enterEvent(QEvent* event);
-  void leaveEvent(QEvent* event);
-  
-  //Used for converting Qt input events into Irrlich events
-  void mouseMoveEvent(QMouseEvent *event);  
-  void keyPressEvent(QKeyEvent *event);
-  void keyReleaseEvent(QKeyEvent *event);
-  void mousePressEvent(QMouseEvent *event);
-  void mouseReleaseEvent(QMouseEvent *event);
-  void wheelEvent(QWheelEvent *event);
+  void initialize();
   
  private:
-  IrrlichtDevice* Device;
   int timerId;
+
+  QIrrWidget* parent;
+};
+
+class QIrrGLWidgetPrivate : public QGLWidget
+{
+  Q_OBJECT
+    
+  public:
+  QIrrGLWidgetPrivate( QIrrWidget *parent=0 );
+  ~QIrrGLWidgetPrivate();
+
+  void timerEvent(QTimerEvent*);
+  
+  void initializeGL();
+  void paintGL();
+  
+private:
+  int timerId;
+
+  QIrrWidget* parent;
 };
 
 #endif // QIRRWIDGET_H

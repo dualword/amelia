@@ -40,46 +40,146 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 #include <QGridLayout>
 
-QIrrWidget::QIrrWidget( QWidget *parent )
-        : QWidget(parent)
+class CCursorControl : public gui::ICursorControl
 {
-    // Wait for the init() call
-    Device = 0;
+public:
+  CCursorControl(QIrrWidget *_parent):parent(_parent),IsVisible(true) { }
+  
+  //! Changes the visible state of the mouse cursor.
+  virtual void setVisible(bool visible)
+  {
+    if(visible)
+      parent->setCursor(Qt::ArrowCursor);
+    else
+      parent->setCursor(QCursor( Qt::BlankCursor ));
+    
+    IsVisible=false;  }
+  
+  //! Returns if the cursor is currently visible.
+  virtual bool isVisible() const
+  {
+    return IsVisible;
+  }
+  
+  //! Sets the new position of the cursor.
+  virtual void setPosition(const core::position2d<f32> &pos)
+  {
+    setPosition(pos.X,pos.Y);
+  }
+  
+  //! Sets the new position of the cursor.
+  virtual void setPosition(f32 x, f32 y)
+  {
+    QPoint pos(x*parent->width(),y*parent->height());
+    QCursor::setPos(parent->mapToGlobal(pos));
+  }
+  
+  //! Sets the new position of the cursor.
+  virtual void setPosition(const core::position2d<s32> &pos)
+  {
+    setPosition(pos.X,pos.Y);
+  }
+  
+  //! Sets the new position of the cursor.
+  virtual void setPosition(s32 x, s32 y)
+  {
+    QCursor::setPos(parent->mapToGlobal(QPoint(x,y)));
+  }
+  
+  //! Returns the current position of the mouse cursor.
+  virtual core::position2d<s32> getPosition()
+  {
+    QPoint pos=parent->mapFromGlobal(QCursor::pos());
+    return core::position2d<s32>(pos.x(),pos.y());
+  }
+  
+  //! Returns the current position of the mouse cursor.
+  virtual core::position2d<f32> getRelativePosition()
+  {
+    QPoint pos=parent->mapFromGlobal(QCursor::pos());
+    QPointF posF(((float)pos.x())/parent->width(),
+		 ((float)pos.y())/parent->height());
+    return core::position2d<f32>(posF.x(),posF.y());
+  }
+  
+  virtual void setReferenceRect(core::rect<s32>* rect=0)
+  {
 
-    // Default to Open GL
+  }
+  
+private:
+  bool IsVisible;
+  QIrrWidget *parent;
+};
+
+
+
+QIrrWidget::QIrrWidget( QWidget *parent )
+  : QWidget(parent),driver(0)
+{
+  // Default to Open GL
 #ifdef Q_WS_WIN
-	_driverType = irr::video::EDT_DIRECT3D9;
+  _driverType = irr::video::EDT_DIRECT3D9;
 #else
-    _driverType = irr::video::EDT_OPENGL;
+  _driverType = irr::video::EDT_OPENGL;
 #endif
-
-    QGridLayout *layout=new QGridLayout(this);
-    p=new QIrrWidgetPrivate(this);
-    layout->addWidget(p);
-
-    label=new QLabel(this);
-    layout->addWidget(label);
-    label->hide();
+  
+  QGridLayout *layout=new QGridLayout(this);
+  layout->setContentsMargins(0,0,0,0);
+  if(_driverType==irr::video::EDT_OPENGL)
+    p=new QIrrGLWidgetPrivate(this);
+  else if(_driverType==irr::video::EDT_DIRECT3D9)
+    p=new QIrrD3DWidgetPrivate(this);
+  else
+    p=0;
+  
+  layout->addWidget(p);
+  
+  label=new QLabel(this);
+  layout->addWidget(label);
+  label->hide();
+  setMouseTracking(true);
+  os::Timer::initTimer();  
+  timer = new CTimer();
 }
 
 QIrrWidget::~QIrrWidget()
 {
+  driver->drop();
+  smgr->drop();
+  gui->drop();
+  timer->drop();
 }
 
 
-irr::IrrlichtDevice* QIrrWidget::GetDevice()
+video::IVideoDriver* QIrrWidget::getVideoDriver()
 {
-    return Device;
+  return driver;
 }
 
-video::IVideoDriver* QIrrWidget::GetDriver()
+ISceneManager* QIrrWidget::getSceneManager()
 {
-    return Device->getVideoDriver();
+  return smgr;
 }
 
-ISceneManager* QIrrWidget::GetSceneManager()
+IGUIEnvironment* QIrrWidget::getGUIEnvironment()
 {
-    return Device->getSceneManager();
+  return gui;
+}
+
+IFileSystem* QIrrWidget::getFileSystem()
+{
+  return fs;
+}
+
+ITimer* QIrrWidget::getTimer()
+{
+  return timer;
+}
+
+ICursorControl* QIrrWidget::getCursorControl()
+{
+  return cursorcontrol;
 }
 
 irr::video::E_DRIVER_TYPE QIrrWidget::driverType()
@@ -106,11 +206,10 @@ void QIrrWidget::changeEvent(QEvent *event)
       else
 	{
 	  QPixmap ss;
-	  if(Device)
+	  if(driver)
 	    ss=QPixmap::grabWindow(p->winId());
-
 	  p->hide();
-
+	  
 	  label->setPixmap(ss);
 	  label->show();
 	}
@@ -119,6 +218,20 @@ void QIrrWidget::changeEvent(QEvent *event)
 
   QWidget::changeEvent(event);
 }
+
+void QIrrWidget::resizeEvent( QResizeEvent* event )
+{
+  if ( driver != 0 )
+    {
+      irr::core::dimension2d<int> size;
+      size.Width = event->size().width();
+      size.Height = event->size().height();
+
+      driver->OnResize( size );
+    }
+  QWidget::resizeEvent(event);
+}
+
 
 void QIrrWidget::execute() { }
 
@@ -219,8 +332,10 @@ EKEY_CODE QIrrWidget::Qt2Irr_KeyCode(int keycode)
     case Qt::Key_Space:
       return KEY_SPACE;
     case Qt::Key_Back:
+    case Qt::Key_PageUp:
       return KEY_PRIOR;
     case Qt::Key_Forward:
+    case Qt::Key_PageDown:
       return KEY_NEXT;
     case Qt::Key_End:
       return KEY_END;
@@ -400,7 +515,7 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
   return 0;
 }
 
-void QIrrWidgetPrivate::enterEvent(QEvent* event)
+void QIrrWidget::enterEvent(QEvent* event)
 {
   setFocus();
   grabKeyboard();
@@ -408,7 +523,7 @@ void QIrrWidgetPrivate::enterEvent(QEvent* event)
   QWidget::enterEvent(event);
 }
 
-void QIrrWidgetPrivate::leaveEvent(QEvent* event)
+void QIrrWidget::leaveEvent(QEvent* event)
 {
   clearFocus();
   releaseKeyboard();
@@ -416,9 +531,8 @@ void QIrrWidgetPrivate::leaveEvent(QEvent* event)
   QWidget::leaveEvent(event);
 }
 
-void QIrrWidgetPrivate::keyPressEvent(QKeyEvent *event)
+void QIrrWidget::keyPressEvent(QKeyEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType=irr::EET_KEY_INPUT_EVENT;
   e.KeyInput.Char=event->text()[0].toAscii();
@@ -426,15 +540,14 @@ void QIrrWidgetPrivate::keyPressEvent(QKeyEvent *event)
   e.KeyInput.Key=QIrrWidget::Qt2Irr_KeyCode(event->key());
   e.KeyInput.PressedDown=true;
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
-  if(Device->postEventFromUser(e))
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::keyPressEvent(event);
 }
 
-void QIrrWidgetPrivate::keyReleaseEvent(QKeyEvent *event)
+void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType=irr::EET_KEY_INPUT_EVENT;
   e.KeyInput.Char=event->text()[0].toAscii();
@@ -442,29 +555,27 @@ void QIrrWidgetPrivate::keyReleaseEvent(QKeyEvent *event)
   e.KeyInput.Key=QIrrWidget::Qt2Irr_KeyCode(event->key());
   e.KeyInput.PressedDown=false;
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
-  if(Device->postEventFromUser(e))
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::keyReleaseEvent(event);
 }
 
-void QIrrWidgetPrivate::mouseMoveEvent(QMouseEvent *event)
+void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType = irr::EET_MOUSE_INPUT_EVENT;
   e.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
-  if(Device->postEventFromUser(e))
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::mouseMoveEvent(event);
 }
 
-void QIrrWidgetPrivate::mousePressEvent(QMouseEvent *event)
+void QIrrWidget::mousePressEvent(QMouseEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType = irr::EET_MOUSE_INPUT_EVENT;
   switch(event->button())
@@ -482,19 +593,18 @@ void QIrrWidgetPrivate::mousePressEvent(QMouseEvent *event)
       e.MouseInput.Event = irr::EMIE_COUNT;
       break;
     }
-
+  
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
-
-  if(Device->postEventFromUser(e))
+  
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::mousePressEvent(event);
 }
 
-void QIrrWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
+void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType = irr::EET_MOUSE_INPUT_EVENT;
   switch(event->button())
@@ -515,30 +625,40 @@ void QIrrWidgetPrivate::mouseReleaseEvent(QMouseEvent *event)
 
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
-
-  if(Device->postEventFromUser(e))
+  
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::mouseReleaseEvent(event);
 }
 
-void QIrrWidgetPrivate::wheelEvent(QWheelEvent *event)
+void QIrrWidget::wheelEvent(QWheelEvent *event)
 {
-  if(!Device) return;
   SEvent e;
   e.EventType = irr::EET_MOUSE_INPUT_EVENT;
   e.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
-  if(Device->postEventFromUser(e))
+  if(postEventFromUser(e))
     event->accept();
 
   QWidget::wheelEvent(event);
 }
 
-QIrrWidgetPrivate::QIrrWidgetPrivate( QIrrWidget *parent )
-  : QWidget(parent),Device(0)
+bool QIrrWidget::postEventFromUser(const SEvent& event)
+{
+  bool absorbed = false;
+  
+  if(smgr)
+    absorbed|=smgr->postEventFromUser(event);
+
+  return absorbed;
+}
+
+
+QIrrD3DWidgetPrivate::QIrrD3DWidgetPrivate( QIrrWidget *parent )
+  : QWidget(parent)
 {
   // Irrlicht will clear the canvas for us, so tell Qt not to do it
   setAttribute( Qt::WA_OpaquePaintEvent );
@@ -551,113 +671,142 @@ QIrrWidgetPrivate::QIrrWidgetPrivate( QIrrWidget *parent )
   
   setFocusPolicy(Qt::StrongFocus);
   setAutoFillBackground(false);
+
+  this->parent=parent;
 }
 
-QIrrWidgetPrivate::~QIrrWidgetPrivate()
+QIrrD3DWidgetPrivate::~QIrrD3DWidgetPrivate()
 {
   killTimer(timerId);
-  if ( Device != 0 )
-    {
-      Device->closeDevice();
-      Device->drop();
-      Device=0;
-      QIrrWidget *parent=(QIrrWidget*)parentWidget();
-      parent->Device=0;
-    }
 }
 
-IrrlichtDevice* QIrrWidgetPrivate::initialize(irr::video::E_DRIVER_TYPE driverType)
+void QIrrD3DWidgetPrivate::initialize()
 {
   // Don't initialize more than once!
-  if ( Device != 0 ) return Device;
-
+  if ( parent->driver != 0 ) return;
   irr::SIrrlichtCreationParameters params;
   
-  params.DriverType = driverType;
-#ifdef Q_WS_X11
-  params.WindowId = (void*)parentWidget()->winId();
-#else
+  params.DriverType = video::EDT_DIRECT3D9;
   params.WindowId = (void*)winId();
-#endif
-  params.WindowSize.Width = width();
-  params.WindowSize.Height = height();
+  params.WindowSize.Width = (width()>0)?width():1;
+  params.WindowSize.Height = (height()>0)?height():1;
   params.AntiAlias = true;
   params.IgnoreInput = true;
-  
-  Device = irr::createDeviceEx( params );
-  
-#ifdef Q_WS_X11
-  int _x=x(),_y=y();
 
-  SExposedVideoData videoData=Device->getVideoDriver()->getExposedVideoData();
-  WId window_id=videoData.OpenGLLinux.X11Window;
-  create(window_id);
-  move(_x,_y);
+  parent->fs = io::createFileSystem();
+  
+#ifdef Q_WS_WIN
+  parent->driver=createDirectX9Driver(params.WindowSize,params.WindowId,
+				      CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
+				      FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
+				      CreationParams.AntiAlias)
 #endif
   
-  timerId=startTimer(20);
+  parent->gui=createGUIEnvironment(parent->fs,parent->driver,0);
+
+  parent->cursorcontrol = new CCursorControl(parent);
+  parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
+
+  parent->load();
+
+  timerId=startTimer(30);
+
+}
+
+void QIrrD3DWidgetPrivate::timerEvent(QTimerEvent* event)
+{
+  parent->timer->tick();
+  parent->execute();
+
+  if(isVisible())
+    update();
+}
   
-  return Device;
+void QIrrD3DWidgetPrivate::paintEvent( QPaintEvent* event )
+{
+  if (parent->driver)
+    {
+      irr::video::SColor color (0,0,0,0);
+      
+      parent->driver->beginScene(true,true,color);
+      
+      parent->smgr->drawAll();
+      parent->gui->drawAll();
+      
+      parent->driver->endScene();
+    }
 }
 
-void QIrrWidgetPrivate::timerEvent(QTimerEvent* event)
+QIrrGLWidgetPrivate::QIrrGLWidgetPrivate( QIrrWidget *parent )
+  : QGLWidget(QGLFormat(QGL::SampleBuffers),parent)
 {
-  update();
-}
+  setMouseTracking(true);
   
-void QIrrWidgetPrivate::paintEvent( QPaintEvent* event )
+  setFocusPolicy(Qt::StrongFocus);
+  setAutoFillBackground(false);
+  setAutoBufferSwap(true);
+
+  this->parent=parent;
+}
+
+QIrrGLWidgetPrivate::~QIrrGLWidgetPrivate()
 {
-  if(!Device)
-    {
-      QIrrWidget *parent=(QIrrWidget*)parentWidget();
-      initialize(parent->driverType());
-      Device->setEventReceiver((IEventReceiver*)parent);
-      parent->Device=Device;
-      parent->load();
-    }
+  killTimer(timerId);
+}
+
+void QIrrGLWidgetPrivate::initializeGL()
+{
+  // Don't initialize more than once!
+  if ( parent->driver != 0 ) return;
+  irr::SIrrlichtCreationParameters params;
   
-  if (Device)
-    {
-      Device->getTimer()->tick();
-      //This disables rendering when we have a popup window, like when combining
-      // tracks or loading an event. This hack is only enabled for OpenGL, because
-      // I didn't notice any performance issues.
-      //bool focusHack=(driverType()!=irr::video::EDT_OPENGL || QApplication::activeWindow()==window());
-      if(isVisible() /*&& focusHack*/)
-	{
-	  ((QIrrWidget*)this->parentWidget())->execute();
+  params.DriverType = video::EDT_OPENGL;
+  params.WindowId = (void*)winId();
+  params.WindowSize.Width = (width()>0)?width():1;
+  params.WindowSize.Height = (height()>0)?height():1;
+  params.AntiAlias = true;
+  params.IgnoreInput = true;
 
-	  irr::video::SColor color (0,0,0,0);
-	  Device->getVideoDriver()->beginScene( isEnabled(), true, color );
-	  Device->getSceneManager()->drawAll();
-	  Device->getVideoDriver()->endScene();
-	}
-      else
-	Device->yield();
-    }
+  parent->fs = io::createFileSystem();
+  
+#ifdef Q_WS_MAC
+  parent->driver=createOpenGLDriver(params,parent->fs,0);
+#else
+  parent->driver=createOpenGLDriver(params,parent->fs);
+#endif
+  
+  parent->gui=createGUIEnvironment(parent->fs,parent->driver,0);
 
-  QWidget::paintEvent(event);
+  parent->cursorcontrol = new CCursorControl(parent);
+  parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
+
+  parent->load();
+
+  timerId=startTimer(30);
 }
 
-void QIrrWidgetPrivate::resizeEvent( QResizeEvent* event )
+void QIrrGLWidgetPrivate::timerEvent(QTimerEvent *event)
 {
-    if ( Device != 0 )
-    {
-        irr::core::dimension2d<int> size;
-        size.Width = event->size().width();
-        size.Height = event->size().height();
-        Device->getVideoDriver()->OnResize( size );
-
-        irr::scene::ICameraSceneNode *cam = Device->getSceneManager()->getActiveCamera();
-        if ( cam != 0 )
-	  {
-	    cam->setAspectRatio( size.Height / size.Width );
-        }
-    }
-    QWidget::resizeEvent(event);
+  parent->timer->tick();
+  parent->execute();
+  
+  if(isVisible())
+    updateGL();
 }
 
-QPaintEngine * QIrrWidgetPrivate::paintEngine () const
+void QIrrGLWidgetPrivate::paintGL()
 {
-  return 0;
+
+  if (parent->driver)
+    {
+      irr::video::SColor color (0,0,0,0);
+      
+      parent->driver->beginScene(true,true,color);
+      
+      parent->smgr->drawAll();
+      parent->gui->drawAll();
+      
+      //QGLWidget will swap the buffers
+      //parent->driver->endScene();
+    }
 }

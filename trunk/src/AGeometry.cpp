@@ -162,27 +162,27 @@ void AGeometry::prepareAllModules ( scene::ISceneNode* node_ )
 void AGeometry::load()
 {
     //First load stuff originally loaded by ABase...
-    //Device->getFileSystem()->addFolderFileArchive ( Device->getFileSystem()->getWorkingDirectory() );
-    Device->getFileSystem()->addFolderFileArchive ( "./media/" );
-    Device->getFileSystem()->addFolderFileArchive ( "./media/tours" );
-    Device->getFileSystem()->addFolderFileArchive ( "./media/events" );
-    Device->getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
-    Device->getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
-    Device->getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
+    //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
+    getFileSystem()->addFolderFileArchive ( "./media/" );
+    getFileSystem()->addFolderFileArchive ( "./media/tours" );
+    getFileSystem()->addFolderFileArchive ( "./media/events" );
+    getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
+    getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
+    getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
 
 
     //These first three lines are part of an offset test for the Irrlicht ray generator
-    cube = Device->getSceneManager()->addCubeSceneNode();
+    cube = getSceneManager()->addCubeSceneNode();
     cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
     cube->setScale ( core::vector3df ( 5,5,5 ) );
     cube->setPosition ( core::vector3df ( 400,1500,400 ) );
     cube->setVisible(offsetTest);
 
-    tar_node = Device->getSceneManager()->addEmptySceneNode();
-    cam_node = Device->getSceneManager()->addEmptySceneNode();
+    tar_node = getSceneManager()->addEmptySceneNode();
+    cam_node = getSceneManager()->addEmptySceneNode();
     OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
-    Device->getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
+    getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
 
 
 //*****************CHANGED************************//
@@ -198,7 +198,7 @@ void AGeometry::load()
     //Irr->GetSceneManager()->loadScene("/atlas/Atlas.irr");
 
     //Place pointers for the modules on the allModules vector
-    prepareAllModules ( Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
+    prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
 
 
     /***************** PREPARE BB MODELS ********************/
@@ -212,32 +212,31 @@ void AGeometry::load()
     /********************************************************/
 
 
-    cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(Device->getSceneManager());
+    cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
 
     //Create the dynamic camera and define some variables
 
-    camera[1] = Device->getSceneManager()->addCameraSceneNode();
+    camera[1] = getSceneManager()->addCameraSceneNode();
     camera[1]->setInputReceiverEnabled ( false );
     camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
     camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
     camera[1]->setProjectionMatrix ( OrthoCameraFront );
 
-    camera[2] = Device->getSceneManager()->addCameraSceneNode();
+    camera[2] = getSceneManager()->addCameraSceneNode();
     camera[2]->setInputReceiverEnabled ( false );
     camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
     camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
     camera[2]->setProjectionMatrix ( OrthoCameraSide );
 
-    camera[3] = Device->getSceneManager()->addCameraSceneNode();
+    camera[3] = getSceneManager()->addCameraSceneNode();
     camera[3]->setInputReceiverEnabled ( false );
     camera[3]->setFarValue ( 22000.0f );
     camera[3]->setAspectRatio ( 0.8/0.6 );
     camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
     camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
-    //camera[3]->addAnimator(new CSceneNodeAnimatorCameraOrbit(core::vector3df(0,0,1)));
     camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
 
-    camera[0] = Device->getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+    camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
     camera[0]->setInputReceiverEnabled ( false );
     camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
     camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
@@ -253,14 +252,14 @@ void AGeometry::load()
     core::vector3df DCamPos = core::vector3df ( 0,0,0 );
 
     //This is the camera bounding box, used to define the Moses mode area
-    CameraBB = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
+    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
     CameraBB->setID ( 0 );
 
     qDebug() << "Loaded AGeometry";
 
     renderViewport(AGeometry::Orthogonal);
     renderViewport(AGeometry::Projective);
-    //Device->getSceneManager()->setActiveCamera(camera[AGeometry::FPS]);
+    //getSceneManager()->setActiveCamera(camera[AGeometry::FPS]);
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
 
@@ -276,7 +275,7 @@ void AGeometry::executeMosesMode()
         CameraBB->setVisible ( true );
         for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
         {
-            moduleAngleFromCam = angleBetween ( *itb, ( Device->getSceneManager()->getActiveCamera()->getTarget() *0.5- Device->getSceneManager()->getActiveCamera()->getPosition() ) );
+            moduleAngleFromCam = angleBetween ( *itb, ( getSceneManager()->getActiveCamera()->getTarget() *0.5- getSceneManager()->getActiveCamera()->getPosition() ) );
 
             if ( ( CameraBB->getTransformedBoundingBox().intersectsWithBox ( ( *itb )->getTransformedBoundingBox() ) ) && ( moduleAngleFromCam<1.0f ) )
             {
@@ -303,8 +302,8 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 {
     if ( eventAnalysisMode )
     {
-        ISceneCollisionManager* colmgr = Device->getSceneManager()->getSceneCollisionManager();
-        line3d<f32> ray = colmgr->getRayFromScreenCoordinates ( pos, Device->getSceneManager()->getActiveCamera() );
+        ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
+        line3d<f32> ray = colmgr->getRayFromScreenCoordinates ( pos, getSceneManager()->getActiveCamera() );
         ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16 );
         ITriangleSelector* selector;
         vector3df target;
@@ -318,12 +317,11 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
             for ( vector<ATrack*>::iterator iter = XmlEvt->EventComplete.Tracks.begin(); iter < XmlEvt->EventComplete.Tracks.end(); iter++ )
             {
                 int control = 0;
-                if ( selectedSceneNode && (*iter)->Type == 1 ) //tracks
+                if ( selectedSceneNode && (*iter)->Type == ATrack::eSTrack || (*iter)->Type == ATrack::eMissingEt ) //tracks
                 {
-                    ASTrack* tr = static_cast<ASTrack*>(*iter);
-                    if ( selectedSceneNode->getParent() == tr->node )
+		  if ( selectedSceneNode->getParent() == (*iter)->node )
                     {
-                        selectedNode = tr->node;
+		      selectedNode = (*iter)->node;
 
                         break;
                     }
@@ -340,18 +338,8 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
                         break;
                     }
 
-                }
+		    }
 
-                if ( (*iter)->Type == 4 ) //Missing Et
-                {
-                    AMisET* tr = static_cast<AMisET*>(*iter);
-                    if ( selectedSceneNode->getParent() == tr->node )
-                    {
-                        selectedNode = tr->node;
-
-                        break;
-                    }
-                }
             }
         }
         return selectedNode;
@@ -370,9 +358,9 @@ void AGeometry::renderViewport(int view)
 
     if (rt==0) //Try to create an render texture if one does not exist...
     {
-        if (Device->getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
+        if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
         {
-            rt = Device->getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
+            rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
         }
 
         if (rt==0)
@@ -387,30 +375,28 @@ void AGeometry::renderViewport(int view)
 
 
     //New View
-    ICameraSceneNode *originalCamera=Device->getSceneManager()->getActiveCamera();
+    ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
     originalCamera->grab();
-    Device->getSceneManager()->setActiveCamera ( camera[ camId ] );
+    getSceneManager()->setActiveCamera ( camera[ camId ] );
     setupView(view);
 
-    Device->getVideoDriver()->setRenderTarget(rt, true, true, color);
-    Device->getVideoDriver()->beginScene(true,true,color);
-    Device->getSceneManager()->drawAll();
+    getVideoDriver()->setRenderTarget(rt, true, true, color);
+    getVideoDriver()->beginScene(true,true,color);
+    getSceneManager()->drawAll();
 
     setupView(active_viewport);
-    Device->getVideoDriver()->setRenderTarget(0);
-    Device->getSceneManager()->setActiveCamera (originalCamera);
+    getVideoDriver()->setRenderTarget(0);
+    getSceneManager()->setActiveCamera (originalCamera);
     originalCamera->drop();
 
     uchar* tmpdata=(uchar*)rt->lock (true);
 
     dimension2d<s32> size=rt->getSize();
+
     image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
     rt->unlock();
 
     emit viewportUpdated(view,image);
-
-    //Device->getSceneManager()->drawAll();
-    //Device->getVideoDriver()->endScene();
 }
 
 void AGeometry::dynamicCameraSpeed(core::vector3df camPos)  //Modifying camera speed based on proximity to detector...
@@ -539,24 +525,24 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 
         if ( TC_switch == 1 )
         {
-            Device->getSceneManager()->getSceneNodeFromName ( "TCB_Reference" )->setVisible ( isTC_on );
+            getSceneManager()->getSceneNodeFromName ( "TCB_Reference" )->setVisible ( isTC_on );
         }
 
         if ( LAr_switch == 1 )
         {
-            Device->getSceneManager()->getSceneNodeFromName ( "EMCB_Reference" )->setVisible ( isLAr_on );
+            getSceneManager()->getSceneNodeFromName ( "EMCB_Reference" )->setVisible ( isLAr_on );
         }
 
 
         if ( SCT_switch == 1 )
         {
-            Device->getSceneManager()->getSceneNodeFromName ( "SCTB_Reference" )->setVisible ( isSCT_on );
-            Device->getSceneManager()->getSceneNodeFromName ( "TRTB_Reference" )->setVisible ( isSCT_on );
+            getSceneManager()->getSceneNodeFromName ( "SCTB_Reference" )->setVisible ( isSCT_on );
+            getSceneManager()->getSceneNodeFromName ( "TRTB_Reference" )->setVisible ( isSCT_on );
         }
 
         if ( Pix_switch == 1 )
         {
-            Device->getSceneManager()->getSceneNodeFromName ( "PixelsB_Reference" )->setVisible ( isPix_on );
+            getSceneManager()->getSceneNodeFromName ( "PixelsB_Reference" )->setVisible ( isPix_on );
         }
 
         TC_switch = 0;
@@ -571,7 +557,7 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 void AGeometry::execute()
 {
     // Main 3D view
-    core::vector3df camPos = Device->getSceneManager()->getActiveCamera()->getPosition();
+    core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
 
     BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
     CameraBB->setPosition ( camPos );
@@ -580,25 +566,25 @@ void AGeometry::execute()
         BBscale = 15000;
         CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
     }
-    CameraBB->setRotation ( Device->getSceneManager()->getActiveCamera()->getRotation() );
+    CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
     CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
 
     dynamicCameraSpeed(camPos);
     dynamicHidingOfModules(camPos);
 
-    core::position2di pos = Device->getCursorControl()->getPosition();
+    core::position2di pos = getCursorControl()->getPosition();
 
     //TODO This is old code of module selection
     /*if (detectorMode)
     {
-        line3d<f32> ray = Device->getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos, Device->getSceneManager()->getActiveCamera());
+        line3d<f32> ray = getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos, getSceneManager()->getActiveCamera());
         //selectedSceneNode = Irr->GetSceneManager()->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos, 2);
-        selectedSceneNode = Device->getSceneManager()->getSceneCollisionManager()->getSceneNodeFromRayBB(ray, 2);
+        selectedSceneNode = getSceneManager()->getSceneCollisionManager()->getSceneNodeFromRayBB(ray, 2);
         if (selectedSceneNode->getID() == 2)
         {
             if (lastSelectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode))
             {
-                lastSelectedSceneNode->setMaterialTexture(0, Device->getVideoDriver()->getTexture("tile.jpg"));
+                lastSelectedSceneNode->setMaterialTexture(0, getVideoDriver()->getTexture("tile.jpg"));
             }
 
             if (selectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode) && !(camera[0]->isInputReceiverEnabled()))
@@ -690,30 +676,30 @@ void AGeometry::switchVisibility ( int modType )
 {
     if ( generateDetectorGeometry )
     {
-        if ( Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
+        if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
         {
             switch ( modType )
             {
 
             case 0: //Pit
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->isVisible() ) );
                 }
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->isVisible() ) );
                 }
                 break;
 
 
             case 1: //Muon Chambers
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "Muons_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->isVisible() ) );
 //                    cout << "Switched Muons" << endl;
                 }
                 break;
@@ -721,54 +707,54 @@ void AGeometry::switchVisibility ( int modType )
 
             case 2: // Magnets
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->isVisible() ) );
                 }
                 break;
 
 
             case 3: // Hadronic Calorimeter
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "TC_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "TC_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->isVisible() ) );
                 }
                 break;
 
 
             case 4: // EM Calorimeter
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "EMC_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "EMC_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->isVisible() ) );
                 }
                 break;
 
 
             case 5: // TRT
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "TRT_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "TRT_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->isVisible() ) );
                 }
                 break;
 
 
             case 6: // SCT
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "SCT_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "SCT_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->isVisible() ) );
                 }
                 break;
 
 
             case 7: // Pixels
 
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" ) )
+                if ( getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" ) )
                 {
-                    Device->getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->setVisible ( ! ( Device->getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->isVisible() ) );
+                    getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->isVisible() ) );
                 }
                 break;
 
@@ -828,13 +814,13 @@ void AGeometry::createAtlasGeometry()
     // file system needed to create new attributes
     //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/AtlasGeometry.aml");
     //IFileSystem* fs = Irr->GetDevice()->getFileSystem();
-    video::ITexture* reflex = Device->getVideoDriver()->getTexture ( "refmap2.jpg" );
-    Device->getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, true);
-    Device->getSceneManager()->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
+    video::ITexture* reflex = getVideoDriver()->getTexture ( "refmap2.jpg" );
+    getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, true);
+    getSceneManager()->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 
 
     scene::ISceneNode* node = 0;
-    scene::ISceneNode* Atlas_Reference = Device->getSceneManager()->addEmptySceneNode();
+    scene::ISceneNode* Atlas_Reference = getSceneManager()->addEmptySceneNode();
     Atlas_Reference->setScale ( core::vector3df ( mscale,mscale,mscale ) );
     Atlas_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
     Atlas_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
@@ -847,7 +833,7 @@ void AGeometry::createAtlasGeometry()
         if ( !isCrappyComputer )
         {
 
-            Device->getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
+            getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
             /* scene::IAnimatedMesh* Pit01 = Irr->GetSceneManager()->getMesh("Pit_part01.X");
              scene::IAnimatedMesh* Pit02 = Irr->GetSceneManager()->getMesh("Pit_part02.X");
 
@@ -872,25 +858,25 @@ void AGeometry::createAtlasGeometry()
 
         //Load TC Modules
 
-        scene::ISceneNode* TC_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TC_Reference = getSceneManager()->addEmptySceneNode();
         TC_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TC_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TC_Reference->setParent ( Atlas_Reference );
         TC_Reference->setName ( "TC_Reference" );
-        scene::ISceneNode* TCB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TCB_Reference = getSceneManager()->addEmptySceneNode();
         TCB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TCB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TCB_Reference->setParent ( TC_Reference );
         TCB_Reference->setName ( "TCB_Reference" );
 
 
-        scene::IMesh* TC = Device->getSceneManager()->getMesh ( "TC_Barrel01.x" );
+        scene::IMesh* TC = getSceneManager()->getMesh ( "TC_Barrel01.x" );
         scene::IMeshSceneNode* nodeModels = NULL;
 
         for ( int a = 0 ; a<64  ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TC );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TC );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -919,24 +905,24 @@ void AGeometry::createAtlasGeometry()
         //Load EM Calorimeter EC Modules
 
 
-        scene::ISceneNode* EM_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* EM_Reference = getSceneManager()->addEmptySceneNode();
         EM_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         EM_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         EM_Reference->setParent ( Atlas_Reference );
         EM_Reference->setName ( "EMC_Reference" );
-        scene::ISceneNode* EMB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* EMB_Reference = getSceneManager()->addEmptySceneNode();
         EMB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         EMB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         EMB_Reference->setParent ( EM_Reference );
         EMB_Reference->setName ( "EMCB_Reference" );
 
-        scene::IMesh* EM_Cal_EC = Device->getSceneManager()->getMesh ( "EM_Cal_EC_1.X" );
+        scene::IMesh* EM_Cal_EC = getSceneManager()->getMesh ( "EM_Cal_EC_1.X" );
 
         for ( int a = 0 ; a<8 ; a++ )
         {
 
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( EM_Cal_EC );
+            nodeModels = getSceneManager()->addMeshSceneNode ( EM_Cal_EC );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -957,7 +943,7 @@ void AGeometry::createAtlasGeometry()
 
             //  Other Side
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( EM_Cal_EC );
+            nodeModels = getSceneManager()->addMeshSceneNode ( EM_Cal_EC );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -981,12 +967,12 @@ void AGeometry::createAtlasGeometry()
         //Load EM Calorimeter Barrel Module
 
 
-        scene::IMesh* EM_Cal_Barrel = Device->getSceneManager()->getMesh ( "LArg_Barrel.X" );
+        scene::IMesh* EM_Cal_Barrel = getSceneManager()->getMesh ( "LArg_Barrel.X" );
 
         for ( int a = 0 ; a<16 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( EM_Cal_Barrel );
+            nodeModels = getSceneManager()->addMeshSceneNode ( EM_Cal_Barrel );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,200,200,200 );
             nodeModels->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
@@ -1016,11 +1002,11 @@ void AGeometry::createAtlasGeometry()
         //Load TC Endcap Module B
 
 
-        scene::IMesh* TC_EC = Device->getSceneManager()->getMesh ( "TC_Endcap01.X" );
+        scene::IMesh* TC_EC = getSceneManager()->getMesh ( "TC_Endcap01.X" );
 
         for ( int a = 0 ; a<64 ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TC_EC );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TC_EC );
 
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1046,7 +1032,7 @@ void AGeometry::createAtlasGeometry()
 
             //Other Side
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TC_EC );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TC_EC );
 
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1076,12 +1062,12 @@ void AGeometry::createAtlasGeometry()
         //Load HEC Larg Modules A
 
 
-        scene::IMesh* HEC_A = Device->getSceneManager()->getMesh ( "HEC_LArg01.x" );
+        scene::IMesh* HEC_A = getSceneManager()->getMesh ( "HEC_LArg01.x" );
 
 
         for ( int a = 0 ; a<32  ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( HEC_A );
+            nodeModels = getSceneManager()->addMeshSceneNode ( HEC_A );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
@@ -1108,7 +1094,7 @@ void AGeometry::createAtlasGeometry()
 
             //Other Side
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( HEC_A );
+            nodeModels = getSceneManager()->addMeshSceneNode ( HEC_A );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
@@ -1140,12 +1126,12 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* HEC_B = Device->getSceneManager()->getMesh ( "HEC_LArg02.x" );
+        scene::IMesh* HEC_B = getSceneManager()->getMesh ( "HEC_LArg02.x" );
 
         for ( int a = 0 ; a<32  ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( HEC_B );
+            nodeModels = getSceneManager()->addMeshSceneNode ( HEC_B );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
@@ -1172,7 +1158,7 @@ void AGeometry::createAtlasGeometry()
 
             // Other side
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( HEC_B );
+            nodeModels = getSceneManager()->addMeshSceneNode ( HEC_B );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,255,255,255 );
@@ -1203,26 +1189,26 @@ void AGeometry::createAtlasGeometry()
 
         //Load TRT Barrel
 
-        scene::ISceneNode* TRT_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TRT_Reference = getSceneManager()->addEmptySceneNode();
         TRT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TRT_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TRT_Reference->setParent ( Atlas_Reference );
         TRT_Reference->setName ( "TRT_Reference" );
-        scene::ISceneNode* TRTB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TRTB_Reference = getSceneManager()->addEmptySceneNode();
         TRTB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TRTB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TRTB_Reference->setParent ( TRT_Reference );
         TRTB_Reference->setName ( "TRTB_Reference" );
 
 
-        scene::IMesh* TRT_B = Device->getSceneManager()->getMesh ( "TRT_Barrel.x" );
+        scene::IMesh* TRT_B = getSceneManager()->getMesh ( "TRT_Barrel.x" );
 
 
         for ( int a = 0 ; a<32  ; a++ )
         {
 
             //Layer I
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TRT_B );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TRT_B );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
@@ -1238,7 +1224,7 @@ void AGeometry::createAtlasGeometry()
 
 
             //Layer II
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TRT_B );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TRT_B );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
@@ -1254,7 +1240,7 @@ void AGeometry::createAtlasGeometry()
 
 
             //Layer III
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TRT_B );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TRT_B );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
@@ -1272,23 +1258,23 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS Toroids
 
-        scene::ISceneNode* Magnets_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Magnets_Reference = getSceneManager()->addEmptySceneNode();
         Magnets_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Magnets_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Magnets_Reference->setParent ( Atlas_Reference );
         Magnets_Reference->setName ( "Magnets_Reference" );
 
 
-        scene::IMesh* Toroid = Device->getSceneManager()->getMesh ( "Toroid.X" );
+        scene::IMesh* Toroid = getSceneManager()->getMesh ( "Toroid.X" );
 
 
         for ( int a = 0 ; a<8 ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( Toroid );
+            nodeModels = getSceneManager()->addMeshSceneNode ( Toroid );
 
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,180 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,180 );
-            nodeModels->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "lakerem4.bmp" ) );
+            nodeModels->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "lakerem4.bmp" ) );
             nodeModels->getMaterial ( 0 ).Shininess = 1;
 
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1304,22 +1290,22 @@ void AGeometry::createAtlasGeometry()
 
         //Load SCT Barrel
 
-        scene::ISceneNode* SCT_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* SCT_Reference = getSceneManager()->addEmptySceneNode();
         SCT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         SCT_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         SCT_Reference->setParent ( Atlas_Reference );
         SCT_Reference->setName ( "SCT_Reference" );
-        scene::ISceneNode* SCTB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* SCTB_Reference = getSceneManager()->addEmptySceneNode();
         SCTB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         SCTB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         SCTB_Reference->setParent ( SCT_Reference );
         SCTB_Reference->setName ( "SCTB_Reference" );
 
 
-        scene::IMesh* SCT_L1 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L1.X" );
-        scene::IMesh* SCT_L2 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L2.X" );
-        scene::IMesh* SCT_L3 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L3.X" );
-        scene::IMesh* SCT_L4 = Device->getSceneManager()->getMesh ( "SCT_Barrel_L4.X" );
+        scene::IMesh* SCT_L1 = getSceneManager()->getMesh ( "SCT_Barrel_L1.X" );
+        scene::IMesh* SCT_L2 = getSceneManager()->getMesh ( "SCT_Barrel_L2.X" );
+        scene::IMesh* SCT_L3 = getSceneManager()->getMesh ( "SCT_Barrel_L3.X" );
+        scene::IMesh* SCT_L4 = getSceneManager()->getMesh ( "SCT_Barrel_L4.X" );
         float MDistance = 12;
 
         for ( int d = 0; d<12; d++ ) //The 12 rings per layer of the SCT barrel
@@ -1329,7 +1315,7 @@ void AGeometry::createAtlasGeometry()
             for ( int a = 0 ; a<32 ; a++ )
             {
 
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L1 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( SCT_L1 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1351,7 +1337,7 @@ void AGeometry::createAtlasGeometry()
             for ( int a = 0 ; a<40 ; a++ )
             {
 
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L2 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( SCT_L2 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1371,7 +1357,7 @@ void AGeometry::createAtlasGeometry()
             for ( int a = 0 ; a<48 ; a++ )
             {
 
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L3 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( SCT_L3 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1391,7 +1377,7 @@ void AGeometry::createAtlasGeometry()
             for ( int a = 0 ; a<56 ; a++ )
             {
 
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_L4 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( SCT_L4 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).DiffuseColor.set ( 0,180,180,120 );
@@ -1412,13 +1398,13 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* SCT_Disks = Device->getSceneManager()->getMesh ( "SCT_Disks.X" );
+        scene::IMesh* SCT_Disks = getSceneManager()->getMesh ( "SCT_Disks.X" );
         float DivAng = 360.0f/13.0f;
 
         for ( int a = 0 ; a<13 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( SCT_Disks );
+            nodeModels = getSceneManager()->addMeshSceneNode ( SCT_Disks );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1435,24 +1421,24 @@ void AGeometry::createAtlasGeometry()
 
         /** Tube section */
 
-        scene::ISceneNode* Pixels_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Pixels_Reference = getSceneManager()->addEmptySceneNode();
         Pixels_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Pixels_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Pixels_Reference->setParent ( Atlas_Reference );
         Pixels_Reference->setName ( "Pixels_Reference" );
-        scene::ISceneNode* PixelsB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* PixelsB_Reference = getSceneManager()->addEmptySceneNode();
         PixelsB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         PixelsB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         PixelsB_Reference->setParent ( Pixels_Reference );
         PixelsB_Reference->setName ( "PixelsB_Reference" );
 
 
-        scene::IMesh* TubeSection = Device->getSceneManager()->getMesh ( "TubeSection.X" );
+        scene::IMesh* TubeSection = getSceneManager()->getMesh ( "TubeSection.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TubeSection );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TubeSection );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1467,13 +1453,13 @@ void AGeometry::createAtlasGeometry()
 
 
             /** Internal Tube */
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( TubeSection );
+            nodeModels = getSceneManager()->addMeshSceneNode ( TubeSection );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
             nodeModels->setScale ( core::vector3df ( 1,0.995,0.995 ) );
             //nodeModels->setMaterialType(video::EMT_LIGHTMAP_ADD);
-            nodeModels->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "PixelTubeInternal.png" ) );
+            nodeModels->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "PixelTubeInternal.png" ) );
             nodeModels->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
             nodeModels->setRotation ( core::vector3df ( 0 ,-90 ,0 + a*90 ) );
             nodeModels->setParent ( Pixels_Reference );
@@ -1485,12 +1471,12 @@ void AGeometry::createAtlasGeometry()
         /** Carbon Fiber Rings */
 
 
-        scene::IMesh* RingsTubeInt = Device->getSceneManager()->getMesh ( "RingsPixelsTube.X" );
+        scene::IMesh* RingsTubeInt = getSceneManager()->getMesh ( "RingsPixelsTube.X" );
 
         for ( int a = 0 ; a<3 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( RingsTubeInt );
+            nodeModels = getSceneManager()->addMeshSceneNode ( RingsTubeInt );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             //nodeModels->getMaterial(0).EmissiveColor.set(200,180,180,120);
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1506,12 +1492,12 @@ void AGeometry::createAtlasGeometry()
         /** Metalic Rings */
 
 
-        scene::IMesh* MRingsTube = Device->getSceneManager()->getMesh ( "MRingsPixTube.X" );
+        scene::IMesh* MRingsTube = getSceneManager()->getMesh ( "MRingsPixTube.X" );
 
         for ( int a = 0 ; a<2 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( MRingsTube );
+            nodeModels = getSceneManager()->addMeshSceneNode ( MRingsTube );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1529,12 +1515,12 @@ void AGeometry::createAtlasGeometry()
         /** Part I */
 
 
-        scene::IMesh* PixFrm01 = Device->getSceneManager()->getMesh ( "Pixels_Frame_Barrel.X" );
+        scene::IMesh* PixFrm01 = getSceneManager()->getMesh ( "Pixels_Frame_Barrel.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm01 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm01 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1547,7 +1533,7 @@ void AGeometry::createAtlasGeometry()
 
             /** Part II */
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm01 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm01 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1564,13 +1550,13 @@ void AGeometry::createAtlasGeometry()
         //Load Pixels Frame EC
 
 
-        scene::IMesh* PixFrm02 = Device->getSceneManager()->getMesh ( "Pixels_Frame_EC.X" );
+        scene::IMesh* PixFrm02 = getSceneManager()->getMesh ( "Pixels_Frame_EC.X" );
 
         for ( int a = 0 ; a<4 ; a++ )
         {
             /** Part I Side I*/
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm02 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm02 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( 1,1,1 ) );
@@ -1584,7 +1570,7 @@ void AGeometry::createAtlasGeometry()
 
             /** Part II Side I*/
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm02 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm02 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( 1,-1,1 ) );
@@ -1598,7 +1584,7 @@ void AGeometry::createAtlasGeometry()
 
             /** Part I Side II*/
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm02 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm02 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( -1,1,1 ) );
@@ -1612,7 +1598,7 @@ void AGeometry::createAtlasGeometry()
 
             /** Part II Side II*/
 
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( PixFrm02 );
+            nodeModels = getSceneManager()->addMeshSceneNode ( PixFrm02 );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 200,180,180,120 );
             nodeModels->setScale ( core::vector3df ( -1,-1,1 ) );
@@ -1633,16 +1619,16 @@ void AGeometry::createAtlasGeometry()
 
 
 
-        scene::IMesh* Px_L1 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1.X" );
-        scene::IMesh* Px_L2 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2.X" );
-        scene::IMesh* Px_L3 = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3.X" );
-        scene::IMesh* Px_L1b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1b.X" );
-        scene::IMesh* Px_L2b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2b.X" );
-        scene::IMesh* Px_L3b = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3b.X" );
-        scene::IMesh* Px_L1C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L1_Center.X" );
-        scene::IMesh* Px_L2C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L2_Center.X" );
-        scene::IMesh* Px_L3C = Device->getSceneManager()->getMesh ( "Pixel_Barrel_L3_Center.X" );
-        scene::IMesh* Px_Ref = Device->getSceneManager()->getMesh ( "Pixel_Barrel_Reference.X" );
+        scene::IMesh* Px_L1 = getSceneManager()->getMesh ( "Pixel_Barrel_L1.X" );
+        scene::IMesh* Px_L2 = getSceneManager()->getMesh ( "Pixel_Barrel_L2.X" );
+        scene::IMesh* Px_L3 = getSceneManager()->getMesh ( "Pixel_Barrel_L3.X" );
+        scene::IMesh* Px_L1b = getSceneManager()->getMesh ( "Pixel_Barrel_L1b.X" );
+        scene::IMesh* Px_L2b = getSceneManager()->getMesh ( "Pixel_Barrel_L2b.X" );
+        scene::IMesh* Px_L3b = getSceneManager()->getMesh ( "Pixel_Barrel_L3b.X" );
+        scene::IMesh* Px_L1C = getSceneManager()->getMesh ( "Pixel_Barrel_L1_Center.X" );
+        scene::IMesh* Px_L2C = getSceneManager()->getMesh ( "Pixel_Barrel_L2_Center.X" );
+        scene::IMesh* Px_L3C = getSceneManager()->getMesh ( "Pixel_Barrel_L3_Center.X" );
+        scene::IMesh* Px_Ref = getSceneManager()->getMesh ( "Pixel_Barrel_Reference.X" );
         float MPDistance = 6;
 
         /** Center */
@@ -1650,7 +1636,7 @@ void AGeometry::createAtlasGeometry()
         /** Layer 1 */
         for ( int a = 0 ; a<22 ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L1C );
+            nodeModels = getSceneManager()->addMeshSceneNode ( Px_L1C );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1666,7 +1652,7 @@ void AGeometry::createAtlasGeometry()
         /** Layer 2 */
         for ( int a = 0 ; a<38 ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L2C );
+            nodeModels = getSceneManager()->addMeshSceneNode ( Px_L2C );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1682,7 +1668,7 @@ void AGeometry::createAtlasGeometry()
         /** Layer 3 */
         for ( int a = 0 ; a<52 ; a++ )
         {
-            nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L3C );
+            nodeModels = getSceneManager()->addMeshSceneNode ( Px_L3C );
             nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
             nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1704,7 +1690,7 @@ void AGeometry::createAtlasGeometry()
             for ( int a = 0 ; a<22 ; a++ )
             {
                 /** First side */
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L1 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L1 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1718,7 +1704,7 @@ void AGeometry::createAtlasGeometry()
 
 
                 /** Second side*/
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L1b );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L1b );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1740,7 +1726,7 @@ void AGeometry::createAtlasGeometry()
             {
 
                 /** First side*/
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L2 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L2 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1754,7 +1740,7 @@ void AGeometry::createAtlasGeometry()
 
 
                 /** Second side*/
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L2b );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L2b );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1774,7 +1760,7 @@ void AGeometry::createAtlasGeometry()
             {
 
                 /** First side*/
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L3 );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L3 );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1788,7 +1774,7 @@ void AGeometry::createAtlasGeometry()
 
 
                 /** Second side*/
-                nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_L3b );
+                nodeModels = getSceneManager()->addMeshSceneNode ( Px_L3b );
                 nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,180,180,120 );
                 nodeModels->getMaterial ( 1 ).EmissiveColor.set ( 0,122,122,122 );
@@ -1807,9 +1793,9 @@ void AGeometry::createAtlasGeometry()
         //Load Pixels Disks
 
 
-        scene::IMesh* Px_Dsks = Device->getSceneManager()->getMesh ( "Pixel_Disks.X" );
+        scene::IMesh* Px_Dsks = getSceneManager()->getMesh ( "Pixel_Disks.X" );
 
-        nodeModels = Device->getSceneManager()->addMeshSceneNode ( Px_Dsks );
+        nodeModels = getSceneManager()->addMeshSceneNode ( Px_Dsks );
         video::SMaterial &mat0 = nodeModels->getMaterial(0);
         video::SMaterial &mat1 = nodeModels->getMaterial(1);
         mat1.DiffuseColor.set ( 222,222,222,222 );
@@ -1828,16 +1814,16 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS Shields
 
-        scene::ISceneNode* Shields_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Shields_Reference = getSceneManager()->addEmptySceneNode();
         Shields_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Shields_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Shields_Reference->setParent ( Atlas_Reference );
         Shields_Reference->setName ( "Shields_Reference" );
 
         //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/JT.pk3");
-        scene::IMesh* jt_shd = Device->getSceneManager()->getMesh ( "JT.X" );
+        scene::IMesh* jt_shd = getSceneManager()->getMesh ( "JT.X" );
 
-        nodeModels = Device->getSceneManager()->addMeshSceneNode ( jt_shd );
+        nodeModels = getSceneManager()->addMeshSceneNode ( jt_shd );
         nodeModels->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
         nodeModels->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
         nodeModels->setMaterialFlag ( video::EMF_LIGHTING, true );
@@ -1853,15 +1839,15 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS BigWheels
 
-        scene::IMesh* bw = Device->getSceneManager()->getMesh ( "ATLAS_BigWheels.obj" );
+        scene::IMesh* bw = getSceneManager()->getMesh ( "ATLAS_BigWheels.obj" );
 
-        Device->getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( bw, 0.0003f );
+        getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( bw, 0.0003f );
 
         scene::ISceneNode* nodee = 0;
 
         //TODO Don't forget to hide this by adding it to Atlas_Reference
-        nodee = Device->getSceneManager()->addMeshSceneNode ( bw );
-        nodee->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "square2.bmp" ) );
+        nodee = getSceneManager()->addMeshSceneNode ( bw );
+        nodee->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodee->getMaterial ( 0 ).EmissiveColor.set ( 255,0,45,105 );
 
         nodee->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
@@ -1870,15 +1856,15 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS EWC
 
-        scene::IMesh* ewc = Device->getSceneManager()->getMesh ( "ATLAS_EWC.obj" );
+        scene::IMesh* ewc = getSceneManager()->getMesh ( "ATLAS_EWC.obj" );
 
-        Device->getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( ewc, 0.0003f );
+        getSceneManager()->getMeshManipulator()->makePlanarTextureMapping ( ewc, 0.0003f );
 
         scene::ISceneNode* nodef = 0;
 
         //TODO Don't forget to hide this Atlas_Reference
-        nodef = Device->getSceneManager()->addMeshSceneNode ( ewc );
-        nodef->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "square2.bmp" ) );
+        nodef = getSceneManager()->addMeshSceneNode ( ewc );
+        nodef->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodef->getMaterial ( 0 ).EmissiveColor.set ( 0,0,45,105 );
 
         nodef->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, false );
@@ -1889,7 +1875,7 @@ void AGeometry::createAtlasGeometry()
 
         //Load ATLAS Muon chambers
 
-        scene::ISceneNode* Muons_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Muons_Reference = getSceneManager()->addEmptySceneNode();
         Muons_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Muons_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Muons_Reference->setParent ( Atlas_Reference );
@@ -1945,18 +1931,18 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 5090 * c, 636 * c, zLength1[0][k] * c );
                     pos = core::vector3df ( 9477*cos ( theta ) * c + bx, 9477*sin ( theta ) * c + by, zCenter1[0][k] * c );
                     rot = core::vector3df ( 0, 0, 90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
 
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
                     node->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
 
@@ -1965,12 +1951,12 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 3700 * c, 667 * c, zLength1[1][k] * c );
                     pos = core::vector3df ( 7116*cos ( theta ) * c + bx, 7116*sin ( theta ) * c + by, zCenter1[1][k] * c );
                     rot = core::vector3df ( 0, 0, 90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
 
 
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
@@ -1978,7 +1964,7 @@ void AGeometry::createAtlasGeometry()
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
 
@@ -1987,17 +1973,17 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 2820 * c, 416 * c, zLength1[2][k] * c );
                     pos = core::vector3df ( 4926*cos ( theta ) * c + bx, 4926*sin ( theta ) * c + by, zCenter1[2][k] * c );
                     rot = core::vector3df ( 0, 0, 90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
                     node->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
 
@@ -2013,17 +1999,17 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 3900 * c, 647 * c, zLength2[0][k] * c );
                     pos = core::vector3df ( 10544*cos ( theta ) * c + bx, 10544*sin ( theta ) * c + by, zCenter2[0][k] * c );
                     rot = core::vector3df ( 0,0,90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0,-1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0,-1, pos, rot, scale );
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
                     node->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
 
@@ -2031,17 +2017,17 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 3200 * c, 664 * c, zLength2[1][k] * c );
                     pos = core::vector3df ( 8070*cos ( theta ) * c + bx, 8070*sin ( theta ) * c + by, zCenter2[1][k] * c );
                     rot = core::vector3df ( 0,0,90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
                     node->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
 
@@ -2049,17 +2035,17 @@ void AGeometry::createAtlasGeometry()
                     scale = core::vector3df ( 1820 * c, 284 * c, zLength2[2][k] * c );
                     pos = core::vector3df ( 4525*cos ( theta ) * c + bx, 4525*sin ( theta ) * c + by, zCenter2[2][k] * c );
                     rot = core::vector3df ( 0,0,90 + ( theta * 180 ) / ( core::PI ) );
-                    node = Device->getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
+                    node = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, pos, rot, scale );
 
                     //node->setMaterialFlag(video::EMF_NORMALIZE_NORMALS, true);
-                    node->getMaterial ( 0 ).setTexture ( 1, Device->getVideoDriver()->getTexture ( "refmap2.jpg" ) );
+                    node->getMaterial ( 0 ).setTexture ( 1, getVideoDriver()->getTexture ( "refmap2.jpg" ) );
                     node->getMaterial ( 0 ).MaterialType = video::EMT_REFLECTION_2_LAYER;
                     node->getMaterial ( 0 ).Shininess = 44;
                     node->getMaterial ( 0 ).DiffuseColor.set ( 0,255,255,255 );
                     node->getMaterial ( 0 ).EmissiveColor.set ( 0,222,222,222 );
                     node->getMaterial ( 0 ).TextureLayer[1].TextureWrap = ETC_MIRROR;
 
-                    node->setMaterialTexture ( 0, Device->getVideoDriver()->getTexture ( "tile.png" ) );
+                    node->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "tile.png" ) );
                     node->setParent ( Muons_Reference );
                     node->setName ( "MuonSpectrometer" );
                 }
@@ -2072,74 +2058,74 @@ void AGeometry::createAtlasGeometry()
     }
     else
     {
-        scene::ISceneNode* TC_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TC_Reference = getSceneManager()->addEmptySceneNode();
         TC_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TC_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TC_Reference->setParent ( Atlas_Reference );
         TC_Reference->setName ( "TC_Reference" );
-        scene::ISceneNode* TCB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TCB_Reference = getSceneManager()->addEmptySceneNode();
         TCB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TCB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TCB_Reference->setParent ( TC_Reference );
         TCB_Reference->setName ( "TCB_Reference" );
 
 
-        scene::ISceneNode* EM_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* EM_Reference = getSceneManager()->addEmptySceneNode();
         EM_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         EM_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         EM_Reference->setParent ( Atlas_Reference );
         EM_Reference->setName ( "EMC_Reference" );
-        scene::ISceneNode* EMB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* EMB_Reference = getSceneManager()->addEmptySceneNode();
         EMB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         EMB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         EMB_Reference->setParent ( EM_Reference );
         EMB_Reference->setName ( "EMCB_Reference" );
 
 
-        scene::ISceneNode* TRT_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TRT_Reference = getSceneManager()->addEmptySceneNode();
         TRT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TRT_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TRT_Reference->setParent ( Atlas_Reference );
         TRT_Reference->setName ( "TRT_Reference" );
-        scene::ISceneNode* TRTB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* TRTB_Reference = getSceneManager()->addEmptySceneNode();
         TRTB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         TRTB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         TRTB_Reference->setParent ( TRT_Reference );
         TRTB_Reference->setName ( "TRTB_Reference" );
 
 
-        scene::ISceneNode* Magnets_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Magnets_Reference = getSceneManager()->addEmptySceneNode();
         Magnets_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Magnets_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Magnets_Reference->setParent ( Atlas_Reference );
         Magnets_Reference->setName ( "Magnets_Reference" );
 
 
-        scene::ISceneNode* SCT_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* SCT_Reference = getSceneManager()->addEmptySceneNode();
         SCT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         SCT_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         SCT_Reference->setParent ( Atlas_Reference );
         SCT_Reference->setName ( "SCT_Reference" );
-        scene::ISceneNode* SCTB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* SCTB_Reference = getSceneManager()->addEmptySceneNode();
         SCTB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         SCTB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         SCTB_Reference->setParent ( SCT_Reference );
         SCTB_Reference->setName ( "SCTB_Reference" );
 
 
-        scene::ISceneNode* Pixels_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Pixels_Reference = getSceneManager()->addEmptySceneNode();
         Pixels_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Pixels_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Pixels_Reference->setParent ( Atlas_Reference );
         Pixels_Reference->setName ( "Pixels_Reference" );
-        scene::ISceneNode* PixelsB_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* PixelsB_Reference = getSceneManager()->addEmptySceneNode();
         PixelsB_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         PixelsB_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         PixelsB_Reference->setParent ( Pixels_Reference );
         PixelsB_Reference->setName ( "PixelsB_Reference" );
 
 
-        scene::ISceneNode* Muons_Reference = Device->getSceneManager()->addEmptySceneNode();
+        scene::ISceneNode* Muons_Reference = getSceneManager()->addEmptySceneNode();
         Muons_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
         Muons_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
         Muons_Reference->setParent ( Atlas_Reference );
@@ -2151,9 +2137,9 @@ void AGeometry::createAtlasGeometry()
     ///* Background images for the viewports
 
     //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/Background_Front.pk3");
-    scene::IAnimatedMesh* bgf = Device->getSceneManager()->getMesh ( "Background_Front.X" );
+    scene::IAnimatedMesh* bgf = getSceneManager()->getMesh ( "Background_Front.X" );
 
-    background_node_f = Device->getSceneManager()->addAnimatedMeshSceneNode ( bgf, 0, -1, core::vector3df ( 0,0,-240 ), core::vector3df ( 0,90,0 ) );
+    background_node_f = getSceneManager()->addAnimatedMeshSceneNode ( bgf, 0, -1, core::vector3df ( 0,0,-240 ), core::vector3df ( 0,90,0 ) );
     background_node_f->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
     background_node_f->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
     background_node_f->setScale ( core::vector3df ( mscale,mscale,mscale ) );
@@ -2163,9 +2149,9 @@ void AGeometry::createAtlasGeometry()
     background_node_f->setVisible ( false );
 
 
-    scene::IAnimatedMesh* bgs = Device->getSceneManager()->getMesh ( "Background_Side.X" );
+    scene::IAnimatedMesh* bgs = getSceneManager()->getMesh ( "Background_Side.X" );
 
-    background_node_s = Device->getSceneManager()->addAnimatedMeshSceneNode ( bgs, 0, -1, core::vector3df ( 400,0,0 ), core::vector3df ( 0,90,90 ) );
+    background_node_s = getSceneManager()->addAnimatedMeshSceneNode ( bgs, 0, -1, core::vector3df ( 400,0,0 ), core::vector3df ( 0,90,90 ) );
     background_node_s->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
     background_node_s->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
     background_node_s->setScale ( core::vector3df ( mscale,mscale,mscale ) );
@@ -2179,7 +2165,7 @@ void AGeometry::createAtlasGeometry()
 
     scene::ISceneNode* nodel = 0;
     float a = 1;
-    //nodel = Device->getSceneManager()->addLightSceneNode(0, core::vector3df(1050,750,750),  video::SColorf(a, a, a, a), 850.0f);
+    //nodel = getSceneManager()->addLightSceneNode(0, core::vector3df(1050,750,750),  video::SColorf(a, a, a, a), 850.0f);
 
 
     //Irr->GetSceneManager()->saveScene("newscene.irr");
@@ -2275,181 +2261,185 @@ void AGeometry::grabControl()
 {
   if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)
     {
-        Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( true );
-        setCursor( QCursor( Qt::BlankCursor ) );
-        allowTrackSelection=false;
-        setFocus();
+      getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( true );
+      setCursor( QCursor( Qt::BlankCursor ) );
+      allowTrackSelection=false;
+      setFocus();
     }
+    
 }
 
 void AGeometry::releaseControl()
 {
   if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)
     {
-        Device->getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
+        getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
         setCursor( QCursor( Qt::ArrowCursor ) );
         allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
     }
 }
 
-bool AGeometry::OnEvent ( const SEvent& event )
+void AGeometry::resizeEvent( QResizeEvent* event )
 {
-    if ( event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_LMOUSE_PRESSED_DOWN  )
+  rt=0;
+
+  QIrrWidget::resizeEvent(event);
+}
+
+void AGeometry::mousePressEvent(QMouseEvent *event)
+{
+  if ( active_viewport == AGeometry::Cam3D )
     {
-        if ( active_viewport == AGeometry::Cam3D )
-        {
-            if (allowTrackSelection)
-            {
-                core::position2di posMouse = core::position2di(event.MouseInput.X,event.MouseInput.Y);
-                ATrack3DNode *selected;
+      core::position2di posMouse = core::position2di(event->x(),event->y());
+      
+      if(event->button()==Qt::LeftButton)
+	{
+	  //If you clicked an FPS camera and it does not have input, give it input! This allows us to focus the camera by clicking on AGeometry
+	  if (!getSceneManager()->getActiveCamera()->isInputReceiverEnabled() && !allowTrackSelection && !offsetTest)
+	    {
+	      grabControl();
+	    }
+	  
+	  if (allowTrackSelection && event->button()==Qt::LeftButton)
+	    {
+	      ATrack3DNode *selected;
+	      
+	      //Do the actual selection
+	      selected=trackSelection(posMouse);
+	      
+	      //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
+	      bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+	      if (!Shift)
+		{
+		  while (!selectedTracks.isEmpty())
+		    {
+		      ATrack3DNode *node=selectedTracks.back();
+		      node->getTrack()->deselect();
+		      selectedTracks.pop_back();
+		      emit trackDeselected(node->getTrack());
+		    }
+		}
+	      
+	      if (selected)
+		{
+		  int idx=selectedTracks.indexOf(selected);
+		  if (idx==-1) //Make sure the track is not already selected
+		    {
+		      selected->getTrack()->select();
+		      selectedTracks.push_back(selected);
+		      emit trackSelected(selected->getTrack());
+		      qDebug() << "Found and selected a track...";
+		    }
+		  else //else deselect it
+		    {
+		      selectedTracks.removeAt(idx);
+		      selected->getTrack()->deselect();
+		      emit trackDeselected(selected->getTrack());
+		      qDebug() << "Found and delselected a track...";
+		    }
+		}
+	    }
+	}
+      
+      //This next block is part of an offset test for the Irrlicht ray generator
+      if ( offsetTest )
+	{
+	  
+	  line3d<f32> ray = getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(posMouse, getSceneManager()->getActiveCamera());
+	  cube->setPosition ( ray.start + ray.getVector().normalize() * 180.0 ); // put it some distance away
+	  cube->updateAbsolutePosition();
+	  /*                cout << "cube X: " <<  cube->getPosition().X << "  cube Y: " <<  cube->getPosition().Y <<endl;
+			    cout << "pos2D X: " <<  posMouse.X << "  pos2D Y: " <<  posMouse.Y <<endl;
+			    cout << "RayStart X: " <<  ray.start.X << "  RayStart Y: " <<  ray.start.Y <<endl;
+			    cout << "RayEnd X: " <<  ray.end.X << "  RayEnd Y: " <<  ray.end.Y <<endl;
+			    cout << ""  <<endl;
+			    cout << ""  <<endl;
+			    cout << ""  <<endl;
+			    cout << "Width: " <<  width() << "  Heigth: " <<  height() <<endl;*/
+	}
 
-                //Do the actual selection
-                selected=trackSelection(posMouse);
-
-                //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-                bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
-                if (!Shift)
-                {
-                    while (!selectedTracks.isEmpty())
-                    {
-                        ATrack3DNode *node=selectedTracks.back();
-                        node->getTrack()->deselect();
-                        selectedTracks.pop_back();
-                        emit trackDeselected(node->getTrack());
-                    }
-                }
-
-                if (selected)
-                {
-                    int idx=selectedTracks.indexOf(selected);
-                    if (idx==-1) //Make sure the track is not already selected
-                    {
-                        selected->getTrack()->select();
-                        selectedTracks.push_back(selected);
-                        emit trackSelected(selected->getTrack());
-                        qDebug() << "Found and selected a track...";
-                    }
-                    else //else deselect it
-                    {
-                        selectedTracks.removeAt(idx);
-                        selected->getTrack()->deselect();
-                        emit trackDeselected(selected->getTrack());
-                        qDebug() << "Found and delselected a track...";
-                    }
-                }
-            }
-
-            //This next block is part of an offset test for the Irrlicht ray generator
-            if ( offsetTest )
-            {
-
-                core::position2di posMouse = Device->getCursorControl()->getPosition();
-                line3d<f32> ray = Device->getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(posMouse, Device->getSceneManager()->getActiveCamera());
-                cube->setPosition ( ray.start + ray.getVector().normalize() * 180.0 ); // put it some distance away
-                cube->updateAbsolutePosition();
-/*                cout << "cube X: " <<  cube->getPosition().X << "  cube Y: " <<  cube->getPosition().Y <<endl;
-                cout << "pos2D X: " <<  posMouse.X << "  pos2D Y: " <<  posMouse.Y <<endl;
-                cout << "RayStart X: " <<  ray.start.X << "  RayStart Y: " <<  ray.start.Y <<endl;
-                cout << "RayEnd X: " <<  ray.end.X << "  RayEnd Y: " <<  ray.end.Y <<endl;
-                cout << ""  <<endl;
-                cout << ""  <<endl;
-                cout << ""  <<endl;
-                cout << "Width: " <<  width() << "  Heigth: " <<  height() <<endl;*/
-            }
-        }
     }
+  
+  QIrrWidget::mousePressEvent(event);
+}
 
 
-    if ( event.EventType == EET_MOUSE_INPUT_EVENT && event.MouseInput.Event == EMIE_LMOUSE_LEFT_UP  )
+void AGeometry::keyPressEvent ( QKeyEvent* event )
+{
+  switch ( event->key() )
     {
-        //If you clicked an FPS camera and it does not have input, give it input! This allows us to focus the camera by clicking on AGeometry
-        if (!Device->getSceneManager()->getActiveCamera()->isInputReceiverEnabled() && !allowTrackSelection && !offsetTest)
-        {
-            grabControl();
-        }
+      //toggles moses mode
+    case Qt::Key_M:
+      MosesMode = ! ( MosesMode ); //toggles moses mode
+      if ( MosesMode ) MosesFreeCalm = false;
+      mosesRestore = true;
+      return;
+      break;
+      
+    case Qt::Key_P:
+      camera[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
+      camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+      return;
+      break;
+      
+    case Qt::Key_G:
+      selectTrackByID ( 11 );
+      return;
+      break;
+      
+      //toggles camera/cursor control
+    case Qt::Key_Space:
+      if (getSceneManager()->getActiveCamera()->isInputReceiverEnabled()) releaseControl();
+      else grabControl();
+      return;
+      break;
+      
+      //sets PtCutoff to 1GeV
+    case Qt::Key_C:
+      XmlEvt->PtCutoff ( 1 );
+      return;
+      break;
+      
+      //turns on/off slice mode
+    case Qt::Key_U:
+      sliceMode = !sliceMode;
+      return;
+      break;
+      
+      // Toggle detector system visibility
+    case Qt::Key_0:
+      switchVisibility ( 0 );
+      return;
+      break;
+      
+    case Qt::Key_F1:
+      qDebug() << "Active Camera " << active_viewport;
+      qDebug() << "\tPosition: (" << getSceneManager()->getActiveCamera()->getPosition().X << ","
+	       << getSceneManager()->getActiveCamera()->getPosition().Y << ","
+	       << getSceneManager()->getActiveCamera()->getPosition().Z << ")";
+      qDebug() << "\tTarget: (" << getSceneManager()->getActiveCamera()->getTarget().X << ","
+	       << getSceneManager()->getActiveCamera()->getTarget().Y << ","
+	       << getSceneManager()->getActiveCamera()->getTarget().Z << ")";
+      return;
+      break;
+    case Qt::Key_F2:
+      offsetTest=!offsetTest;
+      qDebug() << "offsetTest =" << offsetTest;
+      cube->setVisible(offsetTest);
+      return;
+    case Qt::Key_F4:
+      if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
+	getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( !getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->isVisible() );
+      return;
+    case Qt::Key_F5:
+      setEnabled(!isEnabled());
+      return;
+    default:
+      //Don't do anything
+      break;
     }
-
-    if ( event.EventType == EET_KEY_INPUT_EVENT )
-    {
-        if ( event.KeyInput.PressedDown == false )
-        {
-            switch ( event.KeyInput.Key )
-            {
-
-                //toggles moses mode
-            case KEY_KEY_M:
-                MosesMode = ! ( MosesMode ); //toggles moses mode
-                if ( MosesMode ) MosesFreeCalm = false;
-                mosesRestore = true;
-                return true;
-                break;
-
-            case KEY_KEY_P:
-                camera[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
-                camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-                return true;
-                break;
-
-            case KEY_KEY_G:
-                selectTrackByID ( 11 );
-                return true;
-                break;
-
-                //toggles camera/cursor control
-            case KEY_SPACE:
-                if (Device->getSceneManager()->getActiveCamera()->isInputReceiverEnabled()) releaseControl();
-                else grabControl();
-                return true;
-                break;
-
-                //sets PtCutoff to 1GeV
-            case KEY_KEY_C:
-                XmlEvt->PtCutoff ( 1 );
-                return true;
-                break;
-
-                //turns on/off slice mode
-            case KEY_KEY_U:
-                sliceMode = !sliceMode;
-                return true;
-                break;
-
-                // Toggle detector system visibility
-
-            case KEY_KEY_0:
-                switchVisibility ( 0 );
-                return true;
-                break;
-
-            case KEY_F1:
-                qDebug() << "Active Camera " << active_viewport;
-                qDebug() << "\tPosition: (" << Device->getSceneManager()->getActiveCamera()->getPosition().X << ","
-                << Device->getSceneManager()->getActiveCamera()->getPosition().Y << ","
-                << Device->getSceneManager()->getActiveCamera()->getPosition().Z << ")";
-                qDebug() << "\tTarget: (" << Device->getSceneManager()->getActiveCamera()->getTarget().X << ","
-                << Device->getSceneManager()->getActiveCamera()->getTarget().Y << ","
-                << Device->getSceneManager()->getActiveCamera()->getTarget().Z << ")";
-                return true;
-                break;
-            case KEY_F2:
-                offsetTest=!offsetTest;
-                qDebug() << "offsetTest =" << offsetTest;
-                cube->setVisible(offsetTest);
-                return true;
-            case KEY_F4:
-                if ( Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
-                    Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( !Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->isVisible() );
-                return true;
-            case KEY_F5:
-                setEnabled(!isEnabled());
-                return true;
-            default:
-                //Don't do anything
-                break;
-            }
-        }
-    }
-    return QIrrWidget::OnEvent(event);
+  
+  return QIrrWidget::keyPressEvent(event);
 }
 
 //Switch the current camera, viewport clicked
@@ -2463,7 +2453,7 @@ void AGeometry::setViewport(int to)
 
     int from=active_viewport;
 
-    Device->getSceneManager()->setActiveCamera (camera[camId]);
+    getSceneManager()->setActiveCamera (camera[camId]);
 
     setupView(to);
 
@@ -2499,7 +2489,7 @@ void AGeometry::setCamera(int to,bool animate)
       if(animate)
         cameraSwitcher->setTargetCamera(camera[to]);
       else
-	GetSceneManager()->setActiveCamera(camera[to]);
+	getSceneManager()->setActiveCamera(camera[to]);
 
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
@@ -2530,17 +2520,17 @@ void AGeometry::setupView(int view)
     background_node_f->setVisible (f);
     background_node_s->setVisible (s);
 
-    if ( Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
-        Device->getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps );
+    if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
+        getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps );
 
-    if ( Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
-        Device->getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( fps );
+    if ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
+        getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( fps );
 }
 
 void AGeometry::addCamAnimator (irr::core::array<vector3df> p)
 {
 
-    ISceneNodeAnimator *anim = Device->getSceneManager()->createFollowSplineAnimator (0, p, 1);
+    ISceneNodeAnimator *anim = getSceneManager()->createFollowSplineAnimator (0, p, 1);
 
     //camera[0]->addAnimator (anim);
     cam_node->addAnimator (anim);
@@ -2557,7 +2547,7 @@ void AGeometry::addCamAnimator (irr::core::array<vector3df> p)
 void AGeometry::addTarAnimator (irr::core::array<vector3df> p)
 {
 
-    ISceneNodeAnimator *anim = Device->getSceneManager()->createFollowSplineAnimator (0, p, 1);
+    ISceneNodeAnimator *anim = getSceneManager()->createFollowSplineAnimator (0, p, 1);
 
     tar_node->addAnimator (anim);
     anim->drop ();

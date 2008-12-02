@@ -940,7 +940,7 @@ AEvent AXmlEvent::DisplayParticles ()
 
 void AXmlEvent::UnloadEvent()
 {
-    ISceneManager *smgr=Base->GetSceneManager();
+    ISceneManager *smgr=Base->getSceneManager();
     for ( vector<ATrack*>::iterator iter = EventComplete.Tracks.begin(); iter!=EventComplete.Tracks.end(); iter++ )
     {
         if ((*iter)->node)
@@ -976,7 +976,7 @@ void AXmlEvent::DisplayEvent(AGeometry* device)
     {
         ATrack* iter = *iiter;
         iter->node=0;
-        iter->createTrackStructure( device->GetSceneManager()->getRootSceneNode(), device, 0 );
+        iter->createTrackStructure( device->getSceneManager()->getRootSceneNode(), device->getSceneManager(), 0 );
     }
 
 }

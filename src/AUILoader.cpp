@@ -35,11 +35,7 @@ QWidget* AUILoader::createWidget(const QString &className, QWidget* parent, cons
     {
         obj = new AMainView(parent);
     }
-	else if (className == "QWebView")
-    {
-        obj = new QWebView(parent);
-    }
-    else
+	else
     {
         obj=QUiLoader::createWidget(className, parent, name);
     }

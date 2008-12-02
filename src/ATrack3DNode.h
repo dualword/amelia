@@ -51,7 +51,6 @@ using namespace irr::core;
 using namespace io;
 using namespace std;
 
-class AGeometry;
 class ATrack;
 class ASTrack;
 class AJet;
@@ -67,17 +66,18 @@ protected:
     core::aabbox3d<f32>& getBoundingBox();
     CRelativeScaleSceneNodeAnimator *boxSizeAnim;
 
+    void setTrack(ATrack* track);
+
 public:
 
-    ATrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,ATrack* track=0);
     virtual ~ATrack3DNode();
 
     core::aabbox3d<f32> Box;
-    AGeometry* Base;
     ATrack* trackPointer;
     int style;
     int trackID;
-    virtual ATrack* getTrack() { return trackPointer; }
+    virtual ATrack* getTrack();
     virtual void setTrackStyle(int style) {}
 };
 
@@ -88,7 +88,7 @@ class ASTrack3DNode : public ATrack3DNode
 
 public:
 
-    ASTrack3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+  ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,ASTrack* track);
     virtual ~ASTrack3DNode();
 
     float tL;
@@ -100,7 +100,6 @@ public:
     core::vector3df end;
     float getTl();
 
-    ASTrack* trackPointer;
     bool isLineVisible;
     bool boxMode;
     float boxWidth;
@@ -108,14 +107,12 @@ public:
     std::vector<core::vector3df> curvePoints;
     virtual void setBoxesVisibility ( bool boxVisibility );
     int trackNumber;
-    ATrack* getTrackById ( int id );
+
     virtual int getTrackNumber();
     virtual void setBoxesSelected ( bool boxesSelected );
     virtual void setTrackStyle ( int style );
     virtual void calculateDimmedColors();
-    virtual void setTrack ( ASTrack* track );
-    virtual ATrack* getTrack();
-    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+    void setTrack(ASTrack* track);
 
     void createBoxes();
 
@@ -170,7 +167,7 @@ public:
 class AJet3DNode : public ATrack3DNode
 {
 public:
-    AJet3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    AJet3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID );
     virtual ~AJet3DNode();
 
     video::SColor color;
@@ -179,17 +176,13 @@ public:
     core::vector3df end;
     float getTl();
 
-    AJet* trackPointer;
-
     virtual void setBoxesVisibility ( bool boxVisibility );
     int trackNumber;
-    ATrack* getTrackById ( int id );
+
     virtual int getTrackNumber();
     virtual void setBoxesSelected ( bool boxesSelected );
     virtual void setTrackStyle ( int style );
-    virtual void setTrack ( AJet* track );
-    virtual ATrack* getTrack();
-    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+    void setTrack(AJet* track);
 
     void createJetPyramids(); //for the jets
 
@@ -206,7 +199,7 @@ public:
 class AMisET3DNode : public ATrack3DNode
 {
 public:
-    AMisET3DNode ( scene::ISceneNode* parent, AGeometry* base,  s32 ID );
+    AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID );
     virtual ~AMisET3DNode();
 
     video::SColor color;
@@ -215,19 +208,15 @@ public:
     core::vector3df start;
     core::vector3df end;
 
-    AMisET* trackPointer;
     bool boxMode;
     float boxWidth;
     std::vector<scene::ISceneNode*> boxSegments;
     virtual void setBoxesVisibility ( bool boxVisibility );
     int trackNumber;
-    ATrack* getTrackById ( int id );
     virtual int getTrackNumber();
     virtual void setBoxesSelected ( bool boxesSelected );
     virtual void setTrackStyle ( int style );
-    virtual void setTrack ( AMisET* track );
-    virtual ATrack* getTrack();
-    int type; /// Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+    void setTrack(AMisET* track);
 
     void createMisEtBoxes();
 

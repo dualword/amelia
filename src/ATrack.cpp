@@ -3,36 +3,12 @@
 
 
 
-void ASTrack::createTrackStructure( scene::ISceneNode* parent, AGeometry* base,  s32 ID )
+void ASTrack::createTrackStructure( scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID )
 {
-    ASTrack3DNode* HelixNode = new ASTrack3DNode ( parent, base, ID );
-    HelixNode->vividColor = trackColor;
-    HelixNode->calculateDimmedColors();
-    HelixNode->setTrack ( this );
-    HelixNode->type = 1; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-    style = 1;
-    HelixNode->style = 1;
+  ASTrack3DNode* HelixNode = new ASTrack3DNode ( parent, smgr, ID ,this);
+  HelixNode->vividColor = trackColor;
 
 
-    if ( q == 0 )
-    {
-        std::vector<core::vector3df> StartEndNeutral = HelixNode->getNeutralPath();
-        start = StartEndNeutral.front();
-        end = StartEndNeutral.back();
-        HelixNode->start = start;
-        HelixNode->end = end;
-        HelixNode->curvePoints.push_back ( core::vector3df ( 0,0,0 ) );
-        HelixNode->createBoxesNeutral();
-
-    }
-    else
-    {
-        maxAngle = HelixNode->getChargedMaxAngle();
-        HelixNode->maxAngle = maxAngle;
-        HelixNode->createCurveVector();
-        HelixNode->createBoxesCharged();
-
-    }
 
     if ( ( name == "mu-" || name == "mu+" || name == "e+" || name == "e-" ) && pt >= 2 )
     {
@@ -42,10 +18,8 @@ void ASTrack::createTrackStructure( scene::ISceneNode* parent, AGeometry* base, 
     {
         style = 1;
     }
+    HelixNode->setTrackStyle(style);
 
-    HelixNode->boxMode = false;
-    HelixNode->style = style;
-    HelixNode->setTrackStyle ( style );
     tL = HelixNode->tL;
     Mlv = 0;
 
@@ -68,12 +42,11 @@ void ASTrack::deselect()
 
 
 
-void AJet::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s32 ID)
+void AJet::createTrackStructure(scene::ISceneNode* parent, ISceneManager* smgr,  s32 ID)
 {
-    AJet3DNode* JetNode = new AJet3DNode ( parent, base, ID );
+    AJet3DNode* JetNode = new AJet3DNode ( parent, smgr, ID );
     style = 7;
 
-    JetNode->type = 2; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
     JetNode->setTrack ( this );
     JetNode->createJetPyramids();
 
@@ -97,12 +70,11 @@ void AJet::deselect()
 }
 
 
-void AMisET::createTrackStructure(scene::ISceneNode* parent, AGeometry* base,  s32 ID)
+void AMisET::createTrackStructure(scene::ISceneNode* parent, ISceneManager *smgr,  s32 ID)
 {
-    AMisET3DNode* MisET3DNode = new AMisET3DNode (parent, base, ID );
+    AMisET3DNode* MisET3DNode = new AMisET3DNode (parent, smgr, ID );
     style = 11;
 
-    MisET3DNode->type = 4; //0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
     MisET3DNode->setTrack ( this );
     MisET3DNode->createMisEtBoxes();
     node = MisET3DNode;

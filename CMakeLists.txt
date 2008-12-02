@@ -16,6 +16,7 @@ SET(QT_USE_QTXML true)
 SET(QT_USE_QTOPENGL true)
 SET(QT_USE_QTUITOOLS true)
 SET(QT_USE_QTWEBKIT true)
+SET(QT_USE_QTNETWORK true)
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 SET(CMAKE_INCLUDE_CURRENT_DIR true)
 
@@ -29,10 +30,16 @@ IF(UNIX)
        SET(SYSTEMSPECIFIC_LIBRARIES
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
-             ${OPENGL_LIBRARIES} 
-			 -ljpeg
+             ${OPENGL_LIBRARIES}
        )
 ENDIF(UNIX)
+
+IF(APPLE)
+	FIND_LIBRARY(IOKIT_LIBRARY IOKit REQUIRED)
+	SET(SYSTEMSPECIFIC_LIBRARIES
+		${SYSTEMSPECIFIC_LIBRARIES}
+		${IOKIT_LIBRARY})
+ENDIF(APPLE)
 
 IF(${QT_VERSION_MINOR} LESS 4)
   MESSAGE(FATAL_ERROR "Need Qt 4.4.0 at least")
@@ -80,8 +87,6 @@ SET(amelia_H
   src/QIrrWidget.h 
   src/ABase.h 
   src/AGeometry.h 
-  src/ATrack3DNode.h 
-  src/ATourBuilder.h 
   src/ATourManager.h 
   src/AXmlEvent.h 
   src/AUILoader.h 
@@ -92,16 +97,10 @@ SET(amelia_H
   src/ATrackTableModel.h 
   src/AInterestingTrackTableModel.h 
   src/AComboTableModel.h
-  src/ATrackCombination.h 
-  src/CSceneNodeAnimatorCameraSphere.h
-  src/CSceneNodeAnimatorCameraSwitch.h
   src/AAnimationGUI.h 
   src/AEventManager.h
-  src/AEventPackage.h
-  src/CRelativeScaleSceneNodeAnimator.h
   src/AAdvancedEventSettings.h
   src/AMainView.h
-  src/ATrack.h
   src/QGraphicsClickablePixmapItem.h
   )
 
@@ -114,6 +113,9 @@ QT4_WRAP_CPP(amelia_SRCS ${amelia_H})
 
 QT4_ADD_RESOURCES(amelia_SRCS ${amelia_FILES})
 
+IF(APPLE)
+	SET(GUI_EXECUTABLE MACOSX_BUNDLE)
+ENDIF(APPLE)
 ADD_EXECUTABLE(amelia ${amelia_SRCS})
 
 TARGET_LINK_LIBRARIES(amelia
@@ -122,7 +124,7 @@ TARGET_LINK_LIBRARIES(amelia
   Irrlicht    
   )
   
-SUBDIRS(workspace)
+
 
 INSTALL(TARGETS amelia 
   RUNTIME DESTINATION bin)
@@ -132,6 +134,10 @@ INSTALL(FILES media/tours/karol.1.xml media/tours/michael.1.xml media/tours/test
   DESTINATION share/amelia/tours)
 INSTALL(FILES media/events/special-higgs.xml
   DESTINATION share/amelia/events)
+
+INSTALL(FILES workspace/special/special-higgs.xml 
+  workspace/special/.metainfo
+  DESTINATION share/amelia/workspace/special)
 
 INSTALL(FILES amelia.desktop
   DESTINATION share/applications)

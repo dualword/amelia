@@ -40,7 +40,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QUiLoader>
 #include <QWidget>
 #include <QTableWidget>
-#include <QtWebKit>
 
 #include "AGeometry.h"
 #include "AViewport.h"
@@ -49,6 +48,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AAdvancedEventSettings.h"
 
 class AUILoader : public QUiLoader {
+Q_OBJECT
  public:
   AUILoader(QObject* parent=0);
   virtual QWidget *createWidget(const QString &className, QWidget *parent = 0, const QString &name = QString());

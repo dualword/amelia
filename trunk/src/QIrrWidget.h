@@ -178,12 +178,13 @@ protected:
     void enterEvent(QEvent* event);
     void leaveEvent(QEvent* event);
 
-    void mouseMoveEvent(QMouseEvent *event);
-    void keyPressEvent(QKeyEvent *event);
-    void keyReleaseEvent(QKeyEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
+    virtual void mouseClickEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void wheelEvent(QWheelEvent *event);
     
     bool postEventFromUser(const SEvent& event);
 
@@ -192,6 +193,7 @@ private:
     
     QLabel *label;
     QWidget *p;
+    QPoint lastPressPos;
 
     IVideoDriver* driver;
     ISceneManager* smgr;

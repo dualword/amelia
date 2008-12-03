@@ -2286,7 +2286,7 @@ void AGeometry::resizeEvent( QResizeEvent* event )
   QIrrWidget::resizeEvent(event);
 }
 
-void AGeometry::mousePressEvent(QMouseEvent *event)
+void AGeometry::mouseClickEvent(QMouseEvent *event)
 {
   if ( active_viewport == AGeometry::Cam3D )
     {
@@ -2360,7 +2360,7 @@ void AGeometry::mousePressEvent(QMouseEvent *event)
 
     }
   
-  QIrrWidget::mousePressEvent(event);
+  QIrrWidget::mouseClickEvent(event);
 }
 
 

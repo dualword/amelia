@@ -181,7 +181,7 @@ signals:
 protected:
 
     void resizeEvent( QResizeEvent* event );
-    void mousePressEvent( QMouseEvent *event );
+    void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
       
     module thisModule;

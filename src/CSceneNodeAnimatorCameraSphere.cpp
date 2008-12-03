@@ -37,7 +37,7 @@ namespace irr
       //There are times when there is no need to torture the CPU
       // with sines and cosines. So when there is no mouse input/output,
       // then just give up.
-      bool needToDo=toggleMouse;
+      bool needToDo=(cursorPos!=cursorCenter);
       needToDo|=(queueZoom!=0);
       for(int i=0;i<4;i++)
 	{
@@ -55,7 +55,7 @@ namespace irr
       f32 queuePhi=0;
       f32 queueTheta=0;
       
-      if(cursorPos!=cursorCenter && toggleMouse)
+      if(cursorPos!=cursorCenter)
 	{
 	  s32 dX=cursorPos.X-cursorCenter.X;
 	  s32 dY=cursorPos.Y-cursorCenter.Y;
@@ -137,7 +137,8 @@ namespace irr
 	      return true;
 	      break;
 	    case EMIE_MOUSE_MOVED:
-	      cursorPos=core::position2d<s32>(event.MouseInput.X,event.MouseInput.Y);
+	      if(toggleMouse)
+		cursorPos=core::position2d<s32>(event.MouseInput.X,event.MouseInput.Y);
 	      return true;
 	      break;
 	    default:

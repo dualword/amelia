@@ -561,6 +561,9 @@ void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
   QWidget::keyReleaseEvent(event);
 }
 
+void QIrrWidget::mouseClickEvent(QMouseEvent *event)
+{ }
+
 void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
 {
   SEvent e;
@@ -597,6 +600,8 @@ void QIrrWidget::mousePressEvent(QMouseEvent *event)
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
   
+  lastPressPos=event->pos();
+
   if(postEventFromUser(e))
     event->accept();
 
@@ -628,6 +633,9 @@ void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
   
   if(postEventFromUser(e))
     event->accept();
+  
+  if((event->pos()-lastPressPos).manhattanLength()<1)
+    mouseClickEvent(event);
 
   QWidget::mouseReleaseEvent(event);
 }

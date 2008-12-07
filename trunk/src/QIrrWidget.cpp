@@ -40,6 +40,66 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 #include <QGridLayout>
 
+namespace irr
+{
+class CTimer : public ITimer
+{
+	virtual u32 getRealTime() const;
+    virtual u32 getTime() const;
+	virtual void setTime(u32 time);
+	virtual void stop();
+	virtual void start();
+	virtual void setSpeed(f32 speed = 1.0f);
+	virtual bool isStopped() const;
+	virtual void tick();
+	virtual f32 getSpeed() const;
+};
+
+#ifdef Q_WS_MAC
+  class CIrrDeviceMacOSX;
+#endif
+  
+namespace video
+{	
+#ifdef Q_WS_MAC
+	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& param, irr::io::IFileSystem* io, CIrrDeviceMacOSX *device);
+#else
+	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io);
+#endif
+      
+#ifdef Q_WS_WIN
+	IVideoDriver* createDirectX9Driver(const core::dimension2d<s32>& screenSize, HWND window,
+				 u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
+				 bool pureSoftware, bool highPrecisionFPU, bool vsync, bool antiAlias);
+#endif
+
+}
+  
+namespace scene
+{
+    ISceneManager* createSceneManager(video::IVideoDriver* driver,
+										io::IFileSystem* fs, gui::ICursorControl* cc, gui::IGUIEnvironment *gui);
+}
+namespace io
+{
+    __IFileSystem* createFileSystem();
+}
+  
+namespace gui
+{
+    IGUIEnvironment* createGUIEnvironment(irr::io::IFileSystem* fs,
+										video::IVideoDriver* Driver, IOSOperator* op);
+}
+  
+namespace os
+{
+    class Timer
+    {
+    public:
+	static void initTimer();
+	};
+}
+} // end namespace irr
 class CCursorControl : public gui::ICursorControl
 {
 public:
@@ -704,10 +764,10 @@ void QIrrD3DWidgetPrivate::initialize()
   parent->fs = io::createFileSystem();
   
 #ifdef Q_WS_WIN
-  parent->driver=createDirectX9Driver(params.WindowSize,params.WindowId,
-				      CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
-				      FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
-				      CreationParams.AntiAlias)
+  parent->driver=createDirectX9Driver(params.WindowSize,(HWND)params.WindowId,
+				      params.Bits, params.Fullscreen, params.Stencilbuffer,
+				      parent->fs, false, params.HighPrecisionFPU, params.Vsync,
+				      params.AntiAlias);
 #endif
   
   parent->gui=createGUIEnvironment(parent->fs,parent->driver,0);

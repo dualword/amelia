@@ -183,6 +183,9 @@ protected:
     void resizeEvent( QResizeEvent* event );
     void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
+	void showEvent(QShowEvent* event);
+	
+	void setupView(int);
       
     module thisModule;
     core::vector3df pos;
@@ -199,31 +202,26 @@ private:
     void switchVisibility(int modType); //Switches the visibility of the different components of the detector
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
     const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
-    int selectionArray[720][540];
-    void setupView(int);
 
-    scene::ISceneNode* background_node_f;
-    scene::ISceneNode* background_node_s;
+    scene::ISceneNode* background_node_f; //Used for flat view
+    scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;
     core::matrix4 OrthoCameraFront;
     core::matrix4 OrthoCameraSide;
     CSceneNodeAnimatorCameraSwitch *cameraSwitcher; //Used for switching the camera modes in 3D
     int cam_switch_delay;
     int camera_switch;
-    int space_press;
-    bool left_click;
     int mosesMode_switch;
-    int m_press;
-    int s_press;
     f32 moduleDistanceFromCam;
     f32 moduleAngleFromCam;
     core::vector3df cameraLoc; //camera position for Moses Mode, initialized to zero
     core::vector3df DCamPos;
+	
+	//Moses mode..
     bool MosesMode;
     bool MosesFreeCalm;
     bool mosesRestore;
     vector<scene::ISceneNode*> allModules;
-
 
     // Dynamic FPS camera initial parameters
     unsigned int cameraZone;
@@ -241,6 +239,7 @@ private:
     void prepareAllModules ( scene::ISceneNode* node_ );
     ATrack3DNode* trackSelection ( core::position2di pos );
     bool offsetTest;
+	bool firstShow; //First show...
 
     video::ITexture *rt;
 

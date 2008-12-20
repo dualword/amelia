@@ -278,6 +278,8 @@ void ABase::changeToMenu()
 
     if (current.isEmpty()) return; //Already on menu..
 
+	saveMenuBar();
+
     //Restore background position
     background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
 
@@ -336,6 +338,8 @@ void ABase::changeToLevel(const QString& uicfile)
         widgets[current].widget->hide();
         menuWidget.show();
         setUpdatesEnabled(true);
+
+		saveMenuBar();
     }
 
     //Initial conditions
@@ -363,6 +367,12 @@ void ABase::changeToLevel(const QString& uicfile)
 void ABase::animationFinished()
 {
     if (current.isEmpty()) return;
+
+	if(widgets[current].widget->inherits("QMainWindow"))
+	{
+		QMainWindow *mainWin=(QMainWindow*)widgets[current].widget;
+		setMenuBar(mainWin->menuBar());
+	}
 
     widgets[current].widget->setEnabled(true);
 
@@ -464,6 +474,15 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return false;
+}
+
+void ABase::saveMenuBar()
+{
+	if(widgets[current].widget->inherits("QMainWindow"))
+	{
+		QMainWindow *mainWin=(QMainWindow*)widgets[current].widget;
+		mainWin->setMenuBar(menuBar());
+	}
 }
 
 void ABase::on_MenuButton_clicked()

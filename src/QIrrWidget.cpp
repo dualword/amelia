@@ -82,7 +82,7 @@ namespace scene
 }
 namespace io
 {
-    __IFileSystem* createFileSystem();
+    IFileSystem* createFileSystem();
 }
   
 namespace gui
@@ -849,7 +849,6 @@ void QIrrGLWidgetPrivate::initializeGL()
   parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
 
   parent->load();
-
   timerId=startTimer(30);
 }
 
@@ -864,17 +863,17 @@ void QIrrGLWidgetPrivate::timerEvent(QTimerEvent *event)
 
 void QIrrGLWidgetPrivate::paintGL()
 {
-
   if (parent->driver)
     {
       irr::video::SColor color (0,0,0,0);
-      
+
       parent->driver->beginScene(true,true,color);
       
       parent->smgr->drawAll();
       parent->gui->drawAll();
-      
       //QGLWidget will swap the buffers
-      //parent->driver->endScene();
+#ifndef Q_WS_MAC
+      parent->driver->endScene();
+#endif
     }
 }

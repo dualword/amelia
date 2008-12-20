@@ -121,6 +121,10 @@ public:
     int currentMisEtType; //defines the current Missing Et reconstruction model in use
     int highestTrackID;
 
+	//Data
+	int runNumber;
+	int eventNumber;
+
 public slots:
     void PtCutoff ( int PtCut );
     AEvent DisplayParticles ();

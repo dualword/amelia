@@ -705,8 +705,12 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
 {
   bool absorbed = false;
   
-  if(smgr)
-    absorbed|=smgr->postEventFromUser(event);
+  if (!absorbed && getGUIEnvironment())
+    absorbed|=getGUIEnvironment()->postEventFromUser(event);
+
+
+  if(!absorbed && getSceneManager())
+    absorbed|=getSceneManager()->postEventFromUser(event);
 
   return absorbed;
 }

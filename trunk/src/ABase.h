@@ -76,6 +76,7 @@ protected:
     QPointF calculateScaledWidgetGroupPosition();
     QPointF calculateBackgroundPosition();
     void setupViewport();
+	void saveMenuBar();
 
 private:
     //Holds a list of the virual screens loaded

@@ -45,7 +45,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-        background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::FPS)
+        background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::FPS), firstShow(true)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -87,7 +87,6 @@ AGeometry::AGeometry(QWidget* parent)
     scale = core::vector3df ( 0,0,0 );
     cam_switch_delay = 0;
 
-    left_click = false;
     moduleDistanceFromCam = 0;
     moduleAngleFromCam = 0;
     cameraLoc = core::vector3df ( 0,0,0 ); //camera position for Moses Mode, initialized to zero
@@ -2284,6 +2283,14 @@ void AGeometry::resizeEvent( QResizeEvent* event )
   rt=0;
 
   QIrrWidget::resizeEvent(event);
+}
+
+void AGeometry::showEvent( QShowEvent *event )
+{
+	if(firstShow)
+		setCamera(AGeometry::Maya);
+
+	QIrrWidget::showEvent( event );
 }
 
 void AGeometry::mouseClickEvent(QMouseEvent *event)

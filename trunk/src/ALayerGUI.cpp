@@ -685,7 +685,6 @@ void ALayerGUI::prepareTours ()
     QObject::connect (tourManager, SIGNAL(tour_button(char *)), this, SLOT(pressButton(char *)));
     QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), geo->XmlEvt, SLOT(PtCutoff(int)));
 
-	geo->setCamera(AGeometry::Maya);
     //QCoreApplication::installEventFilter (this);
 
 }

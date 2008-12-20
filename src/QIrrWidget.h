@@ -138,17 +138,20 @@ private:
     ICursorControl* cursorcontrol;
     ITimer *timer;
 
-    friend class QIrrGLWidgetPrivate;
-    friend class QIrrD3DWidgetPrivate;
+#ifdef Q_WS_WIN
+	friend class QIrrWinWidgetPrivate;
+#else
+    friend class QIrrUnixWidgetPrivate;
+#endif
 };
 
-class QIrrD3DWidgetPrivate : public QWidget
+#ifdef Q_WS_WIN
+class QIrrWinWidgetPrivate : public QWidget
 {
-  Q_OBJECT
 
  public:
-  QIrrD3DWidgetPrivate(QIrrWidget *parent);
-  ~QIrrD3DWidgetPrivate();
+  QIrrWinWidgetPrivate(QIrrWidget *parent);
+  ~QIrrWinWidgetPrivate();
 
 
  protected:
@@ -161,15 +164,14 @@ class QIrrD3DWidgetPrivate : public QWidget
   int timerId;
 
   QIrrWidget* parent;
+  IrrlichtDevice* device;
 };
-
-class QIrrGLWidgetPrivate : public QGLWidget
-{
-  Q_OBJECT
-    
+#else
+class QIrrUnixWidgetPrivate : public QGLWidget
+{    
   public:
-  QIrrGLWidgetPrivate( QIrrWidget *parent=0 );
-  ~QIrrGLWidgetPrivate();
+  QIrrUnixWidgetPrivate( QIrrWidget *parent=0 );
+  ~QIrrUnixWidgetPrivate();
 
   void timerEvent(QTimerEvent*);
   
@@ -181,5 +183,6 @@ private:
 
   QIrrWidget* parent;
 };
+#endif
 
 #endif // QIRRWIDGET_H

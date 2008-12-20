@@ -183,7 +183,7 @@ protected:
     void resizeEvent( QResizeEvent* event );
     void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
-	void showEvent(QShowEvent* event);
+	void paintEvent(QPaintEvent* event);
 	
 	void setupView(int);
       

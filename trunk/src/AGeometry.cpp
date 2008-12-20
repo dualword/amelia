@@ -555,6 +555,14 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 
 void AGeometry::execute()
 {
+	//If this is the first time the window is shown, 
+	// then trigger the animated camera transition.
+	if(firstShow && getSceneManager())
+	{
+		setCamera(AGeometry::Maya);
+		firstShow=false;
+	}
+
     // Main 3D view
     core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
 
@@ -2285,14 +2293,6 @@ void AGeometry::resizeEvent( QResizeEvent* event )
   QIrrWidget::resizeEvent(event);
 }
 
-void AGeometry::showEvent( QShowEvent *event )
-{
-	if(firstShow)
-		setCamera(AGeometry::Maya);
-
-	QIrrWidget::showEvent( event );
-}
-
 void AGeometry::mouseClickEvent(QMouseEvent *event)
 {
   if ( active_viewport == AGeometry::Cam3D )
@@ -2486,7 +2486,7 @@ void AGeometry::setCamera(int to,bool animate)
         actFPS->setChecked(false);
         actSphere->setChecked(true);
         sliceMode=true;
-	camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
+        camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
         break;
     }
     camera[AGeometry::FPS]->setInputReceiverEnabled(false);

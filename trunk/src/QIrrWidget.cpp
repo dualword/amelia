@@ -40,6 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 #include <QGridLayout>
 
+#ifndef Q_WS_WIN
 namespace irr
 {
 class CTimer : public ITimer
@@ -66,13 +67,6 @@ namespace video
 #else
 	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io);
 #endif
-      
-#ifdef Q_WS_WIN
-	IVideoDriver* createDirectX9Driver(const core::dimension2d<s32>& screenSize, HWND window,
-				 u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
-				 bool pureSoftware, bool highPrecisionFPU, bool vsync, bool antiAlias);
-#endif
-
 }
   
 namespace scene
@@ -171,11 +165,11 @@ private:
   bool IsVisible;
   QIrrWidget *parent;
 };
-
+#endif
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0)
+  : QWidget(parent),driver(0),smgr(0)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -186,12 +180,12 @@ QIrrWidget::QIrrWidget( QWidget *parent )
   
   QGridLayout *layout=new QGridLayout(this);
   layout->setContentsMargins(0,0,0,0);
-  if(_driverType==irr::video::EDT_OPENGL)
-    p=new QIrrGLWidgetPrivate(this);
-  else if(_driverType==irr::video::EDT_DIRECT3D9)
-    p=new QIrrD3DWidgetPrivate(this);
-  else
-    p=0;
+  
+#ifdef Q_WS_WIN
+  p=new QIrrWinWidgetPrivate(this);
+#else
+	p=new QIrrUnixWidgetPrivate(this);
+#endif
   
   layout->addWidget(p);
   
@@ -199,17 +193,10 @@ QIrrWidget::QIrrWidget( QWidget *parent )
   layout->addWidget(label);
   label->hide();
   setMouseTracking(true);
-  os::Timer::initTimer();  
-  timer = new CTimer();
 }
 
 QIrrWidget::~QIrrWidget()
-{
-  driver->drop();
-  smgr->drop();
-  gui->drop();
-  timer->drop();
-}
+{ }
 
 
 video::IVideoDriver* QIrrWidget::getVideoDriver()
@@ -724,8 +711,8 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
   return absorbed;
 }
 
-
-QIrrD3DWidgetPrivate::QIrrD3DWidgetPrivate( QIrrWidget *parent )
+#ifdef Q_WS_WIN
+QIrrWinWidgetPrivate::QIrrWinWidgetPrivate( QIrrWidget *parent )
   : QWidget(parent)
 {
   // Irrlicht will clear the canvas for us, so tell Qt not to do it
@@ -743,57 +730,56 @@ QIrrD3DWidgetPrivate::QIrrD3DWidgetPrivate( QIrrWidget *parent )
   this->parent=parent;
 }
 
-QIrrD3DWidgetPrivate::~QIrrD3DWidgetPrivate()
+QIrrWinWidgetPrivate::~QIrrWinWidgetPrivate()
 {
   killTimer(timerId);
 }
 
-void QIrrD3DWidgetPrivate::initialize()
+void QIrrWinWidgetPrivate::initialize()
 {
   // Don't initialize more than once!
   if ( parent->driver != 0 ) return;
   irr::SIrrlichtCreationParameters params;
   
-  params.DriverType = video::EDT_DIRECT3D9;
+  params.DriverType = parent->driverType();
   params.WindowId = (void*)winId();
   params.WindowSize.Width = (width()>0)?width():1;
   params.WindowSize.Height = (height()>0)?height():1;
   params.AntiAlias = true;
   params.IgnoreInput = true;
 
-  parent->fs = io::createFileSystem();
+  device=createDeviceEx(params);
   
-#ifdef Q_WS_WIN
-  parent->driver=createDirectX9Driver(params.WindowSize,(HWND)params.WindowId,
-				      params.Bits, params.Fullscreen, params.Stencilbuffer,
-				      parent->fs, false, params.HighPrecisionFPU, params.Vsync,
-				      params.AntiAlias);
-#endif
+  parent->driver=device->getVideoDriver();
   
-  parent->gui=createGUIEnvironment(parent->fs,parent->driver,0);
+  parent->gui=device->getGUIEnvironment();
+  parent->fs=device->getFileSystem();
 
-  parent->cursorcontrol = new CCursorControl(parent);
-  parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
+  parent->cursorcontrol = device->getCursorControl();
+  parent->smgr=device->getSceneManager();
 
   parent->load();
+
+	parent->update();
 
   timerId=startTimer(30);
 
 }
 
-void QIrrD3DWidgetPrivate::timerEvent(QTimerEvent* event)
+void QIrrWinWidgetPrivate::timerEvent(QTimerEvent* event)
 {
-  parent->timer->tick();
-  parent->execute();
-
   if(isVisible())
     update();
 }
   
-void QIrrD3DWidgetPrivate::paintEvent( QPaintEvent* event )
+void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
 {
+	initialize();
   if (parent->driver)
     {
+	  device->run();
+	  parent->execute();
+
       irr::video::SColor color (0,0,0,0);
       
       parent->driver->beginScene(true,true,color);
@@ -804,8 +790,8 @@ void QIrrD3DWidgetPrivate::paintEvent( QPaintEvent* event )
       parent->driver->endScene();
     }
 }
-
-QIrrGLWidgetPrivate::QIrrGLWidgetPrivate( QIrrWidget *parent )
+#else
+QIrrUnixWidgetPrivate::QIrrUnixWidgetPrivate( QIrrWidget *parent )
   : QGLWidget(QGLFormat(QGL::SampleBuffers),parent)
 {
   setMouseTracking(true);
@@ -817,12 +803,18 @@ QIrrGLWidgetPrivate::QIrrGLWidgetPrivate( QIrrWidget *parent )
   this->parent=parent;
 }
 
-QIrrGLWidgetPrivate::~QIrrGLWidgetPrivate()
+QIrrUnixWidgetPrivate::~QIrrUnixWidgetPrivate()
 {
   killTimer(timerId);
+
+  //Must drop stuff I created.
+  parent->driver->drop();
+  parent->smgr->drop();
+  parent->gui->drop();
+  parent->timer->drop();
 }
 
-void QIrrGLWidgetPrivate::initializeGL()
+void QIrrUnixWidgetPrivate::initializeGL()
 {
   // Don't initialize more than once!
   if ( parent->driver != 0 ) return;
@@ -848,11 +840,14 @@ void QIrrGLWidgetPrivate::initializeGL()
   parent->cursorcontrol = new CCursorControl(parent);
   parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
 
+  os::Timer::initTimer();  
+  parent->timer = new CTimer();
+
   parent->load();
   timerId=startTimer(30);
 }
 
-void QIrrGLWidgetPrivate::timerEvent(QTimerEvent *event)
+void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)
 {
   parent->timer->tick();
   parent->execute();
@@ -861,7 +856,7 @@ void QIrrGLWidgetPrivate::timerEvent(QTimerEvent *event)
     updateGL();
 }
 
-void QIrrGLWidgetPrivate::paintGL()
+void QIrrUnixWidgetPrivate::paintGL()
 {
   if (parent->driver)
     {
@@ -877,3 +872,4 @@ void QIrrGLWidgetPrivate::paintGL()
 #endif
     }
 }
+#endif

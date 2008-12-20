@@ -513,10 +513,7 @@ std::vector <FCALshower> AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 
 AEvent AXmlEvent::GetEventFromFile ( QString filename )
 {
-    //Base->message->setText( "<font color=\"red\">LOADING EVENT(S)</font>"  );
-    Base->message->show();
-
-    AEvent* e = new AEvent();
+	AEvent* e = new AEvent();
 
     QDomDocument doc("metainfo");
     QFile fh(filename);
@@ -529,6 +526,10 @@ AEvent AXmlEvent::GetEventFromFile ( QString filename )
     }
     fh.close();
     highestTrackID = 0; //reset this to have consistent IDs every time we load an event
+
+	QDomNodeList eventTags=doc.elementsByTagName("Event");
+	runNumber=eventTags.at(0).attributes().namedItem("runNumber").toAttr().value().toInt();
+	eventNumber=eventTags.at(0).attributes().namedItem("eventNumber").toAttr().value().toInt();
 
     e->STracks = GetSTracksFromDOM ( doc, e );
     e->Jets = GetJetsFromDOM (doc , e);

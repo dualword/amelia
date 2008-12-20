@@ -183,7 +183,6 @@ protected:
     void resizeEvent( QResizeEvent* event );
     void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
-	void paintEvent(QPaintEvent* event);
 	
 	void setupView(int);
       
@@ -222,6 +221,8 @@ private:
     bool MosesFreeCalm;
     bool mosesRestore;
     vector<scene::ISceneNode*> allModules;
+
+	gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
 
     // Dynamic FPS camera initial parameters
     unsigned int cameraZone;

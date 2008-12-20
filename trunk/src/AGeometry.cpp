@@ -124,6 +124,10 @@ AGeometry::AGeometry(QWidget* parent)
     message->setFont( font );
     message->hide();
 
+	multiSelectButton=0;
+	zoomIn=0;
+	zoomOut=0;
+
     //message->setAlignment( AlignBottom | AlignRight );
 
 }
@@ -262,6 +266,11 @@ void AGeometry::load()
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
 
+	zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
+	zoomIn->setVisible(false);
+	zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
+	zoomOut->setVisible(false);
+
     emit finishedLoading();
 
 }
@@ -360,6 +369,7 @@ void AGeometry::renderViewport(int view)
         if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
         {
             rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
+	    rt->grab();
         }
 
         if (rt==0)
@@ -648,9 +658,21 @@ void AGeometry::execute()
         //camera[0]->setRotation (vect.getHorizontalAngle ());
         camera[0]->setTarget (tar_node->getPosition());
         camera[0]->setPosition (cam_node->getPosition());
-
     }
 
+	ICameraSceneNode *active=getSceneManager()->getActiveCamera();
+	if(zoomIn->isPressed())
+	{
+		vector3df curpos=active->getPosition();
+		curpos*=0.95;
+		active->setPosition(curpos);
+	}
+	if(zoomOut->isPressed())
+	{
+		vector3df curpos=active->getPosition();
+		curpos*=1.05;
+		active->setPosition(curpos);
+	}
 }
 
 
@@ -2288,6 +2310,7 @@ void AGeometry::releaseControl()
 
 void AGeometry::resizeEvent( QResizeEvent* event )
 {
+  if(rt) rt->drop();
   rt=0;
 
   QIrrWidget::resizeEvent(event);
@@ -2500,6 +2523,9 @@ void AGeometry::setCamera(int to,bool animate)
 
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
+
+	zoomIn->setVisible(to==AGeometry::Maya);
+	zoomOut->setVisible(to==AGeometry::Maya);
 }
 
 void AGeometry::setupView(int view)
@@ -2532,6 +2558,22 @@ void AGeometry::setupView(int view)
 
     if ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
         getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( fps );
+
+	if(view==Cam3D)
+	{
+		if(active_cam==Maya) 
+		{
+			if(zoomIn) zoomIn->setVisible(true);
+			if(zoomOut) zoomOut->setVisible(true);
+		}
+		if(multiSelectButton) multiSelectButton->setVisible(true);
+	}
+	else
+	{
+		if(multiSelectButton) multiSelectButton->setVisible(false);
+		if(zoomIn) zoomIn->setVisible(false);
+		if(zoomOut) zoomOut->setVisible(false);
+	}
 }
 
 void AGeometry::addCamAnimator (irr::core::array<vector3df> p)

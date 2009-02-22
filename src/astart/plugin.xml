@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<plugin priority="1">
+  <dependencies>
+    <plugin name="ABase" />
+  </dependencies>
+</plugin>

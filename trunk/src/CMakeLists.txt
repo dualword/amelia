@@ -1,0 +1,10 @@
+ADD_SUBDIRECTORY(libamelia)
+
+# Plugins start here :)
+INCLUDE_DIRECTORIES(libamelia)
+ADD_SUBDIRECTORY(abase)
+ADD_SUBDIRECTORY(aweb)
+ADD_SUBDIRECTORY(astart)
+ADD_SUBDIRECTORY(aeventmanager)
+ADD_SUBDIRECTORY(ageometry)
+ADD_SUBDIRECTORY(ahist)

@@ -152,6 +152,7 @@ void ABase::setFakeCentralWidget(QWidget *wdg)
 	{
 	  QMainWindow *mainWin=(QMainWindow*)_fakeCentralWidget;
 	  mainWin->setMenuBar(menuBar());
+	  setMenuBar(0);
 	}
     }
 
@@ -245,22 +246,22 @@ void ABase::changeToMenu()
   else
     animation.setScaleAt(0,1,1);
   
-    animation.setPosAt(0,monitorGroups[currentGroup]->pos());
-    
-    // Scale of 0.2 is
-    // widget width = 1024*0.2 = 204.8
-    // widget height = 768*0.2 = 153.6
-    animation.setScaleAt(1,0.25,0.25);
-    animation.setPosAt(1,monitorGroups[currentGroup]->calculateScaledWidgetGroupPosition());
-    
+  animation.setPosAt(0,monitorGroups[currentGroup]->pos());
+  
+  // Scale of 0.2 is
+  // widget width = 1024*0.2 = 204.8
+  // widget height = 768*0.2 = 153.6
+  animation.setScaleAt(1,0.25,0.25);
+  animation.setPosAt(1,monitorGroups[currentGroup]->calculateScaledWidgetGroupPosition());
+  
 
-    emit currentMenuAnimationBackward();
-    timer.start();
+  emit currentMenuAnimationBackward();
+  timer.start();
     
-    
-    
-    previousMonitor=currentMonitor;
-    currentMonitor=QString();
+  
+  
+  previousMonitor=currentMonitor;
+  currentMonitor=QString();
 }
 
 
@@ -373,10 +374,10 @@ void ABase::keyPressEvent(QKeyEvent *event)
     }
 
   //What are we gonna do with menu's on Mac OS X?
-  //if (event->key()==Qt::Key_F)
-  //{
-  //setWindowState(windowState() ^ Qt::WindowFullScreen);
-  //}
+  if (event->key()==Qt::Key_F)
+  {
+    setWindowState(windowState() ^ Qt::WindowFullScreen);
+  }
 }
 
 QPointF ABase::calculateBackgroundPosition()

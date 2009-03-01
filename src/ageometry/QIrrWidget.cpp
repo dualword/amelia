@@ -853,6 +853,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
 void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)
 {
   parent->timer->tick();
+  parent->execute();
   
   if(isVisible() && isEnabled() && isActiveWindow())
     updateGL();
@@ -876,7 +877,6 @@ void QIrrUnixWidgetPrivate::paintGL()
     {
       irr::video::SColor color (0,0,0,0);
 
-      parent->execute();
       parent->driver->beginScene(true,true,color);
       
       parent->smgr->drawAll();

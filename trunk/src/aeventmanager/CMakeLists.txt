@@ -38,8 +38,6 @@ SET(aeventmanager_H
   AEventManagerScene.h
   AEventManagerTreeView.h
   AEventPackage.h
-  ATrack.h
-  ASTrack.h
 
   AXmlEvent.h
   AEvent.h

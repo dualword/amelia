@@ -66,12 +66,14 @@ ABase::ABase( QWidget *parent )
     buttonFont.setStyleStrategy( QFont::PreferAntialias );
     buttonGroup.setHandlesChildEvents(false);
     buttonGroup.setZValue(2);
+    buttonGroup.setHorizontalAlignment(Qt::AlignHCenter);
+    buttonGroup.setPos(1024/2,700);
     menu.addItem(&buttonGroup);
     //Also add a quit button :)
-    quit.setParentItem(&buttonGroup);
     quit.setText("Quit");
     quit.setFont(buttonFont);
     quit.setAcceptHoverEvents(true);
+    buttonGroup.addToGroup(&quit);
     connect(&quit,SIGNAL(clicked()),
 	    this,SLOT(close()));
     //This mapper takes care of the button signals
@@ -169,7 +171,7 @@ QWidget* ABase::fakeCentralWidget()
   return _fakeCentralWidget;
 }
 
-void ABase::addLevel(QString name,QString group,QWidget *tmp,QString description)
+void ABase::addMonitor(QString name,QString group,QWidget *tmp,QString description,Qt::Alignment align)
 {    
   //Make sure to disable the widget
   tmp->resize(1024,768);
@@ -181,7 +183,7 @@ void ABase::addLevel(QString name,QString group,QWidget *tmp,QString description
 
   AMonitor* item=new AMonitor(name,description,tmp,monitorGroups[group]);
 
-  monitorGroups[group]->addMonitor(name,item);
+  monitorGroups[group]->addMonitor(name,item,align);
 
   //Add the pixmap to the signal map, which will let us switch menus
   mapper.setMapping(item,group+"/"+name);
@@ -209,20 +211,17 @@ void ABase::addGroup(QString groupName)
   if(monitorGroups.contains(groupName)) return; //Ignore if already exists
   
   monitorGroups[groupName]=new AMonitorGroup(groupName); //Create
-  menu.addItem(monitorGroups[groupName]); //Add to scene
   
-  buttons[groupName]=new QGraphicsClickableSimpleTextItem(groupName,&buttonGroup);
+  QGraphicsClickableSimpleTextItem *button=new QGraphicsClickableSimpleTextItem(groupName,&buttonGroup);
+  button->setFont(buttonFont);
+  buttonGroup.addToGroup(button,Qt::AlignLeft);
 
-  buttons[groupName]->setFont(buttonFont);
-  buttons[groupName]->setPos(-150*buttons.size(),0);
+  menu.addItem(monitorGroups[groupName]); //Add to scene
 
   //Connect it to the mapper, which connects it to the switching code
-  connect(buttons[groupName],SIGNAL(clicked()),
+  connect(button,SIGNAL(clicked()),
 	  &buttonMapper,SLOT(map()));
-  buttonMapper.setMapping(buttons[groupName],groupName);
-
-  //Finally, fix the position of the button group to reflect the above addition
-  buttonGroup.setPos(calculateButtonGroupPosition());
+  buttonMapper.setMapping(button,groupName);
 }
 
 void ABase::changeToMenu()
@@ -385,14 +384,6 @@ QPointF ABase::calculateBackgroundPosition()
   return QPointF(-(background->sceneBoundingRect().width()-width())/2,0);
 }
 
-QPointF ABase::calculateButtonGroupPosition()
-{
-  QPointF ret= QPointF((1024-buttonGroup.childrenBoundingRect().width())/2 - buttonGroup.childrenBoundingRect().x(),
-		       (768-buttonGroup.childrenBoundingRect().height()) - 50);
-  return ret;
-
-}
-
 bool ABase::eventFilter(QObject *obj, QEvent *event)
 {
   if (!currentMonitor.isEmpty()) return false; //Don't care if this no mouse
@@ -409,11 +400,9 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
 	    
             //Need to figure out the bounding rectangle of our group widget
             QPointF lastPos=mEvent->lastScenePos();
-            QRectF rect=widgetGroup->sceneBoundingRect();
-            QSizeF size=widgetGroup->childrenBoundingRect().size()*0.25;
-            rect.setSize(size); // For some reason I keep getting size of 0x0 by default
-            //rect.moveLeft(rect.x()-size.width()/2); //The top left of the bounding rect is the center of the actual widget group...
-
+            QRectF childrenRect=widgetGroup->childrenBoundingRect();
+            QRectF rect=widgetGroup->sceneTransform().mapRect(childrenRect);
+	    
             if (rect.contains(lastPos)) //If we are hovering over top of the pixmaps, scroll
 	      {
                 //Make sure no animation is running

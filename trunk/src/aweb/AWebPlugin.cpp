@@ -66,8 +66,8 @@ void AWebPlugin::load()
   setURL(wikiwdg,"http://amelia.sourceforge.net/usingamelia.html");
   addButton(wikiwdg,"Menu","");
 
-  base->addLevel("wiki","Default",wikiwdg,"How to use AMELIA");
-  base->addLevel("news","Default",newswdg,"The AMELIA Portal!");
+  base->addMonitor("wiki","Default",wikiwdg,"How to use AMELIA");
+  base->addMonitor("news","Default",newswdg,"The AMELIA Portal!");
 
   connect(&abaseMapper,SIGNAL(mapped(const QString&)),
 	  base,SLOT(changeToMonitor(const QString&)));

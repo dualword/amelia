@@ -1,13 +1,13 @@
 #ifndef AMONITORGROUP_H_
 #define AMONITORGROUP_H_
 
-#include <QGraphicsItemGroup>
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
 
+#include "QGraphicsItemLayout.h"
 #include "AMonitor.h"
 
-class AMonitorGroup : public QObject,public QGraphicsItemGroup
+class AMonitorGroup : public QObject,public QGraphicsItemLayout
 {
   Q_OBJECT
   
@@ -20,7 +20,7 @@ public:
   QPointF calculateScaledWidgetGroupPosition();  
 						     
 public slots:
-  void addMonitor(QString name,AMonitor* display);
+  void addMonitor(QString name,AMonitor* display,Qt::Alignment align);
   void show();
   void hide();
 

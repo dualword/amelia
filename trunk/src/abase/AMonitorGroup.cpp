@@ -2,13 +2,15 @@
 #include <QDebug>
 #include <math.h>
 
-AMonitorGroup::AMonitorGroup(QString _name,QGraphicsItem* _parent):QGraphicsItemGroup(_parent),name(_name)
+AMonitorGroup::AMonitorGroup(QString _name,QGraphicsItem* _parent)
+ :QGraphicsItemLayout(_parent),name(_name)
 { 
   scale(0.25,0.25);
   setHandlesChildEvents(false); //Let the monitors handle it's own clicks
   setZValue(100);
   setVisible(false); //Do not show until we call this in action!
   setPos(-1000,-1000); //Hide it somewhere faar far away. This avoids the initial flicker.
+  setHorizontalAlignment(Qt::AlignHCenter);
 
   //This prepares animation & timers!
   dropDownTime.setDuration(1000);
@@ -22,14 +24,12 @@ AMonitorGroup::AMonitorGroup(QString _name,QGraphicsItem* _parent):QGraphicsItem
   updateAnimatorPositions();
 }
 
-void AMonitorGroup::addMonitor(QString _name,AMonitor *monitor)
+void AMonitorGroup::addMonitor(QString _name,AMonitor *monitor,Qt::Alignment align)
 { 
   monitor->setParentItem(this);
-  monitor->setPos(1024*(_monitors.size()),0);
+  addToGroup(monitor,align);
   _monitors[_name]=monitor;
 
-  if(isVisible()) setPos(calculateScaledWidgetGroupPosition());
-  
   updateAnimatorPositions();
   qDebug() << "Added " << _name << " to " << name;
 }
@@ -59,12 +59,8 @@ void AMonitorGroup::hide()
 
 QPointF AMonitorGroup::calculateScaledWidgetGroupPosition()
 {
-  if (_monitors.size()==0) return QPoint();
-  
-  //Figures out where the widget group would go if it were scaled by 0.2
-  // and centered
-  QPointF ret= QPointF((1024-childrenBoundingRect().width()*0.25)/2,
-		       (768-childrenBoundingRect().height()*0.25)/2 - 150);
+  QPointF ret= QPointF(1024/2,
+		       100);
   return ret;
 }
 

@@ -60,27 +60,14 @@ void AHistPlugin::load()
   
 
   ATest *test=new ATest;
-  base->addLevel("hist","Analysis",test);
+  base->addMonitor("hist","Analysis",test);
 
 
   combinedTracksTable=(QTableView*)geo->findWidget("combinedTracksTable"); 
   QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
   QMenu *menu=model->menu();
   hists=new AllHistograms(menu);
-  base->addLevel("combohist","Analysis",hists);
+  base->addMonitor("combohist","Analysis",hists);
 }
-
-void AHistPlugin::showContextMenu(const QPoint& pos)
-{
-  //QMenu menu;
-
-  //QStringList histList=hists->
-  
-  //menu.addSeparator();
-  //menu.addAction("New Histogram",hists,SLOT(newHistorgamDlg()));
-
-  //menu.exec(combinedTracksTable->mapToGlobal(pos));
-}
-
 
 Q_EXPORT_PLUGIN2(AHistPlugin, AHistPlugin)

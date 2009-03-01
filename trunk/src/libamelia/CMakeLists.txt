@@ -15,6 +15,7 @@ ADD_DEFINITIONS(-DQT_SHARED)
 SET(amelia_SRCS
 	QGraphicsClickablePixmapItem.cpp
 	QGraphicsClickableSimpleTextItem.cpp
+	QGraphicsItemLayout.cpp
 	AAnimationGUI.cpp
 	AMainView.cpp
 	APlugin.cpp

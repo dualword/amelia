@@ -1,3 +1,4 @@
+
 #include "AMELIA.h"
 
 #include <QDir>
@@ -55,7 +56,7 @@ bool AMELIA::loadPlugin(QString name)
       {
 	QDomElement depsNode=depsNodes.at(i).toElement();
 	QDomNodeList pluginDepNodes=depsNode.elementsByTagName("plugin");
-	qDebug() << "Size " << pluginDepNodes.size();
+
 	for(int j=0;j<pluginDepNodes.size();j++)
 	  {
 	    QDomElement pluginDep=pluginDepNodes.at(j).toElement();
@@ -69,8 +70,11 @@ bool AMELIA::loadPlugin(QString name)
 
   qDebug() << "Loading " << name << " in file " << file;
   APlugin *plugin=qobject_cast<APlugin *>(loader.instance());
-  qDebug() << plugin << " " << loader.errorString();
-  if(!plugin) return false;
+  if(!plugin)
+    {
+      qDebug() << plugin << " " << loader.errorString();
+      return false;
+    }
 
   plugins[name]=plugin;
   plugin->setPluginBase(this);
@@ -146,9 +150,7 @@ void AMELIA::loadAllPlugins()
       qDebug() << "-- Ordered --";
       for(int j=0;j<pluginOrder.size();j++)
 	{
-	  qDebug() << "Preload " << pluginOrder[j].name;
 	  loadPlugin(pluginOrder[j].name);
-	  qDebug() << "Postload " << pluginOrder[j].name;
 	}
     }
 

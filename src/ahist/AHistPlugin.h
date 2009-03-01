@@ -18,9 +18,6 @@ class AHistPlugin : public QObject,public APlugin
   
   void load();
 
- public slots:
-  void showContextMenu(const QPoint&);
-
  private:
   QTableView *combinedTracksTable;
   AllHistograms *hists;

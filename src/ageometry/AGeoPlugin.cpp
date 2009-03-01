@@ -62,7 +62,7 @@ void AGeoPlugin::load()
   AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
   _layerGUI->setupElements(mngr);
 
-  base->addLevel("ageometry","Default",geoWin,"Enter ATLAS");
+  base->addMonitor("ageometry","Default",geoWin,"Enter ATLAS");
 }
 
 QWidget* AGeoPlugin::findWidget(QString name)

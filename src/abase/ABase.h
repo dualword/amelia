@@ -22,6 +22,7 @@
 #include <QSignalMapper>
 
 #include <QGraphicsClickableSimpleTextItem.h>
+#include <QGraphicsItemLayout.h>
 #include <APlugin.h>
 
 #include "AMonitorGroup.h"
@@ -44,7 +45,7 @@ public:
     QWidget* fakeCentralWidget();
 
 public slots:
-    void addLevel( QString level,QString group ,QWidget *widget,QString description="");
+    void addMonitor( QString level,QString group ,QWidget *widget,QString description="",Qt::Alignment align=Qt::AlignHCenter);
     void addGroup( QString groupName );
     void changeToMonitor(const QString& level);
     void changeToGroup(const QString& level);
@@ -63,13 +64,9 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
     QPointF calculateBackgroundPosition();
-    QPointF calculateButtonGroupPosition();
     void setupViewport();
 
 private:
-    //Holds a list of the virual screens loaded
-    //QMap<QString, ALayout> widgets;
-
     //Center...
     QWidget center;
     QGridLayout layout;
@@ -83,8 +80,7 @@ private:
     //Buttons
     QFont buttonFont;
     QSignalMapper buttonMapper;
-    QGraphicsItemGroup buttonGroup;
-    QMap<QString,QGraphicsClickableSimpleTextItem*> buttons;
+    QGraphicsItemLayout buttonGroup;
     QGraphicsClickableSimpleTextItem quit;
 
     QSignalMapper mapper;

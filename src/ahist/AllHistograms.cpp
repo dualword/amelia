@@ -34,9 +34,26 @@ void AllHistograms::newHistorgamDlg()
   QObject *fromObj=sender();
 
   QString name=QInputDialog::getText(0,"New Histogram","Name of the histogram:");
+  if(name.isEmpty()) return;
 
-  AComboHistogram *hist=new AComboHistogram(name,this);
-  histograms[name]=hist;
+  AComboHistogram *hist;
+  if(!histograms.contains(name))
+    {
+      hist=new AComboHistogram(name,this);
+      histograms[name]=hist;
+      
+      QAction *newMenuAction=new QAction(name,_menu);
+      connect(newMenuAction,SIGNAL(triggered()),
+	      this,SLOT(addToHistogram()));
+      _menu->insertAction(_sep,newMenuAction);
+      tabWidget->addTab(hist,name);
+    }
+  else
+    {
+      hist=histograms[name];
+    }
+  
+  qDebug() << hist;
   
   if(fromObj->inherits("QAction"))
     {
@@ -47,12 +64,6 @@ void AllHistograms::newHistorgamDlg()
       hist->addData(combo->getInvariantMass());
     }
 
-  QAction *newMenuAction=new QAction(name,_menu);
-  connect(newMenuAction,SIGNAL(triggered()),
-	  this,SLOT(addToHistogram()));
-  _menu->insertAction(_sep,newMenuAction);
-
-  tabWidget->addTab(hist,name);
 }
 
 void AllHistograms::addToHistogram()

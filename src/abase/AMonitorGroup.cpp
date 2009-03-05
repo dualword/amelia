@@ -60,7 +60,7 @@ void AMonitorGroup::hide()
 QPointF AMonitorGroup::calculateScaledWidgetGroupPosition()
 {
   QPointF ret= QPointF(1024/2,
-		       100);
+		       150);
   return ret;
 }
 

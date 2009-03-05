@@ -45,8 +45,8 @@ ABase::ABase( QWidget *parent )
   : QMainWindow(parent),_fakeCentralWidget(0)
 {
     //Set to the initial size.
-    setFixedSize(1024,768);
-
+  resize(1024,768);
+  
     layout.setContentsMargins(0,0,0,0);
     center.setLayout(&layout);
 

@@ -123,6 +123,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *event);
     
     bool postEventFromUser(const SEvent& event);
+    bool hasCameraMoved();
 
 private:
     irr::video::E_DRIVER_TYPE _driverType;
@@ -137,6 +138,11 @@ private:
     IGUIEnvironment* gui;
     ICursorControl* cursorcontrol;
     ITimer *timer;
+
+    ICameraSceneNode *lastActiveCamera;
+    vector3df lastCameraPosition,lastCameraTarget;
+
+    void updateLastCamera();
 
 #ifdef Q_WS_WIN
 	friend class QIrrWinWidgetPrivate;

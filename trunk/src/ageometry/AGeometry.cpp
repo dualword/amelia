@@ -554,114 +554,119 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 
 void AGeometry::execute()
 {
-	//If this is the first time the window is shown, 
-	// then trigger the animated camera transition.
-	if(firstShow && getSceneManager())
+  //If this is the first time the window is shown, 
+  // then trigger the animated camera transition.
+  if(firstShow && getSceneManager())
+    {
+      setCamera(AGeometry::Maya);
+      firstShow=false;
+    }
+  
+  // Main 3D view
+  if(hasCameraMoved())
+    {
+      core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
+      
+      BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
+      CameraBB->setPosition ( camPos );
+      if ( sliceMode == true )
 	{
-	  setCamera(AGeometry::Maya);
-	  firstShow=false;
+	  BBscale = 15000;
+	  CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
 	}
-
-    // Main 3D view
-    core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
-
-    BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
-    CameraBB->setPosition ( camPos );
-    if ( sliceMode == true )
-    {
-        BBscale = 15000;
-        CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
-    }
-    CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
-    CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
-
-    dynamicCameraSpeed(camPos);
-    dynamicHidingOfModules(camPos);
-
-    core::position2di pos = getCursorControl()->getPosition();
-
-    //TODO This is old code of module selection
-    /*if (detectorMode)
-    {
-        line3d<f32> ray = getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos, getSceneManager()->getActiveCamera());
-        //selectedSceneNode = Irr->GetSceneManager()->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos, 2);
-        selectedSceneNode = getSceneManager()->getSceneCollisionManager()->getSceneNodeFromRayBB(ray, 2);
-        if (selectedSceneNode->getID() == 2)
-        {
-            if (lastSelectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode))
-            {
-                lastSelectedSceneNode->setMaterialTexture(0, getVideoDriver()->getTexture("tile.jpg"));
-            }
-
-            if (selectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode) && !(camera[0]->isInputReceiverEnabled()))
-            {
-
-                // TODO (Joao Pequenao#1#): Change the module selection code
-
-                ita = allModules.begin(); // 'ita' used below as well!!!
-                while (((ita->theModule) != (selectedSceneNode)) && ((ita+1) < allModules.end()))
-                {
-                    ita++;
-                }
-
-                if ((ita) != allModules.end())
-                {
-                    if (((ita->theModule) == (selectedSceneNode)) )
-                    {
-                        if ((ita->mType>=1)&&(ita->mType<=6)) lastSelectedSceneNode = selectedSceneNode;
-                        if ((ita->mType>=1)&&(ita->mType<=6)) selectedSceneNode->setMaterialTexture(0, driver->getTexture("media/tile_selected.jpg"));
-                    }
-                }
-                else
-                {
-                    selectedSceneNode =0;
-                }
-        }
-    }
-    }*/
-
-    //  END module selection)
-
-
-
-    if ( ( frameSkipper==0 ) && ! ( MosesFreeCalm ) )
-    {
-        executeMosesMode(); // every 5(?) frames
-    }
-
-    CameraBB->setVisible ( false );
-
-    //more stuff for the dynamic camera
-    DCamPos = camera[0]->getPosition() - camPos;
-
-    if ( ( DCamPos.X*DCamPos.X + DCamPos.Y*DCamPos.Y + DCamPos.Z*DCamPos.Z != 0 ) )
-        //frameskipper makes it so moses mode isn't calculated ever frame,
-        //which should speed things up some
+      CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
+      CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
+      
+      dynamicCameraSpeed(camPos);
+      dynamicHidingOfModules(camPos);
+      
+      //TODO This is old code of module selection
+      /*core::position2di pos = getCursorControl()->getPosition();
+	if (detectorMode)
+	{
+	line3d<f32> ray = getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos, getSceneManager()->getActiveCamera());
+	//selectedSceneNode = Irr->GetSceneManager()->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos, 2);
+	selectedSceneNode = getSceneManager()->getSceneCollisionManager()->getSceneNodeFromRayBB(ray, 2);
+	if (selectedSceneNode->getID() == 2)
+	{
+	if (lastSelectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode))
+	{
+	lastSelectedSceneNode->setMaterialTexture(0, getVideoDriver()->getTexture("tile.jpg"));
+	}
+	
+	if (selectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode) && !(camera[0]->isInputReceiverEnabled()))
+	{
+	
+	// TODO (Joao Pequenao#1#): Change the module selection code
+	
+	ita = allModules.begin(); // 'ita' used below as well!!!
+	while (((ita->theModule) != (selectedSceneNode)) && ((ita+1) < allModules.end()))
+	{
+	ita++;
+	}
+	
+	if ((ita) != allModules.end())
+	{
+	if (((ita->theModule) == (selectedSceneNode)) )
+	{
+	if ((ita->mType>=1)&&(ita->mType<=6)) lastSelectedSceneNode = selectedSceneNode;
+	if ((ita->mType>=1)&&(ita->mType<=6)) selectedSceneNode->setMaterialTexture(0, driver->getTexture("media/tile_selected.jpg"));
+	}
+	}
+	else
+	{
+	selectedSceneNode =0;
+	}
+	}
+	}
+	}*/
+      
+      //  END module selection)
+      
+      
+      
+      if ( ( frameSkipper==0 ) && ! ( MosesFreeCalm ) )
+	{
+	  executeMosesMode(); // every 5(?) frames
+	}
+      
+      CameraBB->setVisible ( false );
+      
+      //more stuff for the dynamic camera
+      DCamPos = camera[0]->getPosition() - camPos;
+      
+      if ( ( DCamPos.X*DCamPos.X + DCamPos.Y*DCamPos.Y + DCamPos.Z*DCamPos.Z != 0 ) )
+	//frameskipper makes it so moses mode isn't calculated ever frame,
+	//which should speed things up some
         frameSkipper++;
-    if ( frameSkipper>=skipFrameNumber ) frameSkipper=0;
-
-    if (force_target)
-    {
-
-        //vector3df vect = tar_node->getPosition () - camera[0]->getPosition ();
-        //camera[0]->setRotation (vect.getHorizontalAngle ());
-        camera[0]->setTarget (tar_node->getPosition());
-        camera[0]->setPosition (cam_node->getPosition());
+      if ( frameSkipper>=skipFrameNumber ) frameSkipper=0;
+      
+      if (force_target)
+	{
+	  
+	  //vector3df vect = tar_node->getPosition () - camera[0]->getPosition ();
+	  //camera[0]->setRotation (vect.getHorizontalAngle ());
+	  camera[0]->setTarget (tar_node->getPosition());
+	  camera[0]->setPosition (cam_node->getPosition());
+	}
+      //qDebug() << "STUFF UPDATED";
     }
-
-	ICameraSceneNode *active=getSceneManager()->getActiveCamera();
-	if(zoomIn->isPressed())
-	{
-		vector3df curpos=active->getPosition();
-		curpos*=0.95;
-		active->setPosition(curpos);
-	}
-	if(zoomOut->isPressed())
-	{
-		vector3df curpos=active->getPosition();
-		curpos*=1.05;
-		active->setPosition(curpos);
-	}
+  
+  ICameraSceneNode *active=getSceneManager()->getActiveCamera();
+  if(zoomIn->isPressed())
+    {
+      vector3df curpos=active->getPosition();
+      curpos*=0.95;
+      active->setPosition(curpos);
+    }
+  if(zoomOut->isPressed())
+    {
+      vector3df curpos=active->getPosition();
+      curpos*=1.05;
+      active->setPosition(curpos);
+    }
+  
+  QIrrWidget::execute();
 }
 
 

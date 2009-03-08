@@ -53,8 +53,6 @@ void AllHistograms::newHistorgamDlg()
       hist=histograms[name];
     }
   
-  qDebug() << hist;
-  
   if(fromObj->inherits("QAction"))
     {
       QAction *fromAct=(QAction*)fromObj;

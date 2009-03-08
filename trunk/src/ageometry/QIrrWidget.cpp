@@ -280,7 +280,17 @@ void QIrrWidget::resizeEvent( QResizeEvent* event )
 }
 
 
-void QIrrWidget::execute() { }
+void QIrrWidget::execute()
+{ }
+
+void QIrrWidget::updateLastCamera()
+{
+  ICameraSceneNode *activeCam=smgr->getActiveCamera();
+
+  lastActiveCamera=smgr->getActiveCamera();
+  lastCameraPosition=lastActiveCamera->getPosition();
+  lastCameraTarget=lastActiveCamera->getTarget();
+}
 
 bool QIrrWidget::OnEvent(const SEvent &event)
 {
@@ -715,6 +725,16 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
   return absorbed;
 }
 
+bool QIrrWidget::hasCameraMoved()
+{
+  ICameraSceneNode* activeCam=smgr->getActiveCamera();
+  bool cameraChanged=(lastActiveCamera!=activeCam);
+  bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
+  bool cameraTargetMoved=(lastCameraTarget!=activeCam->getTarget());
+
+  return cameraChanged || cameraMoved || cameraTargetMoved;
+}
+
 #ifdef Q_WS_WIN
 QIrrWinWidgetPrivate::QIrrWinWidgetPrivate( QIrrWidget *parent )
   : QWidget(parent)
@@ -853,10 +873,19 @@ void QIrrUnixWidgetPrivate::initializeGL()
 void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)
 {
   parent->timer->tick();
+  //if(isVisible() && isEnabled() && isActiveWindow())
+  //updateGL();
+  if(parent->hasCameraMoved())
+    {
+      updateGL();
+      parent->updateLastCamera();
+    }
+  else
+    {
+      parent->smgr->getRootSceneNode()->OnAnimate(parent->timer->getTime());
+    }
+
   parent->execute();
-  
-  if(isVisible() && isEnabled() && isActiveWindow())
-    updateGL();
 }
 
 void QIrrUnixWidgetPrivate::showEvent(QShowEvent *event)

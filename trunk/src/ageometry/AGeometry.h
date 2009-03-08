@@ -174,7 +174,6 @@ signals:
     void finishedLoading ();
     void trackSelected(ATrack*);
     void trackDeselected(ATrack*);
-    void eventChanged(AEvent*);
 
 protected:
 

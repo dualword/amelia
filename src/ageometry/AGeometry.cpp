@@ -110,16 +110,16 @@ AGeometry::AGeometry(QWidget* parent)
 
     selectedTrackBox = NULL;
 
-    //XmlEvt = new AXmlEvent();
-    //XmlEvt->Base = this;
-
     rt=0;
-
-
 
     multiSelectButton=0;
     zoomIn=0;
     zoomOut=0;
+
+    connect(this,SIGNAL(trackSelected(ATrack*)),
+	    this,SLOT(makeDirty()));
+    connect(this,SIGNAL(trackDeselected(ATrack*)),
+	    this,SLOT(makeDirty()));
 }
 
 
@@ -783,6 +783,7 @@ void AGeometry::switchVisibility ( int modType )
 
             }
         }
+	makeDirty();
     }
 }
 
@@ -2454,10 +2455,13 @@ void AGeometry::clearEvent()
 
 void AGeometry::setEvent(AFilteredEvent* e)
 {
+  makeDirty();
   if(!_event)
     {
       disconnect(_event,SIGNAL(filtersUpdated()),
-	      this,SLOT(updateTracks()));
+		 this,SLOT(updateTracks()));
+      disconnect(_event,SIGNAL(filtersUpdated()),
+		 this,SLOT(makeDirty()));
 
       AEvent *completeE=e->completeEvent();
       for(int i=0;i<completeE->Tracks.size();i++)
@@ -2495,6 +2499,8 @@ void AGeometry::setEvent(AFilteredEvent* e)
   
   connect(_event,SIGNAL(filtersUpdated()),
 	  this,SLOT(updateTracks()));
+  connect(_event,SIGNAL(filtersUpdated()),
+	  this,SLOT(makeDirty()));
   updateTracks();
 
   allowTrackSelection=true;

@@ -169,7 +169,7 @@ private:
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0)
+  : QWidget(parent),driver(0),smgr(0),_dirty(false)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -232,6 +232,21 @@ ICursorControl* QIrrWidget::getCursorControl()
 irr::video::E_DRIVER_TYPE QIrrWidget::driverType()
 {
   return _driverType;
+}
+
+void QIrrWidget::makeDirty()
+{
+  _dirty=true;
+}
+
+void QIrrWidget::setDirty(bool dirty)
+{
+  _dirty=dirty;
+}
+
+bool QIrrWidget::isDirty()
+{
+  return _dirty;
 }
 
 void QIrrWidget::toggleDisabled()
@@ -873,12 +888,11 @@ void QIrrUnixWidgetPrivate::initializeGL()
 void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)
 {
   parent->timer->tick();
-  //if(isVisible() && isEnabled() && isActiveWindow())
-  //updateGL();
-  if(parent->hasCameraMoved())
+  if(parent->hasCameraMoved() || parent->isDirty())
     {
       updateGL();
       parent->updateLastCamera();
+      parent->setDirty(false);
     }
   else
     {

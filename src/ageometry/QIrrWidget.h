@@ -88,6 +88,9 @@ public:
     ITimer* getTimer();
     ICursorControl* getCursorControl();
 
+    void setDirty(bool dirty);
+    bool isDirty();
+
     void setDriverType( irr::video::E_DRIVER_TYPE driver );
     irr::video::E_DRIVER_TYPE driverType();
 
@@ -100,6 +103,7 @@ public:
 
 public slots:
   void toggleDisabled();
+  void makeDirty();
 
 protected:
     /* Override these 3 functions in QIrrWidgets */
@@ -138,7 +142,8 @@ private:
     IGUIEnvironment* gui;
     ICursorControl* cursorcontrol;
     ITimer *timer;
-
+    
+    bool _dirty;
     ICameraSceneNode *lastActiveCamera;
     vector3df lastCameraPosition,lastCameraTarget;
 

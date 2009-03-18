@@ -1,4 +1,4 @@
-
+;
 #include "AMELIA.h"
 
 #include <QDir>
@@ -61,14 +61,15 @@ bool AMELIA::loadPlugin(QString name)
 	  {
 	    QDomElement pluginDep=pluginDepNodes.at(j).toElement();
 	    QString depName=pluginDep.attribute("name");
-	    qDebug() << "Name " << depName;
-	    if(!loadPlugin(depName)) return false;
+	    bool optional=(pluginDep.attribute("optional","false")=="true");
+	    qDebug() << "Name " << depName << " Optional " << optional;
+	    if(!loadPlugin(depName) && !optional) return false;
 	  }
       }
   }
   pfile.close();
 
-  qDebug() << "Loading " << name << " in file " << file;
+  qDebug() << "Loading " << name;
   APlugin *plugin=qobject_cast<APlugin *>(loader.instance());
   if(!plugin)
     {

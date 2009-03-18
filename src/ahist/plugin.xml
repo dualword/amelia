@@ -3,6 +3,6 @@
   <dependencies>
     <plugin name="ABase" />
     <plugin name="AEventManager" />
-    <plugin name="AGeometry" />
+    <plugin name="AGeometry" optional="true" />
   </dependencies>
 </plugin>

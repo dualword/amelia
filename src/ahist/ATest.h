@@ -14,6 +14,8 @@
 #include <AMELIA.h>
 #include <aeventmanager/AEvent.h>
 
+#include "AComboHistogram.h"
+
 class ATest : public QWidget
 {
 Q_OBJECT
@@ -26,13 +28,9 @@ Q_OBJECT
   void loadEvent(AEvent*);
   
  private:
-  QSpinBox *bins;
-  QDoubleSpinBox *minx;
-  QDoubleSpinBox *maxx;
   QTabWidget *tabs;
   
-  QMap<AEvent*,TH1F*> hists;
-  QMap<AEvent*,TQtWidget*> widgets;
+  QMap<AEvent*,AComboHistogram*> histograms;
 };
 
 #endif //ATEST_H_

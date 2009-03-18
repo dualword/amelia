@@ -28,7 +28,7 @@ AComboHistogram::AComboHistogram(QString _name,QWidget* parent):QWidget(parent),
 	  this,SLOT(updateBins()));
 }
 
-void AComboHistogram::addData(int point)
+void AComboHistogram::addData(float point)
 {
   data.push_back(point);
   hist->Fill(point);

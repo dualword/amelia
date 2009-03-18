@@ -25,7 +25,7 @@ Q_OBJECT
   
  public slots:
   void updateBins();
-  void addData(int);
+  void addData(float);
   
  private:
   QSpinBox *bins;
@@ -35,7 +35,7 @@ Q_OBJECT
   TH1F* hist;
   TQtWidget* widget;
 
-  QList<int> data;
+  QList<float> data;
 };
 
 #endif //ACOMBOHISTOGRAM_H_

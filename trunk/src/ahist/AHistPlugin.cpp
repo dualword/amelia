@@ -56,18 +56,22 @@ AHistPlugin::~AHistPlugin()
 void AHistPlugin::load()
 { 
   ABase *base=(ABase *)AMELIA::global->plugin("ABase");
-  AGeoPlugin *geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
   
 
   ATest *test=new ATest;
   base->addMonitor("hist","Analysis",test);
+  
+  // Connect histograms with ageometry's menu system, if ageometry is loaded
+  if(AMELIA::global->isLoaded("ageometry"))
+    {
+      AGeoPlugin *geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
+      combinedTracksTable=(QTableView*)geo->findWidget("combinedTracksTable"); 
+      QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
+      QMenu *menu=model->menu();
 
-
-  combinedTracksTable=(QTableView*)geo->findWidget("combinedTracksTable"); 
-  QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
-  QMenu *menu=model->menu();
-  hists=new AllHistograms(menu);
-  base->addMonitor("combohist","Analysis",hists);
+      hists=new AllHistograms(menu);
+      base->addMonitor("combohist","Analysis",hists);
+    }
 }
 
 Q_EXPORT_PLUGIN2(AHistPlugin, AHistPlugin)

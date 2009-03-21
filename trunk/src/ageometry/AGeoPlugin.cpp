@@ -41,7 +41,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeoPlugin::AGeoPlugin( QObject *parent )
         : QObject(parent)
-{}
+{
+  comboMenu.setTitle("Combination");
+}
 
 AGeoPlugin::~AGeoPlugin() { }
 
@@ -49,18 +51,25 @@ void AGeoPlugin::load()
 {
   AMELIA *app=pluginBase();
   ABase *base=(ABase *)app->plugin("ABase");
-  
-  Ui::MainWindow geoUI;
 
+  //Setup the UI
+  Ui::MainWindow geoUI;
   geoWin=new QMainWindow(base);
-  
   geoUI.setupUi(geoWin);
 
+  //Load the ALayerGUI
   ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
   geoWin->setCentralWidget(_layerGUI);
-
   AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
   _layerGUI->setupElements(mngr);
+
+  //Setup the menu for track combinations
+  QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
+  QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
+  model->setMenu(&comboMenu);
+
+  AGeometry *Geometry= geoWin->findChild<AGeometry*>("Geometry");
+  Geometry->setComboMenu(&comboMenu);
 
   base->addMonitor("ageometry","Default",geoWin,"Enter ATLAS");
 }
@@ -68,6 +77,11 @@ void AGeoPlugin::load()
 QWidget* AGeoPlugin::findWidget(QString name)
 {
   return geoWin->findChild<QWidget*>(name);
+}
+
+QMenu* AGeoPlugin::addTrackComboMenu(QString text)
+{
+  return comboMenu.addMenu(text);
 }
 
 Q_EXPORT_PLUGIN2(AGeoPlugin, AGeoPlugin)

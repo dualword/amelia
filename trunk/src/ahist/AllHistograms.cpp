@@ -8,7 +8,7 @@
 #include "AComboHistogram.h"
 #include <ageometry/ATrackCombination.h>
 
-AllHistograms::AllHistograms(QMenu* clickMenu,QWidget* parent):QMainWindow(parent)
+AllHistograms::AllHistograms(QMenu* menu,QWidget* parent):QMainWindow(parent),_menu(menu)
 { 
   Ui::AllHistograms ui;
   ui.setupUi(this);
@@ -19,7 +19,6 @@ AllHistograms::AllHistograms(QMenu* clickMenu,QWidget* parent):QMainWindow(paren
   connect(actionNew_Histogram,SIGNAL(triggered()),
 	  this,SLOT(newHistorgamDlg()));
   
-  _menu=clickMenu->addMenu("Add to...");
   _menu->addSeparator();
   _menu->addAction("New Histogram",this,SLOT(newHistorgamDlg()));
 }

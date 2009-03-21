@@ -53,7 +53,7 @@ QVariant AComboTableModel::data(const QModelIndex &index, int role) const
   }
   else if(role == QAbstractTableModelWithContextMenu::MenuDataRole)
     {
-      return QVariant::fromValue<QObject*>(combs[index.row()]);
+      return QVariant::fromValue<QObject *>(combs[index.row()]);
     }
  
   return QAbstractTableModelWithContextMenu::data(index,role);

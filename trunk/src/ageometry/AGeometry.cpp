@@ -37,6 +37,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AGeometry.h"
 #include <config.h>
 
+#include "ATrackCombination.h"
+
 #include "CSceneNodeAnimatorCameraOrbit.h"
 #include "CSceneNodeAnimatorCameraSphere.h"
 #include <ISceneNodeAnimatorCameraFPS.h>
@@ -53,16 +55,6 @@ AGeometry::AGeometry(QWidget* parent)
     background_node_f = NULL;
     background_node_s = NULL;
 
-    // Module visibility switches
-    vis_Pixels = false;
-    vis_SCT = false;
-    vis_TRT = false;
-    vis_EM = true;
-    vis_Hadr = true;
-    vis_Magnets = true;
-    vis_Muons = true;
-
-    time_switch = 0;
 
     // Dynamic FPS camera initial parameters
     cameraZone = 3;
@@ -81,11 +73,9 @@ AGeometry::AGeometry(QWidget* parent)
     SCT_switch = 1;
     Pix_switch = 1;
 
-    module thisModule;
     pos = core::vector3df ( 0,0,0 );
     rot = core::vector3df ( 0,0,0 );
     scale = core::vector3df ( 0,0,0 );
-    cam_switch_delay = 0;
 
     moduleDistanceFromCam = 0;
     moduleAngleFromCam = 0;
@@ -105,7 +95,6 @@ AGeometry::AGeometry(QWidget* parent)
     MosesFreeCalm = false;
     mosesRestore = false;
 
-    isTrackSelected = false;
     allowTrackSelection = false;
 
     selectedTrackBox = NULL;
@@ -2439,6 +2428,43 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
   return QIrrWidget::keyPressEvent(event);
 }
 
+void AGeometry::contextMenuEvent( QContextMenuEvent *event )
+{
+  QMenu menu;
+
+  //If a combination menu exists, add it to a list
+  if(_comboMenu)
+    {
+      //Prepare the combination object holding all the selected tracks
+      ATrackCombination *combination=new ATrackCombination();
+      for(int i=0;i<selectedTracks.size();i++)
+	combination->addTrack(selectedTracks[i]->getTrack());
+      
+      //For each item in the combo menu, set it's data to the combined tracks
+      QList<QAction *> actions=_comboMenu->findChildren<QAction*>();
+      if(actions.size()>0)
+	{
+	  for(int i=0;i<actions.size();i++)
+	    {
+	      QVariant data=QVariant::fromValue<QObject*>(combination);
+	      actions[i]->setData(data);
+	    }
+	}
+
+      //Add to the menu
+      QAction *comboMenuAction=menu.addMenu(_comboMenu);
+
+      //Enable only if 2 or more tracks are selected
+      if(combination->size()<2)
+	comboMenuAction->setEnabled(false);
+      else
+      	comboMenuAction->setEnabled(true);
+    }
+
+  //Display!!
+  menu.exec(event->globalPos());
+}
+
 void AGeometry::clearEvent()
 {
   _event=0;
@@ -2661,7 +2687,11 @@ void AGeometry::removeTarAnimator ()
     tar_node->removeAnimators ();
 
     force_target = false;
+}
 
+void AGeometry::setComboMenu(QMenu *comboMenu)
+{
+  _comboMenu=comboMenu;
 }
 
 void AGeometry::updateTracks()

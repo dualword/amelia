@@ -62,13 +62,11 @@ void AHistPlugin::load()
   base->addMonitor("hist","Analysis",test);
   
   // Connect histograms with ageometry's menu system, if ageometry is loaded
-  if(AMELIA::global->isLoaded("ageometry"))
+  if(AMELIA::global->isLoaded("AGeometry"))
     {
       AGeoPlugin *geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
-      combinedTracksTable=(QTableView*)geo->findWidget("combinedTracksTable"); 
-      QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
-      QMenu *menu=model->menu();
 
+      QMenu *menu=geo->addTrackComboMenu("Add to...");
       hists=new AllHistograms(menu);
       base->addMonitor("combohist","Analysis",hists);
     }

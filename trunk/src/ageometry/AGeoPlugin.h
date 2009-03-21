@@ -6,6 +6,7 @@
 
 #include <QObject>
 #include <QMainWindow>
+#include <QMenu>
 
 class AGeoPlugin : public QObject, public APlugin
 {
@@ -13,16 +14,17 @@ class AGeoPlugin : public QObject, public APlugin
   Q_INTERFACES(APlugin)
 
 public:
-    AGeoPlugin ( QObject *parent=0 );
-    ~AGeoPlugin();
+  AGeoPlugin ( QObject *parent=0 );
+  ~AGeoPlugin();
+  
+  void load();
+  
+  QWidget* findWidget(QString name);
+  QMenu* addTrackComboMenu(QString text);
 
-    void load();
-    
-    //template <class T>
-    //T findWidget(QString name);
-    QWidget* findWidget(QString name);
  private:
-    QMainWindow *geoWin;
+  QMainWindow *geoWin;
+  QMenu comboMenu;
 };
 
 #endif // AGEOPLUGIN_H

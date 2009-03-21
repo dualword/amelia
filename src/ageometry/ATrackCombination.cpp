@@ -11,6 +11,16 @@ ATrackCombination::ATrackCombination():netCharge(0)
     id=++_IDS;
     name="Combo #"+QString::number(id);
 }
+
+ATrackCombination::ATrackCombination(const ATrackCombination &combo)
+{
+  id=combo.id;
+  name=combo.name;
+  tracks=combo.tracks;
+  netCharge=combo.netCharge;
+  equivalentTrack=combo.equivalentTrack;
+}
+
 ATrackCombination::~ATrackCombination() { }
 
 void ATrackCombination::addTrack(ATrack* tr)

@@ -41,6 +41,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "QIrrWidget.h"
 #include <QAction>
 #include <QLabel>
+#include <QMenu>
 
 #include "CSceneNodeAnimatorCameraSwitch.h"
 #include "ATrack3DNode.h"
@@ -79,27 +80,14 @@ public:
     void setEvent(AFilteredEvent*); // Sets the current event
     AFilteredEvent* event();
 
+    void setComboMenu(QMenu*);
 
     ISceneNode* tar_node;
     ISceneNode* cam_node;
     scene::ISceneNode* cube;
 
 
-    //Module visibility switches
-    bool vis_Pixels;
-    bool vis_SCT;
-    bool vis_TRT;
-    bool vis_EM;
-    bool vis_Hadr;
-    bool vis_Magnets;
-    bool vis_Muons;
 
-    bool isTrackSelected;
-    bool allowTrackSelection;
-
-    video::ITexture* selected_window;
-    video::ITexture* skin;
-    video::ITexture* logo; //2D AMELIA logo
     int active_viewport;
     int active_cam;
 
@@ -113,7 +101,6 @@ public:
     int SCT_switch;
     int Pix_switch;
 
-    int time_switch;
     int jetIdCounter;
 
 
@@ -180,7 +167,8 @@ protected:
     void resizeEvent( QResizeEvent* event );
     void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
-    
+    void contextMenuEvent( QContextMenuEvent *event );
+
     void setupView(int);
       
     module thisModule;
@@ -193,9 +181,14 @@ protected:
 
 
 private:
+    //Tracks and the event variables
+    AFilteredEvent* _event;
     QList<ATrack3DNode*> selectedTracks;
     QList<ATrack3DNode*> allTracks;
     QList<AJet3DNode*> allJets;
+    
+    //GUI stuff
+    QMenu *_comboMenu;
 
     void switchVisibility(int modType); //Switches the visibility of the different components of the detector
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
@@ -207,8 +200,6 @@ private:
     core::matrix4 OrthoCameraFront;
     core::matrix4 OrthoCameraSide;
     CSceneNodeAnimatorCameraSwitch *cameraSwitcher; //Used for switching the camera modes in 3D
-    int cam_switch_delay;
-    int camera_switch;
     int mosesMode_switch;
     f32 moduleDistanceFromCam;
     f32 moduleAngleFromCam;
@@ -239,13 +230,14 @@ private:
     void prepareAllModules ( scene::ISceneNode* node_ );
     ATrack3DNode* trackSelection ( core::position2di pos );
     bool offsetTest;
+
+    //State values
     bool firstShow; //First show...
+    bool allowTrackSelection; //Whether to allow track selection
+
     
     video::ITexture *rt;
 
-    //Stuff from ABase
-
-    AFilteredEvent* _event;
 };
 
 #endif // AGEOMETRY_H

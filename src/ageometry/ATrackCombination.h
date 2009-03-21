@@ -14,6 +14,7 @@ class ATrackCombination : public QObject {
   Q_OBJECT
  public:
   ATrackCombination();
+  ATrackCombination(const ATrackCombination&);
   ~ATrackCombination();
 
   void addTrack(ATrack*);

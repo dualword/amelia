@@ -15,6 +15,8 @@ SET(aeventmanager_SRCS
   AEventManagerScene.cpp
   AEventManagerTreeView.cpp
   AEventPackage.cpp
+  AEventAnalysisData.cpp
+
   ATrack.cpp
   ASTrack.cpp
   AJet.cpp
@@ -25,7 +27,6 @@ SET(aeventmanager_SRCS
   AXmlEvent.cpp
   AEvent.cpp
   AFilteredEvent.cpp
-
   
   ATrackFilter.cpp
   APtFilter.cpp
@@ -38,6 +39,7 @@ SET(aeventmanager_H
   AEventManagerScene.h
   AEventManagerTreeView.h
   AEventPackage.h
+  AEventAnalysisData.h
 
   AXmlEvent.h
   AEvent.h
@@ -49,7 +51,11 @@ SET(aeventmanager_H
   AParticleFilter.h
 )
 
+SET(aeventmanager_FILES
+      aeventmanager.qrc)
+
 QT4_WRAP_CPP(aeventmanager_SRCS ${aeventmanager_H})
+QT4_ADD_RESOURCES(aeventmanager_SRCS ${aeventmanager_FILES})
 
 ADD_LIBRARY(AEventManager SHARED ${aeventmanager_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})

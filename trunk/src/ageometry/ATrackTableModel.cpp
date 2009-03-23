@@ -8,8 +8,8 @@ unsigned int ATrackTableModel::selectionID=0;
 
 ATrackTableModel::ATrackTableModel(QWidget* parent):QAbstractTableModel(parent)
 {
-  tracks=QList<ATrack*>();
-  
+  analysisData=new AEventAnalysisData("AGeometry");
+
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
   connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
@@ -21,6 +21,29 @@ ATrackTableModel::~ATrackTableModel()
   selection->deleteLater();
 }
 
+void ATrackTableModel::handleNewEventLoaded(AEvent *event)
+{
+  disconnect(analysisData,SIGNAL(updated()),
+	     this,SLOT(refresh()));
+
+  analysisData=event->getAnalysisData("AGeometry");
+
+  connect(analysisData,SIGNAL(updated()),
+	  this,SLOT(refresh()));
+
+  refresh();
+}
+
+void ATrackTableModel::setTracks(QList<ATrack *> tracks)
+{
+  analysisData->setCollection("bookmarked_tracks",tracks);
+}
+
+QList<ATrack*> ATrackTableModel::tracks() const
+{
+  return analysisData->getCollection("bookmarked_tracks");
+}
+
 void ATrackTableModel::addTable(QAbstractItemView* table)
 {
   table->setModel(this);
@@ -30,7 +53,7 @@ void ATrackTableModel::addTable(QAbstractItemView* table)
 
 int ATrackTableModel::rowCount(const QModelIndex& root) const
 {
-  return tracks.size();
+  return tracks().size();
 }
 
 int ATrackTableModel::columnCount(const QModelIndex& root) const
@@ -43,7 +66,7 @@ QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
   if (!index.isValid())
     return QVariant();
   
-  if (index.row()>=tracks.size())
+  if (index.row()>=tracks().size())
     return QVariant();
   
   if (role == Qt::DisplayRole)
@@ -51,23 +74,23 @@ QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
       switch (index.column())
         {
         case 0:
-	  return tracks.at(index.row())->name;
+	  return tracks().at(index.row())->name;
         case 1:
-	  if (tracks.at(index.row())->Type == 1)
+	  if (tracks().at(index.row())->Type == 1)
             {
-	      ASTrack* STrack = static_cast<ASTrack*>(tracks.at(index.row()));
+	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
 	      return QString::number(STrack->pt);
             }
-	  else if (tracks.at(index.row())->Type == 2)
+	  else if (tracks().at(index.row())->Type == 2)
             {
-	      AJet* Jet = static_cast<AJet*>(tracks.at(index.row()));
+	      AJet* Jet = static_cast<AJet*>(tracks().at(index.row()));
 	      return QString::number(Jet->et);
             }
 	  else return QString("N/A");
         case 2:
-	  if (tracks.at(index.row())->Type == 1)
+	  if (tracks().at(index.row())->Type == 1)
             {
-	      ASTrack* STrack = static_cast<ASTrack*>(tracks.at(index.row()));
+	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
 	      return QString::number(STrack->Mlv);
             }
 	  else return QString("N/A");
@@ -96,6 +119,7 @@ QVariant ATrackTableModel::headerData (int section, Qt::Orientation orientation,
   
   if (orientation == Qt::Vertical)
     {
+      QList<ATrack *> tracks=this->tracks();
       return QString::number(tracks[section]->selectionID);
     }
   return QVariant();
@@ -104,7 +128,7 @@ QVariant ATrackTableModel::headerData (int section, Qt::Orientation orientation,
 void ATrackTableModel::sort(int column, Qt::SortOrder order)
 {
   //Do a bubble sort... Switch to something faster later?
-  
+  QList<ATrack*> tracks=this->tracks();
   emit layoutAboutToBeChanged();
   for (int i=0;i<tracks.size()-1;i++)
     {
@@ -138,22 +162,8 @@ void ATrackTableModel::sort(int column, Qt::SortOrder order)
             }
         }
     }
+  setTracks(tracks);
   emit layoutChanged();
-}
-
-void ATrackTableModel::addTrack(ATrack* strack)
-{
-  if (strack->selectionID==0)
-    strack->selectionID=(++ATrackTableModel::selectionID);
-  
-  if (tracks.indexOf(strack)<0) //Dupe Check
-    {
-      qDebug() << "Adding track for " << strack->name;
-      beginInsertRows(QModelIndex(),0,0);
-      tracks.append(strack);
-      strack->isInList=true;
-      endInsertRows();
-    }
 }
 
 void ATrackTableModel::deleteSelectedTracks()
@@ -161,15 +171,14 @@ void ATrackTableModel::deleteSelectedTracks()
   //Get rows. Since all colums should be selected, might as well select column 0.
   QModelIndexList rows=selection->selectedRows(0);
   //Go through each row...
+  QList<ATrack *> tracks=this->tracks();
   for (int i=0;i<rows.size();i++)
     {
       //We gonna remove a row... The row in our list is given by (selected row # - rows already removed).
       //This is because the selected row # does not change, but it's position in list does as we remove rows.
-      emit beginRemoveRows(QModelIndex(),rows[i].row()-i,rows[i].row()-i);
-      //tracks[rows[i].row-i]->isInList=false;
       tracks.removeAt(rows[i].row()-i);
-      emit endRemoveRows();
     }
+  setTracks(tracks);
 }
 
 void ATrackTableModel::combineSelectedTracks()
@@ -186,7 +195,7 @@ void ATrackTableModel::combineSelectedTracks()
       QModelIndexList rows=selection->selectedRows(0);
       //Go through each row...
       for (int i=0;i<rows.size();i++)
-	combo->addTrack(tracks[rows[i].row()]);
+	combo->addTrack(tracks()[rows[i].row()]);
       
       emit tracksCombined(combo);
     }
@@ -206,7 +215,7 @@ void ATrackTableModel::handleSelectionChanged(const QItemSelection& selected,con
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID;
+	  int id=tracks()[idxs[i].row()]->trackID;
 	  emit entryDeselected(id);
         }
     }
@@ -221,16 +230,20 @@ void ATrackTableModel::handleSelectionChanged(const QItemSelection& selected,con
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID;
+	  int id=tracks()[idxs[i].row()]->trackID;
 	  emit entrySelected(id,multi);
         }
     }
 }
 
+void ATrackTableModel::refresh()
+{
+  emit layoutAboutToBeChanged();
+  emit layoutChanged();
+}
+
 void ATrackTableModel::clear()
 {
-  if (tracks.size()==0) return;
-  emit beginRemoveRows(QModelIndex(),0,tracks.size()-1);
-  tracks.clear();
-  emit endRemoveRows();
+  analysisData=new AEventAnalysisData("AGeometry");
+  refresh();
 }

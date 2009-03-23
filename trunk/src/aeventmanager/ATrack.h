@@ -31,8 +31,6 @@ class AEVENTMANAGER_EXPORT ATrack
   int trackID;
   int selectionID;
 
-  bool isInList;
-
   int q;
   float pt;
 

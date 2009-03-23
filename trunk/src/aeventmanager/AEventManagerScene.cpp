@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-AEventManagerScene::AEventManagerScene(AEventManager* _manager):manager(_manager)
+AEventManagerScene::AEventManagerScene(AEventManager* _manager,QString module):manager(_manager),_module(module)
 { }
 
 QModelIndex AEventManagerScene::index(int row, int column, const QModelIndex& parent) const
@@ -78,7 +78,7 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
       case Qt::FontRole:
       if (e)
         { // Event Name
-	  bool read=e->read;
+	  bool read=(_module=="")?true:e->listAnalysisData().contains(_module);
 	  if (!read)
 	    font.setBold(true);
 	  
@@ -128,24 +128,20 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
 	  if (_activeEvent==e)
 	    return Qt::red;
 	}
-      /*case Qt::ToolTipRole:
-      if (id!=-1 && index.column()==0)
+    case Qt::ToolTipRole:
+      if (e)
         {
-	  AEventPackage pkg=packages[index.internalId()];
-	  AEvent *e=pkg.event(index.row());
-	  AXmlEvent *event=AXmlEvent::CachedEvent(e->location);
-	  
 	  QString toolTip=
-	    "<html><b>Tracks:</b> \t\t"+QString::number(event->EventComplete.numTracks)+"<br/>"
-	    "<b>Neutral Hadrons:</b> \t"+QString::number(event->EventComplete.numNeutralHadrons)+"<br/>"
-	    "<b>Charged Hadrons:</b> \t"+QString::number(event->EventComplete.numChargedHadrons)+"<br/>"
-	    "<b>Photons:</b> \t\t"+QString::number(event->EventComplete.numPhotons)+"<br/>"
-	    "<b>Muons:</b> \t\t"+QString::number(event->EventComplete.numMuons)+"<br/>"
-	    "<b>Electrons:</b> \t\t"+QString::number(event->EventComplete.numElectrons)+
+	    "<html><b>Tracks:</b> \t\t"+QString::number(e->numTracks)+"<br/>"
+	    "<b>Neutral Hadrons:</b> \t"+QString::number(e->numNeutralHadrons)+"<br/>"
+	    "<b>Charged Hadrons:</b> \t"+QString::number(e->numChargedHadrons)+"<br/>"
+	    "<b>Photons:</b> \t\t"+QString::number(e->numPhotons)+"<br/>"
+	    "<b>Muons:</b> \t\t"+QString::number(e->numMuons)+"<br/>"
+	    "<b>Electrons:</b> \t\t"+QString::number(e->numElectrons)+
 	    "</html>";
 	  
 	  return toolTip;
-	  }*/
+	}
     }
   /*else if(role==Qt::DecorationRole)
     {

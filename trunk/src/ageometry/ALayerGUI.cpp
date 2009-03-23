@@ -92,6 +92,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
 
     tracksModel=new ATrackTableModel(this);
+    connect(this,SIGNAL(eventLoaded(AEvent*)),
+	    tracksModel,SLOT(handleNewEventLoaded(AEvent*)));	    
+
     interestingTracksModel=new AInterestingTrackTableModel(this);
 
     comboModel=new AComboTableModel(tableCombinedTracks);
@@ -157,15 +160,14 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         trackInfo=new ASelectionInfoScene;
         trackInfoView->setScene(trackInfo);
         trackInfoView->ensureVisible(0,0,450,300,10,10);
+	connect(this,SIGNAL(eventLoaded(AEvent*)),
+		trackInfo,SLOT(handleNewEventLoaded(AEvent*)));
 
         //Signals...
         connect(geo,SIGNAL(trackSelected(ATrack*)), //track selection
                 trackInfo,SLOT(updateTrackInfo(ATrack*)));
         connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
                 trackInfo,SLOT(removeTrackInfo(ATrack*)));
-
-        connect(trackInfo,SIGNAL(sig_addTrackToTable(ATrack*)), //add to table button, add to table
-                tracksModel,SLOT(addTrack(ATrack*)));
 
         connect(trackInfo,SIGNAL(sig_addComboToTable(ATrackCombination*)), //add to table button, add to table
                 comboModel,SLOT(addCombination(ATrackCombination*)));
@@ -187,7 +189,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 
     // Setup package list
 
-    mngr=new AEventManagerScene(eventmanager);
+    mngr=new AEventManagerScene(eventmanager,"AGeometry");
     if (packageList)
       {
         packageList->setModel(mngr);
@@ -385,7 +387,6 @@ void ALayerGUI::loadEvent(AEvent* event)
   QApplication::setOverrideCursor(Qt::WaitCursor);
   emit eventUnloaded();
   event->LoadEvent();
-  event->markAsRead(true);
   CompleteEvent=event;
   FilteredEvent=new AFilteredEvent(event,ptFilter);
 

@@ -81,13 +81,6 @@ void AEvent::addTrack(AFCALShower* shower)
   FCALshowers.push_back(shower);
 }
 
-void AEvent::markAsRead(bool status)
-{
-  read=status;
-  
-  if(package) package->save();
-}
-
 void AEvent::tag(QString tag, bool status)
 {
   if(status)
@@ -96,6 +89,44 @@ void AEvent::tag(QString tag, bool status)
     tags.remove(tag);
 
   if(package) package->save();
+}
+
+ATrack* AEvent::getTrackById(unsigned int ID)
+{
+  for ( int i=0;i<Tracks.size();i++)
+    {
+      if ( Tracks[i]->trackID == ID ) //Found it
+	{
+	  return Tracks[i];
+	}
+    }
+
+  return 0;
+}
+
+void AEvent::addAnalysisData(QString modulename,AEventAnalysisData* data)
+{
+  if(package)
+    connect(data,SIGNAL(updated()),
+	    package,SLOT(save()));
+  
+  _analysisData[modulename]=data;
+}
+
+AEventAnalysisData* AEvent::getAnalysisData(QString modulename)
+{
+  if(!_analysisData.contains(modulename))
+    {
+      addAnalysisData(modulename,new AEventAnalysisData(modulename));
+      if(package) package->save(); //Save, to ensure that even empty data sets are saved
+    }
+
+  return _analysisData[modulename];
+}
+
+QList<QString> AEvent::listAnalysisData()
+{
+  return _analysisData.keys();
 }
 
 QList<ATrack*> AEvent::getInterestingTracks()

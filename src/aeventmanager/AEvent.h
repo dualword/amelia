@@ -15,6 +15,8 @@
 #include "AFCALShower.h"
 #include "ATrackFilter.h"
 
+#include "AEventAnalysisData.h"
+
 #include "AEventManagerDefines.h"
 
 class AEVENTMANAGER_EXPORT AEventPackage;
@@ -27,7 +29,6 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   ~AEvent() {};
   QString filename;
   QString location;
-  bool read;
   QSet<QString> tags;
   AEventPackage *package;
 
@@ -61,8 +62,18 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
   virtual void LoadEvent();
 
-  void markAsRead(bool);
   void tag(QString,bool);
+
+  ATrack* getTrackById(unsigned int id);
+
+  AEventAnalysisData* getAnalysisData(QString module);
+  void addAnalysisData(QString module,AEventAnalysisData* data);
+  QList<QString> listAnalysisData();
+
+  QList<ATrack*> getInterestingTracks();
+
+ protected:
+  int highestTrackID;
 
   void addTrack(ATrack* track);
   void addTrack(ASTrack* track);
@@ -71,10 +82,8 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   void addTrack(AShower* track);
   void addTrack(AFCALShower* track);
 
-  QList<ATrack*> getInterestingTracks();
-
- protected:
-  int highestTrackID;
+ private:
+  QMap<QString,AEventAnalysisData*> _analysisData;
 };
 
 #endif //AEVENT_H_

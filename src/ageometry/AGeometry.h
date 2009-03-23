@@ -189,6 +189,7 @@ private:
     
     //GUI stuff
     QMenu *_comboMenu;
+    gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
 
     void switchVisibility(int modType); //Switches the visibility of the different components of the detector
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
@@ -212,7 +213,6 @@ private:
     bool mosesRestore;
     vector<scene::ISceneNode*> allModules;
 
-    gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
 
     // Dynamic FPS camera initial parameters
     unsigned int cameraZone;

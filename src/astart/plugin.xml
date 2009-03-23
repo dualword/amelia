@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<plugin priority="1">
+<plugin priority="2">
   <dependencies>
     <plugin name="ABase" />
   </dependencies>

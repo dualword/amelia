@@ -10,7 +10,7 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
   Q_OBJECT
 
  public:
-  AEventManagerScene(AEventManager *manager);
+  AEventManagerScene(AEventManager *manager,QString module="");
 
   QModelIndex index(int, int, const QModelIndex&) const;
   QModelIndex index(AEvent* event,int col) const;
@@ -41,6 +41,8 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
 
   AEventPackage* _activePackage;
   AEvent* _activeEvent;
+
+  QString _module;
 };
 
 #endif

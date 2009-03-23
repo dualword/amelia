@@ -2,10 +2,12 @@
 
 #include <QInputDialog>
 #include "AGeometry.h"
+#include "ATrackTableModel.h"
 
 ASelectionInfoScene::ASelectionInfoScene(QObject* parent):QGraphicsScene(parent)
 {
   combo=new ATrackCombination;
+  analysisData=new AEventAnalysisData("AGeometry");
   init();
 }
 
@@ -52,13 +54,15 @@ void ASelectionInfoScene::init()
     addTrack=addWidget(_addTrack);
     addTrack->setVisible(true);
     addTrack->setPos(220,20);
-    connect(_addTrack,SIGNAL(clicked()),  this,SLOT(handleAddTrack()));
+    connect(_addTrack,SIGNAL(clicked()), 
+	    this,SLOT(handleAddTrack()));
 
     QPushButton *_combTrack=new QPushButton("Combine Tracks");
     combTrack=addWidget(_combTrack);
     combTrack->setVisible(true);
     combTrack->setPos(220,50);
-    connect(_combTrack,SIGNAL(clicked()),  this,SLOT(handleCombTracks()));
+    connect(_combTrack,SIGNAL(clicked()),
+	    this,SLOT(handleCombTracks()));
 
     // Main message
     serifFont.setPointSize(14);
@@ -77,10 +81,20 @@ void ASelectionInfoScene::init()
 
 void ASelectionInfoScene::handleAddTrack()
 {
-  addTrack->setVisible(false);
-  emit addButtonEnabled(false);
+  QList<ATrack *> tracks=analysisData->getCollection("bookmarked_tracks");
   for (int i=0;i<combo->size();i++)
-    emit sig_addTrackToTable((*combo)[i]);
+    {
+      ATrack *strack=(*combo)[i];
+      if (strack->selectionID==0)
+	strack->selectionID=(++ATrackTableModel::selectionID);
+      
+      if (tracks.indexOf(strack)<0) //Dupe Check
+	{
+	  qDebug() << "Adding track for " << strack->name;
+	  tracks.append(strack);
+	}
+    }
+  analysisData->setCollection("bookmarked_tracks",tracks);
 }
 
 void ASelectionInfoScene::handleCombTracks()
@@ -114,9 +128,18 @@ void ASelectionInfoScene::handleViewportChange(int from,int to)
     }
 }
 
+void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
+{
+  disconnect(analysisData,SIGNAL(updated()),
+	     this,SLOT(refresh()));
+  analysisData=newEvent->getAnalysisData("AGeometry");
+  connect(analysisData,SIGNAL(updated()),
+	  this,SLOT(refresh()));
+}
+
 void ASelectionInfoScene::displayMessage(QString text)
 {
-    //TODO: Automatic line breaks and centering using font metrics
+  //TODO: Automatic line breaks and centering using font metrics
   message->setHtml("<center>"+text+"</center>");
   message->setVisible(true);
   
@@ -130,7 +153,6 @@ void ASelectionInfoScene::displayMessage(QString text)
   phi->setVisible(false);
   id->setVisible(false);
   addTrack->setVisible(false);
-  emit addButtonEnabled(false);
   combTrack->setVisible(false);
   emit combineButtonEnabled(false);
 }
@@ -142,16 +164,16 @@ void ASelectionInfoScene::hideMessage()
 
 void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
 {
-    message->setVisible(false);
-
-    combo->addTrack(strack);
-    refresh();
+  message->setVisible(false);
+  
+  combo->addTrack(strack);
+  refresh();
 }
 
 void ASelectionInfoScene::removeTrackInfo(ATrack* strack)
 {
-    if (combo->deleteTrack(strack))
-        refresh();
+  if (combo->deleteTrack(strack))
+    refresh();
 }
 
 void ASelectionInfoScene::refresh()
@@ -259,6 +281,7 @@ void ASelectionInfoScene::refresh()
     }
   
   // Show the add button if at least one of the tracks are not in the list already...
+  QList<ATrack*> tracks=analysisData->getCollection("bookmarked_tracks");
   addTrack->setVisible(false);
   for (int i=0;i<combo->size();i++)
     {
@@ -267,7 +290,7 @@ void ASelectionInfoScene::refresh()
 	  nonSelectable->setVisible(true);
         }
       
-      if ( (!(*combo)[i]->isInList))
+      if ( !tracks.contains((*combo)[i]) )
         {
 	  addTrack->setVisible (true );
         }
@@ -280,7 +303,6 @@ void ASelectionInfoScene::refresh()
       addTrack->setVisible (false );
     }
   
-  emit addButtonEnabled(addTrack->isVisible());
   emit combineButtonEnabled(combTrack->isVisible());
 }
 

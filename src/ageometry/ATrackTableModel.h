@@ -9,6 +9,8 @@
 #include "ATrackCombination.h"
 
 #include <aeventmanager/ATrack.h>
+#include <aeventmanager/AEvent.h>
+#include <aeventmanager/AEventAnalysisData.h>
 
 class ATrackTableModel : public QAbstractTableModel {
   Q_OBJECT
@@ -27,12 +29,14 @@ public:
   void addTable(QAbstractItemView* table);
 
 public slots:
-  void addTrack(ATrack* strack);
+  void handleNewEventLoaded(AEvent*);
+
   void deleteSelectedTracks();
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void combineSelectedTracks();
 
   void clear();
+  void refresh();
 
  signals:
   void entrySelected(int trackID,bool shift);
@@ -41,9 +45,12 @@ public slots:
   void tracksCombined(ATrackCombination* combo);
 
 private:
-  QList<ATrack*> tracks;
+  AEventAnalysisData *analysisData;
 
   QItemSelectionModel *selection;
+
+  QList<ATrack*> tracks() const;
+  void setTracks(QList<ATrack*>);
 };
 
 #endif

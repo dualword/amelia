@@ -51,6 +51,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AMisET.h>
 #include <aeventmanager/AJet.h>
 #include <aeventmanager/ASTrack.h>
+#include <aeventmanager/AEvent.h>
+
 #include "ATrackCombination.h"
 
 class ASelectionInfoScene : public QGraphicsScene
@@ -67,23 +69,22 @@ public slots:
     void handleAddTrack();
     void handleCombTracks();
     void handleViewportChange(int from,int to);
+    void handleNewEventLoaded(AEvent*);
 
     void displayMessage(QString message);
     void hideMessage();
     bool particleFilter(ATrack* strack);
+    void refresh();
 
 signals:
-    void sig_addTrackToTable(ATrack *strack);
     void sig_addComboToTable(ATrackCombination *combo);
 
     void combineButtonEnabled(bool status);
-    void addButtonEnabled(bool status);
 
 private:
-    void init();
-
     ATrack* selectedTrack;
     ATrackCombination *combo;
+    AEventAnalysisData *analysisData;
 
     QGraphicsTextItem *header;
     QGraphicsTextItem *nonSelectable;
@@ -106,6 +107,6 @@ private:
     QGraphicsProxyWidget *combTrack;
     QGraphicsTextItem *message;
 
-    void refresh();
+    void init();
 };
 #endif

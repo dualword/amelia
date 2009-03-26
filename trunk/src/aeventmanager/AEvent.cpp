@@ -12,7 +12,7 @@ void AEvent::LoadEvent() { }
 
 void AEvent::addTrack(ATrack* track)
 {
-  switch(track->Type)
+  switch(track->type())
     {
     case ATrack::eSTrack:
       addTrack((ASTrack*)track);
@@ -95,7 +95,7 @@ ATrack* AEvent::getTrackById(unsigned int ID)
 {
   for ( int i=0;i<Tracks.size();i++)
     {
-      if ( Tracks[i]->trackID == ID ) //Found it
+      if ( Tracks[i]->trackID() == ID ) //Found it
 	{
 	  return Tracks[i];
 	}
@@ -138,29 +138,25 @@ QList<ATrack*> AEvent::getInterestingTracks()
     {
       
       ATrack* t = Tracks[i];
-      if ( (t->Type == t->eJet))
+      if ( (t->type() == ATrack::eJet))
       {
       list.push_back(t);
       }
       
       
-      if ( (t->Type == t->eMissingEt))
+      if ( (t->type() == ATrack::eMissingEt))
         {
-	  qDebug() << "getInterestingTracks() got MissingET";
 	  list.push_back(t);
-	  qDebug() << "Really got that MissingEt. No problem";
         }
       
-      if ( t->Type == t->eSTrack )
+      if ( t->type() == ATrack::eSTrack )
         {
 	  //cout << "\nAbout to evaluate a STrack";
 	  ASTrack* goo = static_cast<ASTrack*>(t);
 	  //ASTrack* goo = go->getThisSTrack();
 	  //if (goo->pt >= 1) cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
-	  if ( goo->pt >= ptMinimum )
+	  if ( goo->Pt() >= ptMinimum )
             {
-	      
-	      //                cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
 	      if ( goo->isElectron() ) //electrons
                 {
 		  qDebug() << "getInterestingTracks() got an electron";

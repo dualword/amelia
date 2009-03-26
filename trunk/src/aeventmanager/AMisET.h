@@ -29,5 +29,6 @@ class AMisET : public ATrack
 
   void setMisETType(mType type);
   void setMisETType(QString type);
+
 };
 #endif //AMISET_H_

@@ -25,6 +25,6 @@ void APtFilter::setMinPtMeV(int _minPt)
 
 bool APtFilter::checkTrack(ATrack* track)
 {
-  if(track->pt<minPt() && track->Type==ATrack::eSTrack) return false;
+  if(track->Pt()<minPt() && track->type()==ATrack::eSTrack) return false;
   return ATrackFilter::checkTrack(track);
 }

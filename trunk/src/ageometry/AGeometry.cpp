@@ -37,13 +37,13 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AGeometry.h"
 #include <config.h>
 
-#include "ATrackCombination.h"
-
 #include "CSceneNodeAnimatorCameraOrbit.h"
 #include "CSceneNodeAnimatorCameraSphere.h"
 #include <ISceneNodeAnimatorCameraFPS.h>
 
 #include <QApplication>
+
+#include <aeventmanager/ATrackCombination.h>
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
@@ -303,7 +303,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 	  if(!allTracks[i]->isVisible()) continue;
 	  ATrack *track=allTracks[i]->getTrack();
 	  int control = 0;
-	  if ( selectedSceneNode && track->Type == ATrack::eSTrack || track->Type == ATrack::eMissingEt ) //tracks
+	  if ( selectedSceneNode && track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt ) //tracks
 	    {
 	      if ( selectedSceneNode->getParent() == allTracks[i] )
 		{
@@ -313,7 +313,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 		}
 	    }
 	  
-	  if ( track->Type == ATrack::eJet ) //jets
+	  if ( track->type() == ATrack::eJet ) //jets
 	    {
 	      AJet3DNode* jet =  (AJet3DNode*)allTracks[i];
 	      selector = jet->Pyramid->getTriangleSelector();
@@ -2205,7 +2205,7 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
   for ( int i=0;i<allTracks.size();i++)
     {
       ATrack* selectedTrack = allTracks[i]->getTrack();
-      if ( selectedTrack->trackID == ID ) //Found it
+      if ( selectedTrack->trackID() == ID ) //Found it
 	{
 	  allTracks[i]->select();
 	  selectedTracks.push_back(allTracks[i]);
@@ -2222,7 +2222,7 @@ ATrack* AGeometry::deselectTrackByID (int ID)
   for (int i=0;i<selectedTracks.size();i++)
     {
       tr=selectedTracks[i]->getTrack();
-      if (tr->trackID == ID)
+      if (tr->trackID() == ID)
         {
 	  selectedTracks[i]->deselect();
 	  emit trackDeselected(tr);
@@ -2239,7 +2239,7 @@ void AGeometry::clearTrackSelection()
   while(selectedTracks.size()>0)
     {
       tr=selectedTracks[0]->getTrack();
-      deselectTrackByID(tr->trackID);
+      deselectTrackByID(tr->trackID());
     }
 }
 
@@ -2494,20 +2494,20 @@ void AGeometry::setEvent(AFilteredEvent* e)
 	{
 	  ATrack3DNode *node=0;
 	  ATrack* track=completeE->Tracks[i];
-	  if(track->Type==ATrack::eJet)
+	  if(track->type()==ATrack::eJet)
 	    {
 	      AJet* jet=(AJet*)track;
 	      node=new AJet3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,jet);
 	      allJets.push_back((AJet3DNode*)node);
 	    }
 	  
-	  if(track->Type==ATrack::eSTrack)
+	  if(track->type()==ATrack::eSTrack)
 	    {
 	      ASTrack* str=(ASTrack*)track;
 	      node=new ASTrack3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,str);
 	    }
 	  
-	  if(track->Type==ATrack::eMissingEt)
+	  if(track->type()==ATrack::eMissingEt)
 	    {
 	      AMisET* miset=(AMisET*)track;
 	      node=new AMisET3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,miset);

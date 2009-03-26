@@ -103,7 +103,7 @@ ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  
 
     calculateDimmedColors();
  
-    if ( track->q == 0 )
+    if ( track->charge() == 0 )
       {
 	std::vector<core::vector3df> StartEndNeutral = getNeutralPath();
         start = StartEndNeutral.front();
@@ -141,7 +141,7 @@ int ASTrack3DNode::getTrackNumber()
 
 void ASTrack3DNode::setTrackStyle ( int style )
 {
-  if ( getTrack()->Type != ATrack::eSTrack ) return; //if it's a particle track
+  if ( getTrack()->type() != ATrack::eSTrack ) return; //if it's a particle track
 
   //simple line track, no boxes
   if ( style == 0 )
@@ -331,7 +331,7 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 void ASTrack3DNode::createBoxes()
 {
-    if ( ((ASTrack*)getTrack())->q == 0 )
+    if ( ((ASTrack*)getTrack())->charge() == 0 )
     {
         createBoxesNeutral();
     }
@@ -435,9 +435,9 @@ float ASTrack3DNode::getChargedMaxAngle ()
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The X coordinate of the vertex
     float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The Y coordinate of the vertex
     //float Z0 = v_z;                       // The Z coordinate of the vertex
-    float R = ((ASTrack*)getTrack())->pt*C;
-    float X_CH = X0 + ((ASTrack*)getTrack())->q * R*cos ( ((ASTrack*)getTrack())->phi ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + ((ASTrack*)getTrack())->q * R*sin ( ((ASTrack*)getTrack())->phi ); //The Y coordinate of the center of the helix
+    float R = ((ASTrack*)getTrack())->Pt()*C;
+    float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( ((ASTrack*)getTrack())->phi ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( ((ASTrack*)getTrack())->phi ); //The Y coordinate of the center of the helix
     float E = exp ( ((ASTrack*)getTrack())->eta );
     float tL = 0.5 * ( exp ( ((ASTrack*)getTrack())->eta ) - exp ( -((ASTrack*)getTrack())->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
@@ -447,7 +447,7 @@ float ASTrack3DNode::getChargedMaxAngle ()
 
     for ( int w=0; w<=5000; w++ )
     {
-        if ( ( x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) *x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) + y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) *y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->q ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
+      if ( ( x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) *x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) + y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) *y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
         {
             return w*a;
             break;
@@ -467,9 +467,9 @@ void ASTrack3DNode::createCurveVector()
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
     float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex
     float Z0 = ((ASTrack*)getTrack())->zVertex;                       // The Z coordinate of the vertex
-    float R = ((ASTrack*)getTrack())->pt*C;
-    float X_CH = X0 + ((ASTrack*)getTrack())->q * R*cos ( phiTrans ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + ((ASTrack*)getTrack())->q * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
+    float R = ((ASTrack*)getTrack())->Pt()*C;
+    float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( phiTrans ); //The X coordinate of the center of the helix
+    float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
     float E = exp ( ((ASTrack*)getTrack())->eta );
     float tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp ( - (((ASTrack*)getTrack())->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
     //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
@@ -508,7 +508,7 @@ void ASTrack3DNode::createCurveVector()
 
     for ( int w=0; w<=helixSections; w++ )
     {
-        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, ((ASTrack*)getTrack())->q ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, ((ASTrack*)getTrack())->q ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
+        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
         this->curvePoints.push_back ( point );
     }
 }
@@ -600,7 +600,7 @@ void ASTrack3DNode::setBoxesSelected ( bool boxesSelected )
 void ASTrack3DNode::Helix()
 {
 
-    if ( ((ASTrack*)getTrack())->q == 0 )
+    if ( ((ASTrack*)getTrack())->charge() == 0 )
     {
         constructNeutral();
     }
@@ -829,7 +829,7 @@ void AMisET3DNode::setTrack ( AMisET* track )
 void AMisET3DNode::setTrackStyle ( int style )
 {
 
-    if ( getTrack()->Type == 4 ) //if it's Missing Et
+  if ( getTrack()->type() == ATrack::eMissingEt ) //if it's Missing Et
     {
         //selected Missing Et style
         if ( style == 10 )

@@ -14,7 +14,7 @@ void ManagerTestHelper::handleNewEvent(AEvent *event)
   for(int i=0;i<event->STracks.size();i++)
     {
       //if(event.STracks[i]->isElectron())
-      hist->addPoint(event->STracks[i]->pt*1000);
+      hist->addPoint(event->STracks[i]->Pt()*1000);
     }
 
   model->setActiveEvent(event);

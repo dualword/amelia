@@ -29,11 +29,8 @@ const QString ASTrack::namelist[]=
   };
 
 
-ASTrack::ASTrack()
-{
-  Type=ATrack::eSTrack;
-  name="Simulated Track";
-}
+ASTrack::ASTrack():ATrack("Simulated Track",ATrack::eSTrack)
+{ }
 
 bool ASTrack::isElectron()
 {
@@ -89,9 +86,8 @@ void ASTrack::setCode(int _code)
     {
       if ( codelist[j] == _code )
 	{
-	  q = chargelist[j];
-	  name = namelist[j];
-	  //trackColor = colorlist[j];
+	  setCharge(chargelist[j]);
+	  setName(namelist[j]);
 	}
     }
   

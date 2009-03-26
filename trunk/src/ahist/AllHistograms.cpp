@@ -5,8 +5,7 @@
 #include <QDebug>
 #include <QInputDialog>
 
-#include "AComboHistogram.h"
-#include <ageometry/ATrackCombination.h>
+#include <aeventmanager/ATrackCombination.h>
 
 AllHistograms::AllHistograms(QMenu* menu,QWidget* parent):QMainWindow(parent),_menu(menu)
 { 

@@ -51,24 +51,24 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
         switch (index.column())
 	  {
 	  case 0:
-            return track->name;
+            return track->name();
 	  case 1:
-            if (track->Type == ATrack::eJet)
+            if (track->type() == ATrack::eJet)
 	      {
                 return QString::number((static_cast<AJet*>(track))->et);
 	      }
             else
-	      if (track->Type == ATrack::eSTrack || track->Type == ATrack::eMissingEt)
+	      if (track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt)
                 {
-		  return QString::number((static_cast<ASTrack*>(track))->pt);
+		  return QString::number((static_cast<ASTrack*>(track))->Pt());
                 }
 	      else return QString("N/A");
 	  case 2:
-            if (track->Type == ATrack::eJet)
+            if (track->type() == ATrack::eJet)
 	      {
                 return QString::number(static_cast<AJet*>(track)->eta);
 	      }
-            else if (track->Type == ATrack::eSTrack)
+            else if (track->type() == ATrack::eSTrack)
 	      {
                 return QString::number(static_cast<ASTrack*>(track)->eta);
 	      }
@@ -78,11 +78,11 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	      }
 	    
 	  case 3:
-            if (track->Type == ATrack::eJet)
+            if (track->type() == ATrack::eJet)
 	      {
                 return QString::number(static_cast<AJet*>(track)->phi);
 	      }
-            else if (track->Type == ATrack::eSTrack)
+            else if (track->type() == ATrack::eSTrack)
 	      {
                 return QString::number(static_cast<ASTrack*>(track)->phi);
 	      }
@@ -91,9 +91,9 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
                 return "N/A";
 	      }
 	  case 4:
-            if (track->Type == ATrack::eSTrack)
+            if (track->type() == ATrack::eSTrack)
 	      {
-                return QString::number(tracks.at(index.row())->trackID);
+                return QString::number(tracks.at(index.row())->trackID());
 	      }
             else
 	      {
@@ -130,7 +130,9 @@ QVariant AInterestingTrackTableModel::headerData (int section, Qt::Orientation o
   
   if (orientation == Qt::Vertical)
     {
-      return QString::number(tracks[section]->selectionID);
+      return QString::number(tracks[section]->trackID());
+      //TODO Renable selection ID
+      //->selectionID());
     }
   return QVariant();
 }
@@ -147,22 +149,22 @@ void AInterestingTrackTableModel::sort(int column, Qt::SortOrder order)
 	  switch (column)
             {
             case 0:
-	      if ( (tracks[j]->trackID<tracks[j+1]->trackID && order==Qt::AscendingOrder) ||
-		   (tracks[j]->trackID>tracks[j+1]->trackID && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->trackID()<tracks[j+1]->trackID() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->trackID()>tracks[j+1]->trackID() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
 	      break;
             case 1:
-	      if ( (tracks[j]->name<tracks[j+1]->name && order==Qt::AscendingOrder) ||
-		   (tracks[j]->name>tracks[j+1]->name && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->name()<tracks[j+1]->name() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->name()>tracks[j+1]->name() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
 	      break;
             case 2:
-	      if ( (tracks[j]->pt<tracks[j+1]->pt && order==Qt::AscendingOrder) ||
-		   (tracks[j]->pt>tracks[j+1]->pt && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->Pt()<tracks[j+1]->Pt() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->Pt()>tracks[j+1]->Pt() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
@@ -185,31 +187,6 @@ void AInterestingTrackTableModel::addTrack(ATrack* strack)
     }
 }
 
-void AInterestingTrackTableModel::addToSelectedTracks()
-{
-  
-  ATrackCombination *combo=new ATrackCombination(); //hold the stuff
-  
-  bool ok;
-  QString name=QInputDialog::getText((QWidget*)QObject::parent(),tr("Track Combination Name"),tr("Combination Name:"),QLineEdit::Normal,combo->getName(),&ok);
-  
-  if (ok) //Proceed only if OK clicked
-    {
-      combo->setName(name);
-      //Get rows. Since all colums should be selected, might as well select column 0.
-      QModelIndexList rows=selection->selectedRows(0);
-      //Go through each row...
-      for (int i=0;i<rows.size();i++)
-	combo->addTrack(tracks[rows[i].row()]);
-      
-      //emit tracksAdded(combo);
-    }
-  else
-    {
-      delete combo;//We no need it...
-    }
-}
-
 void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected)
 {
   // PERFORM DESELECTION
@@ -220,7 +197,7 @@ void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& s
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID;
+	  int id=tracks[idxs[i].row()]->trackID();
 	  emit entryDeselected(id);
         }
     }
@@ -235,7 +212,7 @@ void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& s
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID;
+	  int id=tracks[idxs[i].row()]->trackID();
 	  emit entrySelected(id,multi);
         }
     }

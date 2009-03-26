@@ -6,9 +6,8 @@
 #include <QModelIndex>
 #include <QList>
 
-#include "ATrackCombination.h"
-
 #include <aeventmanager/ATrack.h>
+#include <aeventmanager/ATrackCombination.h>
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/AEventAnalysisData.h>
 

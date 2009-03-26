@@ -1,12 +1,13 @@
-#ifndef ASTRACK_H_INCLUDED
-#define ASTRACK_H_INCLUDED
+#ifndef ATRACK_H_
+#define ATRACK_H_
 
 #include <QString>
+#include <QObject>
 
 #include "AEventManagerDefines.h"
 
 /// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-class AEVENTMANAGER_EXPORT ATrack
+class AEVENTMANAGER_EXPORT ATrack : public QObject
 {
 
  public:
@@ -23,18 +24,39 @@ class AEVENTMANAGER_EXPORT ATrack
   static unsigned int highestTrackID;
 
   ATrack();
-  ATrack(QString name);
+  ATrack(QString name,ATrack::eType);
+  ATrack(const ATrack&);
 
-  eType Type;
+  eType type();
 
-  QString name;
-  int trackID;
-  int selectionID;
+  unsigned int trackID();
+  void setTrackID(unsigned int);
+  
+  unsigned int selectionID();
+  void setSelectionID(unsigned int);
 
-  int q;
-  float pt;
+  int charge();
+  void setCharge(int);
+
+  QString name();
+  void setName(QString);
+
+  float Pt();
+  void setPt(float);
+
+  
 
  private:
+  eType _type;
+
+  QString _name;
+  unsigned int _trackID;
+  int _selectionID;
+
+  int _charge;
+  float _pt;
+
+  Q_OBJECT
 };
 
-#endif // ASTRACK_H_INCLUDED
+#endif // ATRACK_H_

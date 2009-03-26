@@ -4,17 +4,55 @@
 
 AComboTableModel::AComboTableModel(QWidget* parent):QAbstractTableModelWithContextMenu(parent)
 {
+  analysisData=new AEventAnalysisData("AGeometry");
+
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
 }
 
 AComboTableModel::~AComboTableModel()
 {
-  for(int i=0;i<combs.size()-1;i++)
-      delete combs.takeAt(i);
-
   selection->deleteLater();
 }
+
+void AComboTableModel::handleNewEventLoaded(AEvent *event)
+{
+  disconnect(analysisData,SIGNAL(updated()),
+	     this,SLOT(refresh()));
+
+  analysisData=event->getAnalysisData("AGeometry");
+
+  connect(analysisData,SIGNAL(updated()),
+	  this,SLOT(refresh()));
+  
+  refresh();
+}
+
+void AComboTableModel::setCombinations(QList<ATrackCombination *> combos)
+{
+  //Element by element cast..
+  QList<ATrack*> copy;
+  for(int i=0;i<combos.size();i++)
+    {
+      copy[i]=combos[i];
+    }
+
+  analysisData->setCollection("combined_tracks",copy);
+}
+
+QList<ATrackCombination*> AComboTableModel::combinations() const
+{
+  //Element by element cast..
+  QList<ATrack*> original=analysisData->getCollection("combined_tracks");
+  QList<ATrackCombination*> combos;
+  for(int i=0;i<original.size();i++)
+    {
+      combos.append((ATrackCombination*)original[i]);
+    }
+
+  return combos;
+}
+
 
 void AComboTableModel::addTable(QAbstractItemView* table)
 {
@@ -25,7 +63,7 @@ void AComboTableModel::addTable(QAbstractItemView* table)
 
 int AComboTableModel::rowCount(const QModelIndex& root) const
 {
-  return combs.size();
+  return combinations().size();
 }
 
 int AComboTableModel::columnCount(const QModelIndex& root) const
@@ -38,22 +76,22 @@ QVariant AComboTableModel::data(const QModelIndex &index, int role) const
   if (!index.isValid())
     return QVariant();
 
-  if(index.row()>=combs.size())
+  if(index.row()>=combinations().size())
         return QVariant();
 
   if (role == Qt::DisplayRole) {
     switch(index.column()) {
     case 0:
-      return combs[index.row()]->getName();
+      return combinations()[index.row()]->name();
     case 1:
-      return QString::number(combs[index.row()]->size());
+      return QString::number(combinations()[index.row()]->size());
     case 2:
-      return QString::number(combs[index.row()]->getInvariantMass());
+      return QString::number(combinations()[index.row()]->getInvariantMass());
     }
   }
   else if(role == QAbstractTableModelWithContextMenu::MenuDataRole)
     {
-      return QVariant::fromValue<QObject *>(combs[index.row()]);
+      return QVariant::fromValue<QObject *>(combinations()[index.row()]);
     }
  
   return QAbstractTableModelWithContextMenu::data(index,role);
@@ -84,19 +122,20 @@ void AComboTableModel::sort(int column, Qt::SortOrder order) {
   //Do a bubble sort... Switch to something faster later?
 
   emit layoutAboutToBeChanged();
-  for(int i=0;i<combs.size()-1;i++) {
-    for(int j=i;j<combs.size()-1;j++) {
+  QList<ATrackCombination*> combinations=this->combinations();
+  for(int i=0;i<combinations.size()-1;i++) {
+    for(int j=i;j<combinations.size()-1;j++) {
       switch(column) {
       case 0:
-	if( (combs[j]->getName()<combs[j+1]->getName() && order==Qt::AscendingOrder) ||
-	    (combs[j]->getName()>combs[j+1]->getName() && order==Qt::DescendingOrder) ) {
-	  combs.swap(i,j+1);
+	if( (combinations[j]->name()<combinations[j+1]->name() && order==Qt::AscendingOrder) ||
+	    (combinations[j]->name()>combinations[j+1]->name() && order==Qt::DescendingOrder) ) {
+	  combinations.swap(i,j+1);
 	}
 	break;
       case 1:
-	if( (combs[j]->size()<combs[j+1]->size() && order==Qt::AscendingOrder) ||
-	    (combs[j]->size()>combs[j+1]->size() && order==Qt::DescendingOrder) ) {
-	  combs.swap(i,j+1);
+	if( (combinations[j]->size()<combinations[j+1]->size() && order==Qt::AscendingOrder) ||
+	    (combinations[j]->size()>combinations[j+1]->size() && order==Qt::DescendingOrder) ) {
+	  combinations.swap(i,j+1);
 	}
 	break;
       default:
@@ -104,17 +143,16 @@ void AComboTableModel::sort(int column, Qt::SortOrder order) {
       }
     }
   }
+  setCombinations(combinations);
   emit layoutChanged();
 }
 
 void AComboTableModel::addCombination(ATrackCombination *comb)
 {
   //Make sure every track has a selection ID..
-  comb->fixIDs();
-
-  beginInsertRows(QModelIndex(),0,0);
-  combs.append(comb);
-  endInsertRows();
+  QList<ATrackCombination*> combinations=this->combinations();
+  combinations.append(comb);
+  setCombinations(combinations);
 }
 
 void AComboTableModel::deleteSelectedCombinations()
@@ -122,20 +160,26 @@ void AComboTableModel::deleteSelectedCombinations()
   //Get rows. Since all colums should be selected, might as well select column 0.
   QModelIndexList rows=selection->selectedRows(0);
   //Go through each row...
+  QList<ATrackCombination*> combinations=this->combinations();
   for(int i=0;i<rows.size();i++)
     {
       //We gonna remove a row... The row in our list is given by (selected row # - rows already removed).
       //This is because the selected row # does not change, but it's position in list does as we remove rows.
       emit beginRemoveRows(QModelIndex(),rows[i].row()-i,rows[i].row()-i);
-      delete combs.takeAt(rows[i].row()-i);
+      delete combinations.takeAt(rows[i].row()-i);
       emit endRemoveRows();
     }
+  setCombinations(combinations);
+}
+
+void AComboTableModel::refresh()
+{
+  emit layoutAboutToBeChanged();
+  emit layoutChanged();
 }
 
 void AComboTableModel::clear()
 {
-  if(combs.size()==0) return;
-  emit beginRemoveRows(QModelIndex(),0,combs.size()-1);
-  combs.clear();
-  emit endRemoveRows();
+  analysisData=new AEventAnalysisData("AGeometry");
+  refresh();
 }

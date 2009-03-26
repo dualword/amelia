@@ -1,10 +1,10 @@
 #include "AMisET.h"
 
-AMisET::AMisET():ATrack()
-{
-  name="MisET";
-  Type=eMissingEt;
-}
+AMisET::AMisET():ATrack("Missing Energy",ATrack::eMissingEt)
+{ }
+
+AMisET::~AMisET()
+{ }
 
 void AMisET::setMisETType(mType type)
 {

@@ -50,8 +50,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/AFilteredEvent.h>
 
-#include "ATrackCombination.h"
-
 class AEventInfoScene : public QGraphicsScene
 {
     Q_OBJECT

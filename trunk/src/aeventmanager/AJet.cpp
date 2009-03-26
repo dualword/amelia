@@ -2,11 +2,8 @@
 
 #include <math.h>
 
-AJet::AJet():ATrack()
-{
-  Type=ATrack::eJet;
-  name="Jet";
-}
+AJet::AJet():ATrack("Jet",ATrack::eJet)
+{ }
 
 void AJet::setJetType(jType type)
 {

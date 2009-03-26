@@ -44,7 +44,7 @@ int main(int argc,char* argv[])
   for(int i=0;i<filtered.STracks.size();i++)
     {
       //if(filtered->STracks[i]->isElectron())
-      hist.addPoint(filtered.STracks[i]->pt*1000);
+      hist.addPoint(filtered.STracks[i]->Pt()*1000);
     }
   
   return app.exec();

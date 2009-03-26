@@ -98,8 +98,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     interestingTracksModel=new AInterestingTrackTableModel(this);
 
     comboModel=new AComboTableModel(tableCombinedTracks);
+    connect(this,SIGNAL(eventLoaded(AEvent*)),
+	    comboModel,SLOT(handleNewEventLoaded(AEvent*)));
     connect(tracksModel,SIGNAL(tracksCombined(ATrackCombination*)),
-            comboModel,SLOT(addCombination(ATrackCombination*)));
+	    comboModel,SLOT(addCombination(ATrackCombination*)));
     connect(this,SIGNAL(eventUnloaded()),
             tracksModel,SLOT(clear()));
     connect(this,SIGNAL(eventUnloaded()),
@@ -168,9 +170,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(updateTrackInfo(ATrack*)));
         connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
                 trackInfo,SLOT(removeTrackInfo(ATrack*)));
-
-        connect(trackInfo,SIGNAL(sig_addComboToTable(ATrackCombination*)), //add to table button, add to table
-                comboModel,SLOT(addCombination(ATrackCombination*)));
 
         connect(geo,SIGNAL(viewportSwitched(int,int)),//Basically clear the track selection on camera change
                 trackInfo,SLOT(handleViewportChange(int,int)));

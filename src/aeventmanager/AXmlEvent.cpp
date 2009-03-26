@@ -166,13 +166,13 @@ void AXmlEvent::GetJetsFromDOM ( QDomDocument dom )
         {
 	  AJet* j = new AJet();
 	  j->et = et[s];
-	  j->pt = j->et;
+	  j->setPt(j->et);
 	  if ( s<eta.size() ) j->eta = eta[s];
 	  if ( s<phi.size() ) j->phi = phi[s];
 	  if ( s<numCells.size() ) j->numCells = numCells[s];
 	  
 	  j->setJetType(attr.value());
-	  j->trackID = ++highestTrackID;
+	  j->setTrackID(++highestTrackID);
 	  addTrack(j);
         }
       
@@ -209,7 +209,7 @@ void AXmlEvent::GetMisETFromDOM ( QDomDocument dom )
         {
 	  AMisET* m = new AMisET();
 	  m->et = et[s];
-	  m->pt = m->et;
+	  m->setPt(m->et);
 	  if ( s<etx.size() ) m->etx = etx[s];
 	  if ( s<ety.size() ) m->ety = ety[s];
 	  
@@ -264,10 +264,10 @@ void AXmlEvent::GetSTracksFromDOM ( QDomDocument dom )
 	  
 	  if ( i<str_code.size() ) t->setCode(str_code[j]);
 	  if ( i<str_eta.size() ) t->eta = str_eta[j];
-	  if ( i<str_id.size() ) t->trackID = str_id[j];
+	  if ( i<str_id.size() ) t->setTrackID(str_id[j]);
 	  if ( i<str_phi.size() ) t->phi = str_phi[j];
 	  if ( i<str_phiVertex.size() ) t->phiVertex = str_phiVertex[j];
-	  if ( i<str_pt.size() ) t->pt = str_pt[j];
+	  if ( i<str_pt.size() ) t->setPt(str_pt[j]);
 	  if ( i<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[j];
 	  if ( i<str_zVertex.size() ) t->zVertex = str_zVertex[j];
 	  
@@ -303,7 +303,7 @@ void AXmlEvent::GetShowersFromDOM ( QDomDocument dom, QString calo )
 	  AShower* s=new AShower();
 	  s->energy = energy[j];
 	  if ( i<eta.size() ) s->eta = eta[j];
-	  if ( i<id.size() ) s->trackID = id[j];
+	  if ( i<id.size() ) s->setTrackID(id[j]);
 	  if ( i<layer.size() ) s->layer = layer[j];
 	  if ( i<phi.size() ) s->phi = phi[j];
 	  if ( i<sub.size() ) s->sub = sub[j];
@@ -351,7 +351,7 @@ void AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
 	  if ( j<dx.size() ) s->dx = dx[j];
 	  if ( j<dy.size() ) s->dy = dy[j];
 	  s->energy = energy[j];
-	  if ( j<id.size() ) s->trackID = id[j];
+	  if ( j<id.size() ) s->setTrackID(id[j]);
 	  if ( j<layer.size() ) s->layer = layer[j];
 	  if ( j<sub.size() ) s->sub = sub[j];
 	  if ( j<x.size() ) s->x = x[j];

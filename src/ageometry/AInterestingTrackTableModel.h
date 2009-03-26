@@ -6,8 +6,8 @@
 #include <QModelIndex>
 #include <QList>
 
-#include "ATrackCombination.h"
-#include "AGeometry.h"
+#include <aeventmanager/AEvent.h>
+#include <aeventmanager/ATrackCombination.h>
 
 class AInterestingTrackTableModel : public QAbstractTableModel {
   Q_OBJECT
@@ -28,7 +28,6 @@ public:
 public slots:
   void addTrack(ATrack* strack);
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-  void addToSelectedTracks();
 
   void setEvent(AEvent* event);
   void clear();
@@ -36,8 +35,6 @@ public slots:
  signals:
   void entrySelected(int trackID,bool shift);
   void entryDeselected(int trackID);
-
-  void tracksAdded(ATrack* track);
 
 private:
   QList<ATrack*> tracks;

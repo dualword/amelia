@@ -19,7 +19,6 @@ SET(amelia_SRCS
 	AAnimationGUI.cpp
 	AMainView.cpp
 	APlugin.cpp
-	AVector.cpp
 	AMELIA.cpp
   )
 
@@ -29,7 +28,6 @@ SET(amelia_H
 	AAnimationGUI.h
 	AMainView.h
  	APlugin.h
-#	AVector.h
 	AMELIA.h
     )
 

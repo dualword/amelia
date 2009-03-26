@@ -52,61 +52,58 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AJet.h>
 #include <aeventmanager/ASTrack.h>
 #include <aeventmanager/AEvent.h>
-
-#include "ATrackCombination.h"
+#include <aeventmanager/ATrackCombination.h>
 
 class ASelectionInfoScene : public QGraphicsScene
 {
+ public:
+  ASelectionInfoScene(QObject* parent=0);
+  ~ASelectionInfoScene();
+  
+ public slots:
+  void updateTrackInfo ( ATrack* strack );
+  void removeTrackInfo ( ATrack* strack );
+  void handleAddTrack();
+  void handleCombTracks();
+  void handleViewportChange(int from,int to);
+  void handleNewEventLoaded(AEvent*);
+  
+  void displayMessage(QString message);
+  void hideMessage();
+  bool particleFilter(ATrack* strack);
+  void refresh();
+  
+ signals:
+  void combineButtonEnabled(bool);
+  
+ private:
+  ATrack* selectedTrack;
+  ATrackCombination *combo;
+  AEventAnalysisData *analysisData;
+  
+  QGraphicsTextItem *header;
+  QGraphicsTextItem *nonSelectable;
+  
+  QGraphicsTextItem *name;
+  QGraphicsTextItem *charge;
+  QGraphicsTextItem *pt;
+  QGraphicsTextItem *phi;
+  QGraphicsTextItem *eta;
+  QGraphicsTextItem *id;
+  
+  QGraphicsTextItem* dataComplete;
+  QGraphicsTextItem* dataLabels;
+  QGraphicsTextItem* dataDisplayed;
+  
+  QGraphicsTextItem* labelDisplayed;
+  QGraphicsTextItem* labelTotal;
+  
+  QGraphicsProxyWidget *addTrack;
+  QGraphicsProxyWidget *combTrack;
+  QGraphicsTextItem *message;
+  
+  void init();
+  
   Q_OBJECT
-
-public:
-    ASelectionInfoScene(QObject* parent=0);
-    ~ASelectionInfoScene();
-
-public slots:
-    void updateTrackInfo ( ATrack* strack );
-    void removeTrackInfo ( ATrack* strack );
-    void handleAddTrack();
-    void handleCombTracks();
-    void handleViewportChange(int from,int to);
-    void handleNewEventLoaded(AEvent*);
-
-    void displayMessage(QString message);
-    void hideMessage();
-    bool particleFilter(ATrack* strack);
-    void refresh();
-
-signals:
-    void sig_addComboToTable(ATrackCombination *combo);
-
-    void combineButtonEnabled(bool status);
-
-private:
-    ATrack* selectedTrack;
-    ATrackCombination *combo;
-    AEventAnalysisData *analysisData;
-
-    QGraphicsTextItem *header;
-    QGraphicsTextItem *nonSelectable;
-
-    QGraphicsTextItem *name;
-    QGraphicsTextItem *charge;
-    QGraphicsTextItem *pt;
-    QGraphicsTextItem *phi;
-    QGraphicsTextItem *eta;
-    QGraphicsTextItem *id;
-
-    QGraphicsTextItem* dataComplete;
-    QGraphicsTextItem* dataLabels;
-    QGraphicsTextItem* dataDisplayed;
-
-    QGraphicsTextItem* labelDisplayed;
-    QGraphicsTextItem* labelTotal;
-
-    QGraphicsProxyWidget *addTrack;
-    QGraphicsProxyWidget *combTrack;
-    QGraphicsTextItem *message;
-
-    void init();
 };
 #endif

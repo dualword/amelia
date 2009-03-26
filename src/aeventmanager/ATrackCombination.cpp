@@ -1,24 +1,17 @@
 #include "ATrackCombination.h"
 
-#include "ATrackTableModel.h"
-
 #include <math.h>
 
 unsigned int ATrackCombination::_IDS=0;
 
-ATrackCombination::ATrackCombination():netCharge(0)
+ATrackCombination::ATrackCombination():ATrack("Combo #"+QString::number(++_IDS),ATrack::eCombination)
 {
-    id=++_IDS;
-    name="Combo #"+QString::number(id);
+  setTrackID(_IDS);
 }
 
-ATrackCombination::ATrackCombination(const ATrackCombination &combo)
+ATrackCombination::ATrackCombination(const ATrackCombination& o):ATrack(o)
 {
-  id=combo.id;
-  name=combo.name;
-  tracks=combo.tracks;
-  netCharge=combo.netCharge;
-  equivalentTrack=combo.equivalentTrack;
+  this->tracks=o.tracks;
 }
 
 ATrackCombination::~ATrackCombination() { }
@@ -46,24 +39,24 @@ int ATrackCombination::size()
   return tracks.size();
 }
 
-int ATrackCombination::getID()
+ATrack* ATrackCombination::getTrack(unsigned int idx)
 {
-    return id;
+  return tracks[idx];
 }
 
-QString ATrackCombination::getName()
+bool ATrackCombination::operator==(ATrackCombination& o)
 {
-    return name;
-}
-
-void ATrackCombination::setName(QString _name)
-{
-    name=_name;
-}
-
-float ATrackCombination::getNetCharge()
-{
-    return netCharge;
+  for(unsigned int i=0;i<o.size();i++)
+    {
+      //Oh oh, founda mismatch!
+      if(!tracks.contains(o[i]))
+	return false;
+    }
+  
+  // No mismatches from other found in this
+  // But it is possible that in this exist tracks not present in other
+  // This check sizes...
+  return o.size()==size(); 
 }
 
 ATrack* ATrackCombination::operator[](unsigned int idx)
@@ -73,20 +66,15 @@ ATrack* ATrackCombination::operator[](unsigned int idx)
 
 void ATrackCombination::recalculate()
 {
-  netCharge=0;
+  int q=0;
   for (int i=0;i<tracks.size();i++)
     {
-      netCharge+=tracks[i]->q;
+      q+=tracks[i]->charge();
     }
+  setCharge(q);
+
   calculateInvariantMass();
 }
-
-void ATrackCombination::fixIDs()
-{
-  for (int i=0;i<tracks.size();i++)
-    if (tracks[i]->selectionID==0)
-      tracks[i]->selectionID=(++ATrackTableModel::selectionID);
-    }
 
 float ATrackCombination::calculateInvariantMass()
 {
@@ -96,13 +84,13 @@ float ATrackCombination::calculateInvariantMass()
   float P_sum = 0;
   for (int i = 0; i < tracks.size(); i++)
     {
-      if (tracks[i]->Type == ATrack::eSTrack)
+      if (tracks[i]->type() == ATrack::eSTrack)
         {
 	  ASTrack* track = static_cast<ASTrack*>(tracks[i]);
 	  
-	  float px = fabs(track->pt) * cos(track->phi);
-	  float py = fabs(track->pt) * sin(track->phi);
-	  float pz = fabs(tracks[i]->pt) * track->getTl();
+	  float px = fabs(track->Pt()) * cos(track->phi);
+	  float py = fabs(track->Pt()) * sin(track->phi);
+	  float pz = fabs(tracks[i]->Pt()) * track->getTl();
 	  float P = sqrt( (px*px)+(py*py)+(pz*pz));
 	  
 	  
@@ -112,13 +100,13 @@ float ATrackCombination::calculateInvariantMass()
 	  P_sum += P;
         }
       
-      if (tracks[i]->Type == ATrack::eJet)
+      if (tracks[i]->type() == ATrack::eJet)
         {
 	  AJet* track = static_cast<AJet*>(tracks[i]);
 	  
-	  float px = fabs(track->pt) * cos(track->phi);
-	  float py = fabs(track->pt) * sin(track->phi);
-	  float pz = fabs(tracks[i]->pt) * track->getTl();
+	  float px = fabs(track->Pt()) * cos(track->phi);
+	  float py = fabs(track->Pt()) * sin(track->phi);
+	  float pz = fabs(tracks[i]->Pt()) * track->getTl();
 	  float P = sqrt( (px*px)+(py*py)+(pz*pz));
 	  
 	  

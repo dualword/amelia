@@ -74,21 +74,21 @@ QVariant ATrackTableModel::data(const QModelIndex &index, int role) const
       switch (index.column())
         {
         case 0:
-	  return tracks().at(index.row())->name;
+	  return tracks().at(index.row())->name();
         case 1:
-	  if (tracks().at(index.row())->Type == 1)
+	  if (tracks().at(index.row())->type() == ATrack::eSTrack)
             {
 	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
-	      return QString::number(STrack->pt);
+	      return QString::number(STrack->Pt());
             }
-	  else if (tracks().at(index.row())->Type == 2)
+	  else if (tracks().at(index.row())->type() == ATrack::eJet)
             {
 	      AJet* Jet = static_cast<AJet*>(tracks().at(index.row()));
 	      return QString::number(Jet->et);
             }
 	  else return QString("N/A");
         case 2:
-	  if (tracks().at(index.row())->Type == 1)
+	  if (tracks().at(index.row())->type() == ATrack::eSTrack)
             {
 	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
 	      return QString::number(STrack->Mlv);
@@ -120,7 +120,9 @@ QVariant ATrackTableModel::headerData (int section, Qt::Orientation orientation,
   if (orientation == Qt::Vertical)
     {
       QList<ATrack *> tracks=this->tracks();
-      return QString::number(tracks[section]->selectionID);
+      return QString::number(tracks[section]->trackID());
+      //TODO Renable selection ID
+      //selectionID());
     }
   return QVariant();
 }
@@ -137,22 +139,22 @@ void ATrackTableModel::sort(int column, Qt::SortOrder order)
 	  switch (column)
             {
             case 0:
-	      if ( (tracks[j]->trackID<tracks[j+1]->trackID && order==Qt::AscendingOrder) ||
-		   (tracks[j]->trackID>tracks[j+1]->trackID && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->trackID()<tracks[j+1]->trackID() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->trackID()>tracks[j+1]->trackID() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
 	      break;
             case 1:
-	      if ( (tracks[j]->name<tracks[j+1]->name && order==Qt::AscendingOrder) ||
-		   (tracks[j]->name>tracks[j+1]->name && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->name()<tracks[j+1]->name() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->name()>tracks[j+1]->name() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
 	      break;
             case 2:
-	      if ( (tracks[j]->pt<tracks[j+1]->pt && order==Qt::AscendingOrder) ||
-		   (tracks[j]->pt>tracks[j+1]->pt && order==Qt::DescendingOrder) )
+	      if ( (tracks[j]->Pt()<tracks[j+1]->Pt() && order==Qt::AscendingOrder) ||
+		   (tracks[j]->Pt()>tracks[j+1]->Pt() && order==Qt::DescendingOrder) )
                 {
 		  tracks.swap(i,j+1);
                 }
@@ -184,10 +186,14 @@ void ATrackTableModel::deleteSelectedTracks()
 void ATrackTableModel::combineSelectedTracks()
 {
   ATrackCombination *combo=new ATrackCombination(); //hold the stuff
-  
   bool ok;
-  QString name=QInputDialog::getText((QWidget*)QObject::parent(),tr("Track Combination Name"),tr("Combination Name:"),QLineEdit::Normal,combo->getName(),&ok);
-  
+  QString name=QInputDialog::getText((QWidget*)QObject::parent(),
+				     tr("Track Combination Name"),
+				     tr("Combination Name:"),
+				     QLineEdit::Normal,
+				     combo->name(),
+				     &ok);
+
   if (ok) //Proceed only if OK clicked
     {
       combo->setName(name);
@@ -197,7 +203,9 @@ void ATrackTableModel::combineSelectedTracks()
       for (int i=0;i<rows.size();i++)
 	combo->addTrack(tracks()[rows[i].row()]);
       
-      emit tracksCombined(combo);
+      QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
+      tracks.append(combo);
+      analysisData->setCollection("combined_tracks",tracks);
     }
   else
     {
@@ -215,7 +223,7 @@ void ATrackTableModel::handleSelectionChanged(const QItemSelection& selected,con
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks()[idxs[i].row()]->trackID;
+	  int id=tracks()[idxs[i].row()]->trackID();
 	  emit entryDeselected(id);
         }
     }
@@ -230,7 +238,7 @@ void ATrackTableModel::handleSelectionChanged(const QItemSelection& selected,con
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks()[idxs[i].row()]->trackID;
+	  int id=tracks()[idxs[i].row()]->trackID();
 	  emit entrySelected(id,multi);
         }
     }

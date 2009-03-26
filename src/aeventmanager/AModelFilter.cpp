@@ -128,10 +128,10 @@ QString AModelFilter::misEtTypeString()
 
 bool AModelFilter::checkTrack(ATrack* track)
 {
-  if(track->Type==ATrack::eJet &&((AJet*)track)->JetType!=_jetType)
+  if(track->type()==ATrack::eJet &&((AJet*)track)->JetType!=_jetType)
     return false;
 
-  if(track->Type==ATrack::eMissingEt &&((AMisET*)track)->MisETType!=_misEtType)
+  if(track->type()==ATrack::eMissingEt &&((AMisET*)track)->MisETType!=_misEtType)
     return false;
   
   return ATrackFilter::checkTrack(track);

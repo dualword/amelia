@@ -6,7 +6,9 @@
 #include <QModelIndex>
 #include <QList>
 
-#include "ATrackCombination.h"
+#include <aeventmanager/AEvent.h>
+#include <aeventmanager/ATrackCombination.h>
+
 #include "QAbstractTableModelWithContextMenu.h"
 
 class AComboTableModel : public QAbstractTableModelWithContextMenu {
@@ -24,14 +26,21 @@ public:
   void sort(int column, Qt::SortOrder order);
 
 public slots:
+  void handleNewEventLoaded(AEvent*);
+
   void addCombination(ATrackCombination* combo);
   void deleteSelectedCombinations();
+  
   void clear();
+  void refresh();
 
 private:
-  QList<ATrackCombination*> combs;
+  AEventAnalysisData *analysisData;
 
   QItemSelectionModel *selection;
+
+  QList<ATrackCombination*> combinations() const;
+  void setCombinations(QList<ATrackCombination*>);
 };
 
 #endif

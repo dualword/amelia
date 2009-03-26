@@ -23,6 +23,7 @@ SET(aeventmanager_SRCS
   AMisET.cpp
   AShower.cpp
   AFCALShower.cpp
+  ATrackCombination.cpp
 
   AXmlEvent.cpp
   AEvent.cpp
@@ -44,6 +45,14 @@ SET(aeventmanager_H
   AXmlEvent.h
   AEvent.h
   AFilteredEvent.h
+
+  ATrack.h
+  ASTrack.h
+  AJet.h
+  AMisET.h
+  AShower.h
+  AFCALShower.h
+  ATrackCombination.h
 
   ATrackFilter.h
   APtFilter.h

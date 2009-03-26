@@ -56,7 +56,7 @@ void AParticleFilter::setShowMissingEt(bool toggle)
 
 bool AParticleFilter::checkTrack(ATrack *track)
 {
-  if(track->Type==ATrack::eSTrack)
+  if(track->type()==ATrack::eSTrack)
     {
       ASTrack* strack=(ASTrack*)track;
       if(!_showElectrons && strack->isElectron()) return false;
@@ -66,8 +66,8 @@ bool AParticleFilter::checkTrack(ATrack *track)
       if(!_showPhotons && strack->isPhoton()) return false;
     }
 
-  if(!_showJets && track->Type==ATrack::eJet) return false;
-  if(!_showMissingEt && track->Type==ATrack::eMissingEt) return false;
+  if(!_showJets && track->type()==ATrack::eJet) return false;
+  if(!_showMissingEt && track->type()==ATrack::eMissingEt) return false;
 
   return ATrackFilter::checkTrack(track);
 }

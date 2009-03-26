@@ -1,6 +1,4 @@
 #include "AShower.h"
 
-AShower::AShower()
-{
-  Type=ATrack::eShower;
-}
+AShower::AShower():ATrack("Shower",ATrack::eShower)
+{ }

@@ -47,7 +47,6 @@ SET(ageometry_SRCS
   ATrackTableModel.cpp 
   AInterestingTrackTableModel.cpp 
   AComboTableModel.cpp 
-  ATrackCombination.cpp 
   CRelativeScaleSceneNodeAnimator.cpp
   AAdvancedEventSettings.cpp
   AGeoPlugin.cpp
@@ -65,7 +64,6 @@ SET(ageometry_H
   AEventInfoScene.h 
   ASelectionInfoScene.h
   ATrackTableModel.h 
-  ATrackCombination.h
   AInterestingTrackTableModel.h 
   AComboTableModel.h
   AAdvancedEventSettings.h

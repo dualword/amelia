@@ -5,8 +5,6 @@
 #include <QList>
 #include <QSet>
 
-#include <AVector.h>
-
 #include "ATrack.h"
 #include "AShower.h"
 #include "ASTrack.h"
@@ -56,9 +54,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QList<AShower*> HECshowers;
   QList<AShower*> TILEshowers;
   float ETMis;
-  AVector<float> ETMisVec;
   float CaloETMis;
-  AVector<float> CaloETMisVec;
 
   virtual void LoadEvent();
 

@@ -39,7 +39,7 @@ void ATest::loadEvent(AEvent* event)
 
       for(int i=0;i<size;i++)
 	{
-	  float pt=event->Tracks[i]->pt;
+	  float pt=event->Tracks[i]->Pt();
 	  hist->addData(pt);
 	}
       

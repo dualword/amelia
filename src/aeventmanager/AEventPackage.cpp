@@ -7,12 +7,10 @@
 
 AEventPackage::AEventPackage(QObject *parent):QObject(parent)
 {
-
 }
 
 AEventPackage::~AEventPackage()
 {
-
 }
 
 void AEventPackage::load(const QString& loc)
@@ -126,25 +124,8 @@ void AEventPackage::load(const QString& loc)
 
 			qDebug() << "\tFound collection node " << collectionName;
 			
-			QList<ATrack*> collection;
+			QList<ATrack*> collection=readTracksFromXmlElement(events[j],collectionElement,2);
 						
-			QDomNodeList childs=collectionElement.childNodes();
-			for(int l=0;l<childs.size();l++)
-			  {
-			    QDomElement node=childs.at(l).toElement();
-			    if(node.tagName()=="track")
-			      {
-				unsigned int id=node.attribute("id","0").toUInt();
-				qDebug() << "\t\tFound track " << id;
-				ATrack *track=events[j]->getTrackById(id);
-				if(track==0)
-				  {
-				    qDebug() << "\t\tERROR: Invalid track " << id;
-				    continue;
-				  }
-				collection.append(track);
-			      }
-			  }
 
 			data->setCollection(collectionName,collection);
 		      } //END load collections
@@ -156,6 +137,48 @@ void AEventPackage::load(const QString& loc)
     }
 
 }
+
+QList<ATrack*> AEventPackage::readTracksFromXmlElement(AEvent* event,const QDomElement& ele,int level)
+{
+  QString tabs="";
+  for(int i=0;i<level;i++)
+    tabs+="\t";
+
+  QList<ATrack*> tracks;
+  QDomNodeList childs=ele.childNodes();
+  for(int l=0;l<childs.size();l++)
+    {
+      QDomElement node=childs.at(l).toElement();
+      if(node.tagName()=="track")
+	{
+	  unsigned int id=node.attribute("id","0").toUInt();
+	  qDebug() << tabs << "Found track " << id;
+	  ATrack *track=event->getTrackById(id);
+	  if(track==0)
+	    {
+	      qDebug() << tabs << "ERROR: Invalid track " << id;
+	      continue;
+	    }
+	  tracks.append(track);
+	}
+      if(node.tagName()=="combination")
+	{
+	  QString name=node.attribute("name","Unknown Combination");
+	  ATrackCombination *combo=new ATrackCombination();
+	  combo->setName(name);
+	  qDebug() << tabs << "Found combination " << name;
+	  
+	  QList<ATrack*> found=readTracksFromXmlElement(event,node,level+1);
+	  for(int i=0;i<found.size();i++)
+	    combo->addTrack(found[i]);
+
+	  tracks.append(combo);
+	}
+    }
+  
+  return tracks;
+}
+
 
 void AEventPackage::save()
 {
@@ -216,8 +239,7 @@ void AEventPackage::save()
 		while(tracksIter.hasNext())
 		  {
 		    ATrack* track=tracksIter.next();
-		    in << "\t\t\t\t<track"
-		       << " id=\"" << track->trackID << "\"/>"<<endl;
+		    writeTrackToXmlFile(in,track,4);
 		  }
 		
 		in << "\t\t\t</collection>"<<endl;
@@ -231,6 +253,32 @@ void AEventPackage::save()
     in << "</events>" << endl;
 
     logbook.close();
+}
+
+void AEventPackage::writeTrackToXmlFile(QTextStream& in,ATrack* track,int level)
+{
+  QString tabs="";
+  for(int i=0;i<level;i++)
+    tabs+="\t";
+  
+  if(track->type()==ATrack::eCombination)
+    {
+      ATrackCombination* combo=(ATrackCombination*)track;
+      in << tabs << "<combination"
+	 << " name=\"" << combo->name() << "\">" << endl;
+      for(int i=0;i<combo->size();i++)
+	{
+	  writeTrackToXmlFile(in,combo->getTrack(i),level+1);
+	}
+      in << tabs << "</combination>"<<endl;
+      
+    }
+  else
+    {
+      in << tabs << "<track"
+	 << " id=\"" << track->trackID() << "\"/>"<<endl;
+    }
+  
 }
 
 void AEventPackage::setName(QString name)

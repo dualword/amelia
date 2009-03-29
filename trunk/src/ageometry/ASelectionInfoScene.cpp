@@ -7,7 +7,7 @@
 ASelectionInfoScene::ASelectionInfoScene(QObject* parent):QGraphicsScene(parent)
 {
   combo=new ATrackCombination;
-  analysisData=new AEventAnalysisData("AGeometry");
+  analysisData=new ATrackCollection("AGeometry");
   init();
 }
 
@@ -136,7 +136,7 @@ void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 {
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
-  analysisData=newEvent->getAnalysisData("AGeometry");
+  analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
   connect(analysisData,SIGNAL(updated()),
 	  this,SLOT(refresh()));
 }

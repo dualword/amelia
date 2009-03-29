@@ -8,7 +8,7 @@ unsigned int ATrackTableModel::selectionID=0;
 
 ATrackTableModel::ATrackTableModel(QWidget* parent):QAbstractTableModel(parent)
 {
-  analysisData=new AEventAnalysisData("AGeometry");
+  analysisData=new ATrackCollection("AGeometry");
 
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
@@ -26,7 +26,7 @@ void ATrackTableModel::handleNewEventLoaded(AEvent *event)
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
 
-  analysisData=event->getAnalysisData("AGeometry");
+  analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
 
   connect(analysisData,SIGNAL(updated()),
 	  this,SLOT(refresh()));
@@ -252,6 +252,6 @@ void ATrackTableModel::refresh()
 
 void ATrackTableModel::clear()
 {
-  analysisData=new AEventAnalysisData("AGeometry");
+  analysisData=new ATrackCollection("AGeometry");
   refresh();
 }

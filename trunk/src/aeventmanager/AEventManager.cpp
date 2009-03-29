@@ -35,7 +35,10 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "AEventManager.h"
 
+#include "ATrackCollection.h"
+
 #include <QDir>
+#include <AMELIA.h>
 
 AEventManager::AEventManager( QObject *parent )
         : QObject(parent)
@@ -46,8 +49,17 @@ AEventManager::~AEventManager()
 
 void AEventManager::load()
 {
-  loc="workspace";
+  //Register some analysis data structures
+  AEventAnalysisData::addStructure(ATrackCollection::staticMetaObject);  
   
+  connect(AMELIA::global,SIGNAL(allPluginsLoaded()),
+	  this,SLOT(loadWorkspace()));
+}
+
+void AEventManager::loadWorkspace()
+{
+  //Load the event information
+  loc="workspace";
   QDir dir(loc);
   dir.setFilter(QDir::Dirs);
   QStringList entries=dir.entryList();

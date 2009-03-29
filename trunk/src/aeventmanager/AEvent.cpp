@@ -1,6 +1,6 @@
 #include "AEvent.h"
 
-#include "AEventPackage.h"
+#include <aeventmanager/AEventPackage.h>
 
 #include <QDebug>
 
@@ -110,23 +110,17 @@ void AEvent::addAnalysisData(QString modulename,AEventAnalysisData* data)
     connect(data,SIGNAL(updated()),
 	    package,SLOT(save()));
   
-  _analysisData[modulename]=data;
-}
-
-AEventAnalysisData* AEvent::getAnalysisData(QString modulename)
-{
-  if(!_analysisData.contains(modulename))
-    {
-      addAnalysisData(modulename,new AEventAnalysisData(modulename));
-      if(package) package->save(); //Save, to ensure that even empty data sets are saved
-    }
-
-  return _analysisData[modulename];
+  _analysisData.insert(modulename,data);
 }
 
 QList<QString> AEvent::listAnalysisData()
 {
   return _analysisData.keys();
+}
+
+QList<AEventAnalysisData*> AEvent::allAnalysisData()
+{
+  return _analysisData.values();
 }
 
 QList<ATrack*> AEvent::getInterestingTracks()

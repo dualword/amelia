@@ -22,6 +22,9 @@ public:
     QStringList packageList();
     AEventPackage* package(QString name);
 
+ public slots:
+    void loadWorkspace();
+
  private:
     QMap<QString,AEventPackage*> packages;
 

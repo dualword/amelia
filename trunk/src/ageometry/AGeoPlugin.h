@@ -8,6 +8,8 @@
 #include <QMainWindow>
 #include <QMenu>
 
+#include <aeventmanager/AEvent.h>
+
 class AGeoPlugin : public QObject, public APlugin
 {
   Q_OBJECT
@@ -21,6 +23,12 @@ public:
   
   QWidget* findWidget(QString name);
   QMenu* addTrackComboMenu(QString text);
+
+ public slots:
+  void handleNewEventLoaded(AEvent*);
+
+ signals:
+  void eventLoaded(AEvent*);
 
  private:
   QMainWindow *geoWin;

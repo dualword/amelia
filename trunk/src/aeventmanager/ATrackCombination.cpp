@@ -12,6 +12,7 @@ ATrackCombination::ATrackCombination():ATrack("Combo #"+QString::number(++_IDS),
 ATrackCombination::ATrackCombination(const ATrackCombination& o):ATrack(o)
 {
   this->tracks=o.tracks;
+  recalculate();
 }
 
 ATrackCombination::~ATrackCombination() { }

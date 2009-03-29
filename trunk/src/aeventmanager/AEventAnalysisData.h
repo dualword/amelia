@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QString>
 #include <QObject>
+#include <QTextStream>
+#include <QDomElement>
 
 #include "ATrack.h"
 
@@ -14,17 +16,25 @@ class AEventAnalysisData : public QObject
   AEventAnalysisData(QString modulename);
   ~AEventAnalysisData();
 
-  QList<QString> listCollections();
-  QList<ATrack*> getCollection(QString);
-  void setCollection(QString,QList<ATrack*>);
+  QString moduleName();
+
+  virtual void writeToFile(QTextStream& in);
+  virtual void loadFromXML(QDomElement ele,class AEvent* e);
+
+  static void addStructure(QMetaObject);
+  static AEventAnalysisData* newInstance(QString classname,QString module);
 
  signals:
   void updated();
 
+ protected:
+  void beginWriteToFile(QTextStream& in);
+  void endWriteToFile(QTextStream& in);
+
  private:
   QString _modulename;
-  
-  QMap<QString,QList<ATrack*> > _collections;
+
+  static QMap<QString,QMetaObject> _listOfStructures;
 
   Q_OBJECT
 };

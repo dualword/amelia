@@ -9,7 +9,7 @@
 #include <aeventmanager/ATrack.h>
 #include <aeventmanager/ATrackCombination.h>
 #include <aeventmanager/AEvent.h>
-#include <aeventmanager/AEventAnalysisData.h>
+#include <aeventmanager/ATrackCollection.h>
 
 class ATrackTableModel : public QAbstractTableModel {
   Q_OBJECT
@@ -44,7 +44,7 @@ public slots:
   void tracksCombined(ATrackCombination* combo);
 
 private:
-  AEventAnalysisData *analysisData;
+  ATrackCollection *analysisData;
 
   QItemSelectionModel *selection;
 

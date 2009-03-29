@@ -15,7 +15,9 @@ SET(aeventmanager_SRCS
   AEventManagerScene.cpp
   AEventManagerTreeView.cpp
   AEventPackage.cpp
+
   AEventAnalysisData.cpp
+  ATrackCollection.cpp
 
   ATrack.cpp
   ASTrack.cpp
@@ -40,7 +42,9 @@ SET(aeventmanager_H
   AEventManagerScene.h
   AEventManagerTreeView.h
   AEventPackage.h
+
   AEventAnalysisData.h
+  ATrackCollection.h
 
   AXmlEvent.h
   AEvent.h

@@ -17,7 +17,7 @@ SET(template_H
   NewPlugin.h)
 
 SET(template_FILES
-  ahist.qrc)
+  template.qrc)
 
 QT4_WRAP_CPP(template_SRCS ${template_H})
 QT4_ADD_RESOURCES(template_SRCS ${template_FILES})

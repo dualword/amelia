@@ -33,62 +33,47 @@ prepare derivative works, incorporate into other computer software, distribute,
 and sublicense such enhancements or derivative works thereof, in binary and source code form.
 ******************************************************/
 
-#include "AGeoPlugin.h"
+#include "ALabNoteBook.h"
 
-#include "ui_geometry.h"
-#include <abase/ABase.h>
-#include <aeventmanager/AEventManager.h>
+#include "ALabNoteBookWidget.h"
+#include "ui_labnotebook.h"
 
-AGeoPlugin::AGeoPlugin( QObject *parent )
+#include <AMainView.h>
+
+#include <ageometry/AGeoPlugin.h>
+
+#include <QDebug>
+
+ALabNoteBook::ALabNoteBook( QObject *parent )
         : QObject(parent)
-{
-  comboMenu.setTitle("Combination");
+{ }
+
+ALabNoteBook::~ALabNoteBook()
+{ }
+
+void ALabNoteBook::load()
+{ 
+  //Register some analysis data structures
+  AEventAnalysisData::addStructure(ALabNoteBookData::staticMetaObject);
+
+  //Prepare the rest
+  AGeoPlugin* geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
+  AMainView* view=(AMainView*)geo->findWidget("AGeometryFrame");
+
+  ALabNoteBookWidget* geobook=new ALabNoteBookWidget();
+  Ui::LabNoteBook ui;
+  ui.setupUi(geobook);
+  geobook->setupElements();
+  view->addWidget(geobook);
+  connect(geo,SIGNAL(eventLoaded(AEvent*)),
+	  geobook,SLOT(handleNewEventLoaded(AEvent*)));
+
+  QAction *test=new QAction("Logbook Toggle",this);
+  test->setShortcut(QKeySequence(Qt::Key_Space));
+  test->setShortcutContext(Qt::ApplicationShortcut);
+  connect(test,SIGNAL(triggered()),
+	  view,SLOT(toggle()));
+	  
 }
 
-AGeoPlugin::~AGeoPlugin() { }
-
-void AGeoPlugin::load()
-{
-  AMELIA *app=pluginBase();
-  ABase *base=(ABase *)app->plugin("ABase");
-
-  //Setup the UI
-  Ui::MainWindow geoUI;
-  geoWin=new QMainWindow(base);
-  geoUI.setupUi(geoWin);
-
-  //Load the ALayerGUI
-  ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
-  geoWin->setCentralWidget(_layerGUI);
-  AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
-  _layerGUI->setupElements(mngr);
-  connect(_layerGUI,SIGNAL(eventLoaded(AEvent*)),
-	  this,SLOT(handleNewEventLoaded(AEvent*)));
-
-  //Setup the menu for track combinations
-  QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
-  QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
-  model->setMenu(&comboMenu);
-
-  AGeometry *Geometry= geoWin->findChild<AGeometry*>("Geometry");
-  Geometry->setComboMenu(&comboMenu);
-
-  base->addMonitor("ageometry","Default",geoWin,"Enter ATLAS");
-}
-
-QWidget* AGeoPlugin::findWidget(QString name)
-{
-  return geoWin->findChild<QWidget*>(name);
-}
-
-QMenu* AGeoPlugin::addTrackComboMenu(QString text)
-{
-  return comboMenu.addMenu(text);
-}
-
-void AGeoPlugin::handleNewEventLoaded(AEvent* event)
-{
-  emit eventLoaded(event);
-}
-
-Q_EXPORT_PLUGIN2(AGeoPlugin, AGeoPlugin)
+Q_EXPORT_PLUGIN2(ALabNoteBook, ALabNoteBook)

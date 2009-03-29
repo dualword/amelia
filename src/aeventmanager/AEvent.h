@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <QSet>
+#include <QMultiMap>
 
 #include "ATrack.h"
 #include "AShower.h"
@@ -17,7 +18,7 @@
 
 #include "AEventManagerDefines.h"
 
-class AEVENTMANAGER_EXPORT AEventPackage;
+class AEventPackage;
 
 class AEVENTMANAGER_EXPORT AEvent : public QObject
 {
@@ -62,9 +63,26 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
   ATrack* getTrackById(unsigned int id);
 
-  AEventAnalysisData* getAnalysisData(QString module);
+  template <class T>
+   T* getAnalysisData(QString module)
+  {
+    QList<AEventAnalysisData*> data=_analysisData.values(module);
+    for(unsigned int i=0;i<data.size();i++)
+      {
+	T* ret=qobject_cast<T*>(data[i]);
+	if(ret!=0)
+	  return ret;
+      }
+    
+    //Nothing found, create new one
+    T* ret=new T(module);
+    addAnalysisData(module,ret);
+    return ret;
+  }
+  
   void addAnalysisData(QString module,AEventAnalysisData* data);
   QList<QString> listAnalysisData();
+  QList<AEventAnalysisData*> allAnalysisData();
 
   QList<ATrack*> getInterestingTracks();
 
@@ -79,7 +97,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   void addTrack(AFCALShower* track);
 
  private:
-  QMap<QString,AEventAnalysisData*> _analysisData;
+  QMultiMap<QString,AEventAnalysisData*> _analysisData;
 };
 
 #endif //AEVENT_H_

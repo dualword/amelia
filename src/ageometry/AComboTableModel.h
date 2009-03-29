@@ -8,6 +8,7 @@
 
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCombination.h>
+#include <aeventmanager/ATrackCollection.h>
 
 #include "QAbstractTableModelWithContextMenu.h"
 
@@ -35,7 +36,7 @@ public slots:
   void refresh();
 
 private:
-  AEventAnalysisData *analysisData;
+  ATrackCollection *analysisData;
 
   QItemSelectionModel *selection;
 

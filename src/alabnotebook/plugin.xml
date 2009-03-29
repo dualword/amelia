@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<plugin>
+  <dependencies>
+    <plugin name="AGeometry"/>
+    <plugin name="AEventManager"/>
+  </dependencies>
+</plugin>

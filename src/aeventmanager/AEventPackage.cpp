@@ -1,5 +1,8 @@
 #include "AEventPackage.h"
 
+#include <aeventmanager/ATrackCombination.h>
+#include <aeventmanager/AXmlEvent.h>
+
 #include <QFile>
 #include <QDebug>
 #include <QtXml>
@@ -26,7 +29,6 @@ void AEventPackage::load(const QString& loc)
 	  AEvent *event=new AXmlEvent(loc+"/"+elist[i]);
 	  event->package=this;
 	  event->filename=elist[i];
-	  event->LoadEvent();
 	  
 	  events.append(event);
         }
@@ -102,34 +104,29 @@ void AEventPackage::load(const QString& loc)
 		  { //START load analysis nodes
 		    QDomElement analysisElement=analysisNodes.at(i).toElement();
 		    QString moduleName=analysisElement.attribute("module");
+		    QString type=analysisElement.attribute("type");
 		    if(moduleName.isEmpty())
 		      {
 			qDebug() << "ERROR: Empty module name!";
 			continue;
 		      }
+
+		    if(type.isEmpty())
+		      {
+			qDebug() << "ERROR: Empty analysis data type!";
+			continue;
+		      }
+
 		    
-		    qDebug() << "Found analysis node " << moduleName;
-		    AEventAnalysisData *data=new AEventAnalysisData(moduleName);
+		    AEventAnalysisData *data=AEventAnalysisData::newInstance(type,moduleName);
+		    if(data==0)
+		      {
+			qDebug() << "ERROR: Invalid analysis data type!";
+			continue;
+		      }
 		    
-		    QDomNodeList collectionNodes=analysisElement.elementsByTagName("collection");
-		    for(int k=0;k<collectionNodes.size();k++)
-		      { //START load collections
-			QDomElement collectionElement=collectionNodes.at(k).toElement();
-			QString collectionName=collectionElement.attribute("name");
-			if(moduleName.isEmpty())
-			  {
-			    qDebug() << "ERROR: Empty collection name in module \""<< moduleName <<"\"!";
-			    continue;
-			  }
-
-			qDebug() << "\tFound collection node " << collectionName;
-			
-			QList<ATrack*> collection=readTracksFromXmlElement(events[j],collectionElement,2);
-						
-
-			data->setCollection(collectionName,collection);
-		      } //END load collections
-
+		    data->loadFromXML(analysisElement,events[j]);
+		    
 		    events[j]->addAnalysisData(moduleName,data);
 		  } //END load analysis nodes
             }
@@ -137,48 +134,6 @@ void AEventPackage::load(const QString& loc)
     }
 
 }
-
-QList<ATrack*> AEventPackage::readTracksFromXmlElement(AEvent* event,const QDomElement& ele,int level)
-{
-  QString tabs="";
-  for(int i=0;i<level;i++)
-    tabs+="\t";
-
-  QList<ATrack*> tracks;
-  QDomNodeList childs=ele.childNodes();
-  for(int l=0;l<childs.size();l++)
-    {
-      QDomElement node=childs.at(l).toElement();
-      if(node.tagName()=="track")
-	{
-	  unsigned int id=node.attribute("id","0").toUInt();
-	  qDebug() << tabs << "Found track " << id;
-	  ATrack *track=event->getTrackById(id);
-	  if(track==0)
-	    {
-	      qDebug() << tabs << "ERROR: Invalid track " << id;
-	      continue;
-	    }
-	  tracks.append(track);
-	}
-      if(node.tagName()=="combination")
-	{
-	  QString name=node.attribute("name","Unknown Combination");
-	  ATrackCombination *combo=new ATrackCombination();
-	  combo->setName(name);
-	  qDebug() << tabs << "Found combination " << name;
-	  
-	  QList<ATrack*> found=readTracksFromXmlElement(event,node,level+1);
-	  for(int i=0;i<found.size();i++)
-	    combo->addTrack(found[i]);
-
-	  tracks.append(combo);
-	}
-    }
-  
-  return tracks;
-}
-
 
 void AEventPackage::save()
 {
@@ -215,36 +170,13 @@ void AEventPackage::save()
 	  }
 
 	// Save the analysis!!
-	QList<QString> modules=e->listAnalysisData();
-	QListIterator<QString> moduleIter(modules);
+	QList<AEventAnalysisData*> modules=e->allAnalysisData();
+	QListIterator<AEventAnalysisData*> moduleIter(modules);
 	//Loop over modules
 	while (moduleIter.hasNext())
 	  {
-	    QString moduleName=moduleIter.next();
-	    in << "\t\t<analysis module=\"" << moduleName << "\">"<<endl;
-	    
-	    AEventAnalysisData *data=e->getAnalysisData(moduleName);
-	    QList<QString> collections=data->listCollections();
-	    QListIterator<QString> collectionIter(collections);
-	    
-	    //Loop over collections
-	    while (collectionIter.hasNext())
-	      {
-		QString collectionName=collectionIter.next();
-		in << "\t\t\t<collection name=\"" << collectionName << "\">"<<endl;
-		
-		QList<ATrack*> tracks=data->getCollection(collectionName);
-		QListIterator<ATrack*> tracksIter(tracks);
-		//Loop over tracks..
-		while(tracksIter.hasNext())
-		  {
-		    ATrack* track=tracksIter.next();
-		    writeTrackToXmlFile(in,track,4);
-		  }
-		
-		in << "\t\t\t</collection>"<<endl;
-	      }
-	    in << "\t\t</analysis>"<<endl;
+	    AEventAnalysisData* data=moduleIter.next();
+	    data->writeToFile(in);
 	  }
 	
 
@@ -253,32 +185,6 @@ void AEventPackage::save()
     in << "</events>" << endl;
 
     logbook.close();
-}
-
-void AEventPackage::writeTrackToXmlFile(QTextStream& in,ATrack* track,int level)
-{
-  QString tabs="";
-  for(int i=0;i<level;i++)
-    tabs+="\t";
-  
-  if(track->type()==ATrack::eCombination)
-    {
-      ATrackCombination* combo=(ATrackCombination*)track;
-      in << tabs << "<combination"
-	 << " name=\"" << combo->name() << "\">" << endl;
-      for(int i=0;i<combo->size();i++)
-	{
-	  writeTrackToXmlFile(in,combo->getTrack(i),level+1);
-	}
-      in << tabs << "</combination>"<<endl;
-      
-    }
-  else
-    {
-      in << tabs << "<track"
-	 << " id=\"" << track->trackID() << "\"/>"<<endl;
-    }
-  
 }
 
 void AEventPackage::setName(QString name)

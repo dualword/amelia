@@ -4,8 +4,7 @@
 #include <QList>
 #include <QString>
 
-#include "AXmlEvent.h"
-#include "ATrackCombination.h"
+#include "AEvent.h"
 
 class AEventPackage : public QObject
 {
@@ -32,9 +31,6 @@ private:
 
     QString _name;
     QString location;
-
-    QList<ATrack*> readTracksFromXmlElement(AEvent*, const QDomElement& ele,int level);
-    void writeTrackToXmlFile(QTextStream& in,ATrack* track,int level);
 };
 
 #endif

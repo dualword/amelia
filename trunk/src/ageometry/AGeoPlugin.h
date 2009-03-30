@@ -7,6 +7,8 @@
 #include <QObject>
 #include <QMainWindow>
 #include <QMenu>
+#include <QSignalMapper>
+#include <QStackedWidget>
 
 #include <aeventmanager/AEvent.h>
 
@@ -23,6 +25,7 @@ public:
   
   QWidget* findWidget(QString name);
   QMenu* addTrackComboMenu(QString text);
+  void addMainViewWidget(QWidget* widget,QString title);
 
  public slots:
   void handleNewEventLoaded(AEvent*);
@@ -31,8 +34,12 @@ public:
   void eventLoaded(AEvent*);
 
  private:
-  QMainWindow *geoWin;
+  QMainWindow* geoWin;
+  QStackedWidget* mainView;
+  QMenu* menuMain_View;
+
   QMenu comboMenu;
+  QSignalMapper mainViewMapper;
 };
 
 #endif // AGEOPLUGIN_H

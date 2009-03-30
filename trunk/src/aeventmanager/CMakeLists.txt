@@ -64,11 +64,7 @@ SET(aeventmanager_H
   AParticleFilter.h
 )
 
-SET(aeventmanager_FILES
-      aeventmanager.qrc)
-
 QT4_WRAP_CPP(aeventmanager_SRCS ${aeventmanager_H})
-QT4_ADD_RESOURCES(aeventmanager_SRCS ${aeventmanager_FILES})
 
 ADD_LIBRARY(AEventManager SHARED ${aeventmanager_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})

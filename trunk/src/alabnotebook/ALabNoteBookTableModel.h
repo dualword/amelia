@@ -1,18 +1,17 @@
 #ifndef ALABNOTEBOOKTABLEMODEL_H_
 #define ALABNOTEBOOKTABLEMODEL_H_
 
-#include <QAbstractTableModel>
+#include <QAbstractListModel>
 
 #include "ALabNoteBookData.h"
 
-class ALabNoteBookTableModel : public QAbstractTableModel
+class ALabNoteBookTableModel : public QAbstractListModel
 {
 public:
   ALabNoteBookTableModel(QObject* parent=0);
   ~ALabNoteBookTableModel();
   
   int rowCount( const QModelIndex & parent = QModelIndex() ) const;
-  int columnCount( const QModelIndex & parent = QModelIndex() ) const;
   
   QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
 									      

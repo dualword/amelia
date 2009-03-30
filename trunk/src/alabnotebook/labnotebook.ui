@@ -29,7 +29,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QTableView" name="notesListTable">
+      <widget class="QListView" name="notesListTable">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -42,12 +42,6 @@
        <property name="selectionBehavior">
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
-       <attribute name="horizontalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
-       <attribute name="verticalHeaderVisible">
-        <bool>false</bool>
-       </attribute>
       </widget>
      </item>
      <item>
@@ -88,7 +82,7 @@
        <item>
         <widget class="QLabel" name="createTimeLabel">
          <property name="text">
-          <string>Date of the entry goes here!!!!</string>
+          <string/>
          </property>
         </widget>
        </item>

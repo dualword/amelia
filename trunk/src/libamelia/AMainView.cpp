@@ -27,7 +27,7 @@ void AMainView::setCurrentIndex(int idx)
   slide->setPosAt(1,QPoint(-this->width()-20,this->y()));
   
   this->idx=idx;
-  currentWidget()->setDisabled(true);
+  setDisabled(true);
   
   slideTime->start();
 }
@@ -57,7 +57,7 @@ void AMainView::setCurrentIndex1()
   else
     {
       slideTime->setDirection(QTimeLine::Forward);
-      currentWidget()->setDisabled(false);
+      setDisabled(false);
       parentWidget()->layout()->setEnabled(true);  
     }
 }

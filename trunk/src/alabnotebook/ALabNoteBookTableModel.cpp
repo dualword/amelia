@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QFont>
 
-ALabNoteBookTableModel::ALabNoteBookTableModel(QObject* parent):QAbstractTableModel(parent)
+ALabNoteBookTableModel::ALabNoteBookTableModel(QObject* parent):QAbstractListModel(parent)
 {
   _data=new ALabNoteBookData("ALabNoteBook");
 }
@@ -16,11 +16,6 @@ int ALabNoteBookTableModel::rowCount( const QModelIndex& parent ) const
   return entries.size();
 }
 
-int ALabNoteBookTableModel::columnCount( const QModelIndex& parent ) const
-{
-  return 1;
-}
-  
 QVariant ALabNoteBookTableModel::data( const QModelIndex& index, int role ) const
 {
   if(!index.isValid())
@@ -40,7 +35,7 @@ QVariant ALabNoteBookTableModel::data( const QModelIndex& index, int role ) cons
       return font;
       
     case Qt::DisplayRole:
-      return entry->time().toString("yyyy-mm-dd h:m:s ap");
+      return entry->time().toString("yyyy-MM-dd h:mm:ss ap");
       
     case Qt::UserRole:
       return QVariant::fromValue<QObject*>(entry);

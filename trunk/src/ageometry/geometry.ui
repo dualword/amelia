@@ -1591,6 +1591,14 @@ color: rgb(255, 255, 0);
      <addaction name="actionFPS"/>
      <addaction name="actionSphere"/>
     </widget>
+    <widget class="QMenu" name="menuMain_View">
+     <property name="title">
+      <string>Main View</string>
+     </property>
+     <addaction name="actionDetector"/>
+     <addaction name="actionTables"/>
+    </widget>
+    <addaction name="menuMain_View"/>
     <addaction name="menuView"/>
     <addaction name="menu3D_Camera"/>
     <addaction name="actionSnapshot"/>
@@ -1870,6 +1878,16 @@ color: rgb(255, 255, 0);
   <action name="actionAdvanced_Settings">
    <property name="text">
     <string>Advanced Settings</string>
+   </property>
+  </action>
+  <action name="actionDetector">
+   <property name="text">
+    <string>Detector</string>
+   </property>
+  </action>
+  <action name="actionTables">
+   <property name="text">
+    <string>Tables</string>
    </property>
   </action>
  </widget>

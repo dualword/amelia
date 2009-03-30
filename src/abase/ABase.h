@@ -62,6 +62,7 @@ signals:
 protected:
     void keyPressEvent(QKeyEvent *);
     bool eventFilter(QObject *obj, QEvent *event);
+    void resizeEvent(QResizeEvent* event);
 
     QPointF calculateBackgroundPosition();
     void setupViewport();

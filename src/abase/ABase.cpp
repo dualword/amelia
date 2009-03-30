@@ -45,7 +45,7 @@ ABase::ABase( QWidget *parent )
   : QMainWindow(parent),_fakeCentralWidget(0)
 {
     //Set to the initial size.
-  resize(1024,768);
+    resize(1024,768);
   
     layout.setContentsMargins(0,0,0,0);
     center.setLayout(&layout);
@@ -382,7 +382,15 @@ void ABase::keyPressEvent(QKeyEvent *event)
 
 QPointF ABase::calculateBackgroundPosition()
 {
-  return QPointF(-(background->sceneBoundingRect().width()-width())/2,0);
+  return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
+}
+
+void ABase::resizeEvent(QResizeEvent* event)
+{
+  qreal sx=((float)event->size().width())/1024;
+  qreal sy=((float)event->size().height())/768;
+  menuWidget.resetTransform();
+  menuWidget.scale(sx,sy);
 }
 
 bool ABase::eventFilter(QObject *obj, QEvent *event)

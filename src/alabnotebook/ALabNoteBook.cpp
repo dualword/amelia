@@ -58,22 +58,14 @@ void ALabNoteBook::load()
 
   //Prepare the rest
   AGeoPlugin* geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
-  AMainView* view=(AMainView*)geo->findWidget("AGeometryFrame");
 
   ALabNoteBookWidget* geobook=new ALabNoteBookWidget();
   Ui::LabNoteBook ui;
   ui.setupUi(geobook);
   geobook->setupElements();
-  view->addWidget(geobook);
+  geo->addMainViewWidget(geobook,"Lab Book");
   connect(geo,SIGNAL(eventLoaded(AEvent*)),
 	  geobook,SLOT(handleNewEventLoaded(AEvent*)));
-
-  QAction *test=new QAction("Logbook Toggle",this);
-  test->setShortcut(QKeySequence(Qt::Key_Space));
-  test->setShortcutContext(Qt::ApplicationShortcut);
-  connect(test,SIGNAL(triggered()),
-	  view,SLOT(toggle()));
-	  
 }
 
 Q_EXPORT_PLUGIN2(ALabNoteBook, ALabNoteBook)

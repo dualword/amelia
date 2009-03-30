@@ -16,8 +16,18 @@ void ALabNoteBookData::addEntry(ALabNoteBookEntry* newEntry)
 {
   connect(newEntry,SIGNAL(updated()),
 	  this,SLOT(handleEntryUpdate()));
-  _entries.append(newEntry);
+
   emit updated();
+  for(int i=0;i<_entries.size();i++)
+    {
+      if(newEntry->time()>_entries[i]->time())
+	{
+	  _entries.insert(i,newEntry);
+	  return;
+	}
+    }
+  //Not inserted because everything come before..
+  _entries.append(newEntry);
 }
 
 void ALabNoteBookData::handleEntryUpdate()
@@ -39,7 +49,7 @@ void ALabNoteBookData::writeToFile(QTextStream& in)
       in << entry->text();
       in << "</entry>"<<endl;
     }
-  
+
   endWriteToFile(in);
 }
 

@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QPushButton>
-#include <QTableView>
+#include <QListView>
 #include <QPlainTextEdit>
 #include <QLabel>
 
@@ -31,7 +31,7 @@ private:
   ALabNoteBookEntry* _activeEntry;
   
   QPushButton* _newEntryButton;
-  QTableView* _notesListTable;
+  QListView* _notesListTable;
   QPlainTextEdit *_noteTextEdit;
   QLabel *_createTimeLabel;
   Q_OBJECT

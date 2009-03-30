@@ -43,6 +43,7 @@ AGeoPlugin::AGeoPlugin( QObject *parent )
         : QObject(parent)
 {
   comboMenu.setTitle("Combination");
+  mainViewMapper.setParent(this);
 }
 
 AGeoPlugin::~AGeoPlugin() { }
@@ -65,6 +66,21 @@ void AGeoPlugin::load()
   connect(_layerGUI,SIGNAL(eventLoaded(AEvent*)),
 	  this,SLOT(handleNewEventLoaded(AEvent*)));
 
+  //Setup the menu for the main view
+  mainView=geoWin->findChild<QStackedWidget*>("AGeometryFrame");
+  menuMain_View=geoWin->findChild<QMenu*>("menuMain_View");
+  QAction* actionDetector=geoWin->findChild<QAction*>("actionDetector");
+  QAction* actionTables=geoWin->findChild<QAction*>("actionTables");
+  mainViewMapper.setMapping(actionDetector,0);
+  mainViewMapper.setMapping(actionTables,1);
+  connect(actionDetector,SIGNAL(triggered()),
+	  &mainViewMapper,SLOT(map()));
+  connect(actionTables,SIGNAL(triggered()),
+	  &mainViewMapper,SLOT(map()));
+  
+  connect(&mainViewMapper,SIGNAL(mapped(int)),
+	  mainView,SLOT(setCurrentIndex(int)));
+
   //Setup the menu for track combinations
   QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
   QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
@@ -84,6 +100,15 @@ QWidget* AGeoPlugin::findWidget(QString name)
 QMenu* AGeoPlugin::addTrackComboMenu(QString text)
 {
   return comboMenu.addMenu(text);
+}
+
+void AGeoPlugin::addMainViewWidget(QWidget* widget,QString title)
+{
+  int idx=mainView->addWidget(widget);
+  QAction* newAction=menuMain_View->addAction(title);
+  mainViewMapper.setMapping(newAction,idx);
+  connect(newAction,SIGNAL(triggered()),
+	  &mainViewMapper,SLOT(map()));
 }
 
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)

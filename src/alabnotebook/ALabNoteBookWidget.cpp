@@ -5,7 +5,6 @@ ALabNoteBookWidget::ALabNoteBookWidget(QWidget* parent):QWidget(parent)
 { 
   _tableModel=new ALabNoteBookTableModel(this);
   _activeEntry=0;
-  setEnabled(false);
 }
 
 ALabNoteBookWidget::~ALabNoteBookWidget()
@@ -13,8 +12,10 @@ ALabNoteBookWidget::~ALabNoteBookWidget()
 
 void ALabNoteBookWidget::setupElements()
 {
+  setEnabled(false);
+
   _newEntryButton=findChild<QPushButton*>("newEntryButton");
-  _notesListTable=findChild<QTableView*>("notesListTable");
+  _notesListTable=findChild<QListView*>("notesListTable");
   _noteTextEdit=findChild<QPlainTextEdit*>("noteTextEdit");
   _createTimeLabel=findChild<QLabel*>("createTimeLabel");
 
@@ -42,6 +43,8 @@ void ALabNoteBookWidget::handleNewEventLoaded(AEvent* event)
 {
   _data=event->getAnalysisData<ALabNoteBookData>("ALabNoteBook");
   _tableModel->setLabNoteBookData(_data);
+  handleNoteSelected(QModelIndex());
+  
   setEnabled(true);
 }
 
@@ -54,14 +57,26 @@ void ALabNoteBookWidget::handleNoteSelected(const QModelIndex& index)
 {
   QVariant data=_tableModel->data(index,Qt::UserRole);
   ALabNoteBookEntry* entry=(ALabNoteBookEntry*)data.value<QObject*>();
+
+  _activeEntry=0;
+  QString text="";
+  QString timeText="";
+
   if(entry)
     {
-      _activeEntry=0;
-      _tableModel->setActiveEntry(entry);
-      _noteTextEdit->setPlainText(entry->text());
-      _createTimeLabel->setText(entry->time().toString("yyyy-mm-dd h:m:s ap"));
+      text=entry->text();
+      timeText=entry->time().toString("yyyy-mm-dd h:m:s ap");
       _activeEntry=entry;
+      _noteTextEdit->setEnabled(true);
     }
+  else
+    {
+      _noteTextEdit->setEnabled(false);
+    }
+
+  _tableModel->setActiveEntry(_activeEntry);
+  _noteTextEdit->setPlainText(text);
+  _createTimeLabel->setText(timeText);
 }
 
 void ALabNoteBookWidget::handleNoteEdited()

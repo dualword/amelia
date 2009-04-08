@@ -20,12 +20,6 @@ public:
 
     void load();
 
- protected:
-    void addButton(QWidget *browserwdg,QString text,QString link);
-    void setURL(QWidget *wdg,QString url);
-
- private:
-    QSignalMapper abaseMapper;
 };
 
 #endif // AWEBVIEW_H

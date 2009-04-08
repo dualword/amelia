@@ -3,7 +3,7 @@
 #include <math.h>
 #include <QDebug>
 
-ADropDownMenu::ADropDownMenu(QWidget *parent):QWidget(parent),isPosInit(false)
+ADropDownMenu::ADropDownMenu(QWidget *parent):QWidget(parent)
 {
   showhideButton.setText("Show");
   showhideButton.setParent(this);
@@ -42,13 +42,14 @@ void ADropDownMenu::addAction(QAction* action)
 
 void ADropDownMenu::moveEvent(QMoveEvent* event)
 {
-  if(!isPosInit)
+  bool isRunning=(pullUpTime->state()==QTimeLine::Running) || (dropDownTime->state()==QTimeLine::Running);
+  if(!isRunning)
     {
       posInit=pos();
       int h=showhideButton.pos().y();
-      move(posInit.x(),-h);
-      isPosInit=true;
-
+      if(showhideButton.text()=="Show")
+	move(posInit.x(),-h);
+ 
       //Create the forward timer...
       for(qreal i=0;i<=1000;i++)
         {

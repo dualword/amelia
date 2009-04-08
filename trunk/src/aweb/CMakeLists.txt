@@ -12,10 +12,12 @@ ADD_DEFINITIONS(-DQT_SHARED)
 
 SET(aweb_SRCS
   AWebPlugin.cpp
+  AWebView.cpp
   ADropDownMenu.cpp)
 
 SET(aweb_H
   AWebPlugin.h
+  AWebView.h
   ADropDownMenu.h)
 
 SET(aweb_UI

@@ -37,8 +37,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <abase/ABase.h>
 
-#include "ui_browser.h"
-
+#include "AWebView.h"
 
 #include <QDebug>
 
@@ -52,44 +51,25 @@ void AWebPlugin::load()
 {
   AMELIA *app=pluginBase();
   ABase *base=(ABase *)app->plugin("ABase");
-
-  Ui::BrowserWindow browserUI;
-
-  QMainWindow *newswdg=new QMainWindow();
-  QMainWindow *wikiwdg=new QMainWindow();
   
-  browserUI.setupUi(newswdg);
-  setURL(newswdg,"http://amelia.sourceforge.net/");
-  addButton(newswdg,"Menu","");
-
-  browserUI.setupUi(wikiwdg);
-  setURL(wikiwdg,"http://amelia.sourceforge.net/usingamelia.html");
-  addButton(wikiwdg,"Menu","");
-
+  AWebView* newswdg=new AWebView();
+  AWebView* wikiwdg=new AWebView();
+  
+  newswdg->setURL("http://amelia.sourceforge.net/");
+  newswdg->addButton("Menu","");
+  
+  wikiwdg->setURL("http://amelia.sourceforge.net/usingamelia.html");
+  wikiwdg->addButton("Menu","");
+  
   base->addMonitor("wiki","Default",wikiwdg,"How to use AMELIA");
   base->addMonitor("news","Default",newswdg,"The AMELIA Portal!");
-
-  connect(&abaseMapper,SIGNAL(mapped(const QString&)),
+  
+  connect(newswdg,SIGNAL(linkTriggered(const QString&)),
 	  base,SLOT(changeToMonitor(const QString&)));
-	  
+  connect(wikiwdg,SIGNAL(linkTriggered(const QString&)),
+	  base,SLOT(changeToMonitor(const QString&)));
+
 }
 
-void AWebPlugin::setURL(QWidget *browserwdg,QString url)
-{
-  QWebView* MainWebView=browserwdg->findChild<QWebView*>("MainWebView");
-  MainWebView->setUrl(url);
-}
-
-void AWebPlugin::addButton(QWidget *browserwdg,QString text,QString link)
-{
-  ADropDownMenu *menu=browserwdg->findChild<ADropDownMenu*>("DropDownMenu");
-  
-  QAction *action=new QAction(text,menu);
-  menu->addAction(action);
-  
-  abaseMapper.setMapping(action,link);
-  connect(action,SIGNAL(triggered()),
-	  &abaseMapper,SLOT(map()));
-}
 
 Q_EXPORT_PLUGIN2(AWebPlugin, AWebPlugin)

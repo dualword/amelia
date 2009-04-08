@@ -34,7 +34,6 @@ class AWEB_EXPORT ADropDownMenu : public QWidget
   QTimeLine *pullUpTime;
   AAnimationGUI pullUp;
 
-  bool isPosInit;
   QPoint posInit;
 
   Q_OBJECT

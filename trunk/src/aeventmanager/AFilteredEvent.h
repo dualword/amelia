@@ -4,7 +4,7 @@
 #include "AEvent.h"
 #include "ATrackFilter.h"
 
-class AFilteredEvent : public AEvent
+class AEVENTMANAGER_EXPORT AFilteredEvent : public AEvent
 {
 Q_OBJECT  
 

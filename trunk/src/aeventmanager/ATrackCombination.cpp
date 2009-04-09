@@ -47,7 +47,7 @@ ATrack* ATrackCombination::getTrack(unsigned int idx)
 
 bool ATrackCombination::operator==(ATrackCombination& o)
 {
-  for(unsigned int i=0;i<o.size();i++)
+  for(int i=0;i<o.size();i++)
     {
       //Oh oh, founda mismatch!
       if(!tracks.contains(o[i]))

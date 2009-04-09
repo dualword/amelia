@@ -5,7 +5,7 @@
 #include "AJet.h"
 #include "AMisET.h"
 
-class AModelFilter : public ATrackFilter
+class AEVENTMANAGER_EXPORT AModelFilter : public ATrackFilter
 {
   Q_OBJECT
     private:

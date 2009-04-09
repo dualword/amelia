@@ -18,6 +18,8 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES}
+             jpeg
+             png
        )
 ENDIF(UNIX)
 
@@ -94,8 +96,6 @@ TARGET_LINK_LIBRARIES(AGeometry
   amelia
   ABase
   AEventManager
-  jpeg
-  png
   )
   
 

@@ -12,7 +12,9 @@
 
 #include <aeventmanager/AEvent.h>
 
-class AGeoPlugin : public QObject, public APlugin
+#include "AGeometryDefines.h"
+
+class AGEOMETRY_EXPORT AGeoPlugin : public QObject, public APlugin
 {
   Q_OBJECT
   Q_INTERFACES(APlugin)

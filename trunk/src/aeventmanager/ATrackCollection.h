@@ -10,7 +10,7 @@
 #include "ATrack.h"
 #include "AEventAnalysisData.h"
 
-class ATrackCollection : public AEventAnalysisData
+class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
 {
  public:
   Q_INVOKABLE ATrackCollection(QString modulename);

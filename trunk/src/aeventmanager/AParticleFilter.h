@@ -5,7 +5,7 @@
 
 #include "ASTrack.h"
 
-class AParticleFilter : public ATrackFilter
+class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
 {
   Q_OBJECT
     public:

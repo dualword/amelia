@@ -3,7 +3,7 @@
 
 #include "ATrackFilter.h"
 
-class APtFilter : public ATrackFilter
+class AEVENTMANAGER_EXPORT APtFilter : public ATrackFilter
 {
  Q_OBJECT
 

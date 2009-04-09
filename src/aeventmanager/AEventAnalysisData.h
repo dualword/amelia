@@ -10,7 +10,7 @@
 
 #include "ATrack.h"
 
-class AEventAnalysisData : public QObject
+class AEVENTMANAGER_EXPORT AEventAnalysisData : public QObject
 {
  public:
   AEventAnalysisData(QString modulename);

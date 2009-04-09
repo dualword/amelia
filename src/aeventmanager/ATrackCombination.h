@@ -9,7 +9,7 @@
 #include "ASTrack.h"
 #include "AJet.h"
 
-class ATrackCombination : public ATrack 
+class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack 
 {
   
  public:

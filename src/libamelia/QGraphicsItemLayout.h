@@ -6,7 +6,9 @@
 #include <QGraphicsRectItem>
 #include <QObject>
 
-class QGraphicsItemLayout : public QGraphicsItemGroup
+#include "ADefines.h"
+
+class LIBAMELIA_EXPORT QGraphicsItemLayout : public QGraphicsItemGroup
 {
   
 public:

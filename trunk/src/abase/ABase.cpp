@@ -106,10 +106,12 @@ ABase::ABase( QWidget *parent )
             this,SLOT(changeToMonitor(const QString&)));
 
     //Used by transition animations
-    timer.setDuration(1000);
     animation.setTimeLine(&timer);
-    connect(&timer,SIGNAL(finished()),
-            this,SLOT(animationFinished()));
+    animation.setScaleAt(0,0.25,0.25);
+    animation.setPosAt(0,QPointF(1024/2,150));
+    
+    animation.setScaleAt(1,1,1);
+    animation.setPosAt(1,QPointF(1024/2,0));
 }
 
 ABase::~ABase() { }
@@ -133,7 +135,6 @@ void ABase::setupViewport()
     menuWidget.setCacheMode(QGraphicsView::CacheNone);
 #else
     viewport = new QGLWidget(QGLFormat(QGL::SampleBuffers));
-    viewport->setAutoFillBackground(false);
     menuWidget.setOptimizationFlag(QGraphicsView::DontClipPainter);
 #endif
     menuWidget.setViewport(viewport);
@@ -190,30 +191,15 @@ void ABase::addMonitor(QString name,QString group,QWidget *tmp,QString descripti
   mapper.setMapping(item,group+"/"+name);
   connect(item,SIGNAL(clicked()),
 	  &mapper,SLOT(map()));
-
-  
-  //Rotate it. We're using here a little translation trick
-  //to make sure the widgets rotate around the center
-  //Rotation is diabled until we find a more flexible way to do it
-  //QTransform t;
-  
-  //item->menuPosition = widgets.size();
-  //item->yRot = -20 + 20*(item->menuPosition);
-  //item->xTrans = 200*(item->menuPosition - 1);
-  
-  //t.translate(512 , 0);
-  //t.rotate(item->yRot, Qt::YAxis);
-  //t.translate(-512 + item->xTrans, 0);
-  //item->setTransform(t);
 }
 
 void ABase::addGroup(QString groupName)
 {
   if(monitorGroups.contains(groupName)) return; //Ignore if already exists
   
-  monitorGroups[groupName]=new AMonitorGroup(groupName); //Create
+  monitorGroups[groupName]=new AMonitorGroup(); //Create
   
-  QGraphicsClickableSimpleTextItem *button=new QGraphicsClickableSimpleTextItem(groupName,&buttonGroup);
+  QGraphicsClickableSimpleTextItem *button=new QGraphicsClickableSimpleTextItem(groupName);
   button->setFont(buttonFont);
   buttonGroup.addToGroup(button,Qt::AlignLeft);
 
@@ -240,25 +226,11 @@ void ABase::changeToMenu()
       monitor->restoreWidget();
     }
   
-  //Initial condiftions
-  if (currentMonitor.isEmpty())
-    animation.setScaleAt(0,0.25,0.25);
-  else
-    animation.setScaleAt(0,1,1);
-  
-  animation.setPosAt(0,monitorGroups[currentGroup]->pos());
-  
-  // Scale of 0.2 is
-  // widget width = 1024*0.2 = 204.8
-  // widget height = 768*0.2 = 153.6
-  animation.setScaleAt(1,0.25,0.25);
-  animation.setPosAt(1,monitorGroups[currentGroup]->calculateScaledWidgetGroupPosition());
-  
-
-  emit currentMenuAnimationBackward();
-  timer.start();
+  monitorGroups[currentGroup]->setHandlesChildEvents(true);
+  timer.setDirection(QTimeLine::Backward);
+  timer.setTimeLine(monitorGroups[currentGroup]->timeLine());
+  monitorGroups[currentGroup]->setSelected(QString());
     
-  
   
   previousMonitor=currentMonitor;
   currentMonitor=QString();
@@ -267,7 +239,6 @@ void ABase::changeToMenu()
 
 void ABase::changeToMonitor(const QString& path)
 {
-  qDebug() << path;
   if(path.isEmpty())
     { //Change to menu if the path is empty. Simplifies a lot of signal mappers.
       changeToMenu(); 
@@ -289,33 +260,25 @@ void ABase::changeToMonitor(const QString& path)
   if(currentGroup!=group) return; //TODO Allow changing of groups
   if (monitor==currentMonitor) return; //Arealdy there...
   if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
-  
+
+  monitorGroups[group]->setHandlesChildEvents(true);
+
   if(!currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
     {
       AMonitor* current=monitorGroups[currentGroup]->monitor(currentMonitor);
       
       //Swap...
-      current->restoreWidget();
       setFakeCentralWidget(&menuWidget);
+      current->restoreWidget();
+    }
+  else
+    {
+      timer.setDirection(QTimeLine::Forward);
+      timer.setTimeLine(monitorGroups[group]->timeLine());
     }
 
-  //Initial conditions
-  if (currentMonitor.isEmpty())
-    animation.setScaleAt(0,0.25,0.25);
-  else
-    animation.setScaleAt(0,1,1);
-  
-  animation.setPosAt(0,monitorGroups[group]->pos());
-  
-  animation.setScaleAt(1,1,1);
-  
-  
-  animation.setPosAt(1,-monitorGroups[group]->monitor(monitor)->pos());
-  animation.setItem(monitorGroups[group]);
-  
-  emit currentMenuAnimationForward();
-  timer.start();
-  
+  monitorGroups[group]->setSelected(monitor);
+
   //For some reason setting previous to current here would make uicfile a "". Don't ask...
   QString tmp=currentMonitor;
   currentMonitor=monitor;
@@ -326,6 +289,13 @@ void ABase::changeToGroup(const QString& group)
 {
   //If the current group is what we are changing to, then just hide it.
   // This is currently the default response to help testing
+  
+  if(!currentGroup.isEmpty())
+    {
+      disconnect(monitorGroups[currentGroup],SIGNAL(layoutReady()),
+		 this,SLOT(animationFinished()));
+    }
+
   if(currentGroup==group)
     {
       monitorGroups[group]->hide();
@@ -336,6 +306,10 @@ void ABase::changeToGroup(const QString& group)
   if(!currentGroup.isEmpty()) monitorGroups[currentGroup]->hide(); //Hide currently shown group
   monitorGroups[group]->show(); //Show it
   currentGroup=group; //Update the name of the currently shown group
+  
+  animation.setItem(monitorGroups[group]);     
+  connect(monitorGroups[group],SIGNAL(layoutReady()),
+	  this,SLOT(animationFinished()));
 }
 
 void ABase::showEverything()
@@ -345,10 +319,12 @@ void ABase::showEverything()
 
 void ABase::animationFinished()
 {
+  monitorGroups[currentGroup]->setHandlesChildEvents(false);
+  timer.setTimeLine(0);
+
   if (currentMonitor.isEmpty()) return;
   AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
   QWidget *widget=monitor->widget();
-  
   monitor->storeWidget();
   monitor->setWidget(0);
   setFakeCentralWidget(widget);
@@ -397,6 +373,7 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
 {
   if (!currentMonitor.isEmpty()) return false; //Don't care if this no mouse
   if (currentGroup.isEmpty()) return false; //Don't care if this no mouse
+  if (timer.state() == QTimeLine::Running) return false; //Don't care if switching menus..
   
   if (obj==&menu)
     {

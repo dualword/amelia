@@ -7,12 +7,12 @@
 #include "QGraphicsItemLayout.h"
 #include "AMonitor.h"
 
-class AMonitorGroup : public QObject,public QGraphicsItemLayout
+class AMonitorGroup : public QGraphicsItemLayout
 {
   Q_OBJECT
   
 public:
-  AMonitorGroup(QString name,QGraphicsItem* parent=0);
+  AMonitorGroup(QGraphicsItem *parent=0);
 
   AMonitor* monitor(QString name);
   QMap<QString,AMonitor*> monitors();
@@ -20,15 +20,17 @@ public:
   QPointF calculateScaledWidgetGroupPosition();  
 						     
 public slots:
-  void addMonitor(QString name,AMonitor* display,Qt::Alignment align);
+  void addMonitor(QString name,AMonitor* display,Qt::Alignment align=Qt::AlignHCenter);
   void show();
   void hide();
+  void setSelected(const QString& selected);
 
 protected:
   void updateAnimatorPositions();
+  QTransform calculateTransformationForItem(int idx);
 
 private:
-  QString name;
+  QString _selected;
 
   QMap<QString,AMonitor*> _monitors;
   QTimeLine pullUpTime,dropDownTime;

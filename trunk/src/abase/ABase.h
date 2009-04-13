@@ -23,6 +23,7 @@
 
 #include <QGraphicsClickableSimpleTextItem.h>
 #include <QGraphicsItemLayout.h>
+#include <QTimeLineProxy.h>
 #include <APlugin.h>
 
 #include "AMonitorGroup.h"
@@ -54,11 +55,6 @@ public slots:
     void showEverything();
     void animationFinished();
 
-signals:
-    void currentMenuAnimationForward();
-    void currentMenuAnimationBackward();
-
-
 protected:
     void keyPressEvent(QKeyEvent *);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -87,7 +83,7 @@ private:
     QSignalMapper mapper;
 
     //Timer used for animations
-    QTimeLine timer;
+    QTimeLineProxy timer;
     QGraphicsItemAnimation animation;
     QTimeLine parallaxTimer,parallaxTimerBg;
     QGraphicsItemAnimation parallaxAnimation,parallaxAnimationBg;

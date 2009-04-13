@@ -57,9 +57,11 @@ void AWebPlugin::load()
   
   newswdg->setURL("http://amelia.sourceforge.net/");
   newswdg->addButton("Menu","");
+  newswdg->addButton("WiKi","Default/wiki");
   
   wikiwdg->setURL("http://amelia.sourceforge.net/usingamelia.html");
   wikiwdg->addButton("Menu","");
+  wikiwdg->addButton("News","Default/news");
   
   base->addMonitor("wiki","Default",wikiwdg,"How to use AMELIA");
   base->addMonitor("news","Default",newswdg,"The AMELIA Portal!");

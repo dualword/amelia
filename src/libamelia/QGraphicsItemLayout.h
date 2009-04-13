@@ -33,7 +33,7 @@ signals:
   void layoutReady();
   
 protected:
-  virtual QTransform calculateTranslationForItem(int idx);
+  virtual QTransform calculateTransformationForItem(int idx);
 
   float fullSpaceTakenUpInX();
   float fullSpaceTakenUpInY();

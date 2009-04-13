@@ -137,7 +137,7 @@ void QGraphicsItemLayout::calculatePositions()
   // Do the actual moves. Yaay
   for(int i=0;i<_items.size();i++)
     {
-      QTransform trans=calculateTranslationForItem(i);
+      QTransform trans=calculateTransformationForItem(i);
       animations[i]->setTransformAt(0,_items[i]->transform());
       animations[i]->setTransformAt(1,trans);
     }
@@ -145,7 +145,7 @@ void QGraphicsItemLayout::calculatePositions()
   _timeLine->start();
 }
 
-QTransform QGraphicsItemLayout::calculateTranslationForItem(int idx)
+QTransform QGraphicsItemLayout::calculateTransformationForItem(int idx)
 {
   float spaceTakenUpInX=0;
   float spaceTakenUpInY=0;

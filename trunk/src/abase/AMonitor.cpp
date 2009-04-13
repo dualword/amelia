@@ -37,20 +37,28 @@ AMonitor::AMonitor(QString _name,QString _description,QWidget *w,QGraphicsItem* 
     }
 
   setWidgetEnabled(false);
+}
 
+void AMonitor::setWidget(QWidget *w)
+{
+  tmpwidget=w;
+
+  QGraphicsProxyWidget::setWidget(w);
 }
 
 void AMonitor::storeWidget()
 {
-  tmpwidget=widget();
   geo=tmpwidget->geometry();
   setWidgetEnabled(true);
 
   descItem.setPos(QPointF(-descItem.boundingRect().width(),0));
+
+  QGraphicsProxyWidget::setWidget(0);
 }
 
 void AMonitor::restoreWidget()
 {
+  setWidgetEnabled(false);
   QWidget* parent=tmpwidget->parentWidget();
   if(parent)
     {
@@ -61,21 +69,22 @@ void AMonitor::restoreWidget()
 
   tmpwidget->setParent(0);
   tmpwidget->setGeometry(geo);
-  setWidget(tmpwidget);
-  setWidgetEnabled(false);
+  QGraphicsProxyWidget::setWidget(tmpwidget);
   tmpwidget->show();
   tmpwidget->setUpdatesEnabled(true);
 }
 
 void AMonitor::setWidgetEnabled(bool status)
 {
-  QList<QWidget*> children=widget()->findChildren<QWidget*>();
+  if(tmpwidget == 0) return;
+
+  QList<QWidget*> children=tmpwidget->findChildren<QWidget*>();
   for(int i=0;i<children.size();i++)
-    if(children[i]->parent()==widget())
+    if(children[i]->parent()==tmpwidget)
       children[i]->setEnabled(status);
 
   if(status)
-    widget()->grabKeyboard();
+    tmpwidget->grabKeyboard();
 }
 
 void AMonitor::hoverEnterEvent(QGraphicsSceneHoverEvent *event)

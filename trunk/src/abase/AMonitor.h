@@ -14,6 +14,8 @@ Q_OBJECT
  public:
   AMonitor(QString name,QString description,QWidget* w=0,QGraphicsItem* parent=0);
 
+  void setWidget(QWidget *);
+  
   void setWidgetEnabled(bool status);
 
   void storeWidget();

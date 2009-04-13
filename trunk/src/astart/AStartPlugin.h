@@ -2,7 +2,12 @@
 #define ASTARTPLUGIN_H
 
 #include <QAction>
-#include <phonon>
+
+#ifdef QT_PHONON_LIB
+#include <Phonon>
+#else
+#include <Phonon/VideoPlayer>
+#endif
 
 #include <APlugin.h>
 

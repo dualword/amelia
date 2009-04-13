@@ -92,7 +92,7 @@ void AMonitorGroup::updateAnimatorPositions()
 
 QTransform AMonitorGroup::calculateTransformationForItem(int idx)
 {
-  float rotationAngle=5;
+  float rotationAngle=10;
   
   QTransform trans;
   

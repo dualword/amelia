@@ -4,13 +4,23 @@
 
 QGraphicsItemLayout::QGraphicsItemLayout(QGraphicsItem *parent)
   :QGraphicsItemGroup(parent),_orientation(Qt::Horizontal),
-   _verticalAlignment(Qt::AlignTop),_horizontalAlignment(Qt::AlignLeft)
-{ }
+   _verticalAlignment(Qt::AlignTop),_horizontalAlignment(Qt::AlignLeft),
+   _fullSpaceTakenUpInX(0),_fullSpaceTakenUpInY(0),_padding(10),
+   _timeLine(new QTimeLine(1000))
+{ 
+  connect(_timeLine,SIGNAL(finished()),
+	  this,SLOT(handleAnimationFinished()));
+}
 
 QGraphicsItemLayout::QGraphicsItemLayout(Qt::Orientation orient,QGraphicsItem *parent)
   :QGraphicsItemGroup(parent),_orientation(orient),
-   _verticalAlignment(Qt::AlignTop),_horizontalAlignment(Qt::AlignLeft)
-{ }
+   _verticalAlignment(Qt::AlignTop),_horizontalAlignment(Qt::AlignLeft),
+   _fullSpaceTakenUpInX(0),_fullSpaceTakenUpInY(0),_padding(10),
+   _timeLine(new QTimeLine(1000))
+{
+  connect(_timeLine,SIGNAL(finished()),
+	  this,SLOT(handleAnimationFinished()));
+}
 
 
 Qt::Alignment QGraphicsItemLayout::verticalAlignment()
@@ -40,35 +50,60 @@ Qt::Orientation QGraphicsItemLayout::orientation()
   return _orientation;
 }
 
+QTimeLine *QGraphicsItemLayout::timeLine()
+{
+  return _timeLine;
+}
+
 void QGraphicsItemLayout::setOrientation(Qt::Orientation orient)
 {
   _orientation=orient;
   calculatePositions();
 }
 
+float QGraphicsItemLayout::fullSpaceTakenUpInX()
+{
+  return _fullSpaceTakenUpInX;
+}
+
+float QGraphicsItemLayout::fullSpaceTakenUpInY()
+{
+  return _fullSpaceTakenUpInY;
+}
+
+QList<QGraphicsItem *> QGraphicsItemLayout::items()
+{
+  return _items;
+}
+
+void QGraphicsItemLayout::handleAnimationFinished()
+{
+  emit layoutReady();
+}
+
 void QGraphicsItemLayout::addToGroup(QGraphicsItem *item,Qt::Alignment align)
 {
-  QGraphicsItemAnimation *animator=new QGraphicsItemAnimation();
-  QTimeLine *timer=new QTimeLine(1000);
+  QGraphicsItemTransformAnimation *animator=new QGraphicsItemTransformAnimation();
 
+  item->setParentItem(this);
   animator->setItem(item);
-  animator->setTimeLine(timer);
+  animator->setTimeLine(_timeLine);
 
   if(align==Qt::AlignLeft)
     {
       animations.push_front(animator);
-      items.push_front(item);
+      _items.push_front(item);
     }
   else if(align==Qt::AlignRight)
     {
       animations.push_back(animator);
-      items.push_back(item);
+      _items.push_back(item);
     }
   else
     {
-      int idx=items.size()/2;
+      int idx=_items.size()/2;
       animations.insert(idx,animator);
-      items.insert(idx,item);
+      _items.insert(idx,item);
     }
 
   QGraphicsItemGroup::addToGroup(item);
@@ -77,82 +112,82 @@ void QGraphicsItemLayout::addToGroup(QGraphicsItem *item,Qt::Alignment align)
 
 void QGraphicsItemLayout::calculatePositions()
 {
-  float padding=10;
+  if(_timeLine->state()==QTimeLine::Running)
+    _timeLine->stop();
 
-  float spaceFullTakenUpInX=0;
-  float spaceFullTakenUpInY=0;
+  _fullSpaceTakenUpInX=0;
+  _fullSpaceTakenUpInY=0;
   // Calculate the dimensions of the layout
-  for(int i=0;i<items.size();i++)
+  for(int i=0;i<_items.size();i++)
     {
-      QGraphicsItem *item=items[i];
+      QGraphicsItem *item=_items[i];
       QRectF rect=item->boundingRect();
       if(_orientation==Qt::Horizontal)
 	{
-	  spaceFullTakenUpInX+=rect.width()+padding;
-	  if(spaceFullTakenUpInY<rect.height()) spaceFullTakenUpInY=rect.height();
+	  _fullSpaceTakenUpInX+=rect.width()+_padding;
+	  if(_fullSpaceTakenUpInY<rect.height()) _fullSpaceTakenUpInY=rect.height();
 	}
       else
 	{
-	  spaceFullTakenUpInY+=rect.height()+padding;
-	  if(spaceFullTakenUpInX<rect.width()) spaceFullTakenUpInX=rect.width();
+	  _fullSpaceTakenUpInY+=rect.height()+_padding;
+	  if(_fullSpaceTakenUpInX<rect.width()) _fullSpaceTakenUpInX=rect.width();
 	}
     }
+  
   // Do the actual moves. Yaay
+  for(int i=0;i<_items.size();i++)
+    {
+      QTransform trans=calculateTranslationForItem(i);
+      animations[i]->setTransformAt(0,_items[i]->transform());
+      animations[i]->setTransformAt(1,trans);
+    }
+
+  _timeLine->start();
+}
+
+QTransform QGraphicsItemLayout::calculateTranslationForItem(int idx)
+{
   float spaceTakenUpInX=0;
   float spaceTakenUpInY=0;
-  for(int i=0;i<items.size();i++)
+  for(int i=0;i<idx;i++)
     {
-      QGraphicsItem *item=items[i];
-      QPointF pos=item->pos();
-      animations[i]->setPosAt(0,pos);
+      QGraphicsItem *item=_items[i];
 
       QRectF rect=item->boundingRect();
       
-      switch(_horizontalAlignment)
-	{
-	case Qt::AlignLeft:
-	  pos.setX(spaceTakenUpInX);
-	  break;
-	case Qt::AlignHCenter:
-	  pos.setX(spaceTakenUpInX-spaceFullTakenUpInX/2);
-	  break;
-	case Qt::AlignRight:
-	  pos.setX(spaceTakenUpInX-spaceFullTakenUpInX);
-	  break;
-	}	  
-
-      switch(_verticalAlignment)
-	{
-	case Qt::AlignTop:
-	  pos.setY(spaceTakenUpInY);
-	  break;
-	case Qt::AlignVCenter:
-	  pos.setY(spaceTakenUpInY-spaceFullTakenUpInY/2);
-	  break;
-	case Qt::AlignBottom:
-	  pos.setY(spaceTakenUpInY-spaceFullTakenUpInY);
-	  break;
-	}
-
       if(_orientation==Qt::Horizontal)
-	{
-	  spaceTakenUpInX+=rect.width()+padding;
-	}
+	spaceTakenUpInX+=rect.width()+_padding;
       else
-	{
-	  spaceTakenUpInY+=rect.height()+padding;
-	}
-	  
-      animations[i]->setPosAt(1,pos);
-      animations[i]->timeLine()->start();
+	spaceTakenUpInY+=rect.height()+_padding;
+    }      
+
+  QTransform trans=QTransform::fromTranslate(spaceTakenUpInX,spaceTakenUpInY);
+  
+  switch(_horizontalAlignment)
+    {
+    case Qt::AlignLeft:
+      trans.translate(0,0);
+      break;
+    case Qt::AlignHCenter:
+      trans.translate(-_fullSpaceTakenUpInX/2,0);
+      break;
+    case Qt::AlignRight:
+      trans.translate(-_fullSpaceTakenUpInX,0);
+      break;
+    }	  
+  
+  switch(_verticalAlignment)
+    {
+    case Qt::AlignTop:
+      trans.translate(0,0);
+      break;
+    case Qt::AlignVCenter:
+      trans.translate(0,-_fullSpaceTakenUpInY/2);
+      break;
+    case Qt::AlignBottom:
+      trans.translate(0,-_fullSpaceTakenUpInY);
+      break;
     }
 
-  // Move the menu, if anchored
-  /*if(anchored)
-    {
-      anchorAnimator.setPosAt(0,pos());
-      QPointF finalPos=_anchorPos;
-      anchorAnimator.setPosAt(1,finalPos);
-      anchorAnimator.timeLine()->start();
-      }*/
+  return trans;
 }

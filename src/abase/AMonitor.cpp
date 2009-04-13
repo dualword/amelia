@@ -73,18 +73,21 @@ void AMonitor::setWidgetEnabled(bool status)
   for(int i=0;i<children.size();i++)
     if(children[i]->parent()==widget())
       children[i]->setEnabled(status);
+
+  if(status)
+    widget()->grabKeyboard();
 }
 
 void AMonitor::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
   descTimeline.setDirection(QTimeLine::Forward);
-  descTimeline.start();
+  if(descTimeline.state()!=QTimeLine::Running) descTimeline.start();
 }
 
 void AMonitor::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
   descTimeline.setDirection(QTimeLine::Backward);
-  descTimeline.start();
+  if(descTimeline.state()!=QTimeLine::Running) descTimeline.start();
 }
 
 void AMonitor::mousePressEvent( QGraphicsSceneMouseEvent *event )

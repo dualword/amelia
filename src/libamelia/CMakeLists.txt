@@ -16,6 +16,8 @@ SET(amelia_SRCS
 	QGraphicsClickablePixmapItem.cpp
 	QGraphicsClickableSimpleTextItem.cpp
 	QGraphicsItemLayout.cpp
+	QGraphicsItemTransformAnimation.cpp
+	QTimeLineProxy.cpp
 	AAnimationGUI.cpp
 	AMainView.cpp
 	APlugin.cpp
@@ -25,6 +27,9 @@ SET(amelia_SRCS
 SET(amelia_H
 	QGraphicsClickablePixmapItem.h
 	QGraphicsClickableSimpleTextItem.h
+	QGraphicsItemLayout.h
+	QGraphicsItemTransformAnimation.h
+	QTimeLineProxy.h
 	AAnimationGUI.h
 	AMainView.h
  	APlugin.h

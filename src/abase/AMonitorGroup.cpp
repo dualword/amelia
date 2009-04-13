@@ -2,8 +2,9 @@
 #include <QDebug>
 #include <math.h>
 
-AMonitorGroup::AMonitorGroup(QString _name,QGraphicsItem* _parent)
- :QGraphicsItemLayout(_parent),name(_name)
+
+AMonitorGroup::AMonitorGroup(QGraphicsItem* _parent)
+ :QGraphicsItemLayout(_parent)
 { 
   scale(0.25,0.25);
   setHandlesChildEvents(false); //Let the monitors handle it's own clicks
@@ -31,7 +32,7 @@ void AMonitorGroup::addMonitor(QString _name,AMonitor *monitor,Qt::Alignment ali
   _monitors[_name]=monitor;
 
   updateAnimatorPositions();
-  qDebug() << "Added " << _name << " to " << name;
+  qDebug() << "Added " << _name;
 }
 
 QMap<QString,AMonitor*> AMonitorGroup::monitors()
@@ -57,6 +58,12 @@ void AMonitorGroup::hide()
   dropDownTime.stop();
 }
 
+void AMonitorGroup::setSelected(const QString& selected)
+{
+  _selected=selected;
+  calculatePositions();
+}
+
 QPointF AMonitorGroup::calculateScaledWidgetGroupPosition()
 {
   QPointF ret= QPointF(1024/2,
@@ -68,7 +75,7 @@ void AMonitorGroup::updateAnimatorPositions()
 {
   QPointF visibleAt=calculateScaledWidgetGroupPosition();
   QPointF hiddenAt=visibleAt;
-  hiddenAt.setY(-childrenBoundingRect().height()*0.25-5);
+  hiddenAt.setY(-childrenBoundingRect().height()*0.40-5);
 
   qreal h=visibleAt.y()-hiddenAt.y();
   for(qreal i=0;i<=1000;i++)
@@ -81,4 +88,54 @@ void AMonitorGroup::updateAnimatorPositions()
       dropDown.setPosAt(t,QPoint(visibleAt.x(),visibleAt.y()-(int)xDown));
       pullUp.setPosAt(t,QPoint(visibleAt.x(),visibleAt.y()-(int)xUp));
     }
+}
+
+QTransform AMonitorGroup::calculateTransformationForItem(int idx)
+{
+  float rotationAngle=5;
+  
+  QTransform trans;
+  
+  QList<QGraphicsItem *> items=this->items();
+  int centerIdx;
+  if(_selected.isEmpty())
+    centerIdx=items.size()/2;
+  else
+    for(int i=0;i<items.size();i++)
+      if(_monitors.key((AMonitor*)items[i])==_selected)
+	centerIdx=i;
+  
+  QRectF itemRect=items[idx]->boundingRect();
+
+  if(items.size()%2==1 || !_selected.isEmpty()) //Rotate if there is no central monitor
+    trans.translate(-items[centerIdx]->boundingRect().width()/2,0);
+  else
+    trans.translate(5,0);
+
+  if(idx>=centerIdx)
+    { //This monitor is to the right of center
+      if(items.size()%2==0 && _selected.isEmpty()) //Rotate if there is no central monitor
+	trans.rotate(rotationAngle,Qt::YAxis);
+
+      for(int i=centerIdx;i<idx;i++)
+	{
+	  QRectF rect=items[i]->boundingRect();
+	  trans.translate(rect.width()+10,0);
+	  trans.rotate(rotationAngle,Qt::YAxis);
+	}
+    }
+  else if(idx<centerIdx)
+    { //This monitor to the left of center
+      for(int i=centerIdx;i>idx;i--)
+	{
+	  QRectF rect=items[i]->boundingRect();
+	  trans.translate(-rect.width()-10,0);
+	  
+	  trans.translate(itemRect.width(),0);
+	  trans.rotate(-rotationAngle,Qt::YAxis);
+	  trans.translate(-itemRect.width(),0);
+	}
+    }
+
+  return trans;
 }

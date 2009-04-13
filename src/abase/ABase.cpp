@@ -134,7 +134,8 @@ void ABase::setupViewport()
     viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
     menuWidget.setCacheMode(QGraphicsView::CacheNone);
 #else
-    viewport = new QGLWidget(QGLFormat(QGL::SampleBuffers));
+    viewport = new QGLWidget(/*QGLFormat(QGL::SampleBuffers)*/);
+    //viewport = new QWidget(&menuWidget);
     menuWidget.setOptimizationFlag(QGraphicsView::DontClipPainter);
 #endif
     menuWidget.setViewport(viewport);
@@ -326,7 +327,7 @@ void ABase::animationFinished()
   AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
   QWidget *widget=monitor->widget();
   monitor->storeWidget();
-  monitor->setWidget(0);
+
   setFakeCentralWidget(widget);
 }
 

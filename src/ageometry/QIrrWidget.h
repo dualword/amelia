@@ -112,6 +112,7 @@ protected:
     virtual bool OnEvent(const SEvent &event);
 
     /* Event */
+    void paintEvent(QPaintEvent *event);
     void changeEvent(QEvent* event); //Will be used for diabled widget image caching
     void resizeEvent( QResizeEvent* event );
 
@@ -132,7 +133,6 @@ protected:
 private:
     irr::video::E_DRIVER_TYPE _driverType;
     
-    QLabel *label;
     QWidget *p;
     QPoint lastPressPos;
 
@@ -146,8 +146,12 @@ private:
     bool _dirty;
     ICameraSceneNode *lastActiveCamera;
     vector3df lastCameraPosition,lastCameraTarget;
+    
+    video::ITexture *disabledRenderTexture;
+    QPixmap ss;
 
     void updateLastCamera();
+    void updateScreenshot();
 
 #ifdef Q_WS_WIN
 	friend class QIrrWinWidgetPrivate;

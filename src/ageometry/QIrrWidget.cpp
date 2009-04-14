@@ -169,7 +169,7 @@ private:
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0),_dirty(false)
+  : QWidget(parent),driver(0),smgr(0),_dirty(false),disabledRenderTexture(0)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -189,9 +189,9 @@ QIrrWidget::QIrrWidget( QWidget *parent )
   
   layout->addWidget(p);
   
-  label=new QLabel(this);
-  layout->addWidget(label);
-  label->hide();
+  //label=new QLabel(this);
+  //layout->addWidget(label);
+  //label->hide();
   setMouseTracking(true);
 }
 
@@ -254,6 +254,59 @@ void QIrrWidget::toggleDisabled()
   setEnabled(!isEnabled());
 }
 
+void QIrrWidget::updateScreenshot()
+{
+  //Attempt at using RTT for display. This fixes the problem with the initial render
+  //However right now it does not work unless the screenshot is updated continiously
+  //Performing the update only from the change event call causes the same picture to
+  //be captured always...
+  /*if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
+    { //We can render to target.. Use a RTT
+      irr::video::SColor color (255,0,0,0);
+      
+      if (disabledRenderTexture==0) //Try to create an render texture if one does not exist...
+	{
+	  QSize size=p->size();
+	  //int w=256;
+	  //int h=256;
+	  //Note: This might cause problems, since the Irrlicht docs suggest
+	  // that the RTT size is a square with lengths of powers of 2
+	  int w=size.width();
+	  int h=size.height();
+	  disabledRenderTexture = getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(w,h));
+	  disabledRenderTexture->grab();
+	}
+      
+      //Render
+      driver->setRenderTarget(disabledRenderTexture, true, true, color);
+      smgr->drawAll();
+      driver->setRenderTarget(0);
+      
+      //Convert RTT to QImage
+      uchar* tmpdata=(uchar*)disabledRenderTexture->lock (true);
+      dimension2d<s32> size=disabledRenderTexture->getSize();
+      QImage image(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(disabledRenderTexture->getColorFormat()));
+      disabledRenderTexture->unlock();
+      
+      ss=QPixmap::fromImage(image);
+    }
+    else*/
+  ss=QPixmap::grabWindow(p->winId());
+
+  
+}
+
+void QIrrWidget::paintEvent(QPaintEvent *event)
+{
+  if(isEnabled())
+    QWidget::paintEvent(event);
+  else
+    {
+      QPainter painter(this);
+      painter.drawPixmap(0,0,ss);
+    }
+}
+  
 void QIrrWidget::changeEvent(QEvent *event)
 {
   if(event->type()==QEvent::EnabledChange)
@@ -261,19 +314,15 @@ void QIrrWidget::changeEvent(QEvent *event)
       setUpdatesEnabled(false);
       if(isEnabled())
 	{
-	  label->hide();
-	  label->setPixmap(0);
 	  p->show();
 	}
       else
 	{
-	  QPixmap ss;
 	  if(driver)
-	    ss=QPixmap::grabWindow(p->winId());
+	    {
+	      updateScreenshot();
+	    }
 	  p->hide();
-	  
-	  label->setPixmap(ss);
-	  label->show();
 	}
       setUpdatesEnabled(true);
     }
@@ -918,10 +967,10 @@ void QIrrUnixWidgetPrivate::paintGL()
 {
   if (parent->driver)
     {
-      irr::video::SColor color (0,0,0,0);
+      irr::video::SColor color (255,0,0,0);
 
       parent->driver->beginScene(true,true,color);
-      
+
       parent->smgr->drawAll();
       parent->gui->drawAll();
       parent->driver->endScene();

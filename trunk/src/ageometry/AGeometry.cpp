@@ -368,7 +368,6 @@ void AGeometry::renderViewport(int view)
     setupView(view);
 
     getVideoDriver()->setRenderTarget(rt, true, true, color);
-    getVideoDriver()->beginScene(true,true,color);
     getSceneManager()->drawAll();
 
     setupView(active_viewport);

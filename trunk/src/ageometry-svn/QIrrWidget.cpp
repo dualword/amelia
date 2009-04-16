@@ -331,7 +331,7 @@ void QIrrWidget::resizeEvent( QResizeEvent* event )
 {
   if ( driver != 0 )
     {
-      irr::core::dimension2d<int> size;
+      irr::core::dimension2d<unsigned int> size;
       size.Width = event->size().width();
       size.Height = event->size().height();
 

@@ -134,8 +134,8 @@ void ABase::setupViewport()
     viewport->setAttribute(Qt::WA_MSWindowsUseDirect3D);
     menuWidget.setCacheMode(QGraphicsView::CacheNone);
 #else
-    viewport = new QGLWidget(/*QGLFormat(QGL::SampleBuffers)*/);
-    //viewport = new QWidget(&menuWidget);
+    //viewport = new QGLWidget(/*QGLFormat(QGL::SampleBuffers)*/);
+    viewport = new QWidget(&menuWidget);
     menuWidget.setOptimizationFlag(QGraphicsView::DontClipPainter);
 #endif
     menuWidget.setViewport(viewport);

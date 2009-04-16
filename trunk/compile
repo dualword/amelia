@@ -1,2 +1,2 @@
 #!/bin/bash
-cmake . -DIrrlicht_INCLUDE_DIR=/home/kkrizka/Sources/irrlicht-1.5/include/  -DIrrlicht_LIBRARY=/home/kkrizka/Sources/irrlicht-1.5/lib/Linux/ -DCMAKE_BUILD_TYPE=debug -DENABLE_AWEB=OFF -DENABLE_AHIST=OFF -DENABLE_ALABNOTEBOOK=OFF -DENABLE_ASTART=OFF
+cmake . -DIrrlicht_INCLUDE_DIR=/home/kkrizka/Sources/irrlicht/include/  -DIrrlicht_LIBRARY=/home/kkrizka/Sources/irrlicht/lib/Linux/ -DCMAKE_BUILD_TYPE=debug -DENABLE_AWEB=OFF -DENABLE_AHIST=OFF -DENABLE_ALABNOTEBOOK=OFF -DENABLE_ASTART=OFF -DENABLE_AGEOMETRY=OFF -DENABLE_AGEOMETRY_SVN=ON

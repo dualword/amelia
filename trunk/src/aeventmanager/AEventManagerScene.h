@@ -14,7 +14,7 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
 
   QModelIndex index(int, int, const QModelIndex&) const;
   QModelIndex index(AEvent* event,int col) const;
-  QModelIndex index(AEventPackage* event,int col) const;
+  QModelIndex index(AEventPackage* pkg,int col) const;
 
   QModelIndex parent(const QModelIndex&) const;
   int rowCount(const QModelIndex&) const;
@@ -33,6 +33,8 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
   void setActivePackage(AEventPackage*);
   void setActiveEvent(AEvent* event=0);
 
+  void handlePackageUpdate(const QString &name);
+  void handlePackageAdded(const QString &name);
 
  private:
   AEventManager *manager;

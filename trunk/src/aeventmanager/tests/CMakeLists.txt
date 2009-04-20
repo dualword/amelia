@@ -46,3 +46,4 @@ TARGET_LINK_LIBRARIES(managertest
   ${QT_LIBRARIES} 
   amelia
   AEventManager)
+

@@ -62,6 +62,7 @@ void AWebPlugin::load()
   wikiwdg->setURL("http://amelia.sourceforge.net/usingamelia.html");
   wikiwdg->addButton("Menu","");
   wikiwdg->addButton("News","Default/news");
+  newswdg->addButton("Enter ATLAS","Default/ageometry");
   
   base->addMonitor("wiki","Default",wikiwdg,"How to use AMELIA");
   base->addMonitor("news","Default",newswdg,"The AMELIA Portal!");

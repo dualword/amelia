@@ -8,131 +8,143 @@
 #include <QtXml>
 #include <QSetIterator>
 
-AEventPackage::AEventPackage(QObject *parent):QObject(parent)
+AEventPackage::AEventPackage(const QString &location,QObject *parent)
+  :QObject(parent),location(location),_loaded(false)
 {
+  QDir dir(location);
+  _name=dir.dirName();
+  loadMetaInfo();
 }
 
 AEventPackage::~AEventPackage()
 {
 }
 
-void AEventPackage::load(const QString& loc)
+void AEventPackage::load()
 {
-    location=loc;
-    QDir dir(loc);
+  QDir dir(location);
     QStringList elist=dir.entryList();
     for (int i=0;i<elist.size();i++)
     {
         int idx=elist[i].lastIndexOf(".xml");
         if (idx==elist[i].length()-4 && idx>=0)
         {
-	  AEvent *event=new AXmlEvent(loc+"/"+elist[i]);
+	  AEvent *event=new AXmlEvent(location+"/"+elist[i]);
 	  event->package=this;
 	  event->filename=elist[i];
-	  
+
 	  events.append(event);
         }
     }
+  
+  loadLogBook();
 
-    setName(dir.dirName());
+  _loaded=true;
+}
 
-    /*
-     * Load the metainfo
-     */
-    QFile fh(loc+"/.metainfo");
-    QDomDocument doc("metainfo");
-    if (!fh.open(QIODevice::ReadOnly))
-        return;
-    if (!doc.setContent(&fh))
+void AEventPackage::loadMetaInfo()
+{
+  /*
+   * Load the metainfo
+   */
+  QFile fh(location+"/.metainfo");
+  QDomDocument doc("metainfo");
+  if (!fh.open(QIODevice::ReadOnly))
+    return;
+  if (!doc.setContent(&fh))
     {
-        fh.close();
-        return;
+      fh.close();
+      return;
     }
-    fh.close();
+  fh.close();
+  
+  QDomNode package=doc.namedItem("package");
+  
+  //Check for names
+  QDomNode nameNode=package.namedItem("name");
+  QString nameText=nameNode.firstChild().toText().data();
+  if (!nameText.isEmpty()) _name=nameText;
+}
 
-    QDomNode package=doc.namedItem("package");
-
-    //Check for names
-    QDomNode nameNode=package.namedItem("name");
-    QString nameText=nameNode.firstChild().toText().data();
-    if (!nameText.isEmpty()) setName(nameText);
-
-    /* END metainfo loading */
-
-    /*
-     * Load the already analyzed events
-     */
-    //QFile fh_logbook(loc+"/.logbook");
-    fh.setFileName(loc+"/.logbook");
-    doc=QDomDocument("logbooks");
-    if (!fh.open(QIODevice::ReadOnly))
-        return;
-    if (!doc.setContent(&fh))
+void AEventPackage::loadLogBook()
+{
+  /*
+   * Load the already analyzed events
+   */
+  QFile fh(location+"/.logbook");
+  QDomDocument doc("logbooks");
+  if (!fh.open(QIODevice::ReadOnly))
+    return;
+  if (!doc.setContent(&fh))
     {
-        fh.close();
-        return;
+      fh.close();
+      return;
     }
-    fh.close();
-
-    //Load already analyzed events
-    QDomNode eventsNode=doc.namedItem("events");
-    QDomNodeList eventNodes=eventsNode.childNodes();
-    for (int i=0;i<eventNodes.size();i++)
+  fh.close();
+  
+  //Load already analyzed events
+  QDomNode eventsNode=doc.namedItem("events");
+  QDomNodeList eventNodes=eventsNode.childNodes();
+  for (int i=0;i<eventNodes.size();i++)
     {
-        QDomNode eventNode=eventNodes.at(i);
-	QDomElement event=eventNode.toElement();
-        QString filename=event.attributes().namedItem("filename").toAttr().value();
-        for (int j=0;j<events.size();j++)
+      QDomNode eventNode=eventNodes.at(i);
+      QDomElement event=eventNode.toElement();
+      QString filename=event.attributes().namedItem("filename").toAttr().value();
+      for (int j=0;j<events.size();j++)
         {
-            if (events[j]->filename==filename)
+	  if (events[j]->filename==filename)
             {
-                qDebug() << "Filename " << events[j]->filename;
-
-		// Load tags
-                QDomNode tagsNode=event.firstChildElement("tags");
-                QDomNodeList tagNodes=tagsNode.childNodes();
-                for (int i=0;i<tagNodes.size();i++)
+	      qDebug() << "Filename " << events[j]->filename;
+	      
+	      // Load tags
+	      QDomNode tagsNode=event.firstChildElement("tags");
+	      QDomNodeList tagNodes=tagsNode.childNodes();
+	      for (int i=0;i<tagNodes.size();i++)
                 {
 		  QString tag=tagNodes.at(i).firstChild().toText().data();
 		  qDebug() << "Tag " <<  tag;
 		  events[j]->tags.insert(tag);
                 }
-
-		// Load analysis data
-		QDomNodeList analysisNodes=event.elementsByTagName("analysis");
-		for(int i=0;i<analysisNodes.size();i++)
-		  { //START load analysis nodes
-		    QDomElement analysisElement=analysisNodes.at(i).toElement();
-		    QString moduleName=analysisElement.attribute("module");
-		    QString type=analysisElement.attribute("type");
-		    if(moduleName.isEmpty())
-		      {
-			qDebug() << "ERROR: Empty module name!";
-			continue;
-		      }
-
-		    if(type.isEmpty())
-		      {
-			qDebug() << "ERROR: Empty analysis data type!";
-			continue;
-		      }
-
-		    
-		    AEventAnalysisData *data=AEventAnalysisData::newInstance(type,moduleName);
-		    if(data==0)
-		      {
-			qDebug() << "ERROR: Invalid analysis data type!";
-			continue;
-		      }
-		    
-		    data->loadFromXML(analysisElement,events[j]);
-		    
-		    events[j]->addAnalysisData(moduleName,data);
-		  } //END load analysis nodes
+	      
+	      // Load analysis data
+	      QDomNodeList analysisNodes=event.elementsByTagName("analysis");
+	      for(int i=0;i<analysisNodes.size();i++)
+		{ //START load analysis nodes
+		  QDomElement analysisElement=analysisNodes.at(i).toElement();
+		  QString moduleName=analysisElement.attribute("module");
+		  QString type=analysisElement.attribute("type");
+		  if(moduleName.isEmpty())
+		    {
+		      qDebug() << "ERROR: Empty module name!";
+		      continue;
+		    }
+		  
+		  if(type.isEmpty())
+		    {
+		      qDebug() << "ERROR: Empty analysis data type!";
+		      continue;
+		    }
+		  
+		  
+		  AEventAnalysisData *data=AEventAnalysisData::newInstance(type,moduleName);
+		  if(data==0)
+		    {
+		      qDebug() << "ERROR: Invalid analysis data type!";
+		      continue;
+		    }
+		  
+		  data->loadFromXML(analysisElement,events[j]);
+		  
+		  events[j]->addAnalysisData(moduleName,data);
+		} //END load analysis nodes
             }
         }
     }
+}
 
+bool AEventPackage::isLoaded()
+{
+  return _loaded;
 }
 
 void AEventPackage::save()

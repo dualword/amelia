@@ -149,20 +149,32 @@ void ABase::setFakeCentralWidget(QWidget *wdg)
     {
       layout.removeWidget(_fakeCentralWidget);
       _fakeCentralWidget->hide();
-      
+
+#ifdef Q_WS_MAC
+      //The menu bar is only set on MacOSX, because MacOSX has the universal top menu bar.
+      // On Linux, playing with the menubar causes offset problems with the graphics view
+
+      //Store the current menubar in the current fake widget
       if(_fakeCentralWidget->inherits("QMainWindow"))
 	{
 	  QMainWindow *mainWin=(QMainWindow*)_fakeCentralWidget;
 	  mainWin->setMenuBar(menuBar());
+	  mainWin->menuBar()->hide();
 	  setMenuBar(0);
 	}
+#endif //Q_WS_MAC
     }
 
+#ifdef Q_WS_MAC
+  //Set the new fake widget's menubar to the main window's menubar
   if(wdg->inherits("QMainWindow"))
     {
       QMainWindow *mainWin=(QMainWindow*)wdg;
       setMenuBar(mainWin->menuBar());
+      menuBar->show();
     }
+#endif //Q_WS_MAC
+
   layout.addWidget(wdg);
   wdg->show();
   _fakeCentralWidget=wdg;

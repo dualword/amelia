@@ -32,7 +32,7 @@ void AEventManagerTreeView::activate(const QModelIndex& index)
 	    collapse(idx);
         }
     }
-  else
+  else if(e)
     {
       emit eventClicked(e);
     }

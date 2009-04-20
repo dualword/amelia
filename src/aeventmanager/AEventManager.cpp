@@ -38,11 +38,21 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATrackCollection.h"
 
 #include <QDir>
+#include <QtConcurrentMap>
 #include <AMELIA.h>
+
+AEventPackage* packageLoadingThread(AEventPackage *pkg)
+{
+  pkg->load();
+  return pkg;
+}
 
 AEventManager::AEventManager( QObject *parent )
         : QObject(parent)
-{ }
+{
+  connect(&loadedFutureWatcher,SIGNAL(resultReadyAt(int)),
+	  this,SLOT(handlePackageLoaded(int)));
+}
 
 AEventManager::~AEventManager()
 { }
@@ -68,11 +78,14 @@ void AEventManager::loadWorkspace()
       QDir event(loc+"/"+entries[i]);
       if (event.exists(".metainfo"))
         {
-	  AEventPackage* pkg=new AEventPackage(this);
-	  pkg->load(loc+"/"+entries[i]);
+	  AEventPackage* pkg=new AEventPackage(loc+"/"+entries[i],this);
 	  packages[pkg->name()]=pkg;
+	  emit packageAdded(pkg->name());
         }
     }
+
+  loadedFuture = QtConcurrent::mapped(packages.values(),packageLoadingThread);
+  loadedFutureWatcher.setFuture(loadedFuture);  
 }
 
 QStringList AEventManager::packageList()
@@ -83,6 +96,11 @@ QStringList AEventManager::packageList()
 AEventPackage* AEventManager::package(QString name)
 {
   return packages[name];
+}
+
+void AEventManager::handlePackageLoaded(int idx)
+{
+  emit packageLoaded(loadedFuture.resultAt(idx)->name());
 }
 
 Q_EXPORT_PLUGIN2(AEventManager, AEventManager)

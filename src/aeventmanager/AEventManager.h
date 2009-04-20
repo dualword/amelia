@@ -4,6 +4,8 @@
 #include <APlugin.h>
 
 #include <QMap>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #include "AEventPackage.h"
 
@@ -24,12 +26,20 @@ public:
 
  public slots:
     void loadWorkspace();
+    void handlePackageLoaded(int);
+
+ signals:
+    void packageLoaded(const QString& name);
+    void packageAdded(const QString& name);
 
  private:
     QMap<QString,AEventPackage*> packages;
 
     QString loc;
     QString activePackage;
+
+    QFuture<AEventPackage *> loadedFuture;
+    QFutureWatcher<AEventPackage *> loadedFutureWatcher;
 };
 
 #endif // AEVENTMANAGER_H

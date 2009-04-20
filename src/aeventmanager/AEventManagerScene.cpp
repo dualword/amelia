@@ -7,8 +7,15 @@
 #include <iostream>
 using namespace std;
 
-AEventManagerScene::AEventManagerScene(AEventManager* _manager,QString module):manager(_manager),_module(module)
-{ }
+AEventManagerScene::AEventManagerScene(AEventManager* _manager,QString module)
+  :manager(_manager),_module(module),_activePackage(0),_activeEvent(0)
+{
+  connect(_manager,SIGNAL(packageLoaded(const QString&)),
+	  this,SLOT(handlePackageUpdate(const QString&)));
+
+  connect(_manager,SIGNAL(packageAdded(const QString&)),
+	  this,SLOT(handlePackageAdded(const QString&)));
+}
 
 QModelIndex AEventManagerScene::index(int row, int column, const QModelIndex& parent) const
 {
@@ -25,7 +32,10 @@ QModelIndex AEventManagerScene::index(int row, int column, const QModelIndex& pa
   else
     {
       AEventPackage* pkg=getPackage(parent);
-      index=createIndex(row,column,pkg->event(row));
+      if(pkg->isLoaded())
+	index=createIndex(row,column,pkg->event(row));
+      else
+	index=createIndex(row,column,new QObject(pkg));
     }
   return index;
 }
@@ -35,26 +45,38 @@ QModelIndex AEventManagerScene::parent(const QModelIndex& index) const
   if (!index.isValid()) return QModelIndex();
   
   AEventPackage* pkg=getPackage(index);
-  if(pkg)
-    return QModelIndex();
-  else
-    {
-      QStringList packages=manager->packageList();
-      AEvent* e=getEvent(index);
+  AEvent* e=getEvent(index);
 
-      return createIndex(packages.indexOf(e->package->name()),0,e->package);
+  if(pkg) // Packages have no parents
+    return QModelIndex();
+  else if(e) // Events have their package as a parent
+    {
+      return this->index(e->package,0);
     }
+  else // It is possible that we are talking about the unloaded node of a package...
+    {
+      QObject *obj=(QObject*)index.internalPointer();
+      if(obj->parent()->inherits("AEventPackage"))
+	return this->index((AEventPackage*)obj->parent(),0);
+    }
+  return QModelIndex();
 }
 
 int AEventManagerScene::rowCount(const QModelIndex &index) const
 {
   if (!index.isValid())  return manager->packageList().size();  
   
-AEventPackage* pkg=getPackage(index);
- if(pkg)
-   return pkg->eventCount();
- else
-   return 0;
+  AEventPackage* pkg=getPackage(index);
+
+  if(pkg)
+    {
+      if(pkg->isLoaded())
+	return pkg->eventCount();
+      else
+	return 1;
+    }
+  else
+    return 0;
 }
 
 int AEventManagerScene::columnCount(const QModelIndex &index) const
@@ -70,9 +92,9 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
   int id=index.internalId();
   AEventPackage* pkg=getPackage(index);
   AEvent *e=getEvent(index);
-  
+
   QFont font;
-  
+
   switch (role)
     {
       case Qt::FontRole:
@@ -87,7 +109,7 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
 	      font.setItalic(true);
             }
         }
-      else
+      else if(pkg)
         { // Package Name
 	  font.setBold(true);
 	  
@@ -100,14 +122,7 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
       return font;
       
     case Qt::DisplayRole:
-      if (pkg)
-        {
-	  if (index.column()==0)
-            {
-	      return pkg->name();
-            }
-        }
-      else
+      if (e)
         {
 	  if (index.column()==0)
             {
@@ -120,6 +135,18 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
 		tagString+=iter.next()+" ";
 	      return tagString;
 	    }
+	}
+      else if(pkg)
+	{
+	  if (index.column()==0)
+            {
+	      return pkg->name();
+            }
+	}
+      else
+	{
+	  if(index.column()==0)
+	    return "Loading..";
 	}
       
       case Qt::ForegroundRole:
@@ -161,16 +188,22 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
 
 AEventPackage* AEventManagerScene::getPackage(const QModelIndex& index) const
 {
-  QObject *obj=(QObject*)index.internalPointer();
+  void *pointer=index.internalPointer();
+  if(pointer==0) return 0;
+
+  QObject *obj=(QObject*)pointer;
   if(obj->inherits("AEventPackage"))
-    return (AEventPackage*)obj;
+      return (AEventPackage*)obj;
   else
     return 0;
 }
 
 AEvent* AEventManagerScene::getEvent(const QModelIndex& index) const
 {
-  QObject *obj=(QObject*)index.internalPointer();
+  void *pointer=index.internalPointer();
+  if(pointer==0) return 0;
+  
+  QObject *obj=(QObject*)pointer;
   if(obj->inherits("AEvent"))
     return (AEvent*)obj;
   else
@@ -211,7 +244,7 @@ QModelIndex AEventManagerScene::index(AEvent* event,int col) const
   int row=event->package->indexOf(event);
   QModelIndex parent=index(event->package,0);
 
-  return index(col,row,parent);
+  return index(row,col,parent);
 }
 
 QModelIndex AEventManagerScene::index(AEventPackage* pkg,int col) const
@@ -219,5 +252,30 @@ QModelIndex AEventManagerScene::index(AEventPackage* pkg,int col) const
   QStringList packages=manager->packageList();
   int row=packages.indexOf(pkg->name());
 
-  return index(col,row,QModelIndex());
+  return index(row,col,QModelIndex());
+}
+
+void AEventManagerScene::handlePackageUpdate(const QString &name)
+{
+  AEventPackage *pkg=manager->package(name);
+  emit dataChanged(index(pkg,0),index(pkg,0));
+
+  //Remove the "Loading" node
+  emit beginRemoveRows(index(pkg,0),0,0);
+  emit endRemoveRows();
+
+  //Insert the nodes for each of the events
+  emit beginInsertRows(index(pkg,0),0,pkg->eventCount()-1);
+  emit endInsertRows();
+
+}
+
+void AEventManagerScene::handlePackageAdded(const QString &name)
+{
+  int row=manager->packageList().indexOf(name);
+  
+  //Insert the nodes for each of the events
+  emit beginInsertRows(QModelIndex(),row,row);
+  emit endInsertRows();
+
 }

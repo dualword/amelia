@@ -262,14 +262,14 @@ void AXmlEvent::GetSTracksFromDOM ( QDomDocument dom )
 	  
 	  ASTrack* t = new ASTrack();
 	  
-	  if ( i<str_code.size() ) t->setCode(str_code[j]);
-	  if ( i<str_eta.size() ) t->eta = str_eta[j];
-	  if ( i<str_id.size() ) t->setTrackID(str_id[j]);
-	  if ( i<str_phi.size() ) t->phi = str_phi[j];
-	  if ( i<str_phiVertex.size() ) t->phiVertex = str_phiVertex[j];
-	  if ( i<str_pt.size() ) t->setPt(str_pt[j]);
-	  if ( i<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[j];
-	  if ( i<str_zVertex.size() ) t->zVertex = str_zVertex[j];
+	  if ( j<str_code.size() ) t->setCode(str_code[j]);
+	  if ( j<str_eta.size() ) t->eta = str_eta[j];
+	  if ( j<str_id.size() ) t->setTrackID(str_id[j]);
+	  if ( j<str_phi.size() ) t->phi = str_phi[j];
+	  if ( j<str_phiVertex.size() ) t->phiVertex = str_phiVertex[j];
+	  if ( j<str_pt.size() ) t->setPt(str_pt[j]);
+	  if ( j<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[j];
+	  if ( j<str_zVertex.size() ) t->zVertex = str_zVertex[j];
 	  
 	  addTrack(t);
 	}
@@ -302,11 +302,11 @@ void AXmlEvent::GetShowersFromDOM ( QDomDocument dom, QString calo )
 	{
 	  AShower* s=new AShower();
 	  s->energy = energy[j];
-	  if ( i<eta.size() ) s->eta = eta[j];
-	  if ( i<id.size() ) s->setTrackID(id[j]);
-	  if ( i<layer.size() ) s->layer = layer[j];
-	  if ( i<phi.size() ) s->phi = phi[j];
-	  if ( i<sub.size() ) s->sub = sub[j];
+	  if ( j<eta.size() ) s->eta = eta[j];
+	  if ( j<id.size() ) s->setTrackID(id[j]);
+	  if ( j<layer.size() ) s->layer = layer[j];
+	  if ( j<phi.size() ) s->phi = phi[j];
+	  if ( j<sub.size() ) s->sub = sub[j];
 	  s->calometer=calo;
 
 	  addTrack(s);

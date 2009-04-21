@@ -154,14 +154,14 @@ void AGeometry::load()
 
 
     //These first three lines are part of an offset test for the Irrlicht ray generator
-    cube = getSceneManager()->addCubeSceneNode();
+    cube = getSceneManager()->addCubeSceneNode(10,topNode());
     cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
     cube->setScale ( core::vector3df ( 5,5,5 ) );
     cube->setPosition ( core::vector3df ( 400,1500,400 ) );
     cube->setVisible(offsetTest);
 
-    tar_node = getSceneManager()->addEmptySceneNode();
-    cam_node = getSceneManager()->addEmptySceneNode();
+    tar_node = getSceneManager()->addEmptySceneNode(topNode());
+    cam_node = getSceneManager()->addEmptySceneNode(topNode());
     OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
@@ -234,7 +234,7 @@ void AGeometry::load()
     core::vector3df DCamPos = core::vector3df ( 0,0,0 );
 
     //This is the camera bounding box, used to define the Moses mode area
-    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
+    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, topNode(), -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
     CameraBB->setID ( 0 );
 
     qDebug() << "Loaded AGeometry";
@@ -245,10 +245,10 @@ void AGeometry::load()
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
 
-    zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
-    zoomIn->setVisible(false);
-    zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
-    zoomOut->setVisible(false);
+    //zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
+    //zoomIn->setVisible(false);
+    //zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
+    //zoomOut->setVisible(false);
 
     emit finishedLoading();
 
@@ -832,7 +832,7 @@ void AGeometry::createAtlasGeometry()
 
 
     scene::ISceneNode* node = 0;
-    scene::ISceneNode* Atlas_Reference = getSceneManager()->addEmptySceneNode();
+    scene::ISceneNode* Atlas_Reference = getSceneManager()->addEmptySceneNode(topNode());
     Atlas_Reference->setScale ( core::vector3df ( mscale,mscale,mscale ) );
     Atlas_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
     Atlas_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
@@ -845,7 +845,7 @@ void AGeometry::createAtlasGeometry()
         if ( !isCrappyComputer )
         {
 
-            getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
+            //getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
             /* scene::IAnimatedMesh* Pit01 = Irr->GetSceneManager()->getMesh("Pit_part01.X");
              scene::IAnimatedMesh* Pit02 = Irr->GetSceneManager()->getMesh("Pit_part02.X");
 
@@ -1857,7 +1857,6 @@ void AGeometry::createAtlasGeometry()
 
         scene::ISceneNode* nodee = 0;
 
-        //TODO Don't forget to hide this by adding it to Atlas_Reference
         nodee = getSceneManager()->addMeshSceneNode ( bw );
         nodee->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodee->getMaterial ( 0 ).EmissiveColor.set ( 255,0,45,105 );
@@ -1865,6 +1864,7 @@ void AGeometry::createAtlasGeometry()
         nodee->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
         nodee->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodee->setRotation ( core::vector3df ( 0,90,0 ) );
+		nodee->setParent(Atlas_Reference); //TODO What is the proper parent?
 
         //Load ATLAS EWC
 
@@ -1874,7 +1874,6 @@ void AGeometry::createAtlasGeometry()
 
         scene::ISceneNode* nodef = 0;
 
-        //TODO Don't forget to hide this Atlas_Reference
         nodef = getSceneManager()->addMeshSceneNode ( ewc );
         nodef->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodef->getMaterial ( 0 ).EmissiveColor.set ( 0,0,45,105 );
@@ -1882,7 +1881,7 @@ void AGeometry::createAtlasGeometry()
         nodef->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, false );
         nodef->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodef->setRotation ( core::vector3df ( 0,90,0 ) );
-
+		nodef->setParent(Atlas_Reference); //TODO What is the proper parent?
 
 
         //Load ATLAS Muon chambers

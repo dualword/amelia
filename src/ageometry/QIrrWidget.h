@@ -48,6 +48,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QGLWidget>
 #include <QTime>
 #include <QTimer>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -91,6 +93,9 @@ public:
     void setDirty(bool dirty);
     bool isDirty();
 
+	ISceneNode* topNode();
+	void setFirstCamera(ICameraSceneNode *);
+
     void setDriverType( irr::video::E_DRIVER_TYPE driver );
     irr::video::E_DRIVER_TYPE driverType();
 
@@ -104,6 +109,7 @@ public:
 public slots:
   void toggleDisabled();
   void makeDirty();
+  void handleLoadFinished();
 
 protected:
     /* Override these 3 functions in QIrrWidgets */
@@ -136,6 +142,14 @@ private:
     QWidget *p;
     QPoint lastPressPos;
 
+	// Used for loading
+	QFuture<void> loadingFuture;
+	QFutureWatcher<void> loadingFutureWatcher;
+	ISceneNode *_topNode, *_logoNode;
+	ICameraSceneNode *_firstCamera;
+	bool _ready;
+
+	// Irrlicht things
     IVideoDriver* driver;
     ISceneManager* smgr;
     IFileSystem* fs;
@@ -143,12 +157,16 @@ private:
     ICursorControl* cursorcontrol;
     ITimer *timer;
     
+	// Render checks
     bool _dirty;
     ICameraSceneNode *lastActiveCamera;
     vector3df lastCameraPosition,lastCameraTarget;
 
+	// Screenshot
     video::ITexture *disabledRenderTexture;
     QPixmap ss;
+
+	void internalLoad();
 
     void updateLastCamera();
     void updateScreenshot();

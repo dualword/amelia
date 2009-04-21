@@ -85,6 +85,7 @@ void QGraphicsItemLayout::addToGroup(QGraphicsItem *item,Qt::Alignment align)
 {
   QGraphicsItemTransformAnimation *animator=new QGraphicsItemTransformAnimation();
 
+  item->setPos(0,0); //This ensures that the transformations will determine the absolute placement. Transformations do not reset position.
   item->setParentItem(this);
   animator->setItem(item);
   animator->setTimeLine(_timeLine);

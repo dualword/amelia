@@ -2,8 +2,9 @@
 #define QTIMELINEPROXY_H_
 
 #include <QTimeLine>
+#include "ADefines.h"
 
-class QTimeLineProxy : public QTimeLine
+class LIBAMELIA_EXPORT QTimeLineProxy : public QTimeLine
 {
 public:
   QTimeLineProxy(QTimeLine *original=0,QObject *parent=0);

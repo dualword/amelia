@@ -7,7 +7,9 @@
 
 #include "QGraphicsItemTransformAnimation.h"
 
-class QGraphicsItemLayout : public QObject, public QGraphicsItemGroup
+#include "ADefines.h"
+
+class LIBAMELIA_EXPORT QGraphicsItemLayout : public QObject, public QGraphicsItemGroup
 {
   
 public:

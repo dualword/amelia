@@ -174,6 +174,8 @@ class QIrrWinWidgetPrivate : public QWidget
   virtual void paintEvent( QPaintEvent* event );
 
   void initialize();
+
+    QPaintEngine* paintEngine() const;
   
  private:
   int timerId;

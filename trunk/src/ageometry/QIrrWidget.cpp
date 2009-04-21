@@ -875,6 +875,11 @@ void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
       parent->driver->endScene();
     }
 }
+
+QPaintEngine* QIrrWinWidgetPrivate::paintEngine() const
+{
+	return 0;
+}
 #else
 QIrrUnixWidgetPrivate::QIrrUnixWidgetPrivate( QIrrWidget *parent )
   : QGLWidget(QGLFormat(QGL::SampleBuffers),parent),timerId(-1)

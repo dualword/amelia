@@ -245,10 +245,10 @@ void AGeometry::load()
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
 
-    //zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
-    //zoomIn->setVisible(false);
-    //zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
-    //zoomOut->setVisible(false);
+    zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
+    zoomIn->setVisible(false);
+    zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
+    zoomOut->setVisible(false);
 
     emit finishedLoading();
 
@@ -824,8 +824,6 @@ void AGeometry::createAtlasGeometry()
     float mscale = 0.4; //model scale
 
     // file system needed to create new attributes
-    //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/AtlasGeometry.aml");
-    //IFileSystem* fs = Irr->GetDevice()->getFileSystem();
     video::ITexture* reflex = getVideoDriver()->getTexture ( "refmap2.jpg" );
     getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, true);
     getSceneManager()->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
@@ -1864,7 +1862,7 @@ void AGeometry::createAtlasGeometry()
         nodee->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
         nodee->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodee->setRotation ( core::vector3df ( 0,90,0 ) );
-		nodee->setParent(Atlas_Reference); //TODO What is the proper parent?
+	//nodee->setParent(Atlas_Reference); //TODO What is the proper parent?
 
         //Load ATLAS EWC
 
@@ -1881,7 +1879,7 @@ void AGeometry::createAtlasGeometry()
         nodef->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, false );
         nodef->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodef->setRotation ( core::vector3df ( 0,90,0 ) );
-		nodef->setParent(Atlas_Reference); //TODO What is the proper parent?
+	//nodef->setParent(Atlas_Reference); //TODO What is the proper parent?
 
 
         //Load ATLAS Muon chambers

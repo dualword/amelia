@@ -195,6 +195,7 @@ private:
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
     const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
+    scene::ISceneNode* Pit_Reference;
     scene::ISceneNode* background_node_f; //Used for flat view
     scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;

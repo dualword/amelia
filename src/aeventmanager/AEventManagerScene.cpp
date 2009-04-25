@@ -159,7 +159,9 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
       if (e)
         {
 	  QString toolTip=
-	    "<html><b>Tracks:</b> \t\t"+QString::number(e->numTracks)+"<br/>"
+	    "<html><b>Run Number:</b> \t\t"+QString::number(e->runNumber)+"<br/>"+
+	    "<b>Event Number:</b> \t\t"+QString::number(e->eventNumber)+"<br/><br/>"+
+	    "<b>Tracks:</b> \t\t"+QString::number(e->numTracks)+"<br/>"+
 	    "<b>Neutral Hadrons:</b> \t"+QString::number(e->numNeutralHadrons)+"<br/>"
 	    "<b>Charged Hadrons:</b> \t"+QString::number(e->numChargedHadrons)+"<br/>"
 	    "<b>Photons:</b> \t\t"+QString::number(e->numPhotons)+"<br/>"

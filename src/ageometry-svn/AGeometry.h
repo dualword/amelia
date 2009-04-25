@@ -183,6 +183,7 @@ protected:
 private:
     //Tracks and the event variables
     AFilteredEvent* _event;
+    ISceneNode* _rootTracksNode;
     QList<ATrack3DNode*> selectedTracks;
     QList<ATrack3DNode*> allTracks;
     QList<AJet3DNode*> allJets;
@@ -195,6 +196,7 @@ private:
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
     const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
+    scene::ISceneNode* Pit_Reference;
     scene::ISceneNode* background_node_f; //Used for flat view
     scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;

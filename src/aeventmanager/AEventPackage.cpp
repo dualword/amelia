@@ -32,6 +32,7 @@ void AEventPackage::load()
 	  AEvent *event=new AXmlEvent(location+"/"+elist[i]);
 	  event->package=this;
 	  event->filename=elist[i];
+	  event->LoadEvent();
 
 	  events.append(event);
         }

@@ -36,11 +36,13 @@ void ATest::loadEvent(AEvent* event)
     {
       int size=event->Tracks.size();
       AComboHistogram* hist=new AComboHistogram(event->filename,this);
+      TH1F *h=hist->histogram();
+      h->GetXaxis()->SetTitle("pT (GeV)");
 
       for(int i=0;i<size;i++)
 	{
 	  float pt=event->Tracks[i]->Pt();
-	  hist->addData(pt);
+	  hist->addData(pt*1000);
 	}
       
       tabs->addTab(hist,event->filename);

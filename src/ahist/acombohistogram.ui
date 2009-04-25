@@ -103,8 +103,11 @@
        <property name="maximum">
         <double>10000.000000000000000</double>
        </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
        <property name="value">
-        <double>2.000000000000000</double>
+        <double>1000.000000000000000</double>
        </property>
       </widget>
      </item>
@@ -120,6 +123,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="automaticSettings">
+       <property name="text">
+        <string>Automatic Settings</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

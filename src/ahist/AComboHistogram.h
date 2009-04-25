@@ -21,11 +21,14 @@ Q_OBJECT
  public:
   AComboHistogram(QString name,QWidget* parent=0);
 
+  TH1F* histogram();
+
   QString name;
   
  public slots:
   void updateBins();
   void addData(float);
+  void automaticRebin();
   
  private:
   QSpinBox *bins;

@@ -135,6 +135,11 @@ border: 55
          <string notr="true">AMainView
 {
 	padding: 15px 15px 15px 15px;
+}
+
+QLabel
+{
+	color: rgb(255, 255, 0);
 }</string>
         </property>
         <property name="currentIndex">
@@ -177,7 +182,7 @@ border: 55
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(255, 255, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>INTERESTING TRACKS IN THE EVENT</string>
@@ -229,7 +234,7 @@ border: 55
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: rgb(255, 255, 0);</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>BOOKMARKED TRACKS</string>
@@ -254,7 +259,7 @@ border: 55
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: rgb(255, 255, 0);</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>COMBINED TRACKS</string>

@@ -38,6 +38,9 @@ void AllHistograms::newHistorgamDlg()
   if(!histograms.contains(name))
     {
       hist=new AComboHistogram(name,this);
+      TH1F *h=hist->histogram();
+      h->GetXaxis()->SetTitle("Invariant Mass (GeV/c^2)");
+
       histograms[name]=hist;
       
       QAction *newMenuAction=new QAction(name,_menu);

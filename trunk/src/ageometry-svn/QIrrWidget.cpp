@@ -1034,7 +1034,7 @@ void QIrrUnixWidgetPrivate::paintGL()
   if (parent->driver)
     {
       irr::video::SColor color (255,0,0,0);
-
+      
       parent->driver->beginScene(true,true,color);
 
       parent->smgr->drawAll();

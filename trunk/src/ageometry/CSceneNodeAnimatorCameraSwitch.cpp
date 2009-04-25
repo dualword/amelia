@@ -11,8 +11,6 @@ CSceneNodeAnimatorCameraSwitch::CSceneNodeAnimatorCameraSwitch(scene::ISceneMana
 #ifdef _DEBUG
   setDebugName("CSceneNodeAnimatorCameraSwitch");
 #endif
-  //movingCam=smgr->addCameraSceneNode(0);
-  //movingCam->addAnimator(this);
 }
 
 CSceneNodeAnimatorCameraSwitch::~CSceneNodeAnimatorCameraSwitch()

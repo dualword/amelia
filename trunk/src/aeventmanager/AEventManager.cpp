@@ -50,6 +50,7 @@ AEventPackage* packageLoadingThread(AEventPackage *pkg)
 AEventManager::AEventManager( QObject *parent )
         : QObject(parent)
 {
+  loadedFutureWatcher.setPendingResultsLimit(1);
   connect(&loadedFutureWatcher,SIGNAL(resultReadyAt(int)),
 	  this,SLOT(handlePackageLoaded(int)));
 }

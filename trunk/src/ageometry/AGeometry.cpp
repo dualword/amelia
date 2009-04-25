@@ -153,7 +153,6 @@ void AGeometry::load()
     getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
     getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
 
-
     //These first three lines are part of an offset test for the Irrlicht ray generator
     cube = getSceneManager()->addCubeSceneNode(10,topNode());
     cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
@@ -166,7 +165,6 @@ void AGeometry::load()
     OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
-
 
 //*****************CHANGED************************//
 
@@ -182,7 +180,6 @@ void AGeometry::load()
 
     //Place pointers for the modules on the allModules vector
     prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
-
 
     /***************** PREPARE BB MODELS ********************/
 
@@ -257,7 +254,6 @@ void AGeometry::load()
     zoomOut->setVisible(false);
 
     emit finishedLoading();
-
 }
 
 void AGeometry::executeMosesMode()
@@ -874,7 +870,7 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
+        QApplication::processEvents();
         //Load TC Modules
 
         scene::ISceneNode* TC_Reference = getSceneManager()->addEmptySceneNode();
@@ -888,6 +884,7 @@ void AGeometry::createAtlasGeometry()
         TCB_Reference->setParent ( TC_Reference );
         TCB_Reference->setName ( "TCB_Reference" );
 
+        QApplication::processEvents();
 
         scene::IMesh* TC = getSceneManager()->getMesh ( "TC_Barrel01.x" );
         scene::IMeshSceneNode* nodeModels = NULL;
@@ -920,9 +917,8 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
         //Load EM Calorimeter EC Modules
-
+        QApplication::processEvents();
 
         scene::ISceneNode* EM_Reference = getSceneManager()->addEmptySceneNode();
         EM_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -959,7 +955,6 @@ void AGeometry::createAtlasGeometry()
             nodeModels->setParent ( EM_Reference );
             nodeModels->setName ( "EMC_EC" );
 
-
             //  Other Side
 
             nodeModels = getSceneManager()->addMeshSceneNode ( EM_Cal_EC );
@@ -982,8 +977,8 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
         //Load EM Calorimeter Barrel Module
+        QApplication::processEvents();
 
 
         scene::IMesh* EM_Cal_Barrel = getSceneManager()->getMesh ( "LArg_Barrel.X" );
@@ -1017,8 +1012,8 @@ void AGeometry::createAtlasGeometry()
         }
 
 
-
         //Load TC Endcap Module B
+        QApplication::processEvents();
 
 
         scene::IMesh* TC_EC = getSceneManager()->getMesh ( "TC_Endcap01.X" );
@@ -1077,8 +1072,8 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
         //Load HEC Larg Modules A
+        QApplication::processEvents();
 
 
         scene::IMesh* HEC_A = getSceneManager()->getMesh ( "HEC_LArg01.x" );
@@ -1142,8 +1137,7 @@ void AGeometry::createAtlasGeometry()
         }
 
         //Load HEC Larg Modules B
-
-
+        QApplication::processEvents();
 
         scene::IMesh* HEC_B = getSceneManager()->getMesh ( "HEC_LArg02.x" );
 
@@ -1205,8 +1199,8 @@ void AGeometry::createAtlasGeometry()
         }
 
 
-
         //Load TRT Barrel
+        QApplication::processEvents();
 
         scene::ISceneNode* TRT_Reference = getSceneManager()->addEmptySceneNode();
         TRT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -1274,8 +1268,8 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
         //Load ATLAS Toroids
+        QApplication::processEvents();
 
         scene::ISceneNode* Magnets_Reference = getSceneManager()->addEmptySceneNode();
         Magnets_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -1306,8 +1300,8 @@ void AGeometry::createAtlasGeometry()
 
         }
 
-
         //Load SCT Barrel
+        QApplication::processEvents();
 
         scene::ISceneNode* SCT_Reference = getSceneManager()->addEmptySceneNode();
         SCT_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -1414,8 +1408,7 @@ void AGeometry::createAtlasGeometry()
         }
 
         //Load SCT Disks
-
-
+        QApplication::processEvents();
 
         scene::IMesh* SCT_Disks = getSceneManager()->getMesh ( "SCT_Disks.X" );
         float DivAng = 360.0f/13.0f;
@@ -1437,6 +1430,7 @@ void AGeometry::createAtlasGeometry()
         }
 
         //Load Pixels Tube
+        QApplication::processEvents();
 
         /** Tube section */
 
@@ -1510,7 +1504,6 @@ void AGeometry::createAtlasGeometry()
 
         /** Metalic Rings */
 
-
         scene::IMesh* MRingsTube = getSceneManager()->getMesh ( "MRingsPixTube.X" );
 
         for ( int a = 0 ; a<2 ; a++ )
@@ -1530,6 +1523,7 @@ void AGeometry::createAtlasGeometry()
         }
 
         //Load Pixels Frame Barrel
+        QApplication::processEvents();
 
         /** Part I */
 
@@ -1567,6 +1561,7 @@ void AGeometry::createAtlasGeometry()
         }
 
         //Load Pixels Frame EC
+        QApplication::processEvents();
 
 
         scene::IMesh* PixFrm02 = getSceneManager()->getMesh ( "Pixels_Frame_EC.X" );
@@ -1634,6 +1629,7 @@ void AGeometry::createAtlasGeometry()
 
 
         //Load Pixels Barrel
+        QApplication::processEvents();
 
 
 
@@ -1810,6 +1806,7 @@ void AGeometry::createAtlasGeometry()
 
 
         //Load Pixels Disks
+        QApplication::processEvents();
 
 
         scene::IMesh* Px_Dsks = getSceneManager()->getMesh ( "Pixel_Disks.X" );
@@ -1832,6 +1829,7 @@ void AGeometry::createAtlasGeometry()
 
 
         //Load ATLAS Shields
+        QApplication::processEvents();
 
         scene::ISceneNode* Shields_Reference = getSceneManager()->addEmptySceneNode();
         Shields_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -1857,6 +1855,7 @@ void AGeometry::createAtlasGeometry()
 
 
         //Load ATLAS BigWheels
+        QApplication::processEvents();
 
         scene::IMesh* bw = getSceneManager()->getMesh ( "ATLAS_BigWheels.obj" );
 
@@ -1875,6 +1874,7 @@ void AGeometry::createAtlasGeometry()
         //nodee->setParent(Atlas_Reference); //TODO What is the proper parent?
 
         //Load ATLAS EWC
+        QApplication::processEvents();
 
         scene::IMesh* ewc = getSceneManager()->getMesh ( "ATLAS_EWC.obj" );
 
@@ -1894,6 +1894,7 @@ void AGeometry::createAtlasGeometry()
 
 
         //Load ATLAS Muon chambers
+        QApplication::processEvents();
 
         scene::ISceneNode* Muons_Reference = getSceneManager()->addEmptySceneNode();
         Muons_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
@@ -2183,8 +2184,6 @@ void AGeometry::createAtlasGeometry()
     background_node_s->setVisible ( false );
 
 
-
-
     scene::ISceneNode* nodel = 0;
     float a = 1;
     //nodel = getSceneManager()->addLightSceneNode(0, core::vector3df(1050,750,750),  video::SColorf(a, a, a, a), 850.0f);
@@ -2290,11 +2289,13 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
       
       if(event->button()==Qt::LeftButton)
 	{
+	  qDebug() << event->x() << "," << event->y();
 	  //If you clicked an FPS camera and it does not have input, give it input! This allows us to focus the camera by clicking on AGeometry
 	  if (!getSceneManager()->getActiveCamera()->isInputReceiverEnabled() && !allowTrackSelection && !offsetTest)
 	    {
 	      grabControl();
 	    }
+	  qDebug() << "Allow selection " << allowTrackSelection << " " <<eventAnalysisMode;
 	  if (allowTrackSelection && event->button()==Qt::LeftButton)
 	    {
 	      ATrack3DNode *selected;

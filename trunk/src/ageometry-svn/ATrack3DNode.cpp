@@ -99,7 +99,7 @@ ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  
   : ATrack3DNode ( parent, smgr, id ,track)
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
-    this->setName ( "Track3DNode" );
+    this->setName ( "ASTrack3DNode" );
 
     calculateDimmedColors();
  
@@ -651,7 +651,7 @@ AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id
   : ATrack3DNode ( parent, smgr, id, jet )
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
-    this->setName ( "Track3DNode" );
+    this->setName ( "AJet3DNode" );
     style = 7;
     createJetPyramids();
 }
@@ -805,7 +805,7 @@ AMisET3DNode::AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s3
   : ATrack3DNode ( parent, smgr, id ,miset)
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
-    this->setName ( "Track3DNode" );
+    this->setName ( "AMisET3DNode" );
 
     createMisEtBoxes();
 }

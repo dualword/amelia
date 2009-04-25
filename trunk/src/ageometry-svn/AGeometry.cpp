@@ -54,6 +54,7 @@ AGeometry::AGeometry(QWidget* parent)
 
     background_node_f = NULL;
     background_node_s = NULL;
+    Pit_Reference = NULL;
 
 
     // Dynamic FPS camera initial parameters
@@ -154,14 +155,14 @@ void AGeometry::load()
 
 
     //These first three lines are part of an offset test for the Irrlicht ray generator
-    cube = getSceneManager()->addCubeSceneNode();
+    cube = getSceneManager()->addCubeSceneNode(10,topNode());
     cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
     cube->setScale ( core::vector3df ( 5,5,5 ) );
     cube->setPosition ( core::vector3df ( 400,1500,400 ) );
     cube->setVisible(offsetTest);
 
-    tar_node = getSceneManager()->addEmptySceneNode();
-    cam_node = getSceneManager()->addEmptySceneNode();
+    tar_node = getSceneManager()->addEmptySceneNode(topNode());
+    cam_node = getSceneManager()->addEmptySceneNode(topNode());
     OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
     getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
@@ -199,18 +200,21 @@ void AGeometry::load()
     //Create the dynamic camera and define some variables
 
     camera[1] = getSceneManager()->addCameraSceneNode();
+    camera[1]->setName("FrontCam");
     camera[1]->setInputReceiverEnabled ( false );
     camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
     camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
     camera[1]->setProjectionMatrix ( OrthoCameraFront );
 
     camera[2] = getSceneManager()->addCameraSceneNode();
+    camera[2]->setName("SideCam");
     camera[2]->setInputReceiverEnabled ( false );
     camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
     camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
     camera[2]->setProjectionMatrix ( OrthoCameraSide );
 
     camera[3] = getSceneManager()->addCameraSceneNode();
+    camera[3]->setName("SphereCam");
     camera[3]->setInputReceiverEnabled ( false );
     camera[3]->setFarValue ( 22000.0f );
     camera[3]->setAspectRatio ( 0.8/0.6 );
@@ -219,6 +223,7 @@ void AGeometry::load()
     camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
 
     camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+    camera[0]->setName("FPSCam");
     camera[0]->setInputReceiverEnabled ( false );
     camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
     camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
@@ -234,8 +239,11 @@ void AGeometry::load()
     core::vector3df DCamPos = core::vector3df ( 0,0,0 );
 
     //This is the camera bounding box, used to define the Moses mode area
-    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
+    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, topNode(), -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
     CameraBB->setID ( 0 );
+    CameraBB->setName ("Moses Mode Box");
+
+    _rootTracksNode=getSceneManager()->addEmptySceneNode(topNode());
 
     qDebug() << "Loaded AGeometry";
 
@@ -291,8 +299,8 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
     {
       ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
       line3d<f32> ray = colmgr->getRayFromScreenCoordinates ( pos, getSceneManager()->getActiveCamera() );
-      ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16 );
-      qDebug() << "Selected " << selectedSceneNode->getParent()->getName();
+      ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16,false,_rootTracksNode );
+      qDebug() << "Selected " << selectedSceneNode;
       ITriangleSelector* selector;
       vector3df target;
       triangle3df triangle;
@@ -303,8 +311,8 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 	{
 	  if(!allTracks[i]->isVisible()) continue;
 	  ATrack *track=allTracks[i]->getTrack();
-	  int control = 0;
-	  if ( selectedSceneNode && track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt ) //tracks
+	  
+	  if ( selectedSceneNode && ( track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt ) ) //tracks
 	    {
 	      if ( selectedSceneNode->getParent() == allTracks[i] )
 		{
@@ -696,9 +704,9 @@ void AGeometry::switchVisibility ( int modType )
 
             case 0: //Pit
 
-                if ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
+	      if ( Pit_Reference )
                 {
-                    getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->isVisible() ) );
+		  Pit_Reference->setVisible ( ! Pit_Reference->isVisible() );
                 }
 
                 if ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
@@ -826,15 +834,13 @@ void AGeometry::createAtlasGeometry()
     float mscale = 0.4; //model scale
 
     // file system needed to create new attributes
-    //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/AtlasGeometry.aml");
-    //IFileSystem* fs = Irr->GetDevice()->getFileSystem();
     video::ITexture* reflex = getVideoDriver()->getTexture ( "refmap2.jpg" );
     getVideoDriver()->setTextureCreationFlag(irr::video::ETCF_ALWAYS_32_BIT, true);
     getSceneManager()->getParameters()->setAttribute(scene::ALLOW_ZWRITE_ON_TRANSPARENT, true);
 
 
     scene::ISceneNode* node = 0;
-    scene::ISceneNode* Atlas_Reference = getSceneManager()->addEmptySceneNode();
+    scene::ISceneNode* Atlas_Reference = getSceneManager()->addEmptySceneNode(topNode());
     Atlas_Reference->setScale ( core::vector3df ( mscale,mscale,mscale ) );
     Atlas_Reference->setPosition ( core::vector3df ( 0,0,0 ) );
     Atlas_Reference->setRotation ( core::vector3df ( 0,0,0 ) );
@@ -848,6 +854,8 @@ void AGeometry::createAtlasGeometry()
         {
 
             getSceneManager()->loadScene ( "ATLAS_Pit.lvl" );
+            Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
+            //Pit_Reference->setParent(topNode());
             /* scene::IAnimatedMesh* Pit01 = Irr->GetSceneManager()->getMesh("Pit_part01.X");
              scene::IAnimatedMesh* Pit02 = Irr->GetSceneManager()->getMesh("Pit_part02.X");
 
@@ -1859,7 +1867,6 @@ void AGeometry::createAtlasGeometry()
 
         scene::ISceneNode* nodee = 0;
 
-        //TODO Don't forget to hide this by adding it to Atlas_Reference
         nodee = getSceneManager()->addMeshSceneNode ( bw );
         nodee->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodee->getMaterial ( 0 ).EmissiveColor.set ( 255,0,45,105 );
@@ -1867,6 +1874,8 @@ void AGeometry::createAtlasGeometry()
         nodee->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, true );
         nodee->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodee->setRotation ( core::vector3df ( 0,90,0 ) );
+        nodee->setName("BigWheels");
+        //nodee->setParent(Atlas_Reference); //TODO What is the proper parent?
 
         //Load ATLAS EWC
 
@@ -1876,7 +1885,6 @@ void AGeometry::createAtlasGeometry()
 
         scene::ISceneNode* nodef = 0;
 
-        //TODO Don't forget to hide this Atlas_Reference
         nodef = getSceneManager()->addMeshSceneNode ( ewc );
         nodef->setMaterialTexture ( 0, getVideoDriver()->getTexture ( "square2.bmp" ) );
         nodef->getMaterial ( 0 ).EmissiveColor.set ( 0,0,45,105 );
@@ -1884,7 +1892,8 @@ void AGeometry::createAtlasGeometry()
         nodef->setMaterialFlag ( video::EMF_NORMALIZE_NORMALS, false );
         nodef->setMaterialType ( video::EMT_TRANSPARENT_ADD_COLOR );
         nodef->setRotation ( core::vector3df ( 0,90,0 ) );
-
+        nodef->setName("EWC");
+        //nodef->setParent(Atlas_Reference); //TODO What is the proper parent?
 
 
         //Load ATLAS Muon chambers
@@ -2160,6 +2169,7 @@ void AGeometry::createAtlasGeometry()
     background_node_f->setMaterialFlag ( video::EMF_LIGHTING, false );
     background_node_f->setMaterialType ( video::EMT_LIGHTMAP_ADD );
     background_node_f->setID ( 5 );
+    background_node_f->setName("Background_Front.X");
     background_node_f->setVisible ( false );
 
 
@@ -2172,6 +2182,7 @@ void AGeometry::createAtlasGeometry()
     background_node_s->setMaterialFlag ( video::EMF_LIGHTING, false );
     background_node_s->setMaterialType ( video::EMT_LIGHTMAP_ADD );
     background_node_s->setID ( 5 );
+    background_node_s->setName("Background_Side.X");
     background_node_s->setVisible ( false );
 
 
@@ -2498,20 +2509,20 @@ void AGeometry::setEvent(AFilteredEvent* e)
 	  if(track->type()==ATrack::eJet)
 	    {
 	      AJet* jet=(AJet*)track;
-	      node=new AJet3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,jet);
+	      node=new AJet3DNode(_rootTracksNode,getSceneManager(),0,jet);
 	      allJets.push_back((AJet3DNode*)node);
 	    }
 	  
 	  if(track->type()==ATrack::eSTrack)
 	    {
 	      ASTrack* str=(ASTrack*)track;
-	      node=new ASTrack3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,str);
+	      node=new ASTrack3DNode(_rootTracksNode,getSceneManager(),0,str);
 	    }
 	  
 	  if(track->type()==ATrack::eMissingEt)
 	    {
 	      AMisET* miset=(AMisET*)track;
-	      node=new AMisET3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,miset);
+	      node=new AMisET3DNode(_rootTracksNode,getSceneManager(),0,miset);
 	    }
 	  
 	  if(node)
@@ -2622,8 +2633,8 @@ void AGeometry::setupView(int view)
     if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
         getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps );
 
-    if ( getSceneManager()->getSceneNodeFromName ( "Pit_Reference" ) )
-        getSceneManager()->getSceneNodeFromName ( "Pit_Reference" )->setVisible ( fps );
+    if ( Pit_Reference )
+      Pit_Reference->setVisible ( fps );
 
 	if(view==Cam3D)
 	{

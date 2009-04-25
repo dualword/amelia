@@ -31,6 +31,10 @@ void ASelectionInfoScene::init()
     charge->setPos(0,40);
     charge->setDefaultTextColor("white");
 
+    invmass=addText("Inv Mass:");
+    invmass->setPos(0,55);
+    invmass->setDefaultTextColor("white");
+
     id=addText("ID");
     id->setPos(0,55);
     id->setDefaultTextColor("white");
@@ -152,6 +156,7 @@ void ASelectionInfoScene::displayMessage(QString text)
   nonSelectable->setVisible(false);
   name->setVisible(false);
   charge->setVisible(false);
+  invmass->setVisible(false);
   pt->setVisible(false);
   eta->setVisible(false);
   phi->setVisible(false);
@@ -190,6 +195,7 @@ void ASelectionInfoScene::refresh()
       nonSelectable->setVisible(false);
       name->setVisible(false);
       charge->setVisible(false);
+      invmass->setVisible(false);
       pt->setVisible(false);
       eta->setVisible(false);
       phi->setVisible(false);
@@ -202,7 +208,7 @@ void ASelectionInfoScene::refresh()
   else if (combo->size()==1)
     //Only 1 thing, we can handle that
     {
-      if ( (*combo)[0]->type() == 1 ) //track
+      if ( (*combo)[0]->type() == ATrack::eSTrack ) //track
         {
 	  ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
 	  header->setPlainText("SELECTED TRACK INFO");
@@ -218,6 +224,7 @@ void ASelectionInfoScene::refresh()
 	  header->setVisible(true);
 	  name->setVisible(true);
 	  charge->setVisible(true);
+	  invmass->setVisible(false);
 	  pt->setVisible(true);
 	  eta->setVisible(true);
 	  phi->setVisible(true);
@@ -226,7 +233,7 @@ void ASelectionInfoScene::refresh()
 
 	  nonSelectable->setVisible(false);
         }
-      else if ( (*combo)[0]->type() == 2 ) //jet
+      else if ( (*combo)[0]->type() == ATrack::eJet ) //jet
         {
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
@@ -238,12 +245,13 @@ void ASelectionInfoScene::refresh()
 	  header->setVisible(true);
 	  name->setVisible(true);
 	  charge->setVisible(false);
+	  invmass->setVisible(false);
 	  pt->setVisible(true);
 	  eta->setVisible(true);
 	  phi->setVisible(true);
 	  combTrack->setVisible(false);
         }
-      else if ( (*combo)[0]->type() == 4 ) //Missing Et
+      else if ( (*combo)[0]->type() == ATrack::eMissingEt ) //Missing Et
         {
 	  AMisET* ET = static_cast<AMisET*>((*combo)[0]);
 	  header->setPlainText("SELECTED MisEt INFO");
@@ -255,6 +263,7 @@ void ASelectionInfoScene::refresh()
 	  header->setVisible(true);
 	  name->setVisible(true);
 	  charge->setVisible(false);
+	  invmass->setVisible(false);
 	  pt->setVisible(true);
 	  eta->setVisible(true);
 	  phi->setVisible(true);
@@ -268,11 +277,13 @@ void ASelectionInfoScene::refresh()
       //TODO: Print out some cool information, I'm guessing
       name->setHtml("<b>Name:</b> Unknown Combination");
       charge->setHtml("<b>Charge:</b> "+QString::number(combo->charge()));
+      invmass->setHtml("<b>Invariant Mass:</b> "+QString::number(combo->getInvariantMass()));
       nonSelectable->setHtml("<b>At least one of the<br>selected tracks<br>is irrelevant for<br>the analysis</b>");
       
       header->setVisible(true);
       name->setVisible(true);
       charge->setVisible(true);
+      invmass->setVisible(true);
       pt->setVisible(false);
       eta->setVisible(false);
       phi->setVisible(false);
@@ -283,15 +294,6 @@ void ASelectionInfoScene::refresh()
       combTrack->setVisible(true);
     }
   
-  // Unalyziable track selected, disable everything
-  if ((nonSelectable->isVisible()))
-    {
-      combTrack->setVisible(false);
-      addTrack ->setVisible(false);
-      emit combineButtonEnabled(false);
-      return;
-    }
-
   // Show the add button if at least one of the tracks are not in the list already...
   QList<ATrack*> tracks=analysisData->getCollection("bookmarked_tracks");
   addTrack->setVisible(false);
@@ -326,6 +328,15 @@ void ASelectionInfoScene::refresh()
     {
       emit combineButtonEnabled(false);
       combTrack->setVisible(false);
+    }
+
+  // Unalyziable track selected, disable everything
+  if ((nonSelectable->isVisible()))
+    {
+      combTrack->setVisible(false);
+      addTrack ->setVisible(false);
+      emit combineButtonEnabled(false);
+      return;
     }
 }
 

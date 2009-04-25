@@ -51,6 +51,7 @@ SET(ageometry_SRCS
   CRelativeScaleSceneNodeAnimator.cpp
   AAdvancedEventSettings.cpp
   AGeoPlugin.cpp
+  ALineNode.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp

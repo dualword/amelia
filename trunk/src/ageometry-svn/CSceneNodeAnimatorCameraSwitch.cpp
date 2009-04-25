@@ -6,13 +6,11 @@
 #include <math.h>
 
 CSceneNodeAnimatorCameraSwitch::CSceneNodeAnimatorCameraSwitch(scene::ISceneManager *_smgr)
-  :smgr(_smgr),targetCam(0),movingCam(0)
+  :smgr(_smgr),targetCam(0),movingCam(0),lastUpdate(0)
 {
 #ifdef _DEBUG
   setDebugName("CSceneNodeAnimatorCameraSwitch");
 #endif
-  //movingCam=smgr->addCameraSceneNode(0);
-  //movingCam->addAnimator(this);
 }
 
 CSceneNodeAnimatorCameraSwitch::~CSceneNodeAnimatorCameraSwitch()
@@ -30,30 +28,27 @@ void CSceneNodeAnimatorCameraSwitch::animateNode(scene::ISceneNode* node, u32 ti
 
   scene::ICameraSceneNode* camera = static_cast<scene::ICameraSceneNode*>(node);
 
+  if(lastUpdate==0) lastUpdate=timeMs;
   f32 timeDiff=timeMs-lastUpdate;
   lastUpdate=timeMs;
   if(timeDiff==0) return;
 
-  core::vector3df Pos = camera->getPosition();
-  core::vector3df Target = camera->getTarget();
+  core::vector3df currentPosition=camera->getPosition();
+  core::vector3df currentTarget=camera->getTarget();
 
-  core::vector3df tPos = targetCam->getPosition();
-  core::vector3df tTarget = targetCam->getTarget();
-  core::vector3df t=targetCam->getPosition();
-  t=camera->getPosition();
+  core::vector3df finalPosition = targetCam->getPosition();
+  core::vector3df finalTarget = targetCam->getTarget();
 
-  core::vector3df posDiff=calculateDelta(Pos,tPos,timeDiff);
-  core::vector3df tarDiff=calculateDelta(Target,tTarget,timeDiff);
-  t=posDiff;
+  core::vector3df posDiff=calculateDelta(currentPosition,finalPosition,timeDiff);
+  core::vector3df tarDiff=calculateDelta(currentTarget,finalTarget,timeDiff*10);
 
   f32 posDiffLength=posDiff.getLength();
   f32 tarDiffLength=tarDiff.getLength();
 
   if(tarDiffLength>0 || posDiffLength>0) //Are we there yet?
     { //Nope, update position/target
-
-      camera->setPosition(Pos + posDiff);
-      camera->setTarget(Target + tarDiff);
+      camera->setPosition(currentPosition + posDiff);
+      camera->setTarget(currentTarget + tarDiff);
     }
   else
     { //Yup, set the target camera
@@ -81,42 +76,35 @@ void CSceneNodeAnimatorCameraSwitch::setTargetCamera(scene::ICameraSceneNode *ta
   //Disable the input reciever of the last camera
   smgr->getActiveCamera()->setInputReceiverEnabled(false);
 
+  core::vector3df initialPosition=smgr->getActiveCamera()->getPosition();
+  core::vector3df initialTarget=smgr->getActiveCamera()->getTarget();
 
   if(!movingCam)
     {
-      movingCam=smgr->addCameraSceneNode(0,smgr->getActiveCamera()->getPosition(),smgr->getActiveCamera()->getTarget());
+      movingCam=smgr->addCameraSceneNode(0,initialPosition,initialTarget);
       movingCam->addAnimator(this);
     }
   else
     {
-      core::vector3df t=smgr->getActiveCamera()->getPosition();
-      movingCam->setPosition(smgr->getActiveCamera()->getPosition());
-      movingCam->setTarget(smgr->getActiveCamera()->getTarget());
+      movingCam->setPosition(initialPosition);
+      movingCam->setTarget(initialTarget);
     }
 
   targetCam=target;
-  core::vector3df t=target->getPosition();
-  movingCam->setAspectRatio( 0.8/0.6 ); //This is the ratio of the normal cameras?
-
 
   //Let's get this show on the road!
   smgr->setActiveCamera(movingCam);
+
+  lastUpdate=0;
 }
 
 core::vector3df CSceneNodeAnimatorCameraSwitch::calculateDelta(core::vector3df start,core::vector3df end,f32 timeDiff)
 {
   core::vector3df delta(end-start);
-  core::vector3df t=delta;
-
-  f32 deltaLength=delta.getLength();
-
-  deltaLength*=timeDiff*0.001;
-
-  if(deltaLength>200) deltaLength=200;
-  else if(deltaLength<0.5) deltaLength=0;
-  else if(deltaLength<1) deltaLength=1;
-
-  delta.setLength(deltaLength);
+  
+  f32 moveBy=timeDiff;
+  if(delta.getLength()>=moveBy)
+    delta.setLength(moveBy);
 
   return delta;
 }

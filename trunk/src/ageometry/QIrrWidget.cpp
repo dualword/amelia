@@ -378,6 +378,7 @@ void QIrrWidget::load() { }
 void QIrrWidget::internalLoad()
 {
   _topNode=smgr->addEmptySceneNode();
+  _topNode->setName("topNode");
   _topNode->setVisible(false);
   
   //smgr->addCameraSceneNode(0,vector3df(0,200,0),vector3df(0,0,0));

@@ -87,6 +87,7 @@ class ASelectionInfoScene : public QGraphicsScene
   
   QGraphicsTextItem *name;
   QGraphicsTextItem *charge;
+  QGraphicsTextItem *invmass;
   QGraphicsTextItem *pt;
   QGraphicsTextItem *phi;
   QGraphicsTextItem *eta;

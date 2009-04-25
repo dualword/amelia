@@ -39,6 +39,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QAction>
 #include <QApplication>
 #include <QGridLayout>
+#include <QtConcurrentRun>
 
 #ifndef Q_WS_WIN
 namespace irr
@@ -169,7 +170,9 @@ private:
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0),_dirty(false),disabledRenderTexture(0)
+  : QWidget(parent),driver(0),smgr(0),gui(0),
+    _dirty(false),disabledRenderTexture(0),
+    _ready(false),_firstCamera(0),_logoNode(0),_topNode(0)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -244,6 +247,16 @@ void QIrrWidget::setDirty(bool dirty)
 bool QIrrWidget::isDirty()
 {
   return _dirty;
+}
+
+ISceneNode* QIrrWidget::topNode()
+{
+	return _topNode;
+}
+	
+void QIrrWidget::setFirstCamera(ICameraSceneNode *cam)
+{
+	_firstCamera=cam;
 }
 
 void QIrrWidget::toggleDisabled()
@@ -331,7 +344,7 @@ void QIrrWidget::resizeEvent( QResizeEvent* event )
 {
   if ( driver != 0 )
     {
-      irr::core::dimension2d<unsigned int> size;
+      irr::core::dimension2d<u32> size;
       size.Width = event->size().width();
       size.Height = event->size().height();
 
@@ -346,6 +359,8 @@ void QIrrWidget::execute()
 
 void QIrrWidget::updateLastCamera()
 {
+  if(!_ready) return;
+
   ICameraSceneNode *activeCam=smgr->getActiveCamera();
 
   lastActiveCamera=smgr->getActiveCamera();
@@ -359,6 +374,47 @@ bool QIrrWidget::OnEvent(const SEvent &event)
 }
 
 void QIrrWidget::load() { }
+
+void QIrrWidget::internalLoad()
+{
+  _topNode=smgr->addEmptySceneNode();
+  _topNode->setName("topNode");
+  _topNode->setVisible(false);
+  
+  //smgr->addCameraSceneNode(0,vector3df(0,200,0),vector3df(0,0,0));
+  
+#ifdef Q_WS_WIN  
+  getFileSystem()->addZipFileArchive("logo.zip");
+  IAnimatedMesh *logoMesh=smgr->getMesh("Logo.X");
+  _logoNode = smgr->addAnimatedMeshSceneNode(logoMesh);
+  _logoNode->setMaterialFlag(video::EMF_LIGHTING, false);
+  _logoNode->setMaterialType(video::EMT_SOLID);
+  
+  ISceneNodeAnimator *anim=smgr->createRotationAnimator(vector3df(1,0,0));
+  _logoNode->addAnimator(anim);
+  
+  loadingFuture=QtConcurrent::run(this,&QIrrWidget::load);
+  loadingFutureWatcher.setFuture(loadingFuture);
+  connect(&loadingFutureWatcher,SIGNAL(finished()),
+	  this,SLOT(handleLoadFinished()));
+#else
+  load();
+  handleLoadFinished();
+#endif
+}
+
+void QIrrWidget::handleLoadFinished()
+{
+  if(_logoNode)
+    _logoNode->setVisible(false);
+  
+  if(_firstCamera)
+    smgr->setActiveCamera(_firstCamera);
+  
+  _topNode->setVisible(true);
+  
+  _ready=true;
+}
 
 QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage, QRect baseRect, QRect overlayRect)
 {
@@ -635,6 +691,8 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
 
 void QIrrWidget::enterEvent(QEvent* event)
 {
+  if(!_ready) return;
+
   setFocus();
   grabKeyboard();
 
@@ -643,6 +701,8 @@ void QIrrWidget::enterEvent(QEvent* event)
 
 void QIrrWidget::leaveEvent(QEvent* event)
 {
+  if(!_ready) return;
+
   clearFocus();
   releaseKeyboard();
 
@@ -788,6 +848,8 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
 
 bool QIrrWidget::hasCameraMoved()
 {
+  if(!_ready) return true;
+
   ICameraSceneNode* activeCam=smgr->getActiveCamera();
   bool cameraChanged=(lastActiveCamera!=activeCam);
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
@@ -843,7 +905,7 @@ void QIrrWinWidgetPrivate::initialize()
   parent->cursorcontrol = device->getCursorControl();
   parent->smgr=device->getSceneManager();
 
-  parent->load();
+  parent->internalLoad();
   
   parent->update();
 
@@ -863,7 +925,9 @@ void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
   if (parent->driver)
     {
       device->run();
-      parent->execute();
+
+	  if(parent->_ready)
+        parent->execute();
 
       irr::video::SColor color (0,0,0,0);
       
@@ -933,7 +997,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
   os::Timer::initTimer();  
   parent->timer = new CTimer();
 
-  parent->load();
+  parent->internalLoad();
 }
 
 void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)

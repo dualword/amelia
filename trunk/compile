@@ -1,3 +1,3 @@
 #!/bin/bash
-cmake . -DIrrlicht_INCLUDE_DIR=/home/kkrizka/Sources/irrlicht-1.5/include/  -DIrrlicht_LIBRARY=/home/kkrizka/Sources/irrlicht-1.5/lib/Linux/ -DCMAKE_BUILD_TYPE=debug
+cmake . -DIrrlicht_INCLUDE_DIR=/home/kkrizka/Sources/irrlicht-1.5/include/  -DIrrlicht_LIBRARY=/home/kkrizka/Sources/irrlicht-1.5/lib/Linux/ -DCMAKE_BUILD_TYPE=debug -DENABLE_AGEOMETRY=ON -DENABLE_AGEOMETRY=OFF
 

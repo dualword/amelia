@@ -6,6 +6,8 @@
 class QIrrWidgetRefresher : public irr::scene::ISceneUserDataSerializer
 {
  public:
+  vector<scene::ISceneNode*> *allModules;
+
   QIrrWidgetRefresher(QIrrWidget *parent);
   
   io::IAttributes *createUserData(ISceneNode *forSceneNode);

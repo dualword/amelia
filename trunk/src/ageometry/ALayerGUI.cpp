@@ -577,7 +577,7 @@ void ALayerGUI::snapshotRecording ()
 
 void ALayerGUI::recordButtonPress ()
 {
-
+	if(!tourBuilder) return;
   wchar_t* name = cstr_to_wstr (QObject::sender ()->objectName ().toAscii ().data(), 100);
 
   tourBuilder->markAction (ATour::AT_BUTTON, name);

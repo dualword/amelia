@@ -37,6 +37,8 @@ Q_OBJECT
   QTimeLine descTimeline;
   QGraphicsItemAnimation descAnimator;
 
+  QMap<QWidget *,bool> widgetsEnabled;
+
   //These variables are used to store information about the monitor widget
   // when the widget is currently being displayed by ABase, and thus
   // does not belong to this proxy.

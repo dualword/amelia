@@ -35,6 +35,7 @@ INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
 
 SET(ageometry_SRCS
   QIrrWidget.cpp 
+  QIrrWidgetRefresher.cpp 
   AGeometry.cpp 
   ATrack3DNode.cpp 
   ATourBuilder.cpp 

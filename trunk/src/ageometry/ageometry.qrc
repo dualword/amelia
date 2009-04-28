@@ -2,4 +2,5 @@
   <qresource prefix="ageometry">
     <file>plugin.xml</file>
   </qresource>
+  <file>initial.png</file>
 </RCC>

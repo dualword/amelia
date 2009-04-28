@@ -135,6 +135,11 @@ border: 55
          <string notr="true">AMainView
 {
 	padding: 15px 15px 15px 15px;
+}
+
+QLabel
+{
+	color: rgb(255, 255, 0);
 }</string>
         </property>
         <property name="currentIndex">
@@ -177,7 +182,7 @@ border: 55
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(255, 255, 0);</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>INTERESTING TRACKS IN THE EVENT</string>
@@ -229,7 +234,7 @@ border: 55
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: rgb(255, 255, 0);</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>BOOKMARKED TRACKS</string>
@@ -254,7 +259,7 @@ border: 55
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">color: rgb(255, 255, 0);</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>COMBINED TRACKS</string>
@@ -347,7 +352,7 @@ border: 55
            <item>
             <widget class="QGroupBox" name="groupBox_EventElements">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="font">
               <font>
@@ -377,7 +382,7 @@ color: rgb(255, 255, 0);
               <item row="0" column="0">
                <widget class="QCheckBox" name="checkBox_Electrons">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Electrons</string>
@@ -393,7 +398,7 @@ color: rgb(255, 255, 0);
               <item row="0" column="1">
                <widget class="QCheckBox" name="checkBox_NeutralHadrons">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Neutral Hadrons</string>
@@ -409,7 +414,7 @@ color: rgb(255, 255, 0);
               <item row="0" column="2">
                <widget class="QCheckBox" name="checkBox_Muons">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Muons</string>
@@ -425,7 +430,7 @@ color: rgb(255, 255, 0);
               <item row="0" column="3">
                <widget class="QCheckBox" name="checkBox_MissingEt">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Missing Et</string>
@@ -441,7 +446,7 @@ color: rgb(255, 255, 0);
               <item row="1" column="1">
                <widget class="QCheckBox" name="checkBox_ChargedHadrons">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Charged Hadrons</string>
@@ -457,7 +462,7 @@ color: rgb(255, 255, 0);
               <item row="1" column="2" colspan="2">
                <widget class="QCheckBox" name="checkBox_Jets">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Jets</string>
@@ -473,7 +478,7 @@ color: rgb(255, 255, 0);
               <item row="1" column="0">
                <widget class="QCheckBox" name="checkBox_Photons">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="text">
                  <string>Photons</string>
@@ -492,7 +497,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QGroupBox" name="groupBox_PtCutoff">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="font">
               <font>
@@ -516,7 +521,7 @@ color: rgb(255, 255, 0);
               <item>
                <widget class="QSlider" name="PtCutoff_Slider">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="maximum">
                  <number>10000</number>
@@ -538,7 +543,7 @@ color: rgb(255, 255, 0);
               <item>
                <widget class="QSpinBox" name="spinBox_Pt">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">color: rgb(0, 0, 0);</string>
@@ -575,6 +580,9 @@ color: rgb(255, 255, 0);
            </item>
            <item>
             <widget class="QPushButton" name="nextEventButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -660,6 +668,9 @@ color: rgb(255, 255, 0);
         </property>
         <item>
          <widget class="AViewport" name="LeftViewport">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -697,6 +708,9 @@ color: rgb(255, 255, 0);
         </item>
         <item>
          <widget class="AViewport" name="RightViewport">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -750,6 +764,9 @@ color: rgb(255, 255, 0);
         </item>
         <item>
          <widget class="QGraphicsView" name="trackInfo">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -786,7 +803,7 @@ color: rgb(255, 255, 0);
     <item>
      <widget class="QTabWidget" name="MainTab">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="minimumSize">
        <size>
@@ -844,7 +861,7 @@ color: rgb(255, 255, 0);
         <item>
          <widget class="QGroupBox" name="groupBox_Detector">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -859,7 +876,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QCheckBox" name="checkBox_MuonSpectr">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Muon Spectrometer</string>
@@ -875,7 +892,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QCheckBox" name="checkBox_Magnets">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Magnet System</string>
@@ -907,7 +924,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QGroupBox" name="groupBox_Calorimeter">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="minimumSize">
               <size>
@@ -920,7 +937,7 @@ color: rgb(255, 255, 0);
              </property>
              <widget class="QCheckBox" name="checkBox_Tilecal">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -942,7 +959,7 @@ color: rgb(255, 255, 0);
              </widget>
              <widget class="QCheckBox" name="checkBox_LAr">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -967,7 +984,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QGroupBox" name="groupBox_ID">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="minimumSize">
               <size>
@@ -983,7 +1000,7 @@ color: rgb(255, 255, 0);
              </property>
              <widget class="QCheckBox" name="checkBox_SCT">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -1005,7 +1022,7 @@ color: rgb(255, 255, 0);
              </widget>
              <widget class="QCheckBox" name="checkBox_TRT">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -1027,7 +1044,7 @@ color: rgb(255, 255, 0);
              </widget>
              <widget class="QCheckBox" name="checkBox_Pixels">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="geometry">
                <rect>
@@ -1071,7 +1088,7 @@ color: rgb(255, 255, 0);
         <item>
          <widget class="QGroupBox" name="groupBox">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1086,7 +1103,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QRadioButton" name="radioButton_noneMode">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>None</string>
@@ -1099,7 +1116,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QRadioButton" name="radioButton_wedgeMode">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Wedge Mode</string>
@@ -1109,7 +1126,7 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QRadioButton" name="radioButton_mosesMode">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Moses Mode</string>
@@ -1139,7 +1156,7 @@ color: rgb(255, 255, 0);
       </widget>
       <widget class="QWidget" name="tab_event">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <attribute name="title">
         <string> Events</string>
@@ -1148,7 +1165,7 @@ color: rgb(255, 255, 0);
         <item>
          <widget class="AEventManagerTreeView" name="packageList">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1404,7 +1421,7 @@ color: rgb(255, 255, 0);
         <item>
          <widget class="QGroupBox" name="tourPlayerBox">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="title">
            <string>Tour Player</string>
@@ -1413,14 +1430,14 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QComboBox" name="tourSelector">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QLabel" name="tourDesc">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>Please select a tour.</string>
@@ -1432,7 +1449,7 @@ color: rgb(255, 255, 0);
              <item>
               <widget class="QPushButton" name="playTourButton">
                <property name="enabled">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="text">
                 <string>Play</string>
@@ -1457,7 +1474,7 @@ color: rgb(255, 255, 0);
         <item>
          <widget class="QGroupBox" name="groupBox_2">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="title">
            <string>Tour Recorder</string>
@@ -1466,14 +1483,14 @@ color: rgb(255, 255, 0);
            <item>
             <widget class="QLineEdit" name="recTourName">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QPlainTextEdit" name="recTourDesc">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -1482,7 +1499,7 @@ color: rgb(255, 255, 0);
              <item>
               <widget class="QPushButton" name="recTourButton">
                <property name="enabled">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="text">
                 <string>Record</string>
@@ -1524,6 +1541,9 @@ color: rgb(255, 255, 0);
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -1639,6 +1659,9 @@ color: rgb(255, 255, 0);
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="windowTitle">
     <string>Camera Toolbar</string>
    </property>

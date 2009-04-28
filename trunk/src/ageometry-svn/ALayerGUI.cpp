@@ -37,6 +37,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QMenu>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QToolBar>
 #include <QDebug>
 
 #include "ALayerGUI.h"
@@ -261,6 +262,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 geo, SLOT(setCamera(int)));
 	connect(this,SIGNAL(eventUnloaded()),
 		geo,SLOT(clearTrackSelection()));
+	connect(geo,SIGNAL(finishedLoading()),
+		this,SLOT(enableElements()));
 	
 	//Setup camera controls and toggles
 	geo->actFPS = actionFPS;
@@ -291,6 +294,24 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     
 }
 
+void ALayerGUI::enableElements()
+{
+  QList<QWidget*> children=findChildren<QWidget*>();
+  for(int i=0;i<children.size();i++)
+    if(children[i]->parentWidget()==this)
+      children[i]->setEnabled(true);
+  
+  QWidget *window=this->parentWidget();
+  if(window->inherits("QMainWindow"))
+    {
+      QMainWindow *mainwindow=(QMainWindow*)window;
+      mainwindow->menuBar()->setEnabled(true);
+
+      QList<QToolBar*> toolbars=mainwindow->findChildren<QToolBar*>();
+      for(int i=0;i<toolbars.size();i++)
+	toolbars[i]->setEnabled(true);      
+    }
+}
 
 //slots for menus
 void ALayerGUI::actionSwitchView()

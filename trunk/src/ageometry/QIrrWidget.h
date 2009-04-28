@@ -93,9 +93,6 @@ public:
     void setDirty(bool dirty);
     bool isDirty();
 
-	ISceneNode* topNode();
-	void setFirstCamera(ICameraSceneNode *);
-
     void setDriverType( irr::video::E_DRIVER_TYPE driver );
     irr::video::E_DRIVER_TYPE driverType();
 
@@ -109,7 +106,7 @@ public:
 public slots:
   void toggleDisabled();
   void makeDirty();
-  void handleLoadFinished();
+  void forceUpdate();
 
 protected:
     /* Override these 3 functions in QIrrWidgets */
@@ -121,9 +118,12 @@ protected:
     void paintEvent(QPaintEvent *event);
     void changeEvent(QEvent* event); //Will be used for diabled widget image caching
     void resizeEvent( QResizeEvent* event );
-
+    void timerEvent(QTimerEvent*);
+  
     void enterEvent(QEvent* event);
     void leaveEvent(QEvent* event);
+    void showEvent(QShowEvent *event);
+    void hideEvent(QHideEvent *event);
 
     virtual void mouseClickEvent(QMouseEvent *event);
     virtual void mouseMoveEvent(QMouseEvent *event);
@@ -138,18 +138,16 @@ protected:
 
 private:
     irr::video::E_DRIVER_TYPE _driverType;
-    
-    QWidget *p;
+
+    QWidget *p;    
     QPoint lastPressPos;
+    int timerId;
 
-	// Used for loading
-	QFuture<void> loadingFuture;
-	QFutureWatcher<void> loadingFutureWatcher;
-	ISceneNode *_topNode, *_logoNode;
-	ICameraSceneNode *_firstCamera;
-	bool _ready;
-
-	// Irrlicht things
+    // Used for loading
+    bool _ready;
+    bool _loading;
+    
+    // Irrlicht things
     IVideoDriver* driver;
     ISceneManager* smgr;
     IFileSystem* fs;
@@ -157,22 +155,22 @@ private:
     ICursorControl* cursorcontrol;
     ITimer *timer;
     
-	// Render checks
+    // Render checks
     bool _dirty;
     ICameraSceneNode *lastActiveCamera;
     vector3df lastCameraPosition,lastCameraTarget;
 
-	// Screenshot
+    // Screenshot
     video::ITexture *disabledRenderTexture;
     QPixmap ss;
 
-	void internalLoad();
+    void internalLoad();
 
     void updateLastCamera();
     void updateScreenshot();
 
 #ifdef Q_WS_WIN
-	friend class QIrrWinWidgetPrivate;
+    friend class QIrrWinWidgetPrivate;
 #else
     friend class QIrrUnixWidgetPrivate;
 #endif
@@ -196,8 +194,6 @@ class QIrrWinWidgetPrivate : public QWidget
     QPaintEngine* paintEngine() const;
   
  private:
-  int timerId;
-
   QIrrWidget* parent;
   IrrlichtDevice* device;
 };
@@ -208,14 +204,9 @@ class QIrrUnixWidgetPrivate : public QGLWidget
   QIrrUnixWidgetPrivate( QIrrWidget *parent=0 );
   ~QIrrUnixWidgetPrivate();
 
-  void timerEvent(QTimerEvent*);
-  
   void initializeGL();
   void paintGL();
 
- protected:
-  void showEvent(QShowEvent *event);
-  void hideEvent(QHideEvent *event);
 private:
   int timerId;
 

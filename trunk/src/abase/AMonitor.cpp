@@ -81,7 +81,11 @@ void AMonitor::setWidgetEnabled(bool status)
   QList<QWidget*> children=tmpwidget->findChildren<QWidget*>();
   for(int i=0;i<children.size();i++)
     if(children[i]->parent()==tmpwidget)
-      children[i]->setEnabled(status);
+      {
+	bool oldstatus=children[i]->isEnabled();
+	children[i]->setEnabled(widgetsEnabled[children[i]] && status);
+	widgetsEnabled[children[i]]=oldstatus;
+      }
 
   if(status)
     tmpwidget->grabKeyboard();

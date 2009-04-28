@@ -194,7 +194,7 @@ QIrrWidget::QIrrWidget( QWidget *parent )
   
   setMouseTracking(true);
 
-  ss=QPixmap(":/initial.png");
+  ss=QPixmap(":/media/initial.png");
 }
 
 QIrrWidget::~QIrrWidget()
@@ -669,7 +669,8 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
   timer->tick();
 #endif
 
-  execute();
+  if(_ready)
+    execute();
 
   if(hasCameraMoved() || isDirty())
     {
@@ -699,6 +700,8 @@ void QIrrWidget::hideEvent(QHideEvent *event)
 
 void QIrrWidget::enterEvent(QEvent* event)
 {
+  if(!_ready) return;
+
   setFocus();
   grabKeyboard();
 
@@ -707,6 +710,8 @@ void QIrrWidget::enterEvent(QEvent* event)
 
 void QIrrWidget::leaveEvent(QEvent* event)
 {
+  if(!_ready) return;
+
   clearFocus();
   releaseKeyboard();
 
@@ -852,6 +857,8 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
 
 bool QIrrWidget::hasCameraMoved()
 {
+  if(!_ready) return true;
+
   ICameraSceneNode* activeCam=smgr->getActiveCamera();
   bool cameraChanged=(lastActiveCamera!=activeCam);
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());

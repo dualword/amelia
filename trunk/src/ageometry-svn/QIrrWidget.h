@@ -148,6 +148,7 @@ private:
     bool _loading;
     
     // Irrlicht things
+	IrrlichtDevice* device;
     IVideoDriver* driver;
     ISceneManager* smgr;
     IFileSystem* fs;
@@ -186,16 +187,14 @@ class QIrrWinWidgetPrivate : public QWidget
 
 
  protected:
-  virtual void timerEvent( QTimerEvent* event );
   virtual void paintEvent( QPaintEvent* event );
 
   void initialize();
 
-    QPaintEngine* paintEngine() const;
+  QPaintEngine* paintEngine() const;
   
  private:
   QIrrWidget* parent;
-  IrrlichtDevice* device;
 };
 #else
 class QIrrUnixWidgetPrivate : public QGLWidget

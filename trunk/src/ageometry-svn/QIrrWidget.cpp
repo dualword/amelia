@@ -198,7 +198,9 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 }
 
 QIrrWidget::~QIrrWidget()
-{ }
+{ 
+	killTimer(timerId);
+}
 
 
 video::IVideoDriver* QIrrWidget::getVideoDriver()
@@ -359,8 +361,6 @@ void QIrrWidget::execute()
 
 void QIrrWidget::updateLastCamera()
 {
-  if(!_ready) return;
-
   ICameraSceneNode *activeCam=smgr->getActiveCamera();
 
   lastActiveCamera=smgr->getActiveCamera();
@@ -663,7 +663,11 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
   if(!_ready && !_loading)
     internalLoad();
 
+#ifdef Q_WS_WIN
+  device->run();
+#else
   timer->tick();
+#endif
 
   if(_ready)
     execute();
@@ -674,10 +678,12 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
       updateLastCamera();
       setDirty(false);
     }
+#ifndef Q_WS_WIN
   else
     {
       smgr->getRootSceneNode()->OnAnimate(timer->getTime());
     }
+#endif
 }
 
 void QIrrWidget::showEvent(QShowEvent *event)
@@ -858,7 +864,7 @@ bool QIrrWidget::hasCameraMoved()
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
   bool cameraTargetMoved=(lastCameraTarget!=activeCam->getTarget());
 
-  return cameraChanged || cameraMoved || cameraTargetMoved;
+  return cameraChanged || cameraMoved || cameraTargetMoved || isDirty();
 }
 
 #ifdef Q_WS_WIN
@@ -881,9 +887,7 @@ QIrrWinWidgetPrivate::QIrrWinWidgetPrivate( QIrrWidget *parent )
 }
 
 QIrrWinWidgetPrivate::~QIrrWinWidgetPrivate()
-{
-  killTimer(timerId);
-}
+{ }
 
 void QIrrWinWidgetPrivate::initialize()
 {
@@ -898,28 +902,19 @@ void QIrrWinWidgetPrivate::initialize()
   params.AntiAlias = true;
   params.IgnoreInput = true;
 
-  device=createDeviceEx(params);
+  parent->device=createDeviceEx(params);
   
-  parent->driver=device->getVideoDriver();
+  parent->driver=parent->device->getVideoDriver();
   
-  parent->gui=device->getGUIEnvironment();
-  parent->fs=device->getFileSystem();
+  parent->gui=parent->device->getGUIEnvironment();
+  parent->fs=parent->device->getFileSystem();
 
-  parent->cursorcontrol = device->getCursorControl();
-  parent->smgr=device->getSceneManager();
+  parent->cursorcontrol = parent->device->getCursorControl();
+  parent->smgr=parent->device->getSceneManager();
 
   parent->internalLoad();
   
   parent->update();
-
-  timerId=startTimer(30);
-
-}
-
-void QIrrWinWidgetPrivate::timerEvent(QTimerEvent* event)
-{
-  if(isVisible() && isEnabled())
-    update();
 }
   
 void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
@@ -927,12 +922,7 @@ void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
 	initialize();
   if (parent->driver)
     {
-      device->run();
-
-	  if(parent->_ready)
-        parent->execute();
-
-      irr::video::SColor color (0,0,0,0);
+		irr::video::SColor color (0,0,0,0);
       
       parent->driver->beginScene(true,true,color);
       

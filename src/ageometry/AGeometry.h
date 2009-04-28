@@ -224,10 +224,13 @@ private:
 
     void dynamicCameraSpeed(core::vector3df camPos);  //Modifying camera speed based on proximity to detector
     void dynamicHidingOfModules(core::vector3df camPos);
+	void executeMosesMode(core::vector3df camPos);
+
     float angleBetween ( scene::ISceneNode* module, core::vector3df cam );
     void addModuleToVector ( std::vector<module>* allModules, scene::ISceneNode* newNode, int id, int mType, bool neverDisappear );
     void createAtlasGeometry();
-    void executeMosesMode();
+	void createFlatGeometry();
+   
     void prepareAllModules ( scene::ISceneNode* node_ );
     ATrack3DNode* trackSelection ( core::position2di pos );
     bool offsetTest;

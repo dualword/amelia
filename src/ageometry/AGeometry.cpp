@@ -64,6 +64,7 @@ AGeometry::AGeometry(QWidget* parent)
     camChangeDist1 = 145;
     camChangeDist2 = 1000;
     BBscale = 35;
+	CameraBB = NULL;
     sliceMode = false;
 
     // Control variables for the dynamic hiding of parts of ATLAS
@@ -75,6 +76,13 @@ AGeometry::AGeometry(QWidget* parent)
     LAr_switch = 1;
     SCT_switch = 1;
     Pix_switch = 1;
+
+	// Cameras
+	camera[0] = NULL;
+	camera[1] = NULL;
+	camera[2] = NULL;
+	camera[3] = NULL;
+
 
     pos = core::vector3df ( 0,0,0 );
     rot = core::vector3df ( 0,0,0 );
@@ -241,12 +249,6 @@ void AGeometry::load()
 
     forceUpdate();
 
-    //Create the geometry
-    createAtlasGeometry();
-
-    //Place pointers for the modules on the allModules vector
-    prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
-
     core::vector3df camRot = camera[0]->getRotation();
     core::vector3df DCamPos = core::vector3df ( 0,0,0 );
 
@@ -257,8 +259,7 @@ void AGeometry::load()
 
     qDebug() << "Loaded AGeometry";
 
-    renderViewport(AGeometry::Orthogonal);
-    renderViewport(AGeometry::Projective);
+	createFlatGeometry();
 
     setCamera(AGeometry::FPS);
     setViewport(AGeometry::Cam3D);
@@ -267,6 +268,12 @@ void AGeometry::load()
     zoomIn->setVisible(false);
     zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
     zoomOut->setVisible(false);
+
+    //Create the geometry
+    createAtlasGeometry();
+
+    //Place pointers for the modules on the allModules vector
+    //prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
 
     emit finishedLoading();
 
@@ -279,17 +286,34 @@ void AGeometry::load()
     setCamera(AGeometry::Maya);  
 }
 
-void AGeometry::executeMosesMode()
+void AGeometry::executeMosesMode(core::vector3df camPos)
 {
+	if (!CameraBB) return;
+
     if ( MosesMode )
     {
-        CameraBB->updateAbsolutePosition();
-        CameraBB->setVisible ( true );
+		if ( sliceMode == false )
+		{
+			BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
+			CameraBB->setPosition ( camPos );
+		}
+		else
+		{
+			BBscale = 15000;
+			CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
+		}
+		CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
+		CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
+		CameraBB->updateAbsolutePosition();
+
+		core::aabbox3d<f32> BBBox=CameraBB->getTransformedBoundingBox();
+		vector3df pos=BBBox.getCenter();
+
         for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
         {
             moduleAngleFromCam = angleBetween ( *itb, ( getSceneManager()->getActiveCamera()->getTarget() *0.5- getSceneManager()->getActiveCamera()->getPosition() ) );
 
-            if ( ( CameraBB->getTransformedBoundingBox().intersectsWithBox ( ( *itb )->getTransformedBoundingBox() ) ) && ( moduleAngleFromCam<1.0f ) )
+            if ( ( BBBox.intersectsWithBox ( ( *itb )->getTransformedBoundingBox() ) ) && ( moduleAngleFromCam<1.0f ))
             {
                 ( *itb )->setVisible ( false );
             }
@@ -535,24 +559,24 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
     if ( TC_switch == 1 || LAr_switch == 1 || SCT_switch == 1 || Pix_switch == 1 )
     {
 
-        if ( TC_switch == 1 )
+        if ( TC_switch == 1 && getSceneManager()->getSceneNodeFromName ( "TCB_Reference" ))
         {
             getSceneManager()->getSceneNodeFromName ( "TCB_Reference" )->setVisible ( isTC_on );
         }
 
-        if ( LAr_switch == 1 )
+        if ( LAr_switch == 1 && getSceneManager()->getSceneNodeFromName ( "EMCB_Reference" ) )
         {
             getSceneManager()->getSceneNodeFromName ( "EMCB_Reference" )->setVisible ( isLAr_on );
         }
 
 
-        if ( SCT_switch == 1 )
+        if ( SCT_switch == 1  && getSceneManager()->getSceneNodeFromName ( "SCTB_Reference" )  && getSceneManager()->getSceneNodeFromName ( "TRTB_Reference" ) )
         {
             getSceneManager()->getSceneNodeFromName ( "SCTB_Reference" )->setVisible ( isSCT_on );
             getSceneManager()->getSceneNodeFromName ( "TRTB_Reference" )->setVisible ( isSCT_on );
         }
 
-        if ( Pix_switch == 1 )
+        if ( Pix_switch == 1  && getSceneManager()->getSceneNodeFromName ( "PixelsB_Reference" ) )
         {
             getSceneManager()->getSceneNodeFromName ( "PixelsB_Reference" )->setVisible ( isPix_on );
         }
@@ -571,21 +595,16 @@ void AGeometry::execute()
   // Main 3D view
   if(hasCameraMoved())
     {
-      core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
+		core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
       
-      BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
-      CameraBB->setPosition ( camPos );
-      if ( sliceMode == true )
-	{
-	  BBscale = 15000;
-	  CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
-	}
-      CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
-      CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
-      
-      dynamicCameraSpeed(camPos);
-      dynamicHidingOfModules(camPos);
-      
+		dynamicCameraSpeed(camPos);
+		dynamicHidingOfModules(camPos);
+
+		if ( !MosesFreeCalm )
+		{
+			executeMosesMode(camPos);
+		}
+
       //TODO This is old code of module selection
       /*core::position2di pos = getCursorControl()->getPosition();
 	if (detectorMode)
@@ -628,26 +647,8 @@ void AGeometry::execute()
 	}*/
       
       //  END module selection)
-      
-      
-      
-      if ( ( frameSkipper==0 ) && ! ( MosesFreeCalm ) )
-	{
-	  executeMosesMode(); // every 5(?) frames
-	}
-      
-      CameraBB->setVisible ( false );
-      
-      //more stuff for the dynamic camera
-      DCamPos = camera[0]->getPosition() - camPos;
-      
-      if ( ( DCamPos.X*DCamPos.X + DCamPos.Y*DCamPos.Y + DCamPos.Z*DCamPos.Z != 0 ) )
-	//frameskipper makes it so moses mode isn't calculated ever frame,
-	//which should speed things up some
-        frameSkipper++;
-      if ( frameSkipper>=skipFrameNumber ) frameSkipper=0;
-      
-      if (force_target)
+           
+	if (camera[0] && force_target)
 	{
 	  
 	  //vector3df vect = tar_node->getPosition () - camera[0]->getPosition ();
@@ -659,13 +660,13 @@ void AGeometry::execute()
     }
   
   ICameraSceneNode *active=getSceneManager()->getActiveCamera();
-  if(zoomIn->isPressed())
+  if(zoomIn && zoomIn->isPressed())
     {
       vector3df curpos=active->getPosition();
       curpos*=0.95;
       active->setPosition(curpos);
     }
-  if(zoomOut->isPressed())
+  if(zoomOut && zoomOut->isPressed())
     {
       vector3df curpos=active->getPosition();
       curpos*=1.05;
@@ -833,25 +834,9 @@ void AGeometry::toggleVisibilityPit()
     switchVisibility (0);
 }
 
-
-
-
-void AGeometry::createAtlasGeometry()
+void AGeometry::createFlatGeometry()
 {
-
-  float mscale = 0.4; //model scale
-
-  QIrrWidgetRefresher ref(this);
-
-  if ( generateDetectorGeometry )
-    {
-      if ( !isCrappyComputer )
-	  {
-            getSceneManager()->loadScene ( "ATLAS_Pit.lvl" , &ref );
-            Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
-	  }
-      getSceneManager()->loadScene ( "geometry.irr" , &ref );
-    }
+	float mscale = 0.4; //model scale
 
     ///* Background images for the viewports
 
@@ -881,13 +866,25 @@ void AGeometry::createAtlasGeometry()
     background_node_s->setName("Background_Side.X");
     background_node_s->setVisible ( false );
 
+    renderViewport(AGeometry::Orthogonal);
+    renderViewport(AGeometry::Projective);
+}
 
+void AGeometry::createAtlasGeometry()
+{
+  QIrrWidgetRefresher ref(this);
 
+  if ( generateDetectorGeometry )
+    {
+      if ( !isCrappyComputer )
+	  {
+            getSceneManager()->loadScene ( "ATLAS_Pit.lvl" , &ref );
+            Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
+	  }
 
-    scene::ISceneNode* nodel = 0;
-    float a = 1;
-    //nodel = getSceneManager()->addLightSceneNode(0, core::vector3df(1050,750,750),  video::SColorf(a, a, a, a), 850.0f);
-
+	  ref.allModules=&this->allModules;
+	  getSceneManager()->loadScene ( "geometry.irr" , &ref );
+    }
 }
 
 ATrack* AGeometry::selectTrackByID (int ID, bool multi)
@@ -1264,7 +1261,7 @@ void AGeometry::setViewport(int to)
 void AGeometry::setCamera(int to,bool animate)
 {
     if (to==active_cam) return; //Already using it
-
+qDebug() <<  "TEST1";
     switch (to)
     {
     case AGeometry::FPS:
@@ -1287,10 +1284,10 @@ void AGeometry::setCamera(int to,bool animate)
         cameraSwitcher->setTargetCamera(camera[to]);
       else
 	getSceneManager()->setActiveCamera(camera[to]);
-
+qDebug() <<  "TEST2";
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
-
+qDebug() <<  "TEST3";
     zoomIn->setVisible(to==AGeometry::Maya);
     zoomOut->setVisible(to==AGeometry::Maya);
 }

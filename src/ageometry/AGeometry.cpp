@@ -154,136 +154,144 @@ void AGeometry::prepareAllModules ( scene::ISceneNode* node_ )
 
 void AGeometry::load()
 {
-    //First load stuff originally loaded by ABase...
-    //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
-    getFileSystem()->addFolderFileArchive ( "./media/" );
-    getFileSystem()->addFolderFileArchive ( "./media/tours" );
-    getFileSystem()->addFolderFileArchive ( "./media/events" );
-    getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
-    getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
-    getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
-
-    //These first three lines are part of an offset test for the Irrlicht ray generator
-    cube = getSceneManager()->addCubeSceneNode();
-    cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
-    cube->setScale ( core::vector3df ( 5,5,5 ) );
-    cube->setPosition ( core::vector3df ( 400,1500,400 ) );
-    cube->setVisible(offsetTest);
-
-    tar_node = getSceneManager()->addEmptySceneNode();
-    cam_node = getSceneManager()->addEmptySceneNode();
-    OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
-    OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
-    getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
-
-//*****************CHANGED************************//
-
-    //Base->Gui->statusmessage = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 465, 650, 780, 750 ), false );
-    //Base->Gui->statusmessage->setOverrideColor ( SColor ( 255,255,0,0 ) );
-    //Base->Gui->trackinfo = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 420, 670, 780, 770 ), false );
-    //Base->Gui->trackinfo->setOverrideColor ( SColor ( 255,255,255,255 ) );
-
-
-    /***************** PREPARE BB MODELS ********************/
-
-    /*    for (vector<module>::iterator it = allModules.begin(); it!=allModules.end(); it++)
+  QTime time;
+  time.start();
+  
+  //First load stuff originally loaded by ABase...
+  //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
+  getFileSystem()->addFolderFileArchive ( "./media/" );
+  getFileSystem()->addFolderFileArchive ( "./media/tours" );
+  getFileSystem()->addFolderFileArchive ( "./media/events" );
+  getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
+  getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
+  getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
+  
+  //These first three lines are part of an offset test for the Irrlicht ray generator
+  cube = getSceneManager()->addCubeSceneNode();
+  cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
+  cube->setScale ( core::vector3df ( 5,5,5 ) );
+  cube->setPosition ( core::vector3df ( 400,1500,400 ) );
+  cube->setVisible(offsetTest);
+  
+  tar_node = getSceneManager()->addEmptySceneNode();
+  cam_node = getSceneManager()->addEmptySceneNode();
+  OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
+  OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
+  getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
+  
+  //*****************CHANGED************************//
+  
+  //Base->Gui->statusmessage = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 465, 650, 780, 750 ), false );
+  //Base->Gui->statusmessage->setOverrideColor ( SColor ( 255,255,0,0 ) );
+  //Base->Gui->trackinfo = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 420, 670, 780, 770 ), false );
+  //Base->Gui->trackinfo->setOverrideColor ( SColor ( 255,255,255,255 ) );
+  
+  
+  /***************** PREPARE BB MODELS ********************/
+  
+  /*    for (vector<module>::iterator it = allModules.begin(); it!=allModules.end(); it++)
         {
-            it->theModule->getAbsoluteTransformation().transformBox(it->theModule->getTransformedBoundingBox());
-            it->theModule->setID(1);
-            //it->theModule->setDebugDataVisible(true);
+	it->theModule->getAbsoluteTransformation().transformBox(it->theModule->getTransformedBoundingBox());
+	it->theModule->setID(1);
+	//it->theModule->setDebugDataVisible(true);
         }*/
-    /********************************************************/
+  /********************************************************/
+  
 
+  cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
+  
+  //Create the dynamic camera and define some variables
+  
+  camera[1] = getSceneManager()->addCameraSceneNode();
+  camera[1]->setName("FrontCam");
+  camera[1]->setInputReceiverEnabled ( false );
+  camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
+  camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[1]->setProjectionMatrix ( OrthoCameraFront );
+  
+  camera[2] = getSceneManager()->addCameraSceneNode();
+  camera[2]->setName("SideCam");
+  camera[2]->setInputReceiverEnabled ( false );
+  camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
+  camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[2]->setProjectionMatrix ( OrthoCameraSide );
+  
+  camera[3] = getSceneManager()->addCameraSceneNode();
+  camera[3]->setName("SphereCam");
+  camera[3]->setInputReceiverEnabled ( false );
+  camera[3]->setFarValue ( 22000.0f );
+  camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
+  camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
+  
+  camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+  camera[0]->setName("FPSCam");
+  camera[0]->setInputReceiverEnabled ( false );
+  camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
+  camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[0]->setFarValue ( 22000.0f );
+  camera[0]->setID ( 0 );
+  
+  //Prepare spinning logo
+  getFileSystem()->addZipFileArchive ( "logo.aml" );
+  
+  ICameraSceneNode *_logoCamera=getSceneManager()->addCameraSceneNode(0,
+								      vector3df(1200,500,-1200),
+								      vector3df(1200,500,-3000));
+  _logoCamera->updateAbsolutePosition();
+  
+  getSceneManager()->loadScene("logo.irr");
+  ISceneNode *_logoNode=getSceneManager()->getSceneNodeFromName("LoadingNode");
+  _logoNode->setPosition(core::vector3df(1200,425,-1400));
+  _logoNode->setRotation(core::vector3df(-90,-180,0));
+  
+  
+  ILightSceneNode* _logoLight=getSceneManager()->addLightSceneNode(0,
+								   core::vector3df(1200,500,-1300), 
+								   video::SColorf(1.0f, 1.0f, 1.0f), 
+								   200.0f);
+  
+  ISceneNodeAnimator* _logoAnim=getSceneManager()->createFlyCircleAnimator(core::vector3df(1200,500,-1200),
+									   50.f,
+									   0.004,
+									   core::vector3df(1,1,-1)); 
+  _logoLight->addAnimator(_logoAnim);
+  
+  forceUpdate();
+  
+  core::vector3df camRot = camera[0]->getRotation();
+  core::vector3df DCamPos = core::vector3df ( 0,0,0 );
+  
+  //This is the camera bounding box, used to define the Moses mode area
+  CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
+  CameraBB->setID ( 0 );
+  CameraBB->setName ("Moses Mode Box");
+  
+  createFlatGeometry();
+  
+  zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
+  zoomIn->setVisible(false);
+  zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
+  zoomOut->setVisible(false);
+  
+  //Create the geometry
+  createAtlasGeometry();
+  
+  //Place pointers for the modules on the allModules vector
+  //prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
+  
+  emit finishedLoading();
+  
+  //Remove the loading nodes
+  _logoNode->remove();
+  _logoLight->remove();
+  _logoAnim->drop();
+  
+  forceUpdate(); //Make sure the timer is correct!
+  
+  setCamera(AGeometry::Maya);
 
-    cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
-
-    //Create the dynamic camera and define some variables
-
-    camera[1] = getSceneManager()->addCameraSceneNode();
-    camera[1]->setName("FrontCam");
-    camera[1]->setInputReceiverEnabled ( false );
-    camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
-    camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
-    camera[1]->setProjectionMatrix ( OrthoCameraFront );
-
-    camera[2] = getSceneManager()->addCameraSceneNode();
-    camera[2]->setName("SideCam");
-    camera[2]->setInputReceiverEnabled ( false );
-    camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
-    camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
-    camera[2]->setProjectionMatrix ( OrthoCameraSide );
-
-    camera[3] = getSceneManager()->addCameraSceneNode();
-    camera[3]->setName("SphereCam");
-    camera[3]->setInputReceiverEnabled ( false );
-    camera[3]->setFarValue ( 22000.0f );
-    camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
-    camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
-    camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
-
-    camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
-    camera[0]->setName("FPSCam");
-    camera[0]->setInputReceiverEnabled ( false );
-    camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
-    camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-    camera[0]->setFarValue ( 22000.0f );
-    camera[0]->setID ( 0 );
-
-    //Prepare spinning logo
-    getFileSystem()->addZipFileArchive ( "logo.aml" );
-    getSceneManager()->loadScene("logo.irr");
-    ISceneNode *_logoNode=getSceneManager()->getSceneNodeFromName("LoadingNode");
-    _logoNode->setPosition(core::vector3df(1050,350,-1050));
-    _logoNode->setRotation(core::vector3df(-60,-45,0));
-
-    ILightSceneNode* _logoLight=getSceneManager()->addLightSceneNode(0,
-								     core::vector3df(1200,500,-1200), 
-								     video::SColorf(1.0f, 1.0f, 1.0f), 
-								     200.0f);
-    
-    ISceneNodeAnimator* _logoAnim=getSceneManager()->createFlyCircleAnimator(core::vector3df(1200,500,-1200),
-									50.f,
-									0.004,
-									core::vector3df(1,1,-1)); 
-    _logoLight->addAnimator(_logoAnim);
-
-    forceUpdate();
-
-    core::vector3df camRot = camera[0]->getRotation();
-    core::vector3df DCamPos = core::vector3df ( 0,0,0 );
-
-    //This is the camera bounding box, used to define the Moses mode area
-    CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
-    CameraBB->setID ( 0 );
-    CameraBB->setName ("Moses Mode Box");
-
-    qDebug() << "Loaded AGeometry";
-
-	createFlatGeometry();
-
-    setCamera(AGeometry::FPS);
-    setViewport(AGeometry::Cam3D);
-
-    zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
-    zoomIn->setVisible(false);
-    zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
-    zoomOut->setVisible(false);
-
-    //Create the geometry
-    createAtlasGeometry();
-
-    //Place pointers for the modules on the allModules vector
-    //prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
-
-    emit finishedLoading();
-
-    //Remove the loading nodes
-    _logoNode->remove();
-    _logoLight->remove();
-    _logoAnim->drop();
-
-    forceUpdate(); //Make sure the timer is correct!
-    setCamera(AGeometry::Maya);  
+  qDebug() << "Loaded AGeometry (" << time.elapsed() << " ms)";
 }
 
 void AGeometry::executeMosesMode(core::vector3df camPos)
@@ -876,14 +884,18 @@ void AGeometry::createAtlasGeometry()
 
   if ( generateDetectorGeometry )
     {
+
+      ref.allModules=&this->allModules;
+      getSceneManager()->loadScene ( "geometry.irr" , &ref );
+      Atlas_Reference=getSceneManager()->getSceneNodeFromName( "Atlas_Reference" );
+      Atlas_Reference->setVisible(true);
+
+      ref.allModules=0;
       if ( !isCrappyComputer )
 	  {
             getSceneManager()->loadScene ( "ATLAS_Pit.lvl" , &ref );
             Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
 	  }
-
-	  ref.allModules=&this->allModules;
-	  getSceneManager()->loadScene ( "geometry.irr" , &ref );
     }
 }
 
@@ -1261,7 +1273,7 @@ void AGeometry::setViewport(int to)
 void AGeometry::setCamera(int to,bool animate)
 {
     if (to==active_cam) return; //Already using it
-qDebug() <<  "TEST1";
+
     switch (to)
     {
     case AGeometry::FPS:
@@ -1284,10 +1296,10 @@ qDebug() <<  "TEST1";
         cameraSwitcher->setTargetCamera(camera[to]);
       else
 	getSceneManager()->setActiveCamera(camera[to]);
-qDebug() <<  "TEST2";
+
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
-qDebug() <<  "TEST3";
+
     zoomIn->setVisible(to==AGeometry::Maya);
     zoomOut->setVisible(to==AGeometry::Maya);
 }

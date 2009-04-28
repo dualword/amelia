@@ -196,6 +196,7 @@ private:
     const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
     scene::ISceneNode* Pit_Reference;
+    scene::ISceneNode* Atlas_Reference;
     scene::ISceneNode* background_node_f; //Used for flat view
     scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;
@@ -229,7 +230,7 @@ private:
     float angleBetween ( scene::ISceneNode* module, core::vector3df cam );
     void addModuleToVector ( std::vector<module>* allModules, scene::ISceneNode* newNode, int id, int mType, bool neverDisappear );
     void createAtlasGeometry();
-	void createFlatGeometry();
+    void createFlatGeometry();
    
     void prepareAllModules ( scene::ISceneNode* node_ );
     ATrack3DNode* trackSelection ( core::position2di pos );

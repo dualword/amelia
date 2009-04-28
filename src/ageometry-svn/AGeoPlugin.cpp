@@ -61,6 +61,21 @@ void AGeoPlugin::load()
   //Load the ALayerGUI
   ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
   geoWin->setCentralWidget(_layerGUI);
+
+  QList<QWidget*> children=_layerGUI->findChildren<QWidget*>();
+  for(int i=0;i<children.size();i++)
+    if(children[i]->parentWidget()==_layerGUI && children[i]->objectName()!="AGeometryFrame")
+      {
+	qDebug() << children[i]->objectName();
+	children[i]->setEnabled(false);
+      }
+  
+  geoWin->menuBar()->setEnabled(false);
+
+  QList<QToolBar*> toolbars=geoWin->findChildren<QToolBar*>();
+  for(int i=0;i<toolbars.size();i++)
+    toolbars[i]->setEnabled(false);      
+
   AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
   _layerGUI->setupElements(mngr);
   connect(_layerGUI,SIGNAL(eventLoaded(AEvent*)),

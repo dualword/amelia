@@ -95,6 +95,7 @@ public:
 
 public slots:
     void actionSwitchView();
+    void enableElements();
 
     //Slots for event handling
     void toggleVisibilityParticles(bool toggle);

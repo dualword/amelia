@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="media" >
+    <file>initial.png</file>
     <file>icons/higgs.png</file>
     <file>icons/blackhole.png</file>
     <file>toolbar.png</file>
@@ -7,9 +8,9 @@
     <file>tab_active.png</file>
     <file>ageometry_skin.png</file>
     <file>border_skin.png</file>
-    <file>info_skin.png</file>    
-    <file>viewporthover_skin.png</file> 
-    <file>viewport_skin.png</file>    
+    <file>info_skin.png</file>
+    <file>viewporthover_skin.png</file>
+    <file>viewport_skin.png</file>
     <file>tab_bg.png</file>
     <file>eventWidget_bg.png</file>
     <file>sphere_cam.png</file>

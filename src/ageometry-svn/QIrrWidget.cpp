@@ -172,7 +172,7 @@ private:
 QIrrWidget::QIrrWidget( QWidget *parent )
   : QWidget(parent),driver(0),smgr(0),gui(0),
     _dirty(false),disabledRenderTexture(0),
-    _ready(false),_firstCamera(0),_logoNode(0),_topNode(0)
+    _ready(false),_loading(false),timerId(-1)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -187,12 +187,14 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 #ifdef Q_WS_WIN
   p=new QIrrWinWidgetPrivate(this);
 #else
-	p=new QIrrUnixWidgetPrivate(this);
+  p=new QIrrUnixWidgetPrivate(this);
 #endif
   
   layout->addWidget(p);
   
   setMouseTracking(true);
+
+  ss=QPixmap(":/media/initial.png");
 }
 
 QIrrWidget::~QIrrWidget()
@@ -249,16 +251,6 @@ bool QIrrWidget::isDirty()
   return _dirty;
 }
 
-ISceneNode* QIrrWidget::topNode()
-{
-	return _topNode;
-}
-	
-void QIrrWidget::setFirstCamera(ICameraSceneNode *cam)
-{
-	_firstCamera=cam;
-}
-
 void QIrrWidget::toggleDisabled()
 {
   setEnabled(!isEnabled());
@@ -301,9 +293,17 @@ void QIrrWidget::updateScreenshot()
       ss=QPixmap::fromImage(image);
     }
     else*/
-  ss=QPixmap::grabWindow(p->winId());
-
   
+  // For some reason, this is visible at the first screenshot and invisible at the second one
+  if(!p->isVisible())
+    ss=QPixmap::grabWindow(p->winId());  
+}
+
+void QIrrWidget::forceUpdate()
+{
+  QTimerEvent timer(timerId);
+  makeDirty();
+  timerEvent(&timer);
 }
 
 void QIrrWidget::paintEvent(QPaintEvent *event)
@@ -377,43 +377,10 @@ void QIrrWidget::load() { }
 
 void QIrrWidget::internalLoad()
 {
-  _topNode=smgr->addEmptySceneNode();
-  _topNode->setName("topNode");
-  _topNode->setVisible(false);
-  
-  //smgr->addCameraSceneNode(0,vector3df(0,200,0),vector3df(0,0,0));
-  
-#ifdef Q_WS_WIN  
-  getFileSystem()->addZipFileArchive("logo.zip");
-  IAnimatedMesh *logoMesh=smgr->getMesh("Logo.X");
-  _logoNode = smgr->addAnimatedMeshSceneNode(logoMesh);
-  _logoNode->setMaterialFlag(video::EMF_LIGHTING, false);
-  _logoNode->setMaterialType(video::EMT_SOLID);
-  
-  ISceneNodeAnimator *anim=smgr->createRotationAnimator(vector3df(1,0,0));
-  _logoNode->addAnimator(anim);
-  
-  loadingFuture=QtConcurrent::run(this,&QIrrWidget::load);
-  loadingFutureWatcher.setFuture(loadingFuture);
-  connect(&loadingFutureWatcher,SIGNAL(finished()),
-	  this,SLOT(handleLoadFinished()));
-#else
+  _loading=true;
   load();
-  handleLoadFinished();
-#endif
-}
-
-void QIrrWidget::handleLoadFinished()
-{
-  if(_logoNode)
-    _logoNode->setVisible(false);
-  
-  if(_firstCamera)
-    smgr->setActiveCamera(_firstCamera);
-  
-  _topNode->setVisible(true);
-  
   _ready=true;
+  _loading=false;
 }
 
 QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage, QRect baseRect, QRect overlayRect)
@@ -687,6 +654,42 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
       break;
     }
   return 0;
+}
+
+void QIrrWidget::timerEvent(QTimerEvent *event)
+{
+  if(!isEnabled()) return;
+
+  if(!_ready && !_loading)
+    internalLoad();
+
+  timer->tick();
+
+  if(_ready)
+    execute();
+
+  if(hasCameraMoved() || isDirty())
+    {
+      p->repaint();
+      updateLastCamera();
+      setDirty(false);
+    }
+  else
+    {
+      smgr->getRootSceneNode()->OnAnimate(timer->getTime());
+    }
+}
+
+void QIrrWidget::showEvent(QShowEvent *event)
+{
+  if(timerId==-1)
+    timerId=startTimer(40);
+}
+
+void QIrrWidget::hideEvent(QHideEvent *event)
+{
+  killTimer(timerId);
+  timerId=-1;
 }
 
 void QIrrWidget::enterEvent(QEvent* event)
@@ -996,50 +999,25 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
   os::Timer::initTimer();  
   parent->timer = new CTimer();
-
-  parent->internalLoad();
-}
-
-void QIrrUnixWidgetPrivate::timerEvent(QTimerEvent *event)
-{
-  parent->timer->tick();
-  if(parent->hasCameraMoved() || parent->isDirty())
-    {
-      updateGL();
-      parent->updateLastCamera();
-      parent->setDirty(false);
-    }
-  else
-    {
-      parent->smgr->getRootSceneNode()->OnAnimate(parent->timer->getTime());
-    }
-
-  parent->execute();
-}
-
-void QIrrUnixWidgetPrivate::showEvent(QShowEvent *event)
-{
-  if(timerId==-1)
-    timerId=startTimer(30);
-}
-
-void QIrrUnixWidgetPrivate::hideEvent(QHideEvent *event)
-{
-  killTimer(timerId);
-  timerId=-1;
 }
 
 void QIrrUnixWidgetPrivate::paintGL()
 {
-  if (parent->driver)
+  if (parent->driver && (parent->_ready || parent->_loading))
     {
       irr::video::SColor color (255,0,0,0);
-      
+
       parent->driver->beginScene(true,true,color);
 
       parent->smgr->drawAll();
       parent->gui->drawAll();
       parent->driver->endScene();
+
+      /*static int c=0;
+      QPixmap ss=QPixmap::grabWindow(winId());  
+      ss.save("images/"+QString::number(c)+".jpg");
+      c++;*/
     }
 }
+
 #endif

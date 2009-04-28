@@ -233,7 +233,6 @@ private:
     bool offsetTest;
 
     //State values
-    bool firstShow; //First show...
     bool allowTrackSelection; //Whether to allow track selection
 
     

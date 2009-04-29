@@ -17,8 +17,8 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES}
-             jpeg
-             png
+#             jpeg
+#             png
        )
 ENDIF(UNIX)
 

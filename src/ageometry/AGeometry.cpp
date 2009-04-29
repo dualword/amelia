@@ -256,7 +256,6 @@ void AGeometry::load()
 									   0.004,
 									   core::vector3df(1,1,-1)); 
   _logoLight->addAnimator(_logoAnim);
-  
   forceUpdate();
   
   core::vector3df camRot = camera[0]->getRotation();
@@ -266,19 +265,15 @@ void AGeometry::load()
   CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
   CameraBB->setID ( 0 );
   CameraBB->setName ("Moses Mode Box");
-  
   createFlatGeometry();
   
   zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
   zoomIn->setVisible(false);
   zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
   zoomOut->setVisible(false);
-  
+
   //Create the geometry
   createAtlasGeometry();
-  
-  //Place pointers for the modules on the allModules vector
-  //prepareAllModules ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) );
   
   emit finishedLoading();
   

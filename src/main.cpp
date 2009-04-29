@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QDir>
 #include "AMELIA.h"
+#include <QDebug>
 
 int main(int argc, char* argv[])
 {
@@ -19,8 +20,13 @@ int main(int argc, char* argv[])
      if (compileType == "debug" || compileType == "release")
          amelia.addSearchPath("plugins/"+compileType);
  #elif defined(Q_OS_MAC)
-     if (pluginsDir.dirName() == "MacOS")
-		amelia.addSearchPath("plugins/MacOS");       
+      if (appDir.dirName() == "Debug")
+	 { //XCode modifications
+		amelia.addSearchPath("plugins/Debug");
+		QDir cwd=QDir::current();
+		cwd.cdUp();
+		QDir::setCurrent(cwd.path());
+	 }    
  #endif
   
   amelia.loadAllPlugins();

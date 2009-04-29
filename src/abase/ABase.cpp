@@ -171,7 +171,7 @@ void ABase::setFakeCentralWidget(QWidget *wdg)
     {
       QMainWindow *mainWin=(QMainWindow*)wdg;
       setMenuBar(mainWin->menuBar());
-      menuBar->show();
+      menuBar()->show();
     }
 #endif //Q_WS_MAC
 

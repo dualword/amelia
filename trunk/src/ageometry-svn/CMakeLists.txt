@@ -17,8 +17,6 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES}
-             jpeg
-             png
        )
 ENDIF(UNIX)
 
@@ -72,7 +70,6 @@ SET(ageometry_H
   AAdvancedEventSettings.h
   AGeoPlugin.h
 
-  QAbstractTableModelWithContextMenu.h
   QTableViewWithContextMenu.h
   )
 

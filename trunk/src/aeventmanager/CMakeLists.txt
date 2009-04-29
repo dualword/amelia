@@ -50,11 +50,6 @@ SET(aeventmanager_H
   AFilteredEvent.h
 
   ATrack.h
-  ASTrack.h
-  AJet.h
-  AMisET.h
-  AShower.h
-  AFCALShower.h
   ATrackCombination.h
 
   ATrackFilter.h

@@ -945,8 +945,12 @@ QIrrUnixWidgetPrivate::QIrrUnixWidgetPrivate( QIrrWidget *parent )
   
   setFocusPolicy(Qt::StrongFocus);
   setAutoFillBackground(false);
+  
+#ifndef Q_WS_MAC
   setAutoBufferSwap(false);
-
+#else
+  setAutoBufferSwap(true);
+#endif
   this->parent=parent;
 }
 
@@ -1001,7 +1005,9 @@ void QIrrUnixWidgetPrivate::paintGL()
 
       parent->smgr->drawAll();
       parent->gui->drawAll();
+#ifndef Q_WS_MAC
       parent->driver->endScene();
+#endif //Q_WS_MAC
 
       /*static int c=0;
       QPixmap ss=QPixmap::grabWindow(winId());  

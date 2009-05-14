@@ -81,6 +81,7 @@ public:
     AFilteredEvent* event();
 
     void setComboMenu(QMenu*);
+    void addToDetectorMenu(QString,QAction*);
 
     ISceneNode* tar_node;
     ISceneNode* cam_node;
@@ -162,6 +163,9 @@ signals:
     void trackSelected(ATrack*);
     void trackDeselected(ATrack*);
 
+    void detectorPartSelected(const QString&);
+    void emptySelection();
+
 protected:
 
     void resizeEvent( QResizeEvent* event );
@@ -189,6 +193,7 @@ private:
     
     //GUI stuff
     QMenu *_comboMenu;
+    QMap<QString,QMenu*>  _detectorMenu;
     gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
 
     void switchVisibility(int modType); //Switches the visibility of the different components of the detector
@@ -232,8 +237,8 @@ private:
     void createAtlasGeometry();
     void createFlatGeometry();
    
-    void prepareAllModules ( scene::ISceneNode* node_ );
     ATrack3DNode* trackSelection ( core::position2di pos );
+    QString detectorSelection( core::position2di pos );
     bool offsetTest;
 
     //State values

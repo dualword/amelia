@@ -297,7 +297,8 @@ void QIrrWidget::updateScreenshot()
     else*/
   
   // For some reason, this is visible at the first screenshot and invisible at the second one
-  if(!p->isVisible())
+
+  if(driver && (_ready || _loading) && isVisible())
     ss=QPixmap::grabWindow(p->winId());  
 }
 

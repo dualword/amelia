@@ -17,8 +17,8 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES}
-#             jpeg
-#             png
+             jpeg
+             png
        )
 ENDIF(UNIX)
 
@@ -89,7 +89,7 @@ QT4_WRAP_CPP(ageometry_SRCS ${ageometry_H})
 QT4_ADD_RESOURCES(ageometry_SRCS ${ageometry_FILES})
 
 ADD_LIBRARY(AGeometry SHARED ${ageometry_SRCS})
-
+SET_PROPERTY(TARGET AGeometry PROPERTY LINK_INTERFACE_LIBRARIES "")
 TARGET_LINK_LIBRARIES(AGeometry
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES}   

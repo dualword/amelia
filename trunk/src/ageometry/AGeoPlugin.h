@@ -12,6 +12,9 @@
 
 #include <aeventmanager/AEvent.h>
 
+#include <AMainView.h>
+#include <AMainViewTmpWidget.h>
+
 #include "AGeometryDefines.h"
 
 class AGEOMETRY_EXPORT AGeoPlugin : public QObject, public APlugin
@@ -27,17 +30,22 @@ public:
   
   QWidget* findWidget(QString name);
   QMenu* addTrackComboMenu(QString text);
-  void addMainViewWidget(QWidget* widget,QString title);
+  int  addMainViewWidget(QWidget* widget,QString title="");
+  AMainViewTmpWidget* addMainViewTmpWidget(QWidget* widget);
+  void addToDetectorMenu(QString partName,QAction *action);
 
  public slots:
   void handleNewEventLoaded(AEvent*);
+  void displayMessage(QString text,QString header="",QPixmap img=QPixmap());
+  void switchToMainView(int idx);
 
  signals:
   void eventLoaded(AEvent*);
 
  private:
   QMainWindow* geoWin;
-  QStackedWidget* mainView;
+  AMainView* mainView;
+  class AGeometry *geo;
   QMenu* menuMain_View;
 
   QMenu comboMenu;

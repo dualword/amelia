@@ -28,7 +28,8 @@ void AMainView::setCurrentIndex(int idx)
   
   this->idx=idx;
   setDisabled(true);
-  
+
+  emit beforeCurrentIndexChanged(idx);
   slideTime->start();
 }
 
@@ -55,14 +56,10 @@ void AMainView::setCurrentIndex1()
       slideTime->start();
     }
   else
-    {
+    { // Animation step 2
       slideTime->setDirection(QTimeLine::Forward);
       setDisabled(false);
-      parentWidget()->layout()->setEnabled(true);  
+      parentWidget()->layout()->setEnabled(true);
+      emit afterCurrentIndexChanged(idx);
     }
-}
-
-void AMainView::setCurrentIndex2()
-{
-  //Enable parent layout
 }

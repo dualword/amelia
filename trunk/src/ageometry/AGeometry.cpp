@@ -129,29 +129,6 @@ AGeometry::~AGeometry()
     if (rt) rt->drop();
 }
 
-void AGeometry::prepareAllModules ( scene::ISceneNode* node_ )
-{
-    if ( !node_ )
-        return;
-
-    if ( ( node_->getType() != ESNT_EMPTY ) && ( node_->getType() != ESNT_LIGHT ) )
-        if ( ( node_->getID() != 4 ) && ( node_->getID() !=7 ) )
-        {
-            node_->setID ( 0x0008 );
-            //node_->updateAbsolutePosition();
-            //node_->setDebugDataVisible(true);
-            allModules.push_back ( node_ );
-        }
-
-    // recursive call to children
-    const core::list<scene::ISceneNode*> & children = node_->getChildren();
-    core::list<scene::ISceneNode*>::ConstIterator it = children.begin();
-    for ( ; it != children.end(); ++it )
-    {
-        prepareAllModules ( *it );
-    }
-}
-
 void AGeometry::load()
 {
   QTime time;
@@ -335,6 +312,63 @@ void AGeometry::executeMosesMode(core::vector3df camPos)
     }
     CameraBB->setVisible ( false );
 
+}
+
+QString AGeometry::detectorSelection( core::position2di pos )
+{
+  ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
+  ISceneNode* selection=colmgr->getSceneNodeFromScreenCoordinatesBB(pos,8);
+  
+  // Make sure that the ID is 8, and not -1. Stupid bitmask...
+  if(selection && selection->getID()==8)
+    {
+      QString partName(selection->getName());
+      if(partName=="TC_Barrel" || 
+	 partName=="TCB_Reference" || 
+	 partName=="TC_Reference")
+	return "TC_Reference";
+
+      else if(partName=="EMC_Reference" ||
+	      partName=="EMCB_Reference" ||
+	      partName=="EMC_Barrel")
+	return "EMC_Reference";
+
+      else if(partName=="TRT_Reference" ||
+	      partName=="TRTB_Reference" ||
+	      partName=="TRT_Barrel")
+	return "TRT_Reference";
+
+      else if(partName=="Magnets_Reference" ||
+	      partName=="Toroid_Magnet")
+	return "Magnets_Reference";
+
+      else if(partName=="SCT_Reference" ||
+	      partName=="SCTB_Reference" ||
+	      partName=="SCT_Barrel_L1" ||
+	      partName=="SCT_Barrel_L2" ||
+	      partName=="SCT_Barrel_L3" ||
+	      partName=="SCT_Barrel_L4" ||
+	      partName=="SCT_Disks")
+	return "SCT_Reference";
+
+      else if(partName=="Pixels_Reference" ||
+	      partName=="PixelsB_Reference" ||
+	      partName=="Pixels_Barrel_L1" ||
+	      partName=="Pixels_Barrel_L2" ||
+	      partName=="Pixels_Barrel_L3" ||
+	      partName=="Pixels_Tube" ||
+	      partName=="Pixels_Rings" ||
+	      partName=="Pixels_Frame_Barrel" ||
+	      partName=="Pixels_Frame_EC" ||
+	      partName=="Pixels_Disks")
+	return "Pixels_Reference";
+
+      else if(partName=="Muons_Reference" ||
+	      partName=="MuonSpectrometer")
+	return "Muons_Reference";
+    }
+
+  return "";
 }
 
 ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
@@ -984,6 +1018,7 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
   if ( active_viewport == AGeometry::Cam3D )
     {
       core::position2di posMouse = core::position2di(event->x(),event->y());
+      bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
       
       if(event->button()==Qt::LeftButton)
 	{
@@ -992,17 +1027,15 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 	    {
 	      grabControl();
 	    }
-	  if (allowTrackSelection && event->button()==Qt::LeftButton)
+	  if (event->button()==Qt::LeftButton)
 	    {
-	      ATrack3DNode *selected;
-	      
-	      //Do the actual selection
-	      selected=trackSelection(posMouse);
+	      if(allowTrackSelection)
+		{ //Start track selection
+		  ATrack3DNode *selected=trackSelection(posMouse);
 	      
 	      //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-	      bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
 	      if (!Shift)
-		{
+		    { // Deselect every selected track
 		  while (!selectedTracks.isEmpty())
 		    {
 		      ATrack3DNode *node=selectedTracks.back();
@@ -1010,8 +1043,8 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 		      selectedTracks.pop_back();
 		      emit trackDeselected(node->getTrack());
 		    }
-		}
-	      
+		    }
+		  
 	      if (selected)
 		{
 		  int idx=selectedTracks.indexOf(selected);
@@ -1021,15 +1054,27 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 		      selectedTracks.push_back(selected);
 		      emit trackSelected(selected->getTrack());
 		      qDebug() << "Found and selected a track...";
+			}
+		      else //else deselect it
+			{
+			  selectedTracks.removeAt(idx);
+			  selected->deselect();
+			  emit trackDeselected(selected->getTrack());
+			  qDebug() << "Found and delselected a track...";
+			}
+		      return;
 		    }
-		  else //else deselect it
-		    {
-		      selectedTracks.removeAt(idx);
-		      selected->deselect();
-		      emit trackDeselected(selected->getTrack());
-		      qDebug() << "Found and delselected a track...";
-		    }
+		} //End track selection
+	      
+	      if(!Shift) // When we press shift, then for sure we only want track selection
+	      { //Start detector selection
+	      QString partName=detectorSelection(posMouse);
+	      if(partName!="")
+		{
+		  emit detectorPartSelected(partName);
+		  return;
 		}
+	      } //End detector selection
 	    }
 	}
       
@@ -1052,6 +1097,8 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 
     }
   
+  emit emptySelection();
+
   QIrrWidget::mouseClickEvent(event);
 }
 
@@ -1134,6 +1181,20 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
   return QIrrWidget::keyPressEvent(event);
 }
 
+/*void setRecursiveMaterialFlag(ISceneNode *node_,video::E_MATERIAL_FLAG flag,bool status)
+{
+  printf("Set %p %s \n",node_,node_->getName());
+  node_->setMaterialFlag(flag,status);
+  
+  // recursive call to children
+  const core::list<scene::ISceneNode*> & children = node_->getChildren();
+  core::list<scene::ISceneNode*>::ConstIterator it = children.begin();
+  for ( ; it != children.end(); ++it )
+    {
+      setRecursiveMaterialFlag( *it ,flag,status);
+    }
+    }*/
+
 void AGeometry::contextMenuEvent( QContextMenuEvent *event )
 {
   QMenu menu;
@@ -1165,6 +1226,29 @@ void AGeometry::contextMenuEvent( QContextMenuEvent *event )
 	comboMenuAction->setEnabled(false);
       else
       	comboMenuAction->setEnabled(true);
+    }
+
+  /* If a detector part is selected, add it to the menu */
+  QPoint qpos=event->pos();
+
+  core::position2di pos(qpos.x(),qpos.y());
+  QString partSelected=detectorSelection(pos);
+  if(partSelected!="")
+    {
+      // Add menu entry
+      if(_detectorMenu.contains(partSelected))
+	{
+	  menu.addMenu(_detectorMenu[partSelected]);
+	}
+      else
+	{
+	  QMenu *partMenu=menu.addMenu(partSelected);
+	  partMenu->setEnabled(false);
+	}
+
+      // Highlight
+      //TODO Highlight somehow...
+      //ISceneNode *partNode=getSceneManager()->getSceneNodeFromName(partSelected.toAscii().data());
     }
 
   //Display!!
@@ -1398,6 +1482,17 @@ void AGeometry::removeTarAnimator ()
 void AGeometry::setComboMenu(QMenu *comboMenu)
 {
   _comboMenu=comboMenu;
+}
+
+void AGeometry::addToDetectorMenu(QString partName,QAction *action)
+{
+  if(!_detectorMenu.contains(partName))
+    {
+      QMenu *newMenu=new QMenu(partName);
+      _detectorMenu[partName]=newMenu;
+    }
+
+  _detectorMenu[partName]->addAction(action);
 }
 
 void AGeometry::updateTracks()

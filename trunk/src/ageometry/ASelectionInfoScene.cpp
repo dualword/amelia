@@ -71,8 +71,11 @@ void ASelectionInfoScene::init()
     // Main message
     serifFont.setPointSize(14);
     message=addText("",serifFont);
-    message->setPos(20,10);
+    message->setPos(20,20);
     message->setVisible(false);
+
+    icon=addPixmap(QPixmap());
+    icon->setPos(10,20);
 
 
     // Hide Everything by Default
@@ -145,14 +148,39 @@ void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 	  this,SLOT(refresh()));
 }
 
-void ASelectionInfoScene::displayMessage(QString text)
+void ASelectionInfoScene::displayMessage(QString text,QString headerText,QPixmap img)
 {
   //TODO: Automatic line breaks and centering using font metrics
-  message->setHtml("<center>"+text+"</center>");
   message->setVisible(true);
+
+  if(!img.isNull())
+    {
+      int imgWidth=img.width();
+      message->setPos(25+imgWidth,15);
+      message->setTextWidth(350-imgWidth-5);
+      icon->setVisible(true);      
+      icon->setPixmap(img);
+    }
+  else
+    {
+      message->setPos(20,20);
+      message->setTextWidth(350);
+      icon->setVisible(false);
+    }
   
+  if(!headerText.isEmpty())
+    {
+      message->setHtml(text);
+      header->setPlainText(headerText);
+      header->setVisible(true);
+    }
+  else
+    {
+      message->setHtml("<center>"+text+"</center>");
+      header->setVisible(false);
+    }
+
   //Hide track information
-  header->setVisible(false);
   nonSelectable->setVisible(false);
   name->setVisible(false);
   charge->setVisible(false);
@@ -167,7 +195,16 @@ void ASelectionInfoScene::displayMessage(QString text)
 
 void ASelectionInfoScene::hideMessage()
 {
-  message->setVisible(false);
+  // Only hide if a message is displayed
+  // This makes sure that we don't hide
+  // The header during track selection..
+  // TODO: Restore any previous display, ei track selection
+  if(message->isVisible())
+    {
+      message->setVisible(false);
+      icon->setVisible(false);
+      header->setVisible(false);
+    }
 }
 
 void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
@@ -203,6 +240,7 @@ void ASelectionInfoScene::refresh()
       addTrack->setVisible(false);
       combTrack->setVisible(false);
       message->setVisible(false);
+      icon->setVisible(false);
       return; //Dooone;
     }
   else if (combo->size()==1)
@@ -230,7 +268,7 @@ void ASelectionInfoScene::refresh()
 	  phi->setVisible(true);
 	  id->setVisible(true);
 	  combTrack->setVisible(false);
-
+	  icon->setVisible(false);
 	  nonSelectable->setVisible(false);
         }
       else if ( (*combo)[0]->type() == ATrack::eJet ) //jet
@@ -250,6 +288,7 @@ void ASelectionInfoScene::refresh()
 	  eta->setVisible(true);
 	  phi->setVisible(true);
 	  combTrack->setVisible(false);
+	  icon->setVisible(false);
         }
       else if ( (*combo)[0]->type() == ATrack::eMissingEt ) //Missing Et
         {
@@ -268,6 +307,7 @@ void ASelectionInfoScene::refresh()
 	  eta->setVisible(true);
 	  phi->setVisible(true);
 	  combTrack->setVisible(false);
+	  icon->setVisible(false);
         }
     }
   else
@@ -289,7 +329,7 @@ void ASelectionInfoScene::refresh()
       phi->setVisible(false);
       id->setVisible(false);
       nonSelectable->setVisible(false);
-      
+      icon->setVisible(false);
       
       combTrack->setVisible(true);
     }

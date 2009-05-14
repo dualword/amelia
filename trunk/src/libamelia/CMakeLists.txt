@@ -19,6 +19,7 @@ SET(amelia_SRCS
 	QTimeLineProxy.cpp
 	AAnimationGUI.cpp
 	AMainView.cpp
+	AMainViewTmpWidget.cpp
 	APlugin.cpp
 	AMELIA.cpp
   )
@@ -31,6 +32,7 @@ SET(amelia_H
 	QTimeLineProxy.h
 	AAnimationGUI.h
 	AMainView.h
+	AMainViewTmpWidget.h
  	APlugin.h
 	AMELIA.h
     )

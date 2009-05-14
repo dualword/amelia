@@ -40,7 +40,7 @@ void CSceneNodeAnimatorCameraSwitch::animateNode(scene::ISceneNode* node, u32 ti
   core::vector3df finalTarget = targetCam->getTarget();
 
   core::vector3df posDiff=calculateDelta(currentPosition,finalPosition,timeDiff);
-  core::vector3df tarDiff=calculateDelta(currentTarget,finalTarget,timeDiff*10);
+  core::vector3df tarDiff=calculateDelta(currentTarget,finalTarget,timeDiff*50);
 
   f32 posDiffLength=posDiff.getLength();
   f32 tarDiffLength=tarDiff.getLength();
@@ -105,6 +105,9 @@ core::vector3df CSceneNodeAnimatorCameraSwitch::calculateDelta(core::vector3df s
   f32 moveBy=timeDiff;
   if(delta.getLength()>=moveBy)
     delta.setLength(moveBy);
+
+  //if(delta.getLength()>=100)
+  //delta.setLength(100);
 
   return delta;
 }

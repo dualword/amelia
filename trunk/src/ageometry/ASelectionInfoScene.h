@@ -69,7 +69,7 @@ class ASelectionInfoScene : public QGraphicsScene
   void handleViewportChange(int from,int to);
   void handleNewEventLoaded(AEvent*);
   
-  void displayMessage(QString message);
+  void displayMessage(QString message,QString headerText="",QPixmap img=QPixmap());
   void hideMessage();
   bool particleFilter(ATrack* strack);
   void refresh();
@@ -103,6 +103,7 @@ class ASelectionInfoScene : public QGraphicsScene
   QGraphicsProxyWidget *addTrack;
   QGraphicsProxyWidget *combTrack;
   QGraphicsTextItem *message;
+  QGraphicsPixmapItem *icon;
   
   void init();
   

@@ -235,6 +235,7 @@ void ABase::changeToMenu()
       
       AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
 
+      monitor->setWidgetEnabled(false);
       setFakeCentralWidget(&menuWidget);
       monitor->restoreWidget();
     }
@@ -276,11 +277,13 @@ void ABase::changeToMonitor(const QString& path)
 
   monitorGroups[group]->setHandlesChildEvents(true);
 
+  qDebug() << currentMonitor;
   if(!currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
     {
       AMonitor* current=monitorGroups[currentGroup]->monitor(currentMonitor);
       
       //Swap...
+      current->setWidgetEnabled(false);
       setFakeCentralWidget(&menuWidget);
       current->restoreWidget();
     }

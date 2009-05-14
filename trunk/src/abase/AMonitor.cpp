@@ -58,7 +58,6 @@ void AMonitor::storeWidget()
 
 void AMonitor::restoreWidget()
 {
-  setWidgetEnabled(false);
   QWidget* parent=tmpwidget->parentWidget();
   if(parent)
     {

@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="media" >
+    <file>TC_Reference.png</file>
+    <file>EMC_Reference.png</file>
+    <file>Magnets_Reference.png</file>
+    <file>Muon_Reference.png</file>
+    <file>Pixels_Reference.png</file>
+    <file>SCT_Reference.png</file>
+    <file>TC_Reference.png</file>
+    <file>TRT_Reference.png</file>
+  </qresource>
+</RCC>

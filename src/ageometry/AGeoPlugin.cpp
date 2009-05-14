@@ -39,6 +39,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <abase/ABase.h>
 #include <aeventmanager/AEventManager.h>
 
+#include "ASelectionInfoScene.h"
+#include "AGeometry.h"
+
 AGeoPlugin::AGeoPlugin( QObject *parent )
         : QObject(parent)
 {
@@ -82,7 +85,7 @@ void AGeoPlugin::load()
 	  this,SLOT(handleNewEventLoaded(AEvent*)));
 
   //Setup the menu for the main view
-  mainView=geoWin->findChild<QStackedWidget*>("AGeometryFrame");
+  mainView=geoWin->findChild<AMainView*>("AGeometryFrame");
   menuMain_View=geoWin->findChild<QMenu*>("menuMain_View");
   QAction* actionDetector=geoWin->findChild<QAction*>("actionDetector");
   QAction* actionTables=geoWin->findChild<QAction*>("actionTables");
@@ -95,6 +98,9 @@ void AGeoPlugin::load()
   
   connect(&mainViewMapper,SIGNAL(mapped(int)),
 	  mainView,SLOT(setCurrentIndex(int)));
+
+  //Setup the geometry object
+  geo=geoWin->findChild<AGeometry*>("Geometry");
 
   //Setup the menu for track combinations
   QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
@@ -117,18 +123,48 @@ QMenu* AGeoPlugin::addTrackComboMenu(QString text)
   return comboMenu.addMenu(text);
 }
 
-void AGeoPlugin::addMainViewWidget(QWidget* widget,QString title)
+int AGeoPlugin::addMainViewWidget(QWidget* widget,QString title)
 {
   int idx=mainView->addWidget(widget);
-  QAction* newAction=menuMain_View->addAction(title);
-  mainViewMapper.setMapping(newAction,idx);
-  connect(newAction,SIGNAL(triggered()),
-	  &mainViewMapper,SLOT(map()));
+  
+  if(!title.isEmpty())
+    {
+      QAction* newAction=menuMain_View->addAction(title);
+      mainViewMapper.setMapping(newAction,idx);
+      connect(newAction,SIGNAL(triggered()),
+	      &mainViewMapper,SLOT(map()));
+    }
+
+  return idx;
 }
+
+AMainViewTmpWidget* AGeoPlugin::addMainViewTmpWidget(QWidget* widget)
+{
+  AMainViewTmpWidget *tmpwidget=new AMainViewTmpWidget(widget,mainView);
+  return tmpwidget;
+}
+
+void AGeoPlugin::addToDetectorMenu(QString partName,QAction* action)
+{
+  geo->addToDetectorMenu(partName,action);
+}
+				   
 
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)
 {
   emit eventLoaded(event);
+}
+
+void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)
+{
+  QGraphicsView *trackInfoView=(QGraphicsView*)findWidget("trackInfo");
+  ASelectionInfoScene *trackInfo=(ASelectionInfoScene*)trackInfoView->scene();
+  trackInfo->displayMessage(text,header,img);
+}
+
+void AGeoPlugin::switchToMainView(int idx)
+{
+  mainView->setCurrentIndex(idx);
 }
 
 Q_EXPORT_PLUGIN2(AGeoPlugin, AGeoPlugin)

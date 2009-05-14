@@ -171,6 +171,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(updateTrackInfo(ATrack*)));
         connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
                 trackInfo,SLOT(removeTrackInfo(ATrack*)));
+        connect(geo,SIGNAL(emptySelection()),
+                trackInfo,SLOT(hideMessage()));
+
 
         connect(geo,SIGNAL(viewportSwitched(int,int)),//Basically clear the track selection on camera change
                 trackInfo,SLOT(handleViewportChange(int,int)));

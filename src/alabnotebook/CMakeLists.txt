@@ -37,6 +37,5 @@ ADD_LIBRARY(ALabNoteBook SHARED ${alabnotebook_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 TARGET_LINK_LIBRARIES(ALabNoteBook
   ${QT_LIBRARIES}
-  AGeometry
   AEventManager
   amelia)

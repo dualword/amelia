@@ -58,6 +58,7 @@ AGeometry::AGeometry(QWidget* parent)
     background_node_s = NULL;
     Pit_Reference = NULL;
 
+    firstShow=true;
 
     // Dynamic FPS camera initial parameters
     cameraZone = 3;
@@ -77,12 +78,11 @@ AGeometry::AGeometry(QWidget* parent)
     SCT_switch = 1;
     Pix_switch = 1;
 
-	// Cameras
-	camera[0] = NULL;
-	camera[1] = NULL;
-	camera[2] = NULL;
-	camera[3] = NULL;
-
+    // Cameras
+    camera[0] = NULL;
+    camera[1] = NULL;
+    camera[2] = NULL;
+    camera[3] = NULL;
 
     pos = core::vector3df ( 0,0,0 );
     rot = core::vector3df ( 0,0,0 );
@@ -138,8 +138,7 @@ void AGeometry::load()
   //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
   getFileSystem()->addFolderFileArchive ( "./media/" );
   getFileSystem()->addFolderFileArchive ( "./media/tours" );
-  getFileSystem()->addFolderFileArchive ( "./media/events" );
-  getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
+  getFileSystem()->addFolderFileArchive ( "./media/events" );  getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
   getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
   getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
   
@@ -218,17 +217,17 @@ void AGeometry::load()
   _logoCamera->updateAbsolutePosition();
   
   getSceneManager()->loadScene("logo.irr");
-  ISceneNode *_logoNode=getSceneManager()->getSceneNodeFromName("LoadingNode");
+  _logoNode=getSceneManager()->getSceneNodeFromName("LoadingNode");
   _logoNode->setPosition(core::vector3df(1200,425,-1400));
   _logoNode->setRotation(core::vector3df(-90,-180,0));
   
   
-  ILightSceneNode* _logoLight=getSceneManager()->addLightSceneNode(0,
+  _logoLight=getSceneManager()->addLightSceneNode(0,
 								   core::vector3df(1200,500,-1300), 
 								   video::SColorf(1.0f, 1.0f, 1.0f), 
 								   200.0f);
   
-  ISceneNodeAnimator* _logoAnim=getSceneManager()->createFlyCircleAnimator(core::vector3df(1200,500,-1200),
+  _logoAnim=getSceneManager()->createFlyCircleAnimator(core::vector3df(1200,500,-1200),
 									   50.f,
 									   0.004,
 									   core::vector3df(1,1,-1)); 
@@ -253,16 +252,9 @@ void AGeometry::load()
   createAtlasGeometry();
   
   emit finishedLoading();
-  
-  //Remove the loading nodes
-  _logoNode->remove();
-  _logoLight->remove();
-  _logoAnim->drop();
-  
+
   forceUpdate(); //Make sure the timer is correct!
   
-  setCamera(AGeometry::Maya);
-
   qDebug() << "Loaded AGeometry (" << time.elapsed() << " ms)";
 }
 
@@ -629,6 +621,18 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 
 void AGeometry::execute()
 {  
+  if(firstShow)
+    {
+      printf("First Show\n");
+      //Remove the loading nodes
+      _logoNode->remove();
+      _logoLight->remove();
+      _logoAnim->drop();
+      setCamera(AGeometry::Maya);
+      firstShow=false;
+    }
+
+
   // Main 3D view
   if(hasCameraMoved())
     {

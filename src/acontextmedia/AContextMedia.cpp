@@ -61,12 +61,6 @@ AContextMedia::AContextMedia( QObject *parent )
   
   headers["Magnets_Reference"]="The Magnets";
   text["Magnets_Reference"]="The ATLAS detector is surrounded by 8 toroid magnets housed in separate cryostats and two endcap cryostats housing eight coils each. There is also a central solenoid with a length of 5.3 m with a bore of 2.4 m and is capable of producint fields ranging from 2 tesla to 2.6 tesla.";
-
-  Phonon::VideoPlayer *player1=new Phonon::VideoPlayer(Phonon::VideoCategory);
-  player1->resize(100,100);
-  player1->show();
-  player1->play(Phonon::MediaSource("media/TC_Reference.mov"));
-
 }
 
 AContextMedia::~AContextMedia()
@@ -75,13 +69,13 @@ AContextMedia::~AContextMedia()
 void AContextMedia::load()
 { 
   geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
-
+  
   QWidget *ageometry=geo->findWidget("Geometry");
-
+  
   // Prepare info selections
   connect(ageometry,SIGNAL(detectorPartSelected(const QString&)),
 	  this,SLOT(handleDetectorSelected(const QString&)));
-
+  
   // Prepare movie menus
   QList<QString> partNames=headers.keys();
   for(int i=0;i<partNames.size();i++)
@@ -131,11 +125,6 @@ void AContextMedia::playVideo(const QString& partName)
 	  player,SLOT(play()));
 
   player->load(Phonon::MediaSource("media/"+partName+".mov"));
-
-  /*Phonon::VideoPlayer *player1=new Phonon::VideoPlayer(Phonon::VideoCategory);
-  player1->resize(100,100);
-  player1->show();
-  player1->play(Phonon::MediaSource("media/"+partName+".mov"));*/
 }
 
 Q_EXPORT_PLUGIN2(AContextMedia, AContextMedia)

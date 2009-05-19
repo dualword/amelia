@@ -243,9 +243,13 @@ private:
 
     //State values
     bool allowTrackSelection; //Whether to allow track selection
-
+    bool firstShow;
     
     video::ITexture *rt;
+
+    scene::ISceneNode *_logoNode;
+    scene::ISceneNodeAnimator *_logoAnim;
+    scene::ILightSceneNode *_logoLight;
 
 };
 

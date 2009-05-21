@@ -25,7 +25,8 @@ IF(PHONON_FOUND)
   ADD_DEFINITIONS(-DQT_SHARED)
   
   SET(acontextmedia_SRCS
-    AContextMedia.cpp)
+    AContextMedia.cpp
+    ACustomPlayer.cpp)
   
   SET(acontextmedia_H
     AContextMedia.h)

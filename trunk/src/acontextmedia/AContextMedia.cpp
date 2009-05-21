@@ -35,6 +35,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "AContextMedia.h"
 
+#include "ACustomPlayer.h"
+
 #include <QDebug>
 #include <QPushButton>
 
@@ -106,23 +108,11 @@ void AContextMedia::playVideo(const QString& partName)
   QWidget *playerWdg=new QWidget();
   QLayout *playerLayout=new QVBoxLayout(playerWdg);
   
-  Phonon::VideoPlayer *player=new Phonon::VideoPlayer(playerWdg);
+  ACustomPlayer *player=new ACustomPlayer(playerWdg);
   playerLayout->addWidget(player);
 
   AMainViewTmpWidget *tmp=geo->addMainViewTmpWidget(playerWdg);
   connect(player, SIGNAL(finished()), tmp, SLOT(close()));
-
-  QPushButton *b1=new QPushButton();
-  playerLayout->addWidget(b1);
-  b1->setText("Close");
-  QPushButton *b2=new QPushButton();
-  b2->setText("Play");
-  playerLayout->addWidget(b2);
-  
-  connect(b1,SIGNAL(clicked()),
-	  tmp,SLOT(close()));
-  connect(b2,SIGNAL(clicked()),
-	  player,SLOT(play()));
 
   player->load(Phonon::MediaSource("media/"+partName+".mov"));
 }

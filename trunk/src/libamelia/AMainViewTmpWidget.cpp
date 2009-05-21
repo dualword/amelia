@@ -7,7 +7,7 @@ AMainViewTmpWidget::AMainViewTmpWidget(QWidget *widget,AMainView *parent)
   QLayout *layout=new QVBoxLayout(this);
   layout->addWidget(widget);
 
-  internalId=parent->addWidget(widget);
+  internalId=parent->addWidget(this);
   previousId=parent->currentIndex();
 
   parent->setCurrentIndex(internalId);
@@ -16,6 +16,17 @@ AMainViewTmpWidget::AMainViewTmpWidget(QWidget *widget,AMainView *parent)
 	  this,SLOT(stop()));
   connect(parent,SIGNAL(afterCurrentIndexChanged(int)),
 	  this,SLOT(start()));
+
+  closeButton.setParent(this);
+  closeButton.resize(15,15);
+
+  QPoint pos(width()-15,0);
+  closeButton.move(pos);
+  
+  closeButton.setPixmap(QPixmap(":/media/stop.png"));
+
+  connect(&closeButton,SIGNAL(clicked()),
+	  this,SLOT(close()));
 }
 					 
 void AMainViewTmpWidget::stop()
@@ -35,12 +46,16 @@ void AMainViewTmpWidget::start()
       deleteLater();
       mainView->removeWidget(this);
     }
-  
-  setEnabled(true);
 }
   
-  void AMainViewTmpWidget::close()
-  {
-    AMainView *mainView=(AMainView*)parentWidget();
-    mainView->setCurrentIndex(previousId);
-  }
+void AMainViewTmpWidget::close()
+{
+  AMainView *mainView=(AMainView*)parentWidget();
+  mainView->setCurrentIndex(previousId);
+}
+
+void AMainViewTmpWidget::resizeEvent(QResizeEvent *event)
+{
+  QPoint pos(event->size().width()-15,0);
+  closeButton.move(pos);
+}

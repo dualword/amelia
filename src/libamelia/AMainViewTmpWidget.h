@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "AMainView.h"
+#include "AHideAButton.h"
 
 class AMainViewTmpWidget : public QWidget
 {
@@ -15,9 +16,13 @@ public slots:
   void stop();
   void close();
 
+protected:
+  void resizeEvent(QResizeEvent *event);
+
 private:
   int internalId;
   int previousId;
+  AHideAButton closeButton;
 
 Q_OBJECT
 };

@@ -15,19 +15,24 @@ QList<ALabNoteBookEntry*> ALabNoteBookData::entries()
 void ALabNoteBookData::addEntry(ALabNoteBookEntry* newEntry)
 {
   connect(newEntry,SIGNAL(updated()),
-	  this,SLOT(handleEntryUpdate()));
+	  this,SLOT(handleEntryUpdate()),
+		Qt::DirectConnection);
 
-  emit updated();
+  bool inserted=false;
   for(int i=0;i<_entries.size();i++)
     {
       if(newEntry->time()>_entries[i]->time())
 	{
 	  _entries.insert(i,newEntry);
-	  return;
+	  inserted=true;
+	  break;
 	}
     }
   //Not inserted because everything come before..
-  _entries.append(newEntry);
+  if(!inserted)
+    _entries.append(newEntry);
+
+  emit updated();
 }
 
 void ALabNoteBookData::handleEntryUpdate()

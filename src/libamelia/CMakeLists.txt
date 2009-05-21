@@ -18,6 +18,7 @@ SET(amelia_SRCS
 	QGraphicsItemTransformAnimation.cpp
 	QTimeLineProxy.cpp
 	AAnimationGUI.cpp
+	AHideAButton.cpp
 	AMainView.cpp
 	AMainViewTmpWidget.cpp
 	APlugin.cpp
@@ -31,13 +32,14 @@ SET(amelia_H
 	QGraphicsItemTransformAnimation.h
 	QTimeLineProxy.h
 	AAnimationGUI.h
+	AHideAButton.h
 	AMainView.h
 	AMainViewTmpWidget.h
  	APlugin.h
 	AMELIA.h
     )
 
-SET(amelia_FILES)
+SET(amelia_FILES amelia.qrc)
 
 QT4_WRAP_CPP(amelia_SRCS ${amelia_H})
 QT4_ADD_RESOURCES(amelia_SRCS ${amelia_FILES})

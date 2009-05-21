@@ -8,13 +8,6 @@
 
 #include <ageometry/AGeoPlugin.h>
 
-#ifdef QT_PHONON_LIB
-#include <Phonon>
-#else
-#include <Phonon/VideoPlayer>
-#endif
-
-
 class AContextMedia : public QObject, public APlugin
 {
   Q_OBJECT

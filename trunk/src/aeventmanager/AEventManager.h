@@ -33,7 +33,7 @@ public:
     void packageAdded(const QString& name);
 
  private:
-    QMap<QString,AEventPackage*> packages;
+    QList<AEventPackage*> packages;
 
     QString loc;
     QString activePackage;

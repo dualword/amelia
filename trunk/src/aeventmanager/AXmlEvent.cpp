@@ -45,6 +45,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <string>
 #include <vector>
 
+#include "AEventPackage.h"
+
 QMap<QString,AXmlEvent*> AXmlEvent::cache=QMap<QString,AXmlEvent*>();
 
 
@@ -420,4 +422,26 @@ void AXmlEvent::LoadEvent ( )
     GetEventFromFile (location);
   isLoaded=true;
   //}
+}
+
+void AXmlEvent::setPackage(AEventPackage *pkg)
+{
+  AEvent::setPackage(pkg);
+
+  QFile file(location);
+  QFileInfo fileInfo(location);
+  QString currentLocation=location;
+  
+  QString newLocation;
+  if(pkg==0) //If removing from a package, save the file to a temporary location
+    newLocation=QDir::tempPath()+"/"+fileInfo.fileName();
+  else
+    newLocation=pkg->location()+"/"+fileInfo.fileName();
+
+  if(currentLocation!=newLocation)
+    {
+      file.copy(newLocation);
+      file.remove();
+      location=newLocation;
+    }
 }

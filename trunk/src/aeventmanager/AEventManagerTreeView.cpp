@@ -1,12 +1,19 @@
 #include "AEventManagerTreeView.h"
+#include <QBetterMimeData.h>
 #include <QDebug>
+#include <QMenu>
 
 AEventManagerTreeView::AEventManagerTreeView(QWidget *parent):QTreeView(parent)
 {
   setRootIsDecorated(false);
   setExpandsOnDoubleClick(false);
   setHeaderHidden(true);
-  
+  setEditTriggers(QAbstractItemView::NoEditTriggers);
+  setDragDropMode(QAbstractItemView::InternalMove);
+  setDragEnabled(true);
+  setAcceptDrops(true);
+  setDropIndicatorShown(true);
+
   connect(this,SIGNAL(doubleClicked(const QModelIndex&)),
 	  this,SLOT(activate(const QModelIndex&)));
 }
@@ -44,14 +51,35 @@ void AEventManagerTreeView::clickNextEvent()
   
   AEvent* e=model->activeEvent();
 
-  if(!e->package) return;
+  if(!e->package()) return;
   
-  if (e->package->eventCount()<=1) return;
+  if (e->package()->eventCount()<=1) return;
 
-  int id=e->package->indexOf(e)+1;
-  if (id>=e->package->eventCount())
+  int id=e->package()->indexOf(e)+1;
+  if (id>=e->package()->eventCount())
     id=0;
       
   
-  emit eventClicked(e->package->event(id));
+  emit eventClicked(e->package()->event(id));
+}
+
+void AEventManagerTreeView::contextMenuEvent(QContextMenuEvent *event)
+{
+  lastSelectedIndex=indexAt(event->pos());
+  if(!lastSelectedIndex.isValid()) return;
+  if(lastSelectedIndex.parent().isValid()) return; //Not a package
+  
+  QMenu menu(this);
+  
+  menu.addAction("Rename",this,SLOT(toggleRename()));
+
+  menu.exec(event->globalPos());
+}
+
+void AEventManagerTreeView::toggleRename()
+{
+  if(!lastSelectedIndex.isValid()) return;
+
+  setCurrentIndex(lastSelectedIndex);
+  edit(lastSelectedIndex);
 }

@@ -20,7 +20,16 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
   int rowCount(const QModelIndex&) const;
   int columnCount(const QModelIndex&) const;
   QVariant data(const QModelIndex&, int) const;
+  Qt::ItemFlags flags(const QModelIndex& index) const;
+  Qt::DropActions supportedDropActions() const;
 
+  bool dropMimeData(const QMimeData *data,Qt::DropAction action,int row,int column,const QModelIndex &parent);
+
+  QStringList mimeTypes() const;
+  QMimeData* mimeData(const QModelIndexList &indexes) const;
+
+  bool setData(const QModelIndex& index,const QVariant& value,int role=Qt::EditRole);  
+  
   AEvent* getEvent(const QModelIndex&) const;
   AEventPackage* getPackage(const QModelIndex&) const;
 

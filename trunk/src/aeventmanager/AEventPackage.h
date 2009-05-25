@@ -8,31 +8,36 @@
 
 class AEventPackage : public QObject
 {
-public:
+ public:
   AEventPackage(const QString& location, QObject *parent=0);
   ~AEventPackage();
   
   void load();
   bool isLoaded();
   
-    void setName(QString);
-    QString name();
+  void setName(QString);
+  QString name();
 
-    int eventCount();
-    int indexOf(AEvent*);
-    AEvent* event(int);
+  QString location();
+  
+  int eventCount();
+  int indexOf(AEvent*);
+
+  void addEvent(AEvent*);
+  void removeEvent(AEvent*);
+  AEvent* event(int);
 
 public slots:
-    void save();
-
-
-private:
-    QList<AEvent *> events;
+  void save();
   
-    QString _name;
+  
+private:
+  QList<AEvent *> events;
+  
+  QString _name;
   bool _loaded;
-    QString location;
-
+  QString _location;
+  
   void loadMetaInfo();
   void loadLogBook();
   

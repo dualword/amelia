@@ -1566,7 +1566,6 @@ color: rgb(255, 255, 0);
      <string>AMELIA</string>
     </property>
     <addaction name="MenuButton"/>
-    <addaction name="BackButton"/>
     <addaction name="QuitButton"/>
    </widget>
    <widget class="QMenu" name="menuGeometry">

@@ -63,8 +63,7 @@ void AEventManager::load()
   //Register some analysis data structures
   AEventAnalysisData::addStructure(ATrackCollection::staticMetaObject);  
   
-  connect(AMELIA::global,SIGNAL(allPluginsLoaded()),
-	  this,SLOT(loadWorkspace()));
+  loadWorkspace();
 }
 
 void AEventManager::loadWorkspace()
@@ -80,23 +79,30 @@ void AEventManager::loadWorkspace()
       if (event.exists(".metainfo"))
         {
 	  AEventPackage* pkg=new AEventPackage(loc+"/"+entries[i],this);
-	  packages[pkg->name()]=pkg;
+	  packages.push_back(pkg);
 	  emit packageAdded(pkg->name());
         }
     }
 
-  loadedFuture = QtConcurrent::mapped(packages.values(),packageLoadingThread);
+  loadedFuture = QtConcurrent::mapped(packages,packageLoadingThread);
   loadedFutureWatcher.setFuture(loadedFuture);  
 }
 
 QStringList AEventManager::packageList()
 {
-  return packages.keys();
+  QStringList list;
+  for(int i=0;i<packages.size();i++)
+    list.push_back(packages[i]->name());
+
+  return list;
 }
 
 AEventPackage* AEventManager::package(QString name)
 {
-  return packages[name];
+  for(int i=0;i<packages.size();i++)
+    if(packages[i]->name()==name) return packages[i];
+
+  return 0;
 }
 
 void AEventManager::handlePackageLoaded(int idx)

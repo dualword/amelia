@@ -1,5 +1,7 @@
 #include "AEventManagerScene.h"
 
+#include <QBetterMimeData.h>
+
 #include <QDir>
 #include <QDebug>
 #include <QFont>
@@ -51,7 +53,7 @@ QModelIndex AEventManagerScene::parent(const QModelIndex& index) const
     return QModelIndex();
   else if(e) // Events have their package as a parent
     {
-      return this->index(e->package,0);
+      return this->index(e->package(),0);
     }
   else // It is possible that we are talking about the unloaded node of a package...
     {
@@ -188,6 +190,91 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+Qt::ItemFlags AEventManagerScene::flags(const QModelIndex& index) const
+{
+  AEventPackage *pkg=getPackage(index);
+  AEvent *e=getEvent(index);
+
+  Qt::ItemFlags flags = Qt::ItemIsEnabled;
+  if(pkg)
+    {
+      flags|=Qt::ItemIsEditable;
+      flags|=Qt::ItemIsDropEnabled;
+    } 
+
+  if(e)
+    {
+      flags|=Qt::ItemIsDragEnabled;
+      flags|=Qt::ItemIsSelectable;
+    }
+  
+  return flags;
+}
+
+Qt::DropActions AEventManagerScene::supportedDropActions() const
+{
+  return Qt::CopyAction | Qt::MoveAction;
+}
+
+bool AEventManagerScene::dropMimeData(const QMimeData *data,Qt::DropAction action,int row,int column,const QModelIndex &parent)
+{
+  AEventPackage *pkg=getPackage(parent);
+  if(!pkg) return false;
+  
+  const QBetterMimeData *data1=qobject_cast<const QBetterMimeData*>(data);
+  if(!data1) return false;
+
+  AEvent *e=qobject_cast<AEvent*>(data1->data("amelia/x-event"));
+  pkg->addEvent(e);
+
+  emit layoutAboutToBeChanged();
+  emit layoutChanged();
+
+  return true;
+}
+
+
+QStringList AEventManagerScene::mimeTypes() const
+{
+  QStringList mimeTypes;
+  mimeTypes << "amelia/x-event";
+  return mimeTypes;
+}
+
+QMimeData *AEventManagerScene::mimeData(const QModelIndexList &indexes) const
+{
+  QBetterMimeData *mimeData=new QBetterMimeData();
+
+  foreach(QModelIndex index,indexes)
+    {
+      if(!index.isValid() || index.column()!=0) continue;
+      AEvent *e=getEvent(index);
+      if(e)
+	{
+	  mimeData->setData("amelia/x-event",e);
+	}
+    }
+  return mimeData;
+} 
+
+bool AEventManagerScene::setData(const QModelIndex& index,const QVariant& value,int role)
+{
+  if(role==Qt::EditRole)
+    {
+      AEventPackage *pkg=getPackage(index);
+      if(!pkg) return setData(index,value,role);
+
+      QString newName=value.toString();
+      if(newName.isEmpty()) return false; //No empties allows
+      if(manager->package(newName)) return false; //No duplicates allowed
+      
+      pkg->setName(newName);
+      emit dataChanged(index,index);
+      return true;
+    }
+  return QAbstractItemModel::setData(index,value,role);
+}
+
 AEventPackage* AEventManagerScene::getPackage(const QModelIndex& index) const
 {
   void *pointer=index.internalPointer();
@@ -241,10 +328,10 @@ AEvent* AEventManagerScene::activeEvent()
 QModelIndex AEventManagerScene::index(AEvent* event,int col) const
 {
   if(event==0) return QModelIndex();
-  if(event->package==0) return QModelIndex();
+  if(event->package()==0) return QModelIndex();
 
-  int row=event->package->indexOf(event);
-  QModelIndex parent=index(event->package,0);
+  int row=event->package()->indexOf(event);
+  QModelIndex parent=index(event->package(),0);
 
   return index(row,col,parent);
 }

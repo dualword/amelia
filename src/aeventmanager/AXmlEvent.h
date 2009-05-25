@@ -65,6 +65,8 @@ class AEVENTMANAGER_EXPORT AXmlEvent : public AEvent
   void setCurrentTrackModel(QString trackType);
   void setCurrentMisEtModel(QString metType);
 
+  void setPackage(AEventPackage *pkg);
+
  signals:
   // Emitted whenever the displayed event changes shape (ei: during pT cutoff)
   void eventChanged();

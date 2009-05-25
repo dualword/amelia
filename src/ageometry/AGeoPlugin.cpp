@@ -60,6 +60,14 @@ void AGeoPlugin::load()
   Ui::MainWindow geoUI;
   geoWin=new QMainWindow(base);
   geoUI.setupUi(geoWin);
+  
+  //Setup menubar connections
+  QAction *MenuButton = base->findChild<QAction*>("MenuButton");
+  QAction *QuitButton = base->findChild<QAction*>("QuitButton");
+  connect(MenuButton,SIGNAL(triggered()),
+	  base,SLOT(changeToMenu()));
+  connect(QuitButton,SIGNAL(triggered()),
+	  base,SLOT(close()));
 
   //Load the ALayerGUI
   ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");

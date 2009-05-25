@@ -9,9 +9,9 @@
 #include <QSetIterator>
 
 AEventPackage::AEventPackage(const QString &location,QObject *parent)
-  :QObject(parent),location(location),_loaded(false)
+  :QObject(parent),_location(location),_loaded(false)
 {
-  QDir dir(location);
+  QDir dir(_location);
   _name=dir.dirName();
   loadMetaInfo();
 }
@@ -22,15 +22,15 @@ AEventPackage::~AEventPackage()
 
 void AEventPackage::load()
 {
-  QDir dir(location);
+  QDir dir(_location);
     QStringList elist=dir.entryList();
     for (int i=0;i<elist.size();i++)
     {
         int idx=elist[i].lastIndexOf(".xml");
         if (idx==elist[i].length()-4 && idx>=0)
         {
-	  AEvent *event=new AXmlEvent(location+"/"+elist[i]);
-	  event->package=this;
+	  AEvent *event=new AXmlEvent(_location+"/"+elist[i]);
+	  event->setPackage(this);
 	  event->filename=elist[i];
 	  event->LoadEvent();
 
@@ -43,12 +43,17 @@ void AEventPackage::load()
   _loaded=true;
 }
 
+QString AEventPackage::location()
+{
+  return _location;
+}
+
 void AEventPackage::loadMetaInfo()
 {
   /*
    * Load the metainfo
    */
-  QFile fh(location+"/.metainfo");
+  QFile fh(_location+"/.metainfo");
   QDomDocument doc("metainfo");
   if (!fh.open(QIODevice::ReadOnly))
     return;
@@ -72,7 +77,7 @@ void AEventPackage::loadLogBook()
   /*
    * Load the already analyzed events
    */
-  QFile fh(location+"/.logbook");
+  QFile fh(_location+"/.logbook");
   QDomDocument doc("logbooks");
   if (!fh.open(QIODevice::ReadOnly))
     return;
@@ -150,7 +155,7 @@ bool AEventPackage::isLoaded()
 
 void AEventPackage::save()
 {
-    QFile metafile(location+"/.metainfo");
+    QFile metafile(_location+"/.metainfo");
     metafile.open(QIODevice::WriteOnly);
     QTextStream in(&metafile);
     in << "<?xml version=\"0.1\"?>" << endl;
@@ -159,7 +164,7 @@ void AEventPackage::save()
     in << "</package>";
     metafile.close();
 
-    QFile logbook(location+"/.logbook");
+    QFile logbook(_location+"/.logbook");
     logbook.open(QIODevice::WriteOnly);
     in.setDevice(&logbook);
     in << "<?xml version=\"0.1\"?>" << endl;
@@ -203,6 +208,7 @@ void AEventPackage::save()
 void AEventPackage::setName(QString name)
 {
     _name=name;
+    save();
 }
 
 QString AEventPackage::name()
@@ -218,6 +224,23 @@ int AEventPackage::eventCount()
 int AEventPackage::indexOf(AEvent* e)
 {
   return events.indexOf(e);
+}
+
+void AEventPackage::addEvent(AEvent *e)
+{
+  if(indexOf(e)>=0) return;
+  e->setPackage(this);
+  events+=e;
+  save();
+}
+
+void AEventPackage::removeEvent(AEvent *e)
+{
+  int index = indexOf(e);
+  if(index>=0)
+    events.removeAt(index);
+  e->setPackage(0);
+  save();
 }
 
 AEvent* AEventPackage::event(int idx)

@@ -296,8 +296,11 @@ void QIrrWidget::updateScreenshot()
     }
     else*/
   
-  // For some reason, this is visible at the first screenshot and invisible at the second one
-  if(!p->isVisible())
+  //Only update screenshot if
+  // - The 3D widget is showing something (driver is ready)
+  // - The widget is visible
+  // - We are not in a graphics scene
+  if(driver && p->isVisible() && window()->graphicsProxyWidget()==0)
     ss=QPixmap::grabWindow(p->winId());  
 }
 
@@ -660,9 +663,6 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
 {
   if(!isEnabled()) return;
 
-  if(!_ready && !_loading)
-    internalLoad();
-
 #ifdef Q_WS_WIN
   device->run();
 #else
@@ -994,6 +994,8 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
   os::Timer::initTimer();  
   parent->timer = new CTimer();
+
+  parent->internalLoad();
 }
 
 void QIrrUnixWidgetPrivate::paintGL()
@@ -1006,10 +1008,10 @@ void QIrrUnixWidgetPrivate::paintGL()
 
       parent->smgr->drawAll();
       parent->gui->drawAll();
-
 #ifndef Q_WS_MAC
       parent->driver->endScene();
 #endif //Q_WS_MAC
+
       /*static int c=0;
       QPixmap ss=QPixmap::grabWindow(winId());  
       ss.save("images/"+QString::number(c)+".jpg");

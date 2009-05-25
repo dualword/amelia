@@ -5,7 +5,7 @@
 #include <QDebug>
 
 AEvent::AEvent()
-  :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),highestTrackID(0),package(0)
+  :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),highestTrackID(0),_package(0)
 {}
 
 void AEvent::LoadEvent() { }
@@ -88,7 +88,7 @@ void AEvent::tag(QString tag, bool status)
   else
     tags.remove(tag);
 
-  if(package) package->save();
+  if(_package) _package->save();
 }
 
 ATrack* AEvent::getTrackById(unsigned int ID)
@@ -106,9 +106,9 @@ ATrack* AEvent::getTrackById(unsigned int ID)
 
 void AEvent::addAnalysisData(QString modulename,AEventAnalysisData* data)
 {
-  if(package)
+  if(_package)
     connect(data,SIGNAL(updated()),
-	    package,SLOT(save()));
+	    _package,SLOT(save()));
   
   _analysisData.insert(modulename,data);
 }
@@ -173,4 +173,18 @@ QList<ATrack*> AEvent::getInterestingTracks()
     }
 
   return list;
+}
+
+AEventPackage* AEvent::package()
+{
+  return _package;
+}
+
+void AEvent::setPackage(AEventPackage *pkg)
+{
+  AEventPackage *tmpPkg=_package;
+  _package=0;
+  if(tmpPkg==pkg) return;
+  if(tmpPkg!=0) tmpPkg->removeEvent(this);
+  _package=pkg;
 }

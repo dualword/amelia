@@ -29,7 +29,6 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QString filename;
   QString location;
   QSet<QString> tags;
-  AEventPackage *package;
 
   //Data
   int runNumber;
@@ -60,6 +59,9 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   virtual void LoadEvent();
 
   void tag(QString,bool);
+
+  AEventPackage *package();
+  virtual void setPackage(AEventPackage *package);
 
   ATrack* getTrackById(unsigned int id);
 
@@ -98,6 +100,8 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
  private:
   QMultiMap<QString,AEventAnalysisData*> _analysisData;
+
+  AEventPackage *_package;
 };
 
 #endif //AEVENT_H_

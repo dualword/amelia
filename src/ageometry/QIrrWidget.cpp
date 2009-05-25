@@ -40,7 +40,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 #include <QGridLayout>
 #include <QtConcurrentRun>
-#include <QDesktopWidget>
 
 #ifndef Q_WS_WIN
 namespace irr

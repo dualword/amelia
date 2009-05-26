@@ -18,6 +18,7 @@ SET(amelia_SRCS
 	QGraphicsItemTransformAnimation.cpp
 	QTimeLineProxy.cpp
 	QBetterMimeData.cpp
+	QBoolSync.cpp
 	AAnimationGUI.cpp
 	AHideAButton.cpp
 	AMainView.cpp
@@ -33,6 +34,7 @@ SET(amelia_H
 	QGraphicsItemTransformAnimation.h
 	QBetterMimeData.h
 	QTimeLineProxy.h
+	QBoolSync.h
 	AAnimationGUI.h
 	AHideAButton.h
 	AMainView.h

@@ -38,6 +38,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QToolBar>
+#include <QCheckBox>
 #include <QDebug>
 
 #include "ALayerGUI.h"
@@ -91,6 +92,16 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
     selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
+    QGroupBox *groupBox_Detector=findChild<QGroupBox *>("groupBox_Detector");
+    QGroupBox *groupBox_Calorimeter=findChild<QGroupBox *>("groupBox_Calorimeter");
+    QGroupBox *groupBox_ID=findChild<QGroupBox *>("groupBox_ID");
+    QCheckBox *checkBox_Magnets=findChild<QCheckBox *>("checkBox_Magnets");
+    QCheckBox *checkBox_MuonSpectr=findChild<QCheckBox *>("checkBox_MuonSpectr");
+    QCheckBox *checkBox_LAr=findChild<QCheckBox *>("checkBox_LAr");
+    QCheckBox *checkBox_Tilecal=findChild<QCheckBox *>("checkBox_Tilecal");
+    QCheckBox *checkBox_Pixels=findChild<QCheckBox *>("checkBox_Pixels");
+    QCheckBox *checkBox_SCT=findChild<QCheckBox *>("checkBox_SCT");
+    QCheckBox *checkBox_TRT=findChild<QCheckBox *>("checkBox_TRT");
 
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
@@ -319,7 +330,28 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     connect(geo,SIGNAL(cropModeSwitched(int)),
 	    this,SLOT(handleCropModeChange(int)));
     
-    
+    //Setup visibility toggles
+    if(groupBox_Detector)
+      geo->detectorVisibility()->syncGroupBox(groupBox_Detector);
+    if(groupBox_Calorimeter)
+      geo->calorimetersVisibility()->syncGroupBox(groupBox_Calorimeter);
+    if(groupBox_ID)
+      geo->trackerVisibility()->syncGroupBox(groupBox_ID);
+
+    if(checkBox_Magnets)
+      geo->magnetsVisibility()->syncButton(checkBox_Magnets);
+    if(checkBox_MuonSpectr)
+      geo->muonSpecVisibility()->syncButton(checkBox_MuonSpectr);
+    if(checkBox_LAr)
+      geo->larVisibility()->syncButton(checkBox_LAr);
+    if(checkBox_Tilecal)
+      geo->tileVisibility()->syncButton(checkBox_Tilecal);
+    if(checkBox_Pixels)
+      geo->pixelsVisibility()->syncButton(checkBox_Pixels);
+    if(checkBox_SCT)
+      geo->sctVisibility()->syncButton(checkBox_SCT);
+    if(checkBox_TRT)
+      geo->trtVisibility()->syncButton(checkBox_TRT);
 }
 
 void ALayerGUI::enableElements()

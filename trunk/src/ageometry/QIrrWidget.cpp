@@ -250,6 +250,12 @@ void QIrrWidget::setDirty(bool dirty)
 
 bool QIrrWidget::isDirty()
 {
+#ifdef Q_WS_WIN
+  // On windows, we have lots of things happening while loading.
+  // So make sure to redraw.
+  if(_loading) return true;
+#endif //Q_WS_WIN
+
   return _dirty;
 }
 
@@ -682,16 +688,16 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
       //single camera change.
       ICameraSceneNode *activeCam=smgr->getActiveCamera();
       if(lastActiveCamera!=activeCam)
-	emit cameraSwitched(activeCam->getID());
+	  emit cameraSwitched(activeCam->getID());
     }
 
   if(hasCameraMoved() || isDirty())
     {
-      p->repaint();
       updateLastCamera();
+      p->repaint();
       setDirty(false);
-
     }
+
 #ifndef Q_WS_WIN
   else
     {
@@ -872,14 +878,12 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
 
 bool QIrrWidget::hasCameraMoved()
 {
-  if(!_ready) return true;
-
   ICameraSceneNode* activeCam=smgr->getActiveCamera();
   bool cameraChanged=(lastActiveCamera!=activeCam);
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
   bool cameraTargetMoved=(lastCameraTarget!=activeCam->getTarget());
 
-  return cameraChanged || cameraMoved || cameraTargetMoved || isDirty();
+  return cameraChanged || cameraMoved || cameraTargetMoved;
 }
 
 #ifdef Q_WS_WIN

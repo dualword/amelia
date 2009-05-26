@@ -41,7 +41,6 @@ void AGeometryHUD::clearText()
 
 void AGeometryHUD::handleNewCamera(int camid)
 {
-  qDebug() << "New camera " << camid;
   if(camid==AGeometry::FPS)
     setText("Press SPACE to engage camera");
   else

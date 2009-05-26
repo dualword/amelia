@@ -92,7 +92,6 @@ AGeometry::AGeometry(QWidget* parent)
     moduleAngleFromCam = 0;
     cameraLoc = core::vector3df ( 0,0,0 ); //camera position for Moses Mode, initialized to zero
     DCamPos = core::vector3df ( 0,0,0 );
-    MosesMode = true;
 
 
     force_target = false;
@@ -102,9 +101,6 @@ AGeometry::AGeometry(QWidget* parent)
     detectorMode = false;
     eventAnalysisMode = true;
     multiMediaMode = false;
-
-    MosesFreeCalm = false;
-    mosesRestore = false;
 
     allowTrackSelection = false;
 
@@ -252,7 +248,7 @@ void AGeometry::load()
   zoomOut->setVisible(false);
 
   //Create the geometry
-  //createAtlasGeometry();
+  createAtlasGeometry();
   
   forceUpdate(); //Make sure the timer is correct!
   
@@ -261,50 +257,47 @@ void AGeometry::load()
 
 void AGeometry::executeMosesMode(core::vector3df camPos)
 {
-	if (!CameraBB) return;
-
-    if ( MosesMode )
+  if (!CameraBB) return;
+  
+  switch(_cropMode)
     {
-		if ( sliceMode == false )
-		{
-			BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
-			CameraBB->setPosition ( camPos );
-		}
-		else
-		{
-			BBscale = 15000;
-			CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
-		}
-		CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
-		CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
-		CameraBB->updateAbsolutePosition();
-
-		core::aabbox3d<f32> BBBox=CameraBB->getTransformedBoundingBox();
-		vector3df pos=BBBox.getCenter();
-
-        for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
-        {
-            moduleAngleFromCam = angleBetween ( *itb, ( getSceneManager()->getActiveCamera()->getTarget() *0.5- getSceneManager()->getActiveCamera()->getPosition() ) );
-
-            if ( ( BBBox.intersectsWithBox ( ( *itb )->getTransformedBoundingBox() ) ) && ( moduleAngleFromCam<1.0f ))
-            {
-                ( *itb )->setVisible ( false );
-            }
-            else
-            {
-                ( *itb )->setVisible ( true );
-            }
-        }
+    case MosesMode:
+      BBscale = sqrt ( camPos.X*camPos.X + camPos.Y*camPos.Y + camPos.Z*camPos.Z ) *0.8 +25;
+      CameraBB->setPosition ( camPos );
+      break;
+    case WedgeMode:
+      BBscale = 15000;
+      CameraBB->setPosition ( core::vector3df ( 0,0,0 ) );
+      break;
     }
-    if ( !MosesMode && mosesRestore ) // runs once after mosesMode
-    {
-        MosesFreeCalm = true;
-        mosesRestore = false;
-        for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
-            ( *itb )->setVisible ( true );
-    }
-    CameraBB->setVisible ( false );
 
+    CameraBB->setRotation ( getSceneManager()->getActiveCamera()->getRotation() );
+    CameraBB->setScale ( core::vector3df ( BBscale,BBscale,BBscale ) );
+    CameraBB->updateAbsolutePosition();
+    
+    core::aabbox3d<f32> BBBox=CameraBB->getTransformedBoundingBox();
+    vector3df pos=BBBox.getCenter();
+    
+    for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
+      {
+	moduleAngleFromCam = angleBetween ( *itb, ( getSceneManager()->getActiveCamera()->getTarget() *0.5- getSceneManager()->getActiveCamera()->getPosition() ) );
+	
+	if ( ( BBBox.intersectsWithBox ( ( *itb )->getTransformedBoundingBox() ) ) && ( moduleAngleFromCam<1.0f ))
+	  {
+	    ( *itb )->setVisible ( false );
+	  }
+	else
+	  {
+	    ( *itb )->setVisible ( true );
+	  }
+      }
+}
+
+void AGeometry::restoreMosesMode()
+{
+  for ( vector<scene::ISceneNode*>::iterator itb = allModules.begin(); ( itb ) !=allModules.end(); itb++ )
+    ( *itb )->setVisible ( true );
+  CameraBB->setVisible ( false );
 }
 
 QString AGeometry::detectorSelection( core::position2di pos )
@@ -637,58 +630,15 @@ void AGeometry::execute()
   // Main 3D view
   if(hasCameraMoved())
     {
-		core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
+      core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
       
-		dynamicCameraSpeed(camPos);
-		dynamicHidingOfModules(camPos);
-
-		if ( !MosesFreeCalm )
-		{
-			executeMosesMode(camPos);
-		}
-
-      //TODO This is old code of module selection
-      /*core::position2di pos = getCursorControl()->getPosition();
-	if (detectorMode)
-	{
-	line3d<f32> ray = getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos, getSceneManager()->getActiveCamera());
-	//selectedSceneNode = Irr->GetSceneManager()->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos, 2);
-	selectedSceneNode = getSceneManager()->getSceneCollisionManager()->getSceneNodeFromRayBB(ray, 2);
-	if (selectedSceneNode->getID() == 2)
-	{
-	if (lastSelectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode))
-	{
-	lastSelectedSceneNode->setMaterialTexture(0, getVideoDriver()->getTexture("tile.jpg"));
-	}
-	
-	if (selectedSceneNode && (selectedSceneNode!=lastSelectedSceneNode) && !(camera[0]->isInputReceiverEnabled()))
-	{
-	
-	// TODO (Joao Pequenao#1#): Change the module selection code
-	
-	ita = allModules.begin(); // 'ita' used below as well!!!
-	while (((ita->theModule) != (selectedSceneNode)) && ((ita+1) < allModules.end()))
-	{
-	ita++;
-	}
-	
-	if ((ita) != allModules.end())
-	{
-	if (((ita->theModule) == (selectedSceneNode)) )
-	{
-	if ((ita->mType>=1)&&(ita->mType<=6)) lastSelectedSceneNode = selectedSceneNode;
-	if ((ita->mType>=1)&&(ita->mType<=6)) selectedSceneNode->setMaterialTexture(0, driver->getTexture("media/tile_selected.jpg"));
-	}
-	}
-	else
-	{
-	selectedSceneNode =0;
-	}
-	}
-	}
-	}*/
+      dynamicCameraSpeed(camPos);
+      dynamicHidingOfModules(camPos);
       
-      //  END module selection)
+      if ( _cropMode!=NoneMode )
+	{
+	  executeMosesMode(camPos);
+	}
            
 	if (camera[0] && force_target)
 	{
@@ -717,8 +667,6 @@ void AGeometry::execute()
   
   QIrrWidget::execute();
 }
-
-
 
 float AGeometry::angleBetween ( scene::ISceneNode* module, core::vector3df cam )
 {
@@ -1115,13 +1063,6 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
   switch ( event->key() )
     {
       //toggles moses mode
-    case Qt::Key_M:
-      MosesMode = ! ( MosesMode ); //toggles moses mode
-      if ( MosesMode ) MosesFreeCalm = false;
-      mosesRestore = true;
-      return;
-      break;
-      
     case Qt::Key_P:
       camera[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
       camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
@@ -1337,11 +1278,11 @@ AFilteredEvent* AGeometry::event()
 //Switch the current camera, viewport clicked
 void AGeometry::setViewport(int to)
 {
+    if (to==active_viewport) return; //Already using it
+    
     int camId;
     if (to==AGeometry::Cam3D) camId=active_cam;
     else camId=to;
-
-    if (camId==active_viewport) return; //Already using it
 
     int from=active_viewport;
 
@@ -1365,12 +1306,12 @@ void AGeometry::setCamera(int to,bool animate)
     case AGeometry::FPS:
       actSphere->setChecked(false);
       actFPS->setChecked(true);
-      sliceMode=false;
+      setCropMode(MosesMode);
       break;
     case AGeometry::Maya:
       actFPS->setChecked(false);
       actSphere->setChecked(true);
-      sliceMode=true;
+      setCropMode(WedgeMode);
       camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
       break;
     }
@@ -1388,6 +1329,20 @@ void AGeometry::setCamera(int to,bool animate)
 
     zoomIn->setVisible(to==AGeometry::Maya);
     zoomOut->setVisible(to==AGeometry::Maya);
+}
+
+void AGeometry::setCropMode(int newMode)
+{
+  if(newMode==_cropMode) return;
+  
+  _cropMode=newMode;
+  if(_cropMode==NoneMode)
+    restoreMosesMode();
+  else
+    executeMosesMode(getSceneManager()->getActiveCamera()->getPosition());
+  makeDirty();
+  
+  emit cropModeSwitched(newMode);
 }
 
 void AGeometry::setupView(int view)

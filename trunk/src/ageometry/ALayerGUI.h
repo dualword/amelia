@@ -100,6 +100,7 @@ public slots:
 
     //Slots for event handling
     void toggleVisibilityParticles(bool toggle);
+    void handleCropModeChange(int mode);
     void showLoadEventDialog();
     bool loadEvent (QString);
     void loadEvent (AEvent*);
@@ -112,7 +113,7 @@ public slots:
 
     //Slots for event manager
     void handleEventTagChange(bool status);
-
+    
     //Slots for the guided tours interface
     void prepareTours ();
     void toggleTour ();
@@ -148,6 +149,14 @@ public slots:
     QMenu *menuTagCurrentEvent;
     QAction *actionTagHiggsBoson;
     QAction *actionTagBlackHole;
+    
+    //Cropping controls
+    QActionGroup *croppingModes;
+    QAction *actionNone;
+    QAction *actionWedge_Mode;
+    QAction *actionMoses_Mode;
+    QSignalMapper croppingMapper;
+
     QGraphicsView *selectedEventInfoView;
     QPushButton *buttonCombineTracks;
     QPushButton *buttonDeleteTracks;

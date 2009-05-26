@@ -68,6 +68,7 @@ class AGeometry : public QIrrWidget
 public:
     static const int FPS=0,Maya=3;
     static const int Cam3D=-1,Orthogonal=1,Projective=2;
+    static const int NoneMode=0,WedgeMode=1,MosesMode=2;
 
     AGeometry(QWidget* parent=0);
     virtual ~AGeometry();
@@ -123,6 +124,7 @@ public:
 public slots:
     void setViewport(int to); //Switches the main screen to the specified camera
     void setCamera(int to,bool animate=true); //Switches the 3D camera
+    void setCropMode(int to); //Switches to a new cropping mode...
 
     void clearEvent();    
     void updateTracks();
@@ -156,6 +158,7 @@ signals:
     void cameraControlSwitched(bool grabbed);
     void viewportSwitched(int from,int to);
     void viewportUpdated(int cam,QImage newshot);
+    void cropModeSwitched(int newCropMode);
 
     void trackSelected(ATrack*);
     void trackDeselected(ATrack*);
@@ -164,7 +167,6 @@ signals:
     void emptySelection();
 
 protected:
-
     void resizeEvent( QResizeEvent* event );
     void mouseClickEvent( QMouseEvent *event );
     void keyPressEvent( QKeyEvent* event );
@@ -205,16 +207,13 @@ private:
     core::matrix4 OrthoCameraFront;
     core::matrix4 OrthoCameraSide;
     CSceneNodeAnimatorCameraSwitch *cameraSwitcher; //Used for switching the camera modes in 3D
-    int mosesMode_switch;
     f32 moduleDistanceFromCam;
     f32 moduleAngleFromCam;
     core::vector3df cameraLoc; //camera position for Moses Mode, initialized to zero
     core::vector3df DCamPos;
 	
-    //Moses mode..
-    bool MosesMode;
-    bool MosesFreeCalm;
-    bool mosesRestore;
+    //Cropping modes
+    int _cropMode;
     vector<scene::ISceneNode*> allModules;
 
 
@@ -227,7 +226,8 @@ private:
 
     void dynamicCameraSpeed(core::vector3df camPos);  //Modifying camera speed based on proximity to detector
     void dynamicHidingOfModules(core::vector3df camPos);
-	void executeMosesMode(core::vector3df camPos);
+    void executeMosesMode(core::vector3df camPos);
+    void restoreMosesMode();
 
     float angleBetween ( scene::ISceneNode* module, core::vector3df cam );
     void addModuleToVector ( std::vector<module>* allModules, scene::ISceneNode* newNode, int id, int mType, bool neverDisappear );

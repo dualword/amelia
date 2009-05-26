@@ -82,6 +82,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
+    actionNone=window()->findChild<QAction *>("actionNone");
+    actionWedge_Mode=window()->findChild<QAction *>("actionWedge_Mode");
+    actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
     packageList = findChild<AEventManagerTreeView*>("packageList");
     QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
     PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
@@ -296,6 +299,26 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	    this, SLOT(handleEventTagChange(bool)));
     connect(actionTagHiggsBoson,SIGNAL(toggled(bool)),
 	    this, SLOT(handleEventTagChange(bool)));
+
+    //Setup cropping modes
+    croppingModes=new QActionGroup(this);
+    croppingModes->addAction(actionNone);
+    croppingModes->addAction(actionWedge_Mode);
+    croppingModes->addAction(actionMoses_Mode);
+    croppingMapper.setMapping(actionNone,AGeometry::NoneMode);
+    croppingMapper.setMapping(actionWedge_Mode,AGeometry::WedgeMode);
+    croppingMapper.setMapping(actionMoses_Mode,AGeometry::MosesMode);
+    connect(actionNone,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(actionWedge_Mode,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(actionMoses_Mode,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(&croppingMapper,SIGNAL(mapped(int)),
+	    geo,SLOT(setCropMode(int)));
+    connect(geo,SIGNAL(cropModeSwitched(int)),
+	    this,SLOT(handleCropModeChange(int)));
+    
     
 }
 
@@ -368,6 +391,22 @@ void ALayerGUI::toggleVisibilityParticles(bool toggle)
   else if (from=="checkBox_MissingEt")
     {
       particleFilter->setShowMissingEt(toggle);
+    }
+}
+
+void ALayerGUI::handleCropModeChange(int mode)
+{
+  switch(mode)
+    {
+    case AGeometry::NoneMode:
+      actionNone->setChecked(true);
+      break;
+    case AGeometry::WedgeMode:
+      actionWedge_Mode->setChecked(true);
+      break;
+    case AGeometry::MosesMode:
+      actionMoses_Mode->setChecked(true);
+      break;
     }
 }
 

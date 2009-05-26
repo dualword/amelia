@@ -83,6 +83,7 @@ void CSceneNodeAnimatorCameraSwitch::setTargetCamera(scene::ICameraSceneNode *ta
     {
       movingCam=smgr->addCameraSceneNode(0,initialPosition,initialTarget);
       movingCam->addAnimator(this);
+      movingCam->setID(-1);
     }
   else
     {

@@ -384,6 +384,8 @@ void QIrrWidget::internalLoad()
   load();
   _ready=true;
   _loading=false;
+
+  emit finishedLoading();
 }
 
 QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage, QRect baseRect, QRect overlayRect)
@@ -670,13 +672,25 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
 #endif
 
   if(_ready)
-    execute();
+    {
+      execute();
+      //We do not use QIrrWidget::hasCameraMoved() for this,
+      //because it also checks for different position/target
+      //of the camera.
+      //Nor do we put this block into QIrrWidget::hasCameraMoved(),
+      //because that function can be executes multiple times per 
+      //single camera change.
+      ICameraSceneNode *activeCam=smgr->getActiveCamera();
+      if(lastActiveCamera!=activeCam)
+	emit cameraSwitched(activeCam->getID());
+    }
 
   if(hasCameraMoved() || isDirty())
     {
       p->repaint();
       updateLastCamera();
       setDirty(false);
+
     }
 #ifndef Q_WS_WIN
   else
@@ -684,6 +698,7 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
       smgr->getRootSceneNode()->OnAnimate(timer->getTime());
     }
 #endif
+
 }
 
 void QIrrWidget::showEvent(QShowEvent *event)
@@ -970,7 +985,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
   // Don't initialize more than once!
   if ( parent->driver != 0 ) return;
   irr::SIrrlichtCreationParameters params;
-  
+
   params.DriverType = video::EDT_OPENGL;
   params.WindowId = (void*)winId();
   params.WindowSize.Width = (width()>0)?width():1;
@@ -993,7 +1008,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
   os::Timer::initTimer();  
   parent->timer = new CTimer();
-
+  
   parent->internalLoad();
 }
 
@@ -1010,11 +1025,6 @@ void QIrrUnixWidgetPrivate::paintGL()
 #ifndef Q_WS_MAC
       parent->driver->endScene();
 #endif //Q_WS_MAC
-
-      /*static int c=0;
-      QPixmap ss=QPixmap::grabWindow(winId());  
-      ss.save("images/"+QString::number(c)+".jpg");
-      c++;*/
     }
 }
 

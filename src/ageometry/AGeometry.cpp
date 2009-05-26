@@ -65,7 +65,7 @@ AGeometry::AGeometry(QWidget* parent)
     camChangeDist1 = 145;
     camChangeDist2 = 1000;
     BBscale = 35;
-	CameraBB = NULL;
+    CameraBB = NULL;
     sliceMode = false;
 
     // Control variables for the dynamic hiding of parts of ATLAS
@@ -184,6 +184,7 @@ void AGeometry::load()
   camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
   camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[1]->setProjectionMatrix ( OrthoCameraFront );
+  camera[1]->setID(Projective);
   
   camera[2] = getSceneManager()->addCameraSceneNode();
   camera[2]->setName("SideCam");
@@ -191,6 +192,7 @@ void AGeometry::load()
   camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
   camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[2]->setProjectionMatrix ( OrthoCameraSide );
+  camera[2]->setID(Orthogonal);
   
   camera[3] = getSceneManager()->addCameraSceneNode();
   camera[3]->setName("SphereCam");
@@ -199,6 +201,7 @@ void AGeometry::load()
   camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
   camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
+  camera[3]->setID(Maya);
   
   camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
   camera[0]->setName("FPSCam");
@@ -206,7 +209,7 @@ void AGeometry::load()
   camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
   camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[0]->setFarValue ( 22000.0f );
-  camera[0]->setID ( 0 );
+  camera[0]->setID(FPS);
   
   //Prepare spinning logo
   getFileSystem()->addZipFileArchive ( "logo.aml" );
@@ -249,10 +252,8 @@ void AGeometry::load()
   zoomOut->setVisible(false);
 
   //Create the geometry
-  createAtlasGeometry();
+  //createAtlasGeometry();
   
-  emit finishedLoading();
-
   forceUpdate(); //Make sure the timer is correct!
   
   qDebug() << "Loaded AGeometry (" << time.elapsed() << " ms)";
@@ -995,6 +996,7 @@ void AGeometry::grabControl()
       setCursor( QCursor( Qt::BlankCursor ) );
       allowTrackSelection=false;
       setFocus();
+      emit cameraControlSwitched(true);
     }
     
 }
@@ -1003,9 +1005,10 @@ void AGeometry::releaseControl()
 {
   if ( active_viewport == AGeometry::Cam3D && active_cam==AGeometry::FPS)
     {
-        getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
-        setCursor( QCursor( Qt::ArrowCursor ) );
-        //allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
+      getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
+      setCursor( QCursor( Qt::ArrowCursor ) );
+      emit cameraControlSwitched(false);
+      //allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
     }
 }
 

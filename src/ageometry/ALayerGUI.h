@@ -56,6 +56,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATourManager.h"
 #include "ATourBuilder.h"
 #include "AGeometry.h"
+#include "AGeometryHUD.h"
 #include "AEventInfoScene.h"
 #include "ASelectionInfoScene.h"
 #include "ATrackTableModel.h"
@@ -134,6 +135,7 @@ public slots:
 
     // Pointers to commonly used widgets
     AGeometry* geo;
+    AGeometryHUD* hud;
     ATrackTableModel *tracksModel;
     AInterestingTrackTableModel *interestingTracksModel;
     AComboTableModel *comboModel;

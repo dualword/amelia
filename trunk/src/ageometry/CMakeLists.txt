@@ -53,6 +53,7 @@ SET(ageometry_SRCS
   AAdvancedEventSettings.cpp
   AGeoPlugin.cpp
   ALineNode.cpp
+  AGeometryHUD.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp
@@ -61,6 +62,7 @@ SET(ageometry_SRCS
 SET(ageometry_H
   QIrrWidget.h 
   AGeometry.h 
+  AGeometryHUD.h
   ATourManager.h 
   ALayerGUI.h 
   AViewport.h 

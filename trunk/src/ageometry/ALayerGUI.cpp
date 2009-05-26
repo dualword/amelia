@@ -275,6 +275,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	//Setup event load/update/unload connections
 	connect(this,SIGNAL(eventUnloaded()),
 		geo,SLOT(clearEvent()));
+
+	hud=new AGeometryHUD(geo);
       }
 
     selectedEventInfo=new AEventInfoScene;

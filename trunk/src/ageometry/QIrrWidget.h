@@ -104,9 +104,13 @@ public:
     static int Irr2Qt_KeyCode(EKEY_CODE keycode);
 
 public slots:
-  void toggleDisabled();
-  void makeDirty();
-  void forceUpdate();
+    void toggleDisabled();
+    void makeDirty();
+    void forceUpdate();
+
+signals:
+    void cameraSwitched(int);
+    void finishedLoading();
 
 protected:
     /* Override these 3 functions in QIrrWidgets */

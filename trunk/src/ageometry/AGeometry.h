@@ -87,8 +87,6 @@ public:
     ISceneNode* cam_node;
     scene::ISceneNode* cube;
 
-
-
     int active_viewport;
     int active_cam;
 
@@ -155,11 +153,10 @@ public slots:
     void releaseControl();
 
 signals:
-
+    void cameraControlSwitched(bool grabbed);
     void viewportSwitched(int from,int to);
     void viewportUpdated(int cam,QImage newshot);
 
-    void finishedLoading ();
     void trackSelected(ATrack*);
     void trackDeselected(ATrack*);
 
@@ -250,7 +247,6 @@ private:
     scene::ISceneNode *_logoNode;
     scene::ISceneNodeAnimator *_logoAnim;
     scene::ILightSceneNode *_logoLight;
-
 };
 
 #endif // AGEOMETRY_H

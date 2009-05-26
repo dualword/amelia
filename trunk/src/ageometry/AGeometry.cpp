@@ -66,7 +66,6 @@ AGeometry::AGeometry(QWidget* parent)
     camChangeDist2 = 1000;
     BBscale = 35;
     CameraBB = NULL;
-    sliceMode = false;
 
     // Control variables for the dynamic hiding of parts of ATLAS
     isTC_on = true;
@@ -116,14 +115,62 @@ AGeometry::AGeometry(QWidget* parent)
 	    this,SLOT(makeDirty()));
     connect(this,SIGNAL(trackDeselected(ATrack*)),
 	    this,SLOT(makeDirty()));
+
+    // Prepare visility controls
+    _detectorVisibility.setValue(true);
+    visibilityMapper.setMapping(&_detectorVisibility,8);
+    connect(&_detectorVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _trackerVisibility.setValue(true);
+    visibilityMapper.setMapping(&_trackerVisibility,9);
+    connect(&_trackerVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _calorimetersVisibility.setValue(true);
+    visibilityMapper.setMapping(&_calorimetersVisibility,10);
+    connect(&_calorimetersVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _pixelsVisibility.setValue(true);
+    visibilityMapper.setMapping(&_pixelsVisibility,7);
+    connect(&_pixelsVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _sctVisibility.setValue(true);
+    visibilityMapper.setMapping(&_sctVisibility,6);
+    connect(&_sctVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _trtVisibility.setValue(true);
+    visibilityMapper.setMapping(&_trtVisibility,5);
+    connect(&_trtVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _larVisibility.setValue(true);
+    visibilityMapper.setMapping(&_larVisibility,4);
+    connect(&_larVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _tileVisibility.setValue(true);
+    visibilityMapper.setMapping(&_tileVisibility,3);
+    connect(&_tileVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _muonSpecVisibility.setValue(true);
+    visibilityMapper.setMapping(&_muonSpecVisibility,1);
+    connect(&_muonSpecVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _magnetsVisibility.setValue(true);
+    visibilityMapper.setMapping(&_magnetsVisibility,2);
+    connect(&_magnetsVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+    _pitVisibility.setValue(true);
+    visibilityMapper.setMapping(&_pitVisibility,8);
+    connect(&_pitVisibility,SIGNAL(valueChanged(bool)),
+	    &visibilityMapper,SLOT(map()));
+
+    connect(&visibilityMapper,SIGNAL(mapped(int)),
+	    this,SLOT(switchVisibility(int)));
 }
 
 
 
 AGeometry::~AGeometry()
 {
-    if (rt) rt->drop();
-}
+    if (rt) rt->drop();}
 
 void AGeometry::load()
 {
@@ -240,6 +287,7 @@ void AGeometry::load()
   CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
   CameraBB->setID ( 0 );
   CameraBB->setName ("Moses Mode Box");
+  CameraBB->setVisible(false);
   createFlatGeometry();
   
   zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
@@ -552,25 +600,25 @@ void AGeometry::dynamicHidingOfModules(core::vector3df camPos)
 
     //Part II, reveal
 
-    if ( !isTC_on && ((camR < 1000 && camPos.Z>= -400 && camPos.Z <= 400) || sliceMode ) )
+    if ( !isTC_on && ((camR < 1000 && camPos.Z>= -400 && camPos.Z <= 400) ) )
     {
         isTC_on = true;
         TC_switch = 1;
     }
 
-    if ( !isLAr_on && ((camR < 400 && camPos.Z>= -400 && camPos.Z <= 400) || sliceMode ) )
+    if ( !isLAr_on && ((camR < 400 && camPos.Z>= -400 && camPos.Z <= 400) ) )
     {
         isLAr_on = true;
         LAr_switch = 1;
     }
 
-    if ( !isSCT_on && ((camR < 250 && camPos.Z>= -400 && camPos.Z <= 400 ) || sliceMode ) )
+    if ( !isSCT_on && ((camR < 250 && camPos.Z>= -400 && camPos.Z <= 400 ) ) )
     {
         isSCT_on = true;
         SCT_switch = 1;
     }
 
-    if ( !isPix_on && ((camR < 75 && camPos.Z>= -400 && camPos.Z <= 400) || sliceMode ) )
+    if ( !isPix_on && ((camR < 75 && camPos.Z>= -400 && camPos.Z <= 400) ) )
     {
         isPix_on = true;
         Pix_switch = 1;
@@ -633,7 +681,7 @@ void AGeometry::execute()
       core::vector3df camPos = getSceneManager()->getActiveCamera()->getPosition();
       
       dynamicCameraSpeed(camPos);
-      dynamicHidingOfModules(camPos);
+      //dynamicHidingOfModules(camPos);
       
       if ( _cropMode!=NoneMode )
 	{
@@ -694,161 +742,125 @@ float AGeometry::angleBetween ( scene::ISceneNode* module, core::vector3df cam )
 
 void AGeometry::switchVisibility ( int modType )
 {
-    if ( generateDetectorGeometry )
+  if ( generateDetectorGeometry )
     {
-        if ( Atlas_Reference )
-        {
-            switch ( modType )
-            {
-
-            case 0: //Pit
-
-	      if ( Pit_Reference )
-                {
-		  Pit_Reference->setVisible ( ! Pit_Reference->isVisible() );
-                }
-
-                if ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->isVisible() ) );
-                }
-                break;
+      switch ( modType )
+	{
+	case 0: //Pit
+	  if ( Pit_Reference )
+	    Pit_Reference->setVisible ( _pitVisibility.value()) ;
+	  if ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
+	    {
+	      getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( _pitVisibility.value());
+	    }
+	  break;
 
 
-            case 1: //Muon Chambers
+	case 1: //Muon Chambers
+	  if ( Muons_Reference )
+	    Muons_Reference->setVisible ( _muonSpecVisibility.value());
+	  break;
 
-                if ( getSceneManager()->getSceneNodeFromName ( "Muons_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Muons_Reference" )->isVisible() ) );
-//                    cout << "Switched Muons" << endl;
-                }
-                break;
+	case 2: // Magnets
+	  if ( Magnets_Reference )
+	    Magnets_Reference->setVisible ( _magnetsVisibility.value() );
+	  break;
 
+	case 3: // Hadronic Calorimeter
+	  if ( TC_Reference )
+	    TC_Reference->setVisible ( _tileVisibility.value());
+	  break;
 
-            case 2: // Magnets
+	case 4: // EM Calorimeter
+	  if ( EMC_Reference )
+	    EMC_Reference->setVisible ( _larVisibility.value() );
+	  break;
 
-                if ( getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Magnets_Reference" )->isVisible() ) );
-                }
-                break;
+	case 5: // TRT
+	  if ( TRT_Reference )
+	    TRT_Reference->setVisible ( _trtVisibility.value() );
+	  break;
 
+	case 6: // SCT
+	  if ( SCT_Reference )
+	    SCT_Reference->setVisible ( _sctVisibility.value() );
+	  break;
 
-            case 3: // Hadronic Calorimeter
+	case 7: // Pixels
+	  if ( Pixels_Reference )
+	    Pixels_Reference->setVisible ( _pixelsVisibility.value() );
+	  break;
 
-                if ( getSceneManager()->getSceneNodeFromName ( "TC_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "TC_Reference" )->isVisible() ) );
-                }
-                break;
-
-
-            case 4: // EM Calorimeter
-
-                if ( getSceneManager()->getSceneNodeFromName ( "EMC_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "EMC_Reference" )->isVisible() ) );
-                }
-                break;
-
-
-            case 5: // TRT
-
-                if ( getSceneManager()->getSceneNodeFromName ( "TRT_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "TRT_Reference" )->isVisible() ) );
-                }
-                break;
-
-
-            case 6: // SCT
-
-                if ( getSceneManager()->getSceneNodeFromName ( "SCT_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "SCT_Reference" )->isVisible() ) );
-                }
-                break;
-
-
-            case 7: // Pixels
-
-                if ( getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" ) )
-                {
-                    getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->setVisible ( ! ( getSceneManager()->getSceneNodeFromName ( "Pixels_Reference" )->isVisible() ) );
-                }
-                break;
-
-            }
+	case 8: // Detector
+	  if(Atlas_Reference)
+	    Atlas_Reference->setVisible(_detectorVisibility.value());
+	  break;
+	case 9: // Tracker
+	  if(Trackers_Reference)
+	    Trackers_Reference->setVisible(_trackerVisibility.value());
+	  break;
+	case 10: // Calorimeters
+	  if(Calorimeters_Reference)
+	    Calorimeters_Reference->setVisible(_calorimetersVisibility.value());
+	  break;
         }
-	makeDirty();
-    }
-}
-
-void AGeometry::toggleVisibilityPixels()
-{
-    switchVisibility (7);
-}
-
-void AGeometry::toggleVisibilitySCT()
-{
-    switchVisibility (6);
-}
-
-void AGeometry::toggleVisibilityTRT()
-{
-    switchVisibility (5);
-}
-
-void AGeometry::toggleVisibilityLAr()
-{
-    switchVisibility (4);
-}
-
-void AGeometry::toggleVisibilityTile()
-{
-    switchVisibility (3);
-}
-
-void AGeometry::toggleVisibilityMuonSpec()
-{
-    switchVisibility (1);
-}
-
-void AGeometry::toggleVisibilityMagnets()
-{
-    switchVisibility (2);
-}
-
-void AGeometry::toggleVisibilityPit()
-{
-    switchVisibility (0);
-}
-
-void AGeometry::toggleVisibilityDetector(bool onoff)
-{
-  if(Atlas_Reference)
-    {
-      Atlas_Reference->setVisible(onoff);
       makeDirty();
     }
 }
 
-void AGeometry::toggleVisibilityCalorimeters(bool onoff)
+QBoolSync *AGeometry::detectorVisibility()
 {
-  if(Calorimeters_Reference)
-    {
-      Calorimeters_Reference->setVisible(onoff);
-      makeDirty();
-    }
+  return &_detectorVisibility;
 }
 
-void AGeometry::toggleVisibilityTracker(bool onoff)
+QBoolSync *AGeometry::calorimetersVisibility()
 {
-  if(Trackers_Reference)
-    {
-      Trackers_Reference->setVisible(onoff);
-      makeDirty();
-    }
+  return &_calorimetersVisibility;
+}
+
+QBoolSync *AGeometry::trackerVisibility()
+{
+  return &_trackerVisibility;
+}
+
+QBoolSync *AGeometry::pixelsVisibility()
+{
+  return &_pixelsVisibility;
+}
+
+QBoolSync *AGeometry::sctVisibility()
+{
+  return &_sctVisibility;
+}
+
+QBoolSync *AGeometry::trtVisibility()
+{
+  return &_trtVisibility;
+}
+
+QBoolSync *AGeometry::larVisibility()
+{
+  return &_larVisibility;
+}
+
+QBoolSync *AGeometry::tileVisibility()
+{
+  return &_tileVisibility;
+}
+
+QBoolSync *AGeometry::muonSpecVisibility()
+{
+  return &_muonSpecVisibility;
+}
+
+QBoolSync *AGeometry::magnetsVisibility()
+{
+  return &_magnetsVisibility;
+}
+
+QBoolSync *AGeometry::pitVisibility()
+{
+  return &_pitVisibility;
 }
 
 void AGeometry::createFlatGeometry()
@@ -899,6 +911,14 @@ void AGeometry::createAtlasGeometry()
       Atlas_Reference=getSceneManager()->getSceneNodeFromName( "Atlas_Reference" );
       Trackers_Reference=getSceneManager()->getSceneNodeFromName( "Trackers_Reference" );
       Calorimeters_Reference=getSceneManager()->getSceneNodeFromName( "Calorimeters_Reference" );
+
+      Muons_Reference=getSceneManager()->getSceneNodeFromName( "Muons_Reference" );
+      Magnets_Reference=getSceneManager()->getSceneNodeFromName( "Magnets_Reference" );
+      TC_Reference=getSceneManager()->getSceneNodeFromName( "TC_Reference" );
+      EMC_Reference=getSceneManager()->getSceneNodeFromName( "EMC_Reference" );
+      TRT_Reference=getSceneManager()->getSceneNodeFromName( "TRT_Reference" );
+      SCT_Reference=getSceneManager()->getSceneNodeFromName( "SCT_Reference" );
+      Pixels_Reference=getSceneManager()->getSceneNodeFromName( "Pixels_Reference" );
 
       Atlas_Reference->setVisible(true);
 
@@ -1117,15 +1137,9 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
       return;
       break;
       
-      //turns on/off slice mode
-    case Qt::Key_U:
-      sliceMode = !sliceMode;
-      return;
-      break;
-      
-      // Toggle detector system visibility
+    // Toggle detector system visibility
     case Qt::Key_0:
-      switchVisibility ( 0 );
+      _detectorVisibility.setValue(!_detectorVisibility.value());
       return;
       break;
       
@@ -1401,10 +1415,10 @@ void AGeometry::setupView(int view)
     background_node_s->setVisible (s);
 
     if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
-        getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps );
+      getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps && _detectorVisibility.value() );
 
     if ( Pit_Reference )
-      Pit_Reference->setVisible ( fps );
+      Pit_Reference->setVisible ( fps && _pitVisibility.value() );
 
 	if(view==Cam3D)
 	{

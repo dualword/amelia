@@ -42,6 +42,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QAction>
 #include <QLabel>
 #include <QMenu>
+#include <QSignalMapper>
+
+#include <QBoolSync.h>
 
 #include "CSceneNodeAnimatorCameraSwitch.h"
 #include "ATrack3DNode.h"
@@ -83,6 +86,20 @@ public:
 
     void setComboMenu(QMenu*);
     void addToDetectorMenu(QString,QAction*);
+
+    QBoolSync* detectorVisibility();
+    QBoolSync* pixelsVisibility();
+    QBoolSync* sctVisibility();
+    QBoolSync* trtVisibility();
+    QBoolSync* larVisibility();
+    QBoolSync* tileVisibility();
+    QBoolSync* muonSpecVisibility();
+    QBoolSync* magnetsVisibility();
+    QBoolSync* pitVisibility();
+
+    QBoolSync* calorimetersVisibility();
+    QBoolSync* trackerVisibility();
+
 
     ISceneNode* tar_node;
     ISceneNode* cam_node;
@@ -129,19 +146,7 @@ public slots:
     void clearEvent();    
     void updateTracks();
 
-    void toggleVisibilityPixels(); //Toggles the visibility of the pixel detector on or off
-    void toggleVisibilitySCT(); //Toggles the visibility of the SCT on or off
-    void toggleVisibilityTRT();	//Toggles the visibility of the TRT on or off
-    void toggleVisibilityLAr();	//Toggles the visibility of the LAr calorimeter on or off
-    void toggleVisibilityTile(); //Toggles the visibility of the Hadronic Calorimeter on or off
-    void toggleVisibilityMuonSpec(); //Toggles the visibility of the Muon Spectrometer on or off
-    void toggleVisibilityMagnets(); //Toggles the visibility of the Magnet System on or off
-    void toggleVisibilityPit(); //Toggles the visibility of the Pit on or off
-
-    void toggleVisibilityDetector(bool onoff);
-    void toggleVisibilityCalorimeters(bool onoff);
-    void toggleVisibilityTracker(bool onoff);
-
+    void switchVisibility(int modType); //Switches the visibility of the different components of the detector
 
     void addCamAnimator (irr::core::array <vector3df>);
     void addTarAnimator (irr::core::array <vector3df>);
@@ -199,7 +204,6 @@ private:
     QMap<QString,QMenu*>  _detectorMenu;
     gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
 
-    void switchVisibility(int modType); //Switches the visibility of the different components of the detector
     const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
     const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
@@ -207,6 +211,13 @@ private:
     scene::ISceneNode* Atlas_Reference;
     scene::ISceneNode* Calorimeters_Reference;
     scene::ISceneNode* Trackers_Reference;
+    scene::ISceneNode* Muons_Reference;
+    scene::ISceneNode* Magnets_Reference;
+    scene::ISceneNode* TC_Reference;
+    scene::ISceneNode* EMC_Reference;
+    scene::ISceneNode* TRT_Reference;
+    scene::ISceneNode* SCT_Reference;
+    scene::ISceneNode* Pixels_Reference;
     scene::ISceneNode* background_node_f; //Used for flat view
     scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;
@@ -228,7 +239,6 @@ private:
     float camChangeDist1;
     float camChangeDist2;
     float BBscale;
-    bool sliceMode;
 
     void dynamicCameraSpeed(core::vector3df camPos);  //Modifying camera speed based on proximity to detector
     void dynamicHidingOfModules(core::vector3df camPos);
@@ -253,6 +263,21 @@ private:
     scene::ISceneNode *_logoNode;
     scene::ISceneNodeAnimator *_logoAnim;
     scene::ILightSceneNode *_logoLight;
+
+    //Visibility stuff
+    QSignalMapper visibilityMapper;
+    QBoolSync _detectorVisibility;
+    QBoolSync _calorimetersVisibility;
+    QBoolSync _trackerVisibility;
+
+    QBoolSync _pixelsVisibility;
+    QBoolSync _sctVisibility;
+    QBoolSync _trtVisibility;
+    QBoolSync _larVisibility;
+    QBoolSync _tileVisibility;
+    QBoolSync _muonSpecVisibility;
+    QBoolSync _magnetsVisibility;
+    QBoolSync _pitVisibility;
 };
 
 #endif // AGEOMETRY_H

@@ -138,6 +138,10 @@ public slots:
     void toggleVisibilityMagnets(); //Toggles the visibility of the Magnet System on or off
     void toggleVisibilityPit(); //Toggles the visibility of the Pit on or off
 
+    void toggleVisibilityDetector(bool onoff);
+    void toggleVisibilityCalorimeters(bool onoff);
+    void toggleVisibilityTracker(bool onoff);
+
 
     void addCamAnimator (irr::core::array <vector3df>);
     void addTarAnimator (irr::core::array <vector3df>);
@@ -201,6 +205,8 @@ private:
 
     scene::ISceneNode* Pit_Reference;
     scene::ISceneNode* Atlas_Reference;
+    scene::ISceneNode* Calorimeters_Reference;
+    scene::ISceneNode* Trackers_Reference;
     scene::ISceneNode* background_node_f; //Used for flat view
     scene::ISceneNode* background_node_s; //Used for flat view
     scene::ISceneNode* CameraBB;

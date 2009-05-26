@@ -860,6 +860,9 @@ color: rgb(255, 255, 0);
           <property name="title">
            <string>Toggle System Visibility</string>
           </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
             <widget class="QCheckBox" name="checkBox_MuonSpectr">
@@ -923,6 +926,9 @@ color: rgb(255, 255, 0);
              <property name="title">
               <string>Calorimeters</string>
              </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
              <widget class="QCheckBox" name="checkBox_Tilecal">
               <property name="enabled">
                <bool>true</bool>
@@ -985,6 +991,9 @@ color: rgb(255, 255, 0);
              </property>
              <property name="title">
               <string>Inner Detector</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
              </property>
              <widget class="QCheckBox" name="checkBox_SCT">
               <property name="enabled">
@@ -1908,6 +1917,9 @@ color: rgb(255, 255, 0);
     <slot>toggleVisibilityParticles(bool)</slot>
     <slot>loadEvent()</slot>
     <slot>setCamera(AGeometry::Camera)</slot>
+    <slot>toggleVisibilityDetector(bool)</slot>
+    <slot>toggleVisibilityCalorimeters(bool)</slot>
+    <slot>toggleVisibilityTracker(bool)</slot>
    </slots>
   </customwidget>
   <customwidget>
@@ -2441,6 +2453,54 @@ color: rgb(255, 255, 0);
     <hint type="destinationlabel">
      <x>511</x>
      <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupBox_Detector</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Geometry</receiver>
+   <slot>toggleVisibilityDetector(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>784</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>734</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupBox_Calorimeter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Geometry</receiver>
+   <slot>toggleVisibilityCalorimeters(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>799</x>
+     <y>235</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>715</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupBox_ID</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>Geometry</receiver>
+   <slot>toggleVisibilityTracker(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>795</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>724</x>
+     <y>352</y>
     </hint>
    </hints>
   </connection>

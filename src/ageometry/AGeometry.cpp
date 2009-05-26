@@ -696,7 +696,7 @@ void AGeometry::switchVisibility ( int modType )
 {
     if ( generateDetectorGeometry )
     {
-        if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
+        if ( Atlas_Reference )
         {
             switch ( modType )
             {
@@ -824,6 +824,33 @@ void AGeometry::toggleVisibilityPit()
     switchVisibility (0);
 }
 
+void AGeometry::toggleVisibilityDetector(bool onoff)
+{
+  if(Atlas_Reference)
+    {
+      Atlas_Reference->setVisible(onoff);
+      makeDirty();
+    }
+}
+
+void AGeometry::toggleVisibilityCalorimeters(bool onoff)
+{
+  if(Calorimeters_Reference)
+    {
+      Calorimeters_Reference->setVisible(onoff);
+      makeDirty();
+    }
+}
+
+void AGeometry::toggleVisibilityTracker(bool onoff)
+{
+  if(Trackers_Reference)
+    {
+      Trackers_Reference->setVisible(onoff);
+      makeDirty();
+    }
+}
+
 void AGeometry::createFlatGeometry()
 {
 	float mscale = 0.4; //model scale
@@ -870,6 +897,9 @@ void AGeometry::createAtlasGeometry()
       ref.allModules=&this->allModules;
       getSceneManager()->loadScene ( "geometry.irr" , &ref );
       Atlas_Reference=getSceneManager()->getSceneNodeFromName( "Atlas_Reference" );
+      Trackers_Reference=getSceneManager()->getSceneNodeFromName( "Trackers_Reference" );
+      Calorimeters_Reference=getSceneManager()->getSceneNodeFromName( "Calorimeters_Reference" );
+
       Atlas_Reference->setVisible(true);
 
       ref.allModules=0;

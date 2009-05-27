@@ -118,6 +118,29 @@ QVariant AComboTableModel::headerData (int section, Qt::Orientation orientation,
   return QVariant();
 }
 
+Qt::ItemFlags AComboTableModel::flags(const QModelIndex& index) const
+{
+  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+  if(index.column()==0)
+    flags|=Qt::ItemIsEditable;
+
+  return flags;
+}
+
+bool AComboTableModel::setData(const QModelIndex& index,const QVariant& value,int role)
+{
+  if(!index.isValid()) return false;
+
+  if(role==Qt::EditRole)
+    {
+      if(index.column()!=0) return false;
+      QString newName=value.toString();
+      combinations()[index.row()]->setName(newName);
+      analysisData->forceUpdate();
+    }
+}
+
 void AComboTableModel::sort(int column, Qt::SortOrder order) {
   //Do a bubble sort... Switch to something faster later?
 

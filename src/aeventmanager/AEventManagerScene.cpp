@@ -259,6 +259,8 @@ QMimeData *AEventManagerScene::mimeData(const QModelIndexList &indexes) const
 
 bool AEventManagerScene::setData(const QModelIndex& index,const QVariant& value,int role)
 {
+  if(!index.isValid()) return false;
+  
   if(role==Qt::EditRole)
     {
       AEventPackage *pkg=getPackage(index);

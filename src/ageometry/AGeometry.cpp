@@ -457,6 +457,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 
 void AGeometry::renderViewport(int view)
 {
+  if(view==active_viewport) return; //Time saving hack. Never render the visible viewport, since it is not in the two smaller viewports.
     int camId;
     if (view==Cam3D) camId=active_cam;
     else camId=view;
@@ -1263,7 +1264,6 @@ void AGeometry::clearEvent()
 
 void AGeometry::setEvent(AFilteredEvent* e)
 {
-  makeDirty();
   if(!_event)
     {
       disconnect(_event,SIGNAL(filtersUpdated()),
@@ -1312,6 +1312,8 @@ void AGeometry::setEvent(AFilteredEvent* e)
   updateTracks();
 
   allowTrackSelection=true;
+  _detectorVisibility.setValue(false);
+  makeDirty();
 }
 
 AFilteredEvent* AGeometry::event()

@@ -24,6 +24,9 @@ class AEVENTMANAGER_EXPORT AEventAnalysisData : public QObject
   static void addStructure(QMetaObject);
   static AEventAnalysisData* newInstance(QString classname,QString module);
 
+ public slots:
+  void forceUpdate();
+
  signals:
   void updated();
 

@@ -65,6 +65,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AMainView.h"
 #include "AAdvancedEventSettings.h"
 
+#include <QDoubleSync.h>
+
 #include <aeventmanager/AEventManagerTreeView.h>
 #include <aeventmanager/AEventManagerScene.h>
 
@@ -143,7 +145,6 @@ public slots:
     QTableView *tableSelectedTracks;
     QTableView *tableCombinedTracks;
     QTableView *tableInterestingTracks;
-    QSlider *PtCutoff_Slider;
     QWidget *eventWidget;
     AMainView *AGeometryFrame;
     QMenu *menuTagCurrentEvent;
@@ -169,6 +170,7 @@ public slots:
     AEventManagerTreeView *packageList;
 
     // Filters
+    QDoubleSync ptFilterSync;
     APtFilter *ptFilter;
     AModelFilter *modelFilter;
     AParticleFilter *particleFilter;

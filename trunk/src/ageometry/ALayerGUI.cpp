@@ -88,7 +88,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
     packageList = findChild<AEventManagerTreeView*>("packageList");
     QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
-    PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
+    QSlider *PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
+    QSpinBox *spinBox_Pt=findChild<QSpinBox*>("spinBox_Pt");
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
     selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
@@ -232,11 +233,12 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 packageList,SLOT(clickNextEvent()));
       }
     
-    if (PtCutoff_Slider)
-      {
-	connect(PtCutoff_Slider,SIGNAL(valueChanged(int)),
-		ptFilter,SLOT(setMinPtMeV(int)));
-      }
+    // Setup pt cutoff
+    ptFilterSync.setValue(1000);
+    connect(&ptFilterSync,SIGNAL(valueChanged(double)),
+	    ptFilter,SLOT(setMinPtMeV(double)));
+    ptFilterSync.syncSlider(PtCutoff_Slider);
+    ptFilterSync.syncSpinBox(spinBox_Pt);
 
 
     //setup tour button connections

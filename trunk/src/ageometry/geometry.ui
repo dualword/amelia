@@ -1977,38 +1977,6 @@ color: rgb(255, 255, 0);
  </resources>
  <connections>
   <connection>
-   <sender>PtCutoff_Slider</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>spinBox_Pt</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>518</x>
-     <y>582</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>622</x>
-     <y>582</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox_Pt</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>PtCutoff_Slider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>622</x>
-     <y>582</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>518</x>
-     <y>582</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Geometry</sender>
    <signal>finishedLoading()</signal>
    <receiver>LayerGUI</receiver>

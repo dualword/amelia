@@ -125,7 +125,7 @@ void ATrackCollection::writeTrackToXmlFile(QTextStream& in,ATrack* track)
     {
       ATrackCombination* combo=(ATrackCombination*)track;
       in << "<combination"
-	 << " name=\"" << combo->name() << "\">" << endl;
+	 << " name=\"" << combo->name(false) << "\">" << endl;
       for(int i=0;i<combo->size();i++)
 	{
 	  writeTrackToXmlFile(in,combo->getTrack(i));

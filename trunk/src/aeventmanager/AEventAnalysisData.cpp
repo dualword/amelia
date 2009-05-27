@@ -16,6 +16,11 @@ QString AEventAnalysisData::moduleName()
   return _modulename;
 }
 
+void AEventAnalysisData::forceUpdate()
+{
+  emit updated();
+}
+
 void AEventAnalysisData::writeToFile(QTextStream& in)
 {
   beginWriteToFile(in);

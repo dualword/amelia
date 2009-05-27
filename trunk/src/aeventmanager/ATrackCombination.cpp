@@ -4,8 +4,9 @@
 
 unsigned int ATrackCombination::_IDS=0;
 
-ATrackCombination::ATrackCombination():ATrack("Combo #"+QString::number(++_IDS),ATrack::eCombination)
+ATrackCombination::ATrackCombination():ATrack("",ATrack::eCombination)
 {
+  _IDS++;
   setTrackID(_IDS);
 }
 
@@ -33,6 +34,18 @@ bool ATrackCombination::deleteTrack(ATrack* tr)
       return true;
     }
   return false;
+}
+
+QString ATrackCombination::name(bool generateDefault)
+{
+  QString _name=ATrack::name();
+  if(!_name.isEmpty() || !generateDefault) return _name;
+  
+  //In case of empty name, generate one:
+  // track1|track2|track3
+  _name=QString::number(tracks[0]->trackID());
+  for(int i=1;i<tracks.size();i++)
+    _name+="|"+QString::number(tracks[i]->trackID());
 }
 
 int ATrackCombination::size()

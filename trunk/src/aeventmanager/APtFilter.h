@@ -11,15 +11,14 @@ class AEVENTMANAGER_EXPORT APtFilter : public ATrackFilter
   int _minPt;
   
  public:
-  APtFilter(float minPt,ATrackFilter* next=0);
+  APtFilter(double minPt,ATrackFilter* next=0);
 
-  float minPt();
+  double minPt();
   bool checkTrack(ATrack* track);
   
  public slots:
-  void setMinPt(float);
-  void setMinPtMeV(int);
-  
+  void setMinPt(double);
+  void setMinPtMeV(double);
 };
 
 #endif //APTFILTER_H_

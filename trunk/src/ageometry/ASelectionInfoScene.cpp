@@ -107,22 +107,9 @@ void ASelectionInfoScene::handleAddTrack()
 
 void ASelectionInfoScene::handleCombTracks()
 {
-  bool ok;
-  
-  QString name=QInputDialog::getText(0,
-				     tr("Track Combination Name"),
-				     tr("Combination Name:"),
-				     QLineEdit::Normal,
-				     combo->name(),
-				     &ok);
-  
-  if (ok) //Proceed only if OK clicked
-    {
-      QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
-      combo->setName(name);
-      tracks.append(new ATrackCombination(*combo));
-      analysisData->setCollection("combined_tracks",tracks);
-    }
+  QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
+  tracks.append(new ATrackCombination(*combo));
+  analysisData->setCollection("combined_tracks",tracks);
 }
 
 void ASelectionInfoScene::handleViewportChange(int from,int to)

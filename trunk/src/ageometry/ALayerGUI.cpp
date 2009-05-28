@@ -164,6 +164,11 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         tableCombinedTracks->setColumnWidth ( 0, 90 );
         tableCombinedTracks->setColumnWidth ( 1, 50 );
         tableCombinedTracks->setColumnWidth ( 2, 70 );
+	
+        connect(comboModel,SIGNAL(entrySelected(int,bool)),
+                geo,SLOT(selectTrackByID(int,bool)));
+        connect(comboModel,SIGNAL(entryDeselected(int)),
+                geo,SLOT(deselectTrackByID(int)));
     }
 
     if (detailedCombinedTracksTable)
@@ -194,7 +199,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(handleViewportChange(int,int)));
 
         connect(trackInfo,SIGNAL(combineButtonEnabled(bool)),
-                buttonCombineTracks,SLOT(setEnabled(bool)));
+		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
 
     // Setup event view

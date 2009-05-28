@@ -89,8 +89,6 @@ class ASelectionInfoScene : public QGraphicsScene
   QGraphicsTextItem *charge;
   QGraphicsTextItem *invmass;
   QGraphicsTextItem *pt;
-  QGraphicsTextItem *phi;
-  QGraphicsTextItem *eta;
   QGraphicsTextItem *id;
   
   QGraphicsTextItem* dataComplete;

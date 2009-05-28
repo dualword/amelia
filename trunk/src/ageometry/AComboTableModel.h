@@ -30,12 +30,17 @@ public:
 
 public slots:
   void handleNewEventLoaded(AEvent*);
+  void handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected);
 
   void addCombination(ATrackCombination* combo);
   void deleteSelectedCombinations();
   
   void clear();
   void refresh();
+
+signals:
+  void entrySelected(int trackID,bool shift);
+  void entryDeselected(int trackID);
 
 private:
   ATrackCollection *analysisData;

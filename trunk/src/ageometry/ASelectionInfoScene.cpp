@@ -40,18 +40,12 @@ void ASelectionInfoScene::init()
     id->setDefaultTextColor("white");
 
     nonSelectable=addText("Non Selectable");
-    nonSelectable->setPos(230,25);
+    nonSelectable->setPos(230,15);
     nonSelectable->setDefaultTextColor("black");
 
     pt=addText("Pt:");
     pt->setPos(130,25);
     pt->setDefaultTextColor("white");
-    eta=addText("Eta:");
-    eta->setPos(130,40);
-    eta->setDefaultTextColor("white");
-    phi=addText("Phi:");
-    phi->setPos(130,55);
-    phi->setDefaultTextColor("white");
 
     // Buttons
     QPushButton *_addTrack=new QPushButton("Bookmark Selected");
@@ -173,8 +167,6 @@ void ASelectionInfoScene::displayMessage(QString text,QString headerText,QPixmap
   charge->setVisible(false);
   invmass->setVisible(false);
   pt->setVisible(false);
-  eta->setVisible(false);
-  phi->setVisible(false);
   id->setVisible(false);
   addTrack->setVisible(false);
   combTrack->setVisible(false);
@@ -221,8 +213,6 @@ void ASelectionInfoScene::refresh()
       charge->setVisible(false);
       invmass->setVisible(false);
       pt->setVisible(false);
-      eta->setVisible(false);
-      phi->setVisible(false);
       id->setVisible(false);
       addTrack->setVisible(false);
       combTrack->setVisible(false);
@@ -240,10 +230,8 @@ void ASelectionInfoScene::refresh()
 	  name->setHtml("<b>Name:</b> "+QString(STrack->name()));
 	  charge->setHtml("<b>Charge:</b> "+QString::number(STrack->charge()));
 	  pt->setHtml("<b>Pt:</b> "+QString::number(STrack->Pt()));
-	  eta->setHtml("<b>&#951;:</b> "+QString::number(STrack->eta));
-	  phi->setHtml("<b>&#966;:</b> "+QString::number(STrack->phi));
 	  id->setHtml("<b>id:</b> "+QString::number(STrack->trackID()));
-	  nonSelectable->setHtml("<b>This track is<br>irrelevant for<br>the analysis</b>");
+	  nonSelectable->setHtml("<b>This track cannot<br/> be saved. It is<br/> irrelevant for<br/> analysis.</b>");
 	  
 	  
 	  header->setVisible(true);
@@ -251,8 +239,6 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(true);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  id->setVisible(true);
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
@@ -263,8 +249,6 @@ void ASelectionInfoScene::refresh()
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
 	  name->setHtml("<b>Type:</b> Jet");
-	  eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->eta));
-	  phi->setHtml("<b>&#966;</b> "+QString::number(Jet->phi));
 	  pt->setHtml("<b>Pt:</b> "+QString::number(Jet->et));
 	  
 	  header->setVisible(true);
@@ -272,8 +256,6 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(false);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
         }
@@ -282,8 +264,6 @@ void ASelectionInfoScene::refresh()
 	  AMisET* ET = static_cast<AMisET*>((*combo)[0]);
 	  header->setPlainText("SELECTED MisEt INFO");
 	  name->setHtml("<b>Type:</b> Missing Et");
-	  eta->setHtml("<b>etx:</b> "+QString::number(ET->etx));
-	  phi->setHtml("<b>ety:</b> "+QString::number(ET->ety));
 	  pt->setHtml("<b>Et:</b> "+QString::number(ET->et));
 	  
 	  header->setVisible(true);
@@ -291,8 +271,6 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(false);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
         }
@@ -300,9 +278,23 @@ void ASelectionInfoScene::refresh()
   else
     //Multi-track selection
     {
+
+      // Show the combo button if more than one track is selected..
+      QList<ATrack*> combines=analysisData->getCollection("combined_tracks");
+      QString combName="Unknown Combination";
+      combTrack->setVisible(true);
+      emit combineButtonEnabled(true);
+      for(unsigned int i=0;i<combines.size();i++)
+	if((*combo)==(*((ATrackCombination*)combines[i])))
+	  {
+	    combTrack->setVisible(false);
+	    combName=combines[i]->name();
+	    break;
+	  }
+      
       header->setPlainText("MULTIPLE TRACKS SELECTED");
-      //TODO: Print out some cool information, I'm guessing
-      name->setHtml("<b>Name:</b> Unknown Combination");
+
+      name->setHtml("<b>Name:</b> "+combName);
       charge->setHtml("<b>Charge:</b> "+QString::number(combo->charge()));
       invmass->setHtml("<b>Invariant Mass:</b> "+QString::number(combo->getInvariantMass()));
       nonSelectable->setHtml("<b>At least one of the<br>selected tracks<br>is irrelevant for<br>the analysis</b>");
@@ -312,13 +304,9 @@ void ASelectionInfoScene::refresh()
       charge->setVisible(true);
       invmass->setVisible(true);
       pt->setVisible(false);
-      eta->setVisible(false);
-      phi->setVisible(false);
       id->setVisible(false);
       nonSelectable->setVisible(false);
       icon->setVisible(false);
-      
-      combTrack->setVisible(true);
     }
   
   // Show the add button if at least one of the tracks are not in the list already...
@@ -337,34 +325,14 @@ void ASelectionInfoScene::refresh()
         }
     }
 
-  // Show the combo button if more than one track is selected..
-  QList<ATrack*> combines=analysisData->getCollection("combined_tracks");
-  if(combo->size()>=2)
-    {
-      combTrack->setVisible(true);
-      emit combineButtonEnabled(true);
-      for(unsigned int i=0;i<combines.size();i++)
-	if((*combo)==(*((ATrackCombination*)combines[i])))
-	  {
-	    combTrack->setVisible(false);
-	    emit combineButtonEnabled(false);
-	    break;
-	  }
-    }
-  else
-    {
-      emit combineButtonEnabled(false);
-      combTrack->setVisible(false);
-    }
-
   // Unalyziable track selected, disable everything
   if ((nonSelectable->isVisible()))
     {
       combTrack->setVisible(false);
       addTrack ->setVisible(false);
-      emit combineButtonEnabled(false);
-      return;
     }
+  emit combineButtonEnabled(combTrack->isVisible());
+
 }
 
 bool ASelectionInfoScene::particleFilter(ATrack* track) // We don't want to allow every track to be added to the table

@@ -1,6 +1,7 @@
 #include "AComboTableModel.h"
 
 #include <QDebug>
+#include <QApplication>
 
 AComboTableModel::AComboTableModel(QWidget* parent):QAbstractTableModelWithContextMenu(parent)
 {
@@ -8,6 +9,8 @@ AComboTableModel::AComboTableModel(QWidget* parent):QAbstractTableModelWithConte
 
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
+  connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+	  this,SLOT(handleSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 AComboTableModel::~AComboTableModel()
@@ -140,6 +143,46 @@ bool AComboTableModel::setData(const QModelIndex& index,const QVariant& value,in
       analysisData->forceUpdate();
     }
 }
+
+void AComboTableModel::handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected)
+{
+  // PERFORM DESELECTION
+  //Deselection should be performed first, because in the case of singletrack selection, everything will be deselected anyways. Even though in theory
+  //there shouldn't be any problems, might as well do this to keep safe.
+  QModelIndexList idxs=deselected.indexes();
+  for (int i=0;i<idxs.size();i++)
+    {
+      if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
+        {
+	  ATrackCombination *comb=combinations()[idxs[i].row()];
+	  for(int i=0;i<comb->size();i++)
+	    {	    
+	      int id=comb->getTrack(i)->trackID();
+	      emit entryDeselected(id);
+	    }
+        }
+    }
+  
+  // PERFORM SELECTION
+  idxs=selected.indexes();
+  
+  bool multi = ((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+  
+  for (int i=0;i<idxs.size();i++)
+    {
+      if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
+        {
+	  ATrackCombination *comb=combinations()[idxs[i].row()];
+	  for(int i=0;i<comb->size();i++)
+	    {	    
+	      int id=comb->getTrack(i)->trackID();
+	      emit entrySelected(id,multi || i>0);
+	    }
+        }
+    }
+}
+
+
 
 void AComboTableModel::sort(int column, Qt::SortOrder order) {
   //Do a bubble sort... Switch to something faster later?

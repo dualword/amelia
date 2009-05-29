@@ -76,8 +76,11 @@ void ASlidyWidget::toggleWidget(int id)
 
 void ASlidyWidget::showWidgetTimed(int id)
 {
+  bool startTimer=(_visibleId==id && timer.isActive()
+		   || _visibleId!=id);
   showWidget(id);
-  timer.start();
+  
+  if(startTimer) timer.start();
 }
 
 void ASlidyWidget::showWidget(int id)
@@ -150,7 +153,6 @@ void ASlidyWidget::raiseFlap(qreal time)
 
 void ASlidyWidget::timerEvent()
 {
-  qDebug() << "TIMER";
   if(_visibleId!=-1) hideWidget(_visibleId);
 }
 

@@ -177,6 +177,7 @@ public slots:
     AParticleFilter *particleFilter;
     AEvent* CompleteEvent;
     AFilteredEvent* FilteredEvent;
+    AFilteredEvent* ModelEvent;
 };
 
 

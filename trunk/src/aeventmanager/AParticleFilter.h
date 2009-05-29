@@ -9,7 +9,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
 {
   Q_OBJECT
     public:
-  AParticleFilter(ATrackFilter *next);
+  AParticleFilter(ATrackFilter *next=0);
 
   bool checkTrack(ATrack *);
 

@@ -5,7 +5,8 @@
 #include <QDebug>
 
 AEvent::AEvent()
-  :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),highestTrackID(0),_package(0)
+  :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),numJets(0),
+   highestTrackID(0),_package(0)
 {}
 
 void AEvent::LoadEvent() { }
@@ -54,6 +55,7 @@ void AEvent::addTrack(AJet* jet)
 {
   Jets.push_back(jet);
   numTracks++;
+  numJets++;
   Tracks.push_back(jet);
 
 }

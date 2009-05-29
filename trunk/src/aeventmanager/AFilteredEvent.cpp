@@ -11,6 +11,10 @@ AFilteredEvent::AFilteredEvent(AEvent *event,ATrackFilter *headFilter)
       filter=filter->nextFilter();
     }
 
+  if(event->inherits("AFilteredEvent"))
+    connect(event,SIGNAL(filtersUpdated()),
+	    this,SLOT(updateFilters()));
+
   updateFilters();
 }
 
@@ -37,6 +41,7 @@ void AFilteredEvent::updateFilters()
   numElectrons=0;
   numNeutrinos=0;
   numMuons=0;
+  numJets=0;
 
   numShowers = FCALshowers.size() + HECshowers.size() + LArshowers.size() + TILEshowers.size();
 

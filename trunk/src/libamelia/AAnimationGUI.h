@@ -19,6 +19,7 @@ class LIBAMELIA_EXPORT AAnimationGUI : public QObject
    ~AAnimationGUI();
 
    void setPosAt(qreal time, QPoint point);
+   QPoint posAt(qreal time);
 
    void setTimeLine(QTimeLine*);
    QTimeLine* timeLine();

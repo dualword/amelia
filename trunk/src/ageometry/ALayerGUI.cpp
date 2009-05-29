@@ -47,6 +47,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ui_eventadvanced.h"
 #include <config.h>
 #include <AAnimationGUI.h>
+#include <ASlidyWidget.h>
 #include <aeventmanager/AXmlEvent.h>
 
 ALayerGUI::ALayerGUI(QWidget* parent)
@@ -86,13 +87,11 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     actionNone=window()->findChild<QAction *>("actionNone");
     actionWedge_Mode=window()->findChild<QAction *>("actionWedge_Mode");
     actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
-    packageList = findChild<AEventManagerTreeView*>("packageList");
     QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
     QSlider *PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
     QSpinBox *spinBox_Pt=findChild<QSpinBox*>("spinBox_Pt");
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
-    selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
     QGroupBox *groupBox_Detector=findChild<QGroupBox *>("groupBox_Detector");
     QGroupBox *groupBox_Calorimeter=findChild<QGroupBox *>("groupBox_Calorimeter");
     QGroupBox *groupBox_ID=findChild<QGroupBox *>("groupBox_ID");
@@ -202,29 +201,29 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
 
-    // Setup event view
-    if(eventInfoView)
-    {
-      eventInfo=new AEventInfoScene;
-      eventInfoView->setScene(eventInfo);
-      eventInfoView->ensureVisible(0,0,450,300,10,10);
-    }
+    eventInfoView=new QGraphicsView();
+    eventInfo=new AEventInfoScene;
+    eventInfoView->resize(300,200);
+    eventInfoView->setScene(eventInfo);
+    eventInfoView->ensureVisible(0,0,450,300,10,10);
 
     // Setup package list
-
     mngr=new AEventManagerScene(eventmanager,"AGeometry");
-    if (packageList)
-      {
-        packageList->setModel(mngr);
-	//This crashes QPixmap::grabWidget() when the list is not visible for some reason...
-        packageList->setColumnWidth(0,200);
-        connect(packageList, SIGNAL(eventClicked ( AEvent* )),
-		this, SLOT(loadEvent( AEvent* )));
-        connect(this, SIGNAL(eventLoaded(AEvent*)),
-		mngr, SLOT(setActiveEvent(AEvent*)));
-        connect(this,SIGNAL(eventUnloaded()),
-		mngr, SLOT(setActiveEvent()));
-      }
+    packageList=new AEventManagerTreeView();
+    packageList->setModel(mngr);
+    packageList->setColumnWidth(0,200);
+    
+    connect(packageList, SIGNAL(eventClicked ( AEvent* )),
+	    this, SLOT(loadEvent( AEvent* )));
+    connect(this, SIGNAL(eventLoaded(AEvent*)),
+	    mngr, SLOT(setActiveEvent(AEvent*)));
+    connect(this,SIGNAL(eventUnloaded()),
+	    mngr, SLOT(setActiveEvent()));
+    
+    //Setup slide widget
+    ASlidyWidget *slide=new ASlidyWidget(this);
+    slide->addWidget(eventInfoView,"Event Info");
+    slide->addWidget(packageList,"Packages");
 
     // Setup random buttons
     if (buttonDeleteTracks)
@@ -300,13 +299,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	hud=new AGeometryHUD(geo);
       }
 
-    selectedEventInfo=new AEventInfoScene;
-    if (selectedEventInfoView)
-    {
-        selectedEventInfoView->setScene(selectedEventInfo);
-        selectedEventInfoView->ensureVisible(0,0,450,300,10,10);
-    }
-
     if(LeftViewport)
       LeftViewport->setViewport(AGeometry::Orthogonal);
     if(RightViewport)
@@ -359,6 +351,16 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       geo->sctVisibility()->syncButton(checkBox_SCT);
     if(checkBox_TRT)
       geo->trtVisibility()->syncButton(checkBox_TRT);
+
+    //Setup the smart shower
+    connect(&smartShowMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(showWidgetTimed(int)));
+    connect(&smartHideMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(hideWidget(int)));
+    
+    smartShowMapper.setMapping(&ptFilterSync,0);
+    connect(&ptFilterSync,SIGNAL(valueChanged(double)),
+	    &smartShowMapper,SLOT(map()));
 }
 
 void ALayerGUI::enableElements()

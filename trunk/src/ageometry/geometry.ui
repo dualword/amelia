@@ -1109,90 +1109,6 @@ color: rgb(255, 255, 0);
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <widget class="AEventManagerTreeView" name="packageList">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="baseSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(0, 0, 0);</string>
-          </property>
-          <property name="rootIsDecorated">
-           <bool>false</bool>
-          </property>
-          <property name="animated">
-           <bool>true</bool>
-          </property>
-          <property name="headerHidden">
-           <bool>true</bool>
-          </property>
-          <property name="expandsOnDoubleClick">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGraphicsView" name="eventInfo">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>175</height>
-           </size>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
-          <property name="midLineWidth">
-           <number>0</number>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="interactive">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>10</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Bookmarked Tracks</string>
@@ -1959,14 +1875,6 @@ color: rgb(255, 255, 0);
    </slots>
   </customwidget>
   <customwidget>
-   <class>AEventManagerTreeView</class>
-   <extends>QTreeView</extends>
-   <header location="global">aeventmanager/AEventManagerTreeView.h</header>
-   <slots>
-    <slot>clickNextEvent()</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>QTableViewWithContextMenu</class>
    <extends>QTableView</extends>
    <header>QTableViewWithContextMenu.h</header>
@@ -2069,22 +1977,6 @@ color: rgb(255, 255, 0);
     <hint type="destinationlabel">
      <x>372</x>
      <y>271</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionNextEvent</sender>
-   <signal>triggered()</signal>
-   <receiver>packageList</receiver>
-   <slot>clickNextEvent()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1012</x>
-     <y>156</y>
     </hint>
    </hints>
   </connection>

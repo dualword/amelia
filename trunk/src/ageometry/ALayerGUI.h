@@ -132,8 +132,9 @@ public slots:
 	void show(QWidget *);
 
  private:
+    QSignalMapper smartShowMapper;
+    QSignalMapper smartHideMapper;
     AEventInfoScene *eventInfo;
-    AEventInfoScene *selectedEventInfo;
     ASelectionInfoScene *trackInfo;
 
     // Pointers to commonly used widgets

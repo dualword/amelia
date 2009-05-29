@@ -4,11 +4,11 @@
 #include <QDebug>
 
 AAnimationGUI::AAnimationGUI(QObject* parent)
-  : QObject(parent),_timeLine(0),_widget(0)
+  : QObject(parent),_widget(0),_timeLine(0)
 { }
 
 AAnimationGUI::AAnimationGUI(QWidget* w,QObject* parent)
-  : QObject(parent),_timeLine(0),_widget(w)
+  : QObject(parent),_widget(w),_timeLine(0)
 { }
 
 AAnimationGUI::~AAnimationGUI()
@@ -23,8 +23,9 @@ void AAnimationGUI::setTimeLine(QTimeLine *t)
 		 this,SLOT(setStep(qreal)));
     }
   _timeLine=t;
-  connect(_timeLine,SIGNAL(valueChanged(qreal)),
-	  this,SLOT(setStep(qreal)));
+  if(_timeLine)
+    connect(_timeLine,SIGNAL(valueChanged(qreal)),
+	    this,SLOT(setStep(qreal)));
 }
 
 QTimeLine* AAnimationGUI::timeLine()
@@ -51,9 +52,10 @@ void AAnimationGUI::setPosAt(qreal time,QPoint p)
   positions[time]=p;
 }
 
-void AAnimationGUI::setStep(qreal step)
+QPoint AAnimationGUI::posAt(qreal step)
 {
-  if(!_widget) return; //Don't do anything if not associated with a widget
+  if(positions.contains(step)) return positions[step];
+
   QList<qreal> knownPosSteps=positions.keys();
   qSort(knownPosSteps.begin(),knownPosSteps.end());
   
@@ -78,7 +80,13 @@ void AAnimationGUI::setStep(qreal step)
       pos=slope*step+intercept;
     }
   
-  _widget->move(pos);
+  return pos;
+}
+
+void AAnimationGUI::setStep(qreal step)
+{
+  if(!_widget) return; //Don't do anything if not associated with a widget
+  _widget->move(posAt(step));
 }
 
 //Basically a modified merge search.
@@ -86,7 +94,7 @@ int AAnimationGUI::findLessThan(int begin,int end,QList<qreal> haystack,qreal ne
 {
   if(begin==end)
     { // This is make or break time
-      if(haystack[begin]>needle) return -1;
+      if(haystack[begin]>needle) return 0;
       else return begin;
     }
   

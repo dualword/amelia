@@ -1,4 +1,5 @@
 #include "QDoubleSync.h"
+#include <QDebug>s
 
 QDoubleSync::QDoubleSync()
   :_value(0.),lock(false)
@@ -47,6 +48,7 @@ void QDoubleSync::setValue(double newValue)
   lock=true;
   _value=newValue;
   emit valueChanged(_value);
+  emit valueChanged((int)_value);
   lock=false;
 }
 

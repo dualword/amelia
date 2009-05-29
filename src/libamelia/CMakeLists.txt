@@ -24,6 +24,8 @@ SET(amelia_SRCS
 	AHideAButton.cpp
 	AMainView.cpp
 	AMainViewTmpWidget.cpp
+	ASlidyWidget.cpp
+	ASlidyFlap.cpp
 	APlugin.cpp
 	AMELIA.cpp
   )
@@ -41,6 +43,7 @@ SET(amelia_H
 	AHideAButton.h
 	AMainView.h
 	AMainViewTmpWidget.h
+	ASlidyWidget.h
  	APlugin.h
 	AMELIA.h
     )

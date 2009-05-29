@@ -1271,35 +1271,10 @@ void AGeometry::setEvent(AFilteredEvent* e)
       disconnect(_event,SIGNAL(filtersUpdated()),
 		 this,SLOT(makeDirty()));
 
-      AEvent *completeE=e->completeEvent();
-      for(int i=0;i<completeE->Tracks.size();i++)
+      for(int i=0;i<e->Tracks.size();i++)
 	{
-	  ATrack3DNode *node=0;
-	  ATrack* track=completeE->Tracks[i];
-	  if(track->type()==ATrack::eJet)
-	    {
-	      AJet* jet=(AJet*)track;
-	      node=new AJet3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,jet);
-	      allJets.push_back((AJet3DNode*)node);
-	    }
-	  
-	  if(track->type()==ATrack::eSTrack)
-	    {
-	      ASTrack* str=(ASTrack*)track;
-	      node=new ASTrack3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,str);
-	    }
-	  
-	  if(track->type()==ATrack::eMissingEt)
-	    {
-	      AMisET* miset=(AMisET*)track;
-	      node=new AMisET3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,miset);
-	    }
-	  
-	  if(node)
-	    {
-	      node->setVisible(false);
-	      allTracks.push_back(node);
-	    }
+	  ATrack* track=e->Tracks[i];
+	  createTrackNode(track);
 	}
     }
 
@@ -1319,6 +1294,35 @@ void AGeometry::setEvent(AFilteredEvent* e)
 AFilteredEvent* AGeometry::event()
 {
   return _event;
+}
+
+void AGeometry::createTrackNode(ATrack* track)
+{
+  ATrack3DNode *node=0;
+  if(track->type()==ATrack::eJet)
+    {
+      AJet* jet=(AJet*)track;
+      node=new AJet3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,jet);
+      allJets.push_back((AJet3DNode*)node);
+    }
+  
+  if(track->type()==ATrack::eSTrack)
+    {
+      ASTrack* str=(ASTrack*)track;
+      node=new ASTrack3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,str);
+    }
+  
+  if(track->type()==ATrack::eMissingEt)
+    {
+      AMisET* miset=(AMisET*)track;
+      node=new AMisET3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,miset);
+    }
+  
+  if(node)
+    {
+      node->setVisible(false);
+      allTracks.push_back(node);
+    }
 }
 
 //Switch the current camera, viewport clicked
@@ -1505,15 +1509,31 @@ void AGeometry::addToDetectorMenu(QString partName,QAction *action)
 
 void AGeometry::updateTracks()
 {
+  QSet<ATrack*> tracks=QSet<ATrack*>::fromList(_event->Tracks);
+  
+  // Toggle the visibility of all the tracks
   for(int i=0;i<allTracks.size();i++)
     {
       if(_event->Tracks.contains(allTracks[i]->getTrack()))
 	allTracks[i]->setVisible(true);
       else
 	allTracks[i]->setVisible(false);
+      
+      tracks.remove(allTracks[i]->getTrack());
+    }
+  
+  QSet<ATrack*>::const_iterator iter=tracks.begin();
+  QSet<ATrack*>::const_iterator iterE=tracks.end();
+  for(;iter!=iterE;++iter)
+    {
+      createTrackNode(*iter);
     }
 
+  QApplication::processEvents();
   renderViewport(AGeometry::Orthogonal);
+  QApplication::processEvents();
   renderViewport(AGeometry::Projective);
+  QApplication::processEvents();
   renderViewport(AGeometry::Cam3D);
+  QApplication::processEvents();
 }

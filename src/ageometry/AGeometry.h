@@ -278,6 +278,8 @@ private:
     QBoolSync _muonSpecVisibility;
     QBoolSync _magnetsVisibility;
     QBoolSync _pitVisibility;
+
+    void createTrackNode(ATrack* track);
 };
 
 #endif // AGEOMETRY_H

@@ -48,6 +48,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int numMuons;
   int numElectrons;
   int numShowers;
+  int numJets;
 
   QList<AShower*> LArshowers;
   QList<AFCALShower*> FCALshowers;

@@ -57,7 +57,7 @@ ALayerGUI::ALayerGUI(QWidget* parent)
     tourManager = 0;
 
     modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final);
-    particleFilter=new AParticleFilter(modelFilter);
+    particleFilter=new AParticleFilter();
     ptFilter=new APtFilter(1,particleFilter);
 }
 
@@ -493,7 +493,8 @@ void ALayerGUI::loadEvent(AEvent* event)
   emit eventUnloaded();
   event->LoadEvent();
   CompleteEvent=event;
-  FilteredEvent=new AFilteredEvent(event,ptFilter);
+  ModelEvent=new AFilteredEvent(event,modelFilter);
+  FilteredEvent=new AFilteredEvent(ModelEvent,ptFilter);
 
   handleEventLoaded();
 

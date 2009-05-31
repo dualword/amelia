@@ -139,11 +139,17 @@ void QGraphicsItemLayout::calculatePositions()
   for(int i=0;i<_items.size();i++)
     {
       QTransform trans=calculateTransformationForItem(i);
-      animations[i]->setTransformAt(0,_items[i]->transform());
-      animations[i]->setTransformAt(1,trans);
+      if(isVisible())
+	{
+	  animations[i]->setTransformAt(0,_items[i]->transform());
+	  animations[i]->setTransformAt(1,trans);
+	}
+      else
+	_items[i]->setTransform(trans);
     }
 
-  _timeLine->start();
+  if(isVisible())
+    _timeLine->start();
 }
 
 QTransform QGraphicsItemLayout::calculateTransformationForItem(int idx)

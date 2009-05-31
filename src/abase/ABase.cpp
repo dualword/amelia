@@ -40,12 +40,17 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QUiLoader>
 #include <QGraphicsSceneMouseEvent>
 #include <QGLWidget>
+#include <QDesktopWidget>
+#include <QApplication>
 
 ABase::ABase( QWidget *parent )
   : QMainWindow(parent),_fakeCentralWidget(0)
 {
     //Set to the initial size.
-    resize(1024,768);
+  const QRect screenSize=QApplication::desktop()->screenGeometry(this);
+  int width=(screenSize.width()<1024)?screenSize.width():1024;
+  int height=(screenSize.height()<768)?screenSize.height():768;
+  resize(width,height);
   
     layout.setContentsMargins(0,0,0,0);
     center.setLayout(&layout);
@@ -331,6 +336,7 @@ void ABase::changeToGroup(const QString& group)
 void ABase::showEverything()
 {
   menuWidget.setScene(&menu);
+  changeToGroup("Default");
 }
 
 void ABase::animationFinished()

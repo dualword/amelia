@@ -9,6 +9,8 @@ AGeometryHUD::AGeometryHUD(AGeometry *geo)
 	  this,SLOT(handleNewCamera(int)));
   connect(geo,SIGNAL(cameraControlSwitched(bool)),
 	  this,SLOT(handleCameraControl(bool)));
+
+  geo->installEventFilter(this);
 }
 
 void AGeometryHUD::setupElements()
@@ -17,7 +19,7 @@ void AGeometryHUD::setupElements()
   
   core::dimension2d<s32> size=geo->getVideoDriver()->getScreenSize();
   
-  textRect=core::rect<s32>(0,size.Height-50,size.Width,size.Height);
+  core::rect<s32> textRect(0,size.Height-50,size.Width,size.Height);
   textNode=gui->addStaticText(L"",
 			      textRect);
   textNode->setOverrideColor(SColor(255,255,255,255));
@@ -53,4 +55,23 @@ void AGeometryHUD::handleCameraControl(bool grabbed)
     setText("Press SPACE to release camera");
   else
     setText("Press SPACE to engage camera");
+}
+
+bool AGeometryHUD::eventFilter(QObject *obj,QEvent *event)
+{
+  if(obj!=geo) return false;
+
+  if(event->type()==QEvent::Resize)
+    {
+      QResizeEvent *resizeEvent=(QResizeEvent*)(event);
+      QSize size=resizeEvent->size();
+      core::rect<s32> textRect(0,size.height()-50,size.width(),size.height());
+      if(textNode)
+	{
+	  textNode->setRelativePosition(textRect);
+	  geo->makeDirty();
+	}
+    }
+
+  return false;
 }

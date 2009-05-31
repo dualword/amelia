@@ -21,6 +21,7 @@ SET(amelia_SRCS
 	QBoolSync.cpp
 	QDoubleSync.cpp
 	AAnimationGUI.cpp
+	AAnimationLayoutGUI.cpp
 	AHideAButton.cpp
 	AMainView.cpp
 	AMainViewTmpWidget.cpp
@@ -40,6 +41,7 @@ SET(amelia_H
 	QBoolSync.h
 	QDoubleSync.h
 	AAnimationGUI.h
+	AAnimationLayoutGUI.h
 	AHideAButton.h
 	AMainView.h
 	AMainViewTmpWidget.h

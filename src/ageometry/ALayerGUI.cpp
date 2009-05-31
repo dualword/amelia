@@ -47,6 +47,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ui_eventadvanced.h"
 #include <config.h>
 #include <AAnimationGUI.h>
+#include <AAnimationLayoutGUI.h>
 #include <ASlidyWidget.h>
 #include <aeventmanager/AXmlEvent.h>
 
@@ -266,8 +267,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 
     if (eventWidget)
       {
-	//Must remove widget from layout, otherwise it flashes even if WA_Moved is set...
-	findChild<QLayout *>("eventWidgetLayout")->removeWidget(eventWidget);
         eventWidget->hide();
       }
 
@@ -504,14 +503,6 @@ void ALayerGUI::loadEvent(AEvent* event)
 
 void ALayerGUI::handleEventLoaded()
 {
-  if (!eventWidget->isVisible())
-    { // Move the eventWidget to some far far away place, if this is the first time an even was loaded
-        widgetPositions["eventWidget"]=AGeometryFrame->geometry().bottomLeft();
-        eventWidget->move(-AGeometryFrame->geometry().width()-10,widgetPositions["eventWidget"].y());
-        eventWidget->setAttribute(Qt::WA_Moved);
-	show(eventWidget);
-    }
-
   QWidget* tabEvent = findChild<QWidget*>("tab_event");
   findChild<QTabWidget*>("MainTab")->setCurrentWidget(tabEvent);
 
@@ -532,6 +523,9 @@ void ALayerGUI::handleEventLoaded()
 
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);
+
+  if (!eventWidget->isVisible())
+    show(eventWidget);
 
   QApplication::restoreOverrideCursor();
 }
@@ -558,19 +552,25 @@ void ALayerGUI::eventSettings()
 
 void ALayerGUI::show(QWidget *w)
 {
-    if (!w) return;
-    w->show();
+  if (!w) return;
+  setUpdatesEnabled(false);
+  w->show(); //Need to show the widget to calculate the layout position. It will not be displayed, because updates are disabled.
+  QPoint hiddenPosition=w->pos();
+  w->hide();
+  hiddenPosition.setX(-w->width()-100); //Move it 100 off screen
 
-    QTimeLine *animTime=new QTimeLine(1000,this);
-    AAnimationGUI *anim=new AAnimationGUI(w,this);
-    anim->setTimeLine(animTime);
-    anim->setPosAt(0,w->pos());
-    anim->setPosAt(1,widgetPositions[w->objectName()]);
-    connect(animTime,SIGNAL(finished()),
-            anim,SLOT(deleteLater()));
-    connect(animTime,SIGNAL(finished()),
-            animTime,SLOT(deleteLater()));
-    animTime->start();
+  QTimeLine *animTime=new QTimeLine(1000,this);
+  AAnimationLayoutGUI *anim=new AAnimationLayoutGUI(w,this);
+  anim->setTimeLine(animTime);
+  anim->setPosAt(0,hiddenPosition);
+  //Final position is calculated automatically by AAnimationLayoutGUI as where it should be in the layout..
+  connect(animTime,SIGNAL(finished()),
+	  anim,SLOT(deleteLater()));
+  connect(animTime,SIGNAL(finished()),
+	  animTime,SLOT(deleteLater()));
+
+  animTime->start();
+  setUpdatesEnabled(true);
 }
 
 void ALayerGUI::handleEventTagChange(bool status)

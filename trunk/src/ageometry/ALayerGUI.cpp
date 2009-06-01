@@ -553,6 +553,7 @@ void ALayerGUI::eventSettings()
 void ALayerGUI::show(QWidget *w)
 {
   if (!w) return;
+
   setUpdatesEnabled(false);
   w->show(); //Need to show the widget to calculate the layout position. It will not be displayed, because updates are disabled.
   QPoint hiddenPosition=w->pos();

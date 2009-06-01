@@ -20,6 +20,7 @@ SET(amelia_SRCS
 	QBetterMimeData.cpp
 	QBoolSync.cpp
 	QDoubleSync.cpp
+	QWaitForReady.cpp
 	AAnimationGUI.cpp
 	AAnimationLayoutGUI.cpp
 	AHideAButton.cpp
@@ -40,6 +41,7 @@ SET(amelia_H
 	QTimeLineProxy.h
 	QBoolSync.h
 	QDoubleSync.h
+	QWaitForReady.h
 	AAnimationGUI.h
 	AAnimationLayoutGUI.h
 	AHideAButton.h

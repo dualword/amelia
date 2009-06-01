@@ -37,6 +37,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <abase/ABase.h>
 #include <QMainWindow>
+#include <QWaitForReady.h>
 #include <AMELIA.h>
 
 AStartPlugin::AStartPlugin( QObject *parent )
@@ -71,6 +72,13 @@ void AStartPlugin::load()
   oldWidget=base->fakeCentralWidget();
    
   base->setFakeCentralWidget(player);
+  
+  /* Make sure ABase does not start animating until the video is done */
+  QWaitForReady *baseStart=base->startConditions();
+  baseStart->waitFor(this);
+  connect(this,SIGNAL(donePlaying()),
+	  baseStart,SLOT(setReady()));
+
   player->play();
 }
 
@@ -82,6 +90,8 @@ void AStartPlugin::goBack()
   base->setFakeCentralWidget(oldWidget);
   player->stop();
   base->removeAction(skipAction);
+
+  emit donePlaying();
 }
 
 Q_EXPORT_PLUGIN2(AStartPlugin, AStartPlugin)

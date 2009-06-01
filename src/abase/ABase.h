@@ -24,6 +24,7 @@
 #include <QGraphicsClickableSimpleTextItem.h>
 #include <QGraphicsItemLayout.h>
 #include <QTimeLineProxy.h>
+#include <QWaitForReady.h>
 #include <APlugin.h>
 
 #include "AMonitorGroup.h"
@@ -42,6 +43,8 @@ public:
 
     void load();
 
+    QWaitForReady* startConditions();
+
     void setFakeCentralWidget(QWidget *);
     QWidget* fakeCentralWidget();
 
@@ -52,7 +55,11 @@ public slots:
     void changeToGroup(const QString& level);
     void changeToMenu();
 
+    void showButtonGroup();
+    void hideButtonGroup();
+
     void showEverything();
+    void handleLoadingFinished();
     void animationFinished();
 
 protected:
@@ -74,13 +81,17 @@ private:
     QGraphicsPixmapItem *background;
     QMap<QString,AMonitorGroup*> monitorGroups;
 
+    QGraphicsSimpleTextItem *loading;
+
     //Buttons
     QFont buttonFont;
     QSignalMapper buttonMapper;
     QGraphicsItemLayout buttonGroup;
     QGraphicsClickableSimpleTextItem quit;
+    QGraphicsItemAnimation buttonAnimator;
+    QTimeLine buttonTimeLine;
 
-    QSignalMapper mapper;
+    QSignalMapper monitorMapper;
 
     //Timer used for animations
     QTimeLineProxy timer;
@@ -94,6 +105,7 @@ private:
     QString previousMonitor;
 
     QWidget *_fakeCentralWidget;
+    QWaitForReady _startConditions;
 };
 
 #endif // ABASE_H

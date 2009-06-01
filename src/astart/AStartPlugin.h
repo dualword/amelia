@@ -25,6 +25,9 @@ class AStartPlugin : public QObject, public APlugin
  public slots:
     void goBack();
 
+ signals:
+    void donePlaying();
+
  private:
     Phonon::VideoPlayer *player;
     QWidget* oldWidget;

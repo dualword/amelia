@@ -66,19 +66,14 @@ QLayout* AAnimationLayoutGUI::findLayout(QLayout *layout)
 
 void AAnimationLayoutGUI::handleFinished()
 {
-  //layout->setEnabled(true);
   layout->addWidget(widget());
 }
 
 void AAnimationLayoutGUI::setStep(qreal step)
 {
-  //if(!widget()->isVisible()) //We need to disable the layout on the first go 
-    //layout->setEnabled(false);
-  
   AAnimationGUI::setStep(step);
   if(!widget()->isVisible())
     {
-      //layout->setEnabled(false);
       layout->removeWidget(widget());
       widget()->show();
     }

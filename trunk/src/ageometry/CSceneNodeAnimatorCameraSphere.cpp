@@ -134,15 +134,18 @@ namespace irr
 	      break;
 	    case EMIE_LMOUSE_LEFT_UP:
 	      toggleMouse=false;
-	      return true;
+	      return false;
 	      break;
 	    case EMIE_MOUSE_MOVED:
 	      if(toggleMouse)
-		cursorPos=core::position2d<s32>(event.MouseInput.X,event.MouseInput.Y);
-	      return true;
+		{
+		  cursorPos=core::position2d<s32>(event.MouseInput.X,event.MouseInput.Y);
+		  return true;
+		}
+	      return false;
 	      break;
 	    default:
-	      return true;
+	      return false;
 	      break;
 	    }
 	}

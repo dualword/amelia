@@ -702,6 +702,7 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
   else
     {
       smgr->getRootSceneNode()->OnAnimate(timer->getTime());
+      gui->getRootGUIElement()->OnPostRender(timer->getTime());
     }
 #endif
 
@@ -750,8 +751,8 @@ void QIrrWidget::keyPressEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::keyPressEvent(event);
+  else
+    QWidget::keyPressEvent(event);
 }
 
 void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
@@ -765,8 +766,8 @@ void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::keyReleaseEvent(event);
+  else
+    QWidget::keyReleaseEvent(event);
 }
 
 void QIrrWidget::mouseClickEvent(QMouseEvent *event)
@@ -781,8 +782,8 @@ void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
   e.MouseInput.Y = event->y();
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::mouseMoveEvent(event);
+  else
+    QWidget::mouseMoveEvent(event);
 }
 
 void QIrrWidget::mousePressEvent(QMouseEvent *event)
@@ -841,11 +842,12 @@ void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
   
   if(postEventFromUser(e))
     event->accept();
-  
-  if((event->pos()-lastPressPos).manhattanLength()<1)
-    mouseClickEvent(event);
-
-  QWidget::mouseReleaseEvent(event);
+  else
+    {
+      QWidget::mouseReleaseEvent(event);
+      if((event->pos()-lastPressPos).manhattanLength()<1)
+	mouseClickEvent(event);
+    }
 }
 
 void QIrrWidget::wheelEvent(QWheelEvent *event)
@@ -858,8 +860,8 @@ void QIrrWidget::wheelEvent(QWheelEvent *event)
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::wheelEvent(event);
+  else
+    QWidget::wheelEvent(event);
 }
 
 bool QIrrWidget::postEventFromUser(const SEvent& event)
@@ -867,11 +869,20 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
   bool absorbed = false;
   
   if (!absorbed && getGUIEnvironment())
-    absorbed|=getGUIEnvironment()->postEventFromUser(event);
+    {
+      bool absorbedGUI=getGUIEnvironment()->postEventFromUser(event);
+      if(absorbedGUI) //Some widgets might be repainted after they are clicked (ei: buttons)
+	makeDirty();
+      
+      absorbed|=absorbedGUI;
+    }
 
 
   if(!absorbed && getSceneManager())
-    absorbed|=getSceneManager()->postEventFromUser(event);
+    {
+      bool absorbedScene=getSceneManager()->postEventFromUser(event);
+      absorbed|=absorbedScene;
+    }
 
   return absorbed;
 }

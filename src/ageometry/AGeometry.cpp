@@ -42,6 +42,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <ISceneNodeAnimatorCameraFPS.h>
 
 #include "QIrrWidgetRefresher.h"
+#include "AFPSControl.h"
 
 #include <QApplication>
 
@@ -253,6 +254,12 @@ void AGeometry::load()
   camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[0]->setFarValue ( 22000.0f );
   camera[0]->setID(FPS);
+
+  AFPSControl *fpsControl=new AFPSControl(camera[0],
+					  getSceneManager(),
+					  getGUIEnvironment(),
+					  getGUIEnvironment()->getRootGUIElement(),
+					  -1,core::rect<s32>(0,0,100,100));
   
   //Prepare spinning logo
   getFileSystem()->addZipFileArchive ( "logo.aml" );

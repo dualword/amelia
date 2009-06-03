@@ -54,6 +54,7 @@ SET(ageometry_SRCS
   AGeoPlugin.cpp
   ALineNode.cpp
   AGeometryHUD.cpp
+  AFPSControl.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp

@@ -3,8 +3,9 @@
 
 #include <QMimeData>
 #include <QStringList>
+#include "ADefines.h"
 
-class QBetterMimeData : public QMimeData
+class LIBAMELIA_EXPORT QBetterMimeData : public QMimeData
 {
  public:
   QBetterMimeData();

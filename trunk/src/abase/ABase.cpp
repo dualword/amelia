@@ -43,116 +43,116 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 
 ABase::ABase( QWidget *parent )
-  : QMainWindow(parent),_fakeCentralWidget(0),buttonTimeLine(1000)
+        : QMainWindow(parent),_fakeCentralWidget(0),buttonTimeLine(1000)
 {
-  //Set to the initial size.
-  const QRect screenSize=QApplication::desktop()->screenGeometry(this);
-  int width=(screenSize.width()<1024)?screenSize.width():1024;
-  int height=(screenSize.height()<768)?screenSize.height():768;
-  resize(width,height);
-  
-  layout.setContentsMargins(0,0,0,0);
-  center.setLayout(&layout);
+    //Set to the initial size.
+    const QRect screenSize=QApplication::desktop()->screenGeometry(this);
+    int width=(screenSize.width()<1024)?screenSize.width():1024;
+    int height=(screenSize.height()<768)?screenSize.height():768;
+    resize(width,height);
 
-  //Some settings for the scene
-  menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
-  menu.installEventFilter(this);
-  
-  //Initialize the background
-  background=menu.addPixmap(QPixmap(":/media/CommandersBridge.png"));
-  background->setZValue(0);
-  background->setPos(calculateBackgroundPosition());
-  
-  //Add the buttons
-  buttonFont.setBold( true );
-  buttonFont.setPointSize( 24 );
-  buttonFont.setStyleHint( QFont::Times );
-  buttonFont.setStyleStrategy( QFont::PreferAntialias );
-  buttonGroup.setHandlesChildEvents(false);
-  buttonGroup.setZValue(2);
-  buttonGroup.setHorizontalAlignment(Qt::AlignHCenter);
-  buttonGroup.setPos(1024/2,-700); // Just hide if somewhere off screen
-  buttonGroup.setVisible(false);
-  
-  buttonAnimator.setItem(&buttonGroup);
-  buttonAnimator.setTimeLine(&buttonTimeLine);
-  buttonAnimator.setPosAt(0,QPointF(1024/2,900));
-  buttonAnimator.setPosAt(1,QPointF(1024/2,700));
-  
+    layout.setContentsMargins(0,0,0,0);
+    center.setLayout(&layout);
 
-  menu.addItem(&buttonGroup);
-  //Also add a quit button :)
-  quit.setText("Quit");
-  quit.setFont(buttonFont);
-  quit.setAcceptHoverEvents(true);
-  buttonGroup.addToGroup(&quit);
-  connect(&quit,SIGNAL(clicked()),
-	  this,SLOT(close()));
-  //This mapper takes care of the button signals
-  buttonMapper.setParent(this);
-  connect(&buttonMapper,SIGNAL(mapped(const QString &)),
-	  this,SLOT(changeToGroup(const QString &)));
-  
-  
-  //Timers for restoring parallax animations
-  parallaxTimer.setDuration(1000);
-  parallaxTimer.setCurveShape(QTimeLine::EaseInOutCurve);
-  parallaxAnimation.setTimeLine(&parallaxTimer);
-  parallaxTimerBg.setDuration(1000);
-  parallaxTimerBg.setCurveShape(QTimeLine::EaseInOutCurve);
-  parallaxAnimationBg.setItem(background);
-  parallaxAnimationBg.setTimeLine(&parallaxTimerBg);
+    //Some settings for the scene
+    menu.setSceneRect(0,0,1024,768); //Aka disable scrolling
+    menu.installEventFilter(this);
 
-  loading=menu.addSimpleText("LOADING");
-  loading->setFont(buttonFont);
-  loading->setPos((1024-loading->boundingRect().width())/2,270);
-  
-  //Make the widget without scrollbars and display it
-  menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setupViewport();
-  
-  menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
-  menuWidget.setScene(&menu);
-  setFakeCentralWidget(&menuWidget);
-  
-  setCentralWidget(&center);
-  
-  //This mapper will be used for connecting pixmaps to changeToMonitor
-  connect(&monitorMapper,SIGNAL(mapped(const QString&)),
-	  this,SLOT(changeToMonitor(const QString&)));
-  
-  //Used by transition animations
-  animation.setTimeLine(&timer);
-  animation.setScaleAt(0,0.25,0.25);
-  animation.setPosAt(0,QPointF(1024/2,150));
-  
-  animation.setScaleAt(1,1,1);
-  animation.setPosAt(1,QPointF(1024/2,0));
+    //Initialize the background
+    background=menu.addPixmap(QPixmap(":/media/CommandersBridge.png"));
+    background->setZValue(0);
+    background->setPos(calculateBackgroundPosition());
 
-  //Prepare start conditions
-  _startConditions.setParent(this);
-  connect(&_startConditions,SIGNAL(ready()),
-	  this,SLOT(showEverything()));
+    //Add the buttons
+    buttonFont.setBold( true );
+    buttonFont.setPointSize( 24 );
+    buttonFont.setStyleHint( QFont::Times );
+    buttonFont.setStyleStrategy( QFont::PreferAntialias );
+    buttonGroup.setHandlesChildEvents(false);
+    buttonGroup.setZValue(2);
+    buttonGroup.setHorizontalAlignment(Qt::AlignHCenter);
+    buttonGroup.setPos(1024/2,-700); // Just hide if somewhere off screen
+    buttonGroup.setVisible(false);
+
+    buttonAnimator.setItem(&buttonGroup);
+    buttonAnimator.setTimeLine(&buttonTimeLine);
+    buttonAnimator.setPosAt(0,QPointF(1024/2,900));
+    buttonAnimator.setPosAt(1,QPointF(1024/2,700));
+
+
+    menu.addItem(&buttonGroup);
+    //Also add a quit button :)
+    quit.setText("Quit");
+    quit.setFont(buttonFont);
+    quit.setAcceptHoverEvents(true);
+    buttonGroup.addToGroup(&quit);
+    connect(&quit,SIGNAL(clicked()),
+            this,SLOT(close()));
+    //This mapper takes care of the button signals
+    buttonMapper.setParent(this);
+    connect(&buttonMapper,SIGNAL(mapped(const QString &)),
+            this,SLOT(changeToGroup(const QString &)));
+
+
+    //Timers for restoring parallax animations
+    parallaxTimer.setDuration(1000);
+    parallaxTimer.setCurveShape(QTimeLine::EaseInOutCurve);
+    parallaxAnimation.setTimeLine(&parallaxTimer);
+    parallaxTimerBg.setDuration(1000);
+    parallaxTimerBg.setCurveShape(QTimeLine::EaseInOutCurve);
+    parallaxAnimationBg.setItem(background);
+    parallaxAnimationBg.setTimeLine(&parallaxTimerBg);
+
+    loading=menu.addSimpleText("LOADING");
+    loading->setFont(buttonFont);
+    loading->setPos((1024-loading->boundingRect().width())/2,270);
+
+    //Make the widget without scrollbars and display it
+    menuWidget.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    menuWidget.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    setupViewport();
+
+    menuWidget.setStyleSheet("border: none"); //Makes the border around the graphics view dissapear
+    menuWidget.setScene(&menu);
+    setFakeCentralWidget(&menuWidget);
+
+    setCentralWidget(&center);
+
+    //This mapper will be used for connecting pixmaps to changeToMonitor
+    connect(&monitorMapper,SIGNAL(mapped(const QString&)),
+            this,SLOT(changeToMonitor(const QString&)));
+
+    //Used by transition animations
+    animation.setTimeLine(&timer);
+    animation.setScaleAt(0,0.25,0.25);
+    animation.setPosAt(0,QPointF(1024/2,150));
+
+    animation.setScaleAt(1,1,1);
+    animation.setPosAt(1,QPointF(1024/2,0));
+
+    //Prepare start conditions
+    _startConditions.setParent(this);
+    connect(&_startConditions,SIGNAL(ready()),
+            this,SLOT(showEverything()));
 }
 
 ABase::~ABase() { }
 
 void ABase::load()
 {
-  AMELIA* amelia=pluginBase();
-  _startConditions.waitFor(amelia);
-  connect(amelia,SIGNAL(allPluginsLoaded()),
-	  &_startConditions,SLOT(setReady()));
-  connect(amelia,SIGNAL(allPluginsLoaded()),
-	  this,SLOT(handleLoadingFinished()));
-  
-  show();
+    AMELIA* amelia=pluginBase();
+    _startConditions.waitFor(amelia);
+    connect(amelia,SIGNAL(allPluginsLoaded()),
+            &_startConditions,SLOT(setReady()));
+    connect(amelia,SIGNAL(allPluginsLoaded()),
+            this,SLOT(handleLoadingFinished()));
+
+    show();
 }
 
 QWaitForReady* ABase::startConditions()
 {
-  return &_startConditions;
+    return &_startConditions;
 }
 
 void ABase::setupViewport()
@@ -174,300 +174,309 @@ void ABase::setupViewport()
 
 void ABase::setFakeCentralWidget(QWidget *wdg)
 {
-  setUpdatesEnabled(false);
-  if(_fakeCentralWidget)
+    setUpdatesEnabled(false);
+    if (_fakeCentralWidget)
     {
-      layout.removeWidget(_fakeCentralWidget);
-      _fakeCentralWidget->hide();
+        layout.removeWidget(_fakeCentralWidget);
+        _fakeCentralWidget->hide();
 
 #ifdef Q_WS_MAC
-      //The menu bar is only set on MacOSX, because MacOSX has the universal top menu bar.
-      // On Linux, playing with the menubar causes offset problems with the graphics view
+        //The menu bar is only set on MacOSX, because MacOSX has the universal top menu bar.
+        // On Linux, playing with the menubar causes offset problems with the graphics view
 
-      //Store the current menubar in the current fake widget
-      if(_fakeCentralWidget->inherits("QMainWindow"))
-	{
-	  QMainWindow *mainWin=(QMainWindow*)_fakeCentralWidget;
-	  mainWin->setMenuBar(menuBar());
-	  mainWin->menuBar()->hide();
-	  setMenuBar(0);
-	}
+        //Store the current menubar in the current fake widget
+        if (_fakeCentralWidget->inherits("QMainWindow"))
+        {
+            QMainWindow *mainWin=(QMainWindow*)_fakeCentralWidget;
+            mainWin->setMenuBar(menuBar());
+            mainWin->menuBar()->hide();
+            setMenuBar(0);
+        }
 #endif //Q_WS_MAC
     }
 
 #ifdef Q_WS_MAC
-  //Set the new fake widget's menubar to the main window's menubar
-  if(wdg->inherits("QMainWindow"))
+    //Set the new fake widget's menubar to the main window's menubar
+    if (wdg->inherits("QMainWindow"))
     {
-      QMainWindow *mainWin=(QMainWindow*)wdg;
-      setMenuBar(mainWin->menuBar());
-      menuBar()->show();
+        QMainWindow *mainWin=(QMainWindow*)wdg;
+        setMenuBar(mainWin->menuBar());
+        menuBar()->show();
     }
 #endif //Q_WS_MAC
 
-  layout.addWidget(wdg);
-  wdg->show();
-  _fakeCentralWidget=wdg;
-  setUpdatesEnabled(true);
+    layout.addWidget(wdg);
+    wdg->show();
+    _fakeCentralWidget=wdg;
+    setUpdatesEnabled(true);
 }
 
 QWidget* ABase::fakeCentralWidget()
 {
-  return _fakeCentralWidget;
+    return _fakeCentralWidget;
 }
 
 void ABase::addMonitor(QString name,QString group,QWidget *tmp,QString description,Qt::Alignment align)
-{    
-  //Make sure to disable the widget
-  tmp->resize(1024,768);
-  
-  if(!monitorGroups.contains(group))
+{
+    //Make sure to disable the widget
+    tmp->resize(1024,768);
+
+    if (!monitorGroups.contains(group))
     { //Create a new group
-      addGroup(group);
+        addGroup(group);
     }
 
-  AMonitor* item=new AMonitor(name,description,tmp,monitorGroups[group]);
+    AMonitor* item=new AMonitor(name,description,tmp,monitorGroups[group]);
 
-  monitorGroups[group]->addMonitor(name,item,align);
+    monitorGroups[group]->addMonitor(name,item,align);
 
-  //Add the pixmap to the signal map, which will let us switch menus
-  monitorMapper.setMapping(item,group+"/"+name);
-  connect(item,SIGNAL(clicked()),
-	  &monitorMapper,SLOT(map()));
+    //Add the pixmap to the signal map, which will let us switch menus
+    monitorMapper.setMapping(item,group+"/"+name);
+    connect(item,SIGNAL(clicked()),
+            &monitorMapper,SLOT(map()));
 }
 
 void ABase::addGroup(QString groupName)
 {
-  if(monitorGroups.contains(groupName)) return; //Ignore if already exists
-  
-  monitorGroups[groupName]=new AMonitorGroup(); //Create
-  
-  QGraphicsClickableSimpleTextItem *button=new QGraphicsClickableSimpleTextItem(groupName);
-  button->setFont(buttonFont);
-  buttonGroup.addToGroup(button,Qt::AlignLeft);
 
-  menu.addItem(monitorGroups[groupName]); //Add to scene
+    if (monitorGroups.contains(groupName)) return; //Ignore if already exists
 
-  //Connect it to the mapper, which connects it to the switching code
-  connect(button,SIGNAL(clicked()),
-	  &buttonMapper,SLOT(map()));
-  buttonMapper.setMapping(button,groupName);
+    monitorGroups[groupName]=new AMonitorGroup(); //Create
+
+    QGraphicsClickableSimpleTextItem *button=new QGraphicsClickableSimpleTextItem(groupName);
+    button->setFont(buttonFont);
+    buttonGroup.addToGroup(button,Qt::AlignLeft);
+
+    menu.addItem(monitorGroups[groupName]); //Add to scene
+
+    //Connect it to the mapper, which connects it to the switching code
+    connect(button,SIGNAL(clicked()),
+            &buttonMapper,SLOT(map()));
+    buttonMapper.setMapping(button,groupName);
 }
 
 void ABase::changeToMenu()
 {
-  if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
-  
-  if (!currentMonitor.isEmpty()) //Not menu yet, update stuff
+    if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+
+    if (!currentMonitor.isEmpty()) //Not menu yet, update stuff
     {
-      //Restore background position
-      background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
-      
-      AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
+        //Restore background position
+        background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
 
-      monitor->setWidgetEnabled(false);
-      setFakeCentralWidget(&menuWidget);
-      monitor->restoreWidget();
+        AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
+
+        monitor->setWidgetEnabled(false);
+        setFakeCentralWidget(&menuWidget);
+        monitor->restoreWidget();
     }
-  
-  monitorGroups[currentGroup]->setHandlesChildEvents(true);
-  timer.setDirection(QTimeLine::Backward);
-  timer.setTimeLine(monitorGroups[currentGroup]->timeLine());
-  monitorGroups[currentGroup]->setSelected(QString());
-    
-  
-  previousMonitor=currentMonitor;
-  currentMonitor=QString();
 
-  showButtonGroup();
+    monitorGroups[currentGroup]->setHandlesChildEvents(true);
+    timer.setDirection(QTimeLine::Backward);
+    timer.setTimeLine(monitorGroups[currentGroup]->timeLine());
+    monitorGroups[currentGroup]->setSelected(QString());
+
+
+    previousMonitor=currentMonitor;
+    currentMonitor=QString();
+
+    showButtonGroup();
 }
 
 
 void ABase::changeToMonitor(const QString& path)
 {
-  if(path.isEmpty())
+    if (path.isEmpty())
     { //Change to menu if the path is empty. Simplifies a lot of signal mappers.
-      changeToMenu(); 
-      return;
+        changeToMenu();
+        return;
     }
 
-  QStringList parts=path.split("/");
-  if(parts.size()!=2)
+    QStringList parts=path.split("/");
+    if (parts.size()!=2)
     {
-      qDebug() << "Invalid monitor change invocation: " << path;
-      return;
+        qDebug() << "Invalid monitor change invocation: " << path;
+        return;
     }
-  
-  QString monitor=parts[1];
-  QString group=parts[0];
-  
-  qDebug() << "Change to monitor: " << group << "/" << monitor;
 
-  if(currentGroup!=group) return; //TODO Allow changing of groups
-  if (monitor==currentMonitor) return; //Arealdy there...
-  if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+    QString monitor=parts[1];
+    QString group=parts[0];
 
-  monitorGroups[group]->setHandlesChildEvents(true);
+    qDebug() << "Change to monitor: " << group << "/" << monitor;
 
-  qDebug() << currentMonitor;
-  if(!currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
+    if (currentGroup!=group) return; //TODO Allow changing of groups
+    if (monitor==currentMonitor) return; //Arealdy there...
+    if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
+
+    monitorGroups[group]->setHandlesChildEvents(true);
+
+    qDebug() << currentMonitor;
+    if (!currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
     {
-      AMonitor* current=monitorGroups[currentGroup]->monitor(currentMonitor);
-      
-      //Swap...
-      current->setWidgetEnabled(false);
-      setFakeCentralWidget(&menuWidget);
-      current->restoreWidget();
+        AMonitor* current=monitorGroups[currentGroup]->monitor(currentMonitor);
+
+        //Swap...
+        current->setWidgetEnabled(false);
+        setFakeCentralWidget(&menuWidget);
+        current->restoreWidget();
     }
-  else
+    else
     {
-      timer.setDirection(QTimeLine::Forward);
-      timer.setTimeLine(monitorGroups[group]->timeLine());
+        timer.setDirection(QTimeLine::Forward);
+        timer.setTimeLine(monitorGroups[group]->timeLine());
     }
 
-  monitorGroups[group]->setSelected(monitor);
+    monitorGroups[group]->setSelected(monitor);
 
-  //For some reason setting previous to current here would make uicfile a "". Don't ask...
-  QString tmp=currentMonitor;
-  currentMonitor=monitor;
-  previousMonitor=tmp;
+    //For some reason setting previous to current here would make uicfile a "". Don't ask...
+    QString tmp=currentMonitor;
+    currentMonitor=monitor;
+    previousMonitor=tmp;
 
-  hideButtonGroup();
+    hideButtonGroup();
 }
 
 void ABase::changeToGroup(const QString& group)
 {
-  //If the current group is what we are changing to, then just hide it.
-  // This is currently the default response to help testing
-  
-  if(!currentGroup.isEmpty())
+    //If the current group is what we are changing to, then just hide it.
+    // This is currently the default response to help testing
+
+
+    if (!currentGroup.isEmpty())
     {
-      disconnect(monitorGroups[currentGroup],SIGNAL(layoutReady()),
-		 this,SLOT(animationFinished()));
+        disconnect(monitorGroups[currentGroup],SIGNAL(layoutReady()),
+                   this,SLOT(animationFinished()));
     }
 
-  if(currentGroup==group)
+    if (currentGroup==group)
     {
-      monitorGroups[group]->hide();
-      currentGroup="";
-      return;
+        monitorGroups[group]->hide();
+        currentGroup="";
+        return;
     }
-  
-  if(!currentGroup.isEmpty()) monitorGroups[currentGroup]->hide(); //Hide currently shown group
-  monitorGroups[group]->show(); //Show it
-  currentGroup=group; //Update the name of the currently shown group
-  
-  animation.setItem(monitorGroups[group]);     
-  connect(monitorGroups[group],SIGNAL(layoutReady()),
-	  this,SLOT(animationFinished()));
+
+    if (!currentGroup.isEmpty()) //Trouble!!! Brackets for failsafe
+    {
+        monitorGroups[currentGroup]->hide(); //Hide currently shown group
+        monitorGroups[group]->show(); //Show it
+
+        currentGroup=group; //Update the name of the currently shown group
+
+
+        animation.setItem(monitorGroups[group]);
+        connect(monitorGroups[group],SIGNAL(layoutReady()),
+                this,SLOT(animationFinished()));
+    }
+
+
 }
 
 void ABase::showEverything()
 {
-  buttonGroup.setVisible(true);
-  showButtonGroup();
-  changeToGroup("Default");
+    buttonGroup.setVisible(true);
+    showButtonGroup();
+    changeToGroup("Default")
 }
 
 void ABase::showButtonGroup()
 {
-  buttonTimeLine.setDirection(QTimeLine::Forward);
-  buttonTimeLine.start();
+    buttonTimeLine.setDirection(QTimeLine::Forward);
+    buttonTimeLine.start();
 }
 
 void ABase::hideButtonGroup()
 {
-  buttonTimeLine.setDirection(QTimeLine::Backward);
-  buttonTimeLine.start();
+    buttonTimeLine.setDirection(QTimeLine::Backward);
+    buttonTimeLine.start();
 }
- 
+
 void ABase::handleLoadingFinished()
 {
-  loading->setVisible(false);
-  menu.removeItem(loading);
+    loading->setVisible(false);
+    menu.removeItem(loading);
 }
 
 void ABase::animationFinished()
 {
-  monitorGroups[currentGroup]->setHandlesChildEvents(false);
-  timer.setTimeLine(0);
+    monitorGroups[currentGroup]->setHandlesChildEvents(false);
+    timer.setTimeLine(0);
 
-  if (currentMonitor.isEmpty()) return;
-  AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
-  QWidget *widget=monitor->widget();
-  monitor->storeWidget();
+    if (currentMonitor.isEmpty()) return;
+    AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
+    QWidget *widget=monitor->widget();
+    monitor->storeWidget();
 
-  setFakeCentralWidget(widget);
+    setFakeCentralWidget(widget);
 }
 
 //TEST TEST Lets me quickly test the animations without having to add buttons TEST TEST
 void ABase::keyPressEvent(QKeyEvent *event)
 {
-  if (event->key()==Qt::Key_Escape)
+    if (event->key()==Qt::Key_Escape)
     {
-      if (currentMonitor.isEmpty() && !previousMonitor.isEmpty())
-	changeToMonitor(currentGroup+"/"+previousMonitor);
-      else
-	changeToMenu();
-    }
-  
-  if (event->key()==Qt::Key_Delete)
-    {
-      QList<QString> keys=monitorGroups[currentGroup]->monitors().keys();
-      int idx=keys.indexOf(currentMonitor);
-      idx=(idx+1)%keys.size();
-      changeToMonitor(currentGroup+"/"+keys[idx]);
+        if (currentMonitor.isEmpty() && !previousMonitor.isEmpty())
+            changeToMonitor(currentGroup+"/"+previousMonitor);
+        else
+            changeToMenu();
     }
 
-  //What are we gonna do with menu's on Mac OS X?
-  if (event->key()==Qt::Key_F)
-  {
-    setWindowState(windowState() ^ Qt::WindowFullScreen);
-  }
+    if (event->key()==Qt::Key_Delete)
+    {
+        QList<QString> keys=monitorGroups[currentGroup]->monitors().keys();
+        int idx=keys.indexOf(currentMonitor);
+        idx=(idx+1)%keys.size();
+        changeToMonitor(currentGroup+"/"+keys[idx]);
+    }
+
+    //What are we gonna do with menu's on Mac OS X?
+    if (event->key()==Qt::Key_F)
+    {
+        setWindowState(windowState() ^ Qt::WindowFullScreen);
+    }
 }
 
 QPointF ABase::calculateBackgroundPosition()
 {
-  return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
+    return QPointF(-(background->sceneBoundingRect().width()-1024)/2,0);
 }
 
 void ABase::resizeEvent(QResizeEvent* event)
 {
-  qreal sx=((float)event->size().width())/1024;
-  qreal sy=((float)event->size().height())/768;
-  menuWidget.resetTransform();
-  menuWidget.scale(sx,sy);
+    qreal sx=((float)event->size().width())/1024;
+    qreal sy=((float)event->size().height())/768;
+    menuWidget.resetTransform();
+    menuWidget.scale(sx,sy);
 }
 
 bool ABase::eventFilter(QObject *obj, QEvent *event)
 {
-  if (!currentMonitor.isEmpty()) return false; //Don't care if this no mouse
-  if (currentGroup.isEmpty()) return false; //Don't care if this no mouse
-  if (timer.state() == QTimeLine::Running) return false; //Don't care if switching menus..
-  
-  if (obj==&menu)
+    if (!currentMonitor.isEmpty()) return false; //Don't care if this no mouse
+    if (currentGroup.isEmpty()) return false; //Don't care if this no mouse
+    if (timer.state() == QTimeLine::Running) return false; //Don't care if switching menus..
+
+    if (obj==&menu)
     {
-      if (event->type()==QEvent::GraphicsSceneMouseMove)
+        if (event->type()==QEvent::GraphicsSceneMouseMove)
         {
             QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
-	    
-	    //What are we gonna parallax?
-	    AMonitorGroup* widgetGroup=monitorGroups[currentGroup];
-	    
+
+            //What are we gonna parallax?
+            AMonitorGroup* widgetGroup=monitorGroups[currentGroup];
+
             //Need to figure out the bounding rectangle of our group widget
             QPointF lastPos=mEvent->lastScenePos();
             QRectF childrenRect=widgetGroup->childrenBoundingRect();
             QRectF rect=widgetGroup->sceneTransform().mapRect(childrenRect);
-	    
+
             if (rect.contains(lastPos)) //If we are hovering over top of the pixmaps, scroll
-	      {
+            {
                 //Make sure no animation is running
                 parallaxTimer.stop();
                 parallaxTimerBg.stop();
-		
+
                 //Figure out how much we moved the mouse by
                 QPointF delta=mEvent->lastScenePos()-mEvent->scenePos();
-		
+
                 //Move everything by the above change, but opposite and scaled
                 delta.setY(0);
                 widgetGroup->setPos(widgetGroup->pos()+0.1*delta);
@@ -477,11 +486,11 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
             else if (parallaxTimer.state()!=QTimeLine::Running && background->pos()!=calculateBackgroundPosition()) //Restore to initial position using an animator, but only if it is not already there and an animation is not running already..
             {
                 parallaxAnimation.setPosAt(0,widgetGroup->pos());
-		parallaxAnimation.setPosAt(1,widgetGroup->calculateScaledWidgetGroupPosition());
-		parallaxAnimation.setItem(widgetGroup);
+                parallaxAnimation.setPosAt(1,widgetGroup->calculateScaledWidgetGroupPosition());
+                parallaxAnimation.setItem(widgetGroup);
                 parallaxTimer.setCurrentTime(0);
                 parallaxTimer.start();
-		
+
                 parallaxAnimationBg.setPosAt(0,background->pos());
                 parallaxAnimationBg.setPosAt(1,calculateBackgroundPosition());
                 parallaxTimerBg.setCurrentTime(0);
@@ -489,7 +498,7 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
             }
         }
     }
-  return false;
+    return false;
 }
 
 Q_EXPORT_PLUGIN2(ABase, ABase)

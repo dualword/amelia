@@ -5,8 +5,9 @@
 
 #include "AMainView.h"
 #include "AHideAButton.h"
+#include "ADefines.h"
 
-class AMainViewTmpWidget : public QWidget
+class LIBAMELIA_EXPORT AMainViewTmpWidget : public QWidget
 {
 public:
   AMainViewTmpWidget(QWidget *widget,AMainView *parent=0);

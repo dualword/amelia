@@ -4,8 +4,9 @@
 #include <QAbstractSlider>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
+#include "ADefines.h"
 
-class QDoubleSync : public QObject
+class LIBAMELIA_EXPORT QDoubleSync : public QObject
 {
  public:
   QDoubleSync();

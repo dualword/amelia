@@ -3,8 +3,9 @@
 
 #include <QAbstractButton>
 #include <QGroupBox>
+#include "ADefines.h"
 
-class QBoolSync : public QObject
+class LIBAMELIA_EXPORT QBoolSync : public QObject
 {
  public:
   QBoolSync();

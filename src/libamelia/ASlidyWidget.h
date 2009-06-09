@@ -1,6 +1,8 @@
 #ifndef ASLIDYWIDGET_H_
 #define ASLIDYWIDGET_H_
 
+#define _USE_MATH_DEFINES
+
 #include <QWidget>
 #include <QList>
 #include <QEvent>
@@ -10,8 +12,9 @@
 #include "AAnimationGUI.h"
 #include "QTimeLineProxy.h"
 #include "ASlidyFlap.h"
+#include "ADefines.h"
 
-class ASlidyWidget : public QObject
+class LIBAMELIA_EXPORT ASlidyWidget : public QObject
 {
  public:
   ASlidyWidget(QWidget *parent);

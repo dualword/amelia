@@ -1,5 +1,5 @@
 #include "QDoubleSync.h"
-#include <QDebug>s
+#include <QDebug>
 
 QDoubleSync::QDoubleSync()
   :_value(0.),lock(false)

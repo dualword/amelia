@@ -355,27 +355,31 @@ void ABase::changeToGroup(const QString& group)
         return;
     }
 
-    if (!currentGroup.isEmpty()) //Trouble!!! Brackets for failsafe
-    {
-        monitorGroups[currentGroup]->hide(); //Hide currently shown group
-        monitorGroups[group]->show(); //Show it
+    if (!currentGroup.isEmpty()) monitorGroups[currentGroup]->hide(); //Hide currently shown group
 
-        currentGroup=group; //Update the name of the currently shown group
-
-
-        animation.setItem(monitorGroups[group]);
-        connect(monitorGroups[group],SIGNAL(layoutReady()),
-                this,SLOT(animationFinished()));
-    }
-
-
+    if (!monitorGroups.contains(group))
+      {
+	currentGroup="";
+      }
+    else
+      {
+	qDebug() << "SHOW " << group;
+	monitorGroups[group]->show(); //Show it
+	
+	currentGroup=group; //Update the name of the currently shown group
+	
+	
+	animation.setItem(monitorGroups[group]);
+	connect(monitorGroups[group],SIGNAL(layoutReady()),
+		this,SLOT(animationFinished()));
+      }
 }
 
 void ABase::showEverything()
 {
     buttonGroup.setVisible(true);
     showButtonGroup();
-    changeToGroup("Default")
+    changeToGroup("Default");
 }
 
 void ABase::showButtonGroup()

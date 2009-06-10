@@ -170,7 +170,7 @@ private:
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0),gui(0),
+  : QWidget(parent),driver(0),smgr(0),gui(0),timer(0),
     _dirty(false),disabledRenderTexture(0),
     _ready(false),_loading(false),timerId(-1)
 {
@@ -697,15 +697,11 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
       p->repaint();
       setDirty(false);
     }
-
-#ifndef Q_WS_WIN
-  else
+  else if(timer)
     {
       smgr->getRootSceneNode()->OnAnimate(timer->getTime());
       gui->getRootGUIElement()->OnPostRender(timer->getTime());
     }
-#endif
-
 }
 
 void QIrrWidget::showEvent(QShowEvent *event)
@@ -941,6 +937,7 @@ void QIrrWinWidgetPrivate::initialize()
 
   parent->cursorcontrol = parent->device->getCursorControl();
   parent->smgr=parent->device->getSceneManager();
+  parent->timer=parent->device->getTimer();
 
   parent->internalLoad();
   

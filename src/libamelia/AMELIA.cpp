@@ -48,6 +48,10 @@ bool AMELIA::loadPlugin(QString name)
 
   QDomDocument doc("plugindoc");
   QFile pfile(":/"+name.toLower()+"/plugin.xml");
+  
+  qDebug() << "Does :/"+name.toLower()+"/plugin.xml exist? " << pfile.exists();
+  qDebug() << "Any errors? " << loader.errorString();
+
   if (pfile.open(QIODevice::ReadOnly) && doc.setContent(&pfile)) {
     QDomElement root=doc.documentElement();
     QDomNodeList depsNodes=root.elementsByTagName("dependencies");

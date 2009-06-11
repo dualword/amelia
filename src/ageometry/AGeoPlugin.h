@@ -10,12 +10,13 @@
 #include <QSignalMapper>
 #include <QStackedWidget>
 
-#include <aeventmanager/AEvent.h>
-
 #include <AMainView.h>
 #include <AMainViewTmpWidget.h>
+#include <QDoubleSync.h>
 
 #include "AGeometryDefines.h"
+
+class AEvent;
 
 class AGEOMETRY_EXPORT AGeoPlugin : public QObject, public APlugin
 {
@@ -34,10 +35,17 @@ public:
   AMainViewTmpWidget* addMainViewTmpWidget(QWidget* widget);
   void addToDetectorMenu(QString partName,QAction *action);
 
+  QDoubleSync *ptCutSync();
+
  public slots:
   void handleNewEventLoaded(AEvent*);
   void displayMessage(QString text,QString header="",QPixmap img=QPixmap());
   void switchToMainView(int idx);
+
+  void loadEvent(QString);
+  void loadEvent(AEvent*);
+
+  void unloadEvent();
 
  signals:
   void eventLoaded(AEvent*);
@@ -46,6 +54,7 @@ public:
   QMainWindow* geoWin;
   AMainView* mainView;
   class AGeometry *geo;
+  class ALayerGUI *layerGUI;
   QMenu* menuMain_View;
 
   QMenu comboMenu;

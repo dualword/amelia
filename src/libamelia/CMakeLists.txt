@@ -27,7 +27,7 @@ SET(amelia_SRCS
 	AMainView.cpp
 	AMainViewTmpWidget.cpp
 	ASlidyWidget.cpp
-	ASlidyFlap.cpp
+	ASlidyManager.cpp
 	APlugin.cpp
 	AMELIA.cpp
   )
@@ -48,6 +48,7 @@ SET(amelia_H
 	AMainView.h
 	AMainViewTmpWidget.h
 	ASlidyWidget.h
+	ASlidyManager.h
  	APlugin.h
 	AMELIA.h
     )

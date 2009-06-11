@@ -23,17 +23,17 @@ AEventPackage::~AEventPackage()
 void AEventPackage::load()
 {
   QDir dir(_location);
-    QStringList elist=dir.entryList();
-    for (int i=0;i<elist.size();i++)
+  QStringList elist=dir.entryList(QDir::Files);
+  for (int i=0;i<elist.size();i++)
     {
-        int idx=elist[i].lastIndexOf(".xml");
-        if (idx==elist[i].length()-4 && idx>=0)
+      int idx=elist[i].lastIndexOf(".xml");
+      if (idx==elist[i].length()-4 && idx>=0)
         {
 	  AEvent *event=new AXmlEvent(_location+"/"+elist[i]);
 	  event->setPackage(this);
 	  event->filename=elist[i];
 	  event->LoadEvent();
-
+	  
 	  events.append(event);
         }
     }

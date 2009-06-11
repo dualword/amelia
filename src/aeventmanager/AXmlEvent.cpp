@@ -91,12 +91,8 @@ QList<int> AXmlEvent::getDataInt ( QDomNode xml )
       else
         {
 	  sbi = atoi ( sb.c_str() );
-	  if ( sbi != 0 )
-            {
-	      v.push_back ( sbi );
-	      sb = "";
-	      //j++;
-            }
+	  v.push_back ( sbi );
+	  sb = "";
         }
     }
   
@@ -124,11 +120,8 @@ QList<float> AXmlEvent::getDataFloat ( QDomNode xml )
       else
         {
 	  sbf = atof ( sb.c_str() );
-	  if ( sbf != 0 )
-            {
-	      v.push_back ( sbf );
-	      sb = "";
-            }
+	  v.push_back ( sbf );
+	  sb = "";
         }
     }
   

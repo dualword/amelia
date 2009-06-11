@@ -34,11 +34,13 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 ******************************************************/
 
 
-#ifndef TOUR_H
-#define TOUR_H
+#ifndef TOURMANAGER_H_
+#define TOURMANAGER_H_
 
-#include "QIrrWidget.h"
-#include "AGeometry.h"
+#include <ageometry/QIrrWidget.h>
+#include <ageometry/AGeometry.h>
+
+#include <QTimeLine>
 
 using namespace std;
 using namespace irr;
@@ -46,160 +48,63 @@ using namespace irr::core;
 using namespace irr::io;
 using namespace irr::scene;
 
-class ATourBlock
-{
-
-	public:
-
-
-		ATourBlock();
-
-		irr::core::list <vector3df> *cam;
-		irr::core::list <int> *camt;
-
-		irr::core::list <vector3df> *tar;
-		irr::core::list <int> *tart;
-
-		irr::core::list <int> *act;
-		irr::core::list <wchar_t*> *actv;
-		irr::core::list <int> *actt;
-
-		int stopat;
-
-		void popAction();
-
-};
-
-
-class ATour
-{
-
-	public:
-
-		ATour ( IXMLReader* reader );
-
-		irr::core::list<ATourBlock*>::Iterator current();
-
-		void close();
-
-		irr::core::list<ATourBlock*> *blocks;
-
-		const wchar_t* description;
-		const wchar_t* title;
-
-		static enum {AT_PLAYSOUND, AT_BUTTON, AT_LOADFILE, AT_CAMMODE, AT_PTCHANGE, AT_TRACKSEL} TOUR_ACTIONS;
-
-	private:
-
-		void loadTour ( IXMLReader* reader );
-		void loadBlock ( IXMLReader* reader );
-		void interpolate ( vector3df npos, int ntime, irr::core::list<vector3df>* plst, irr::core::list<int>* tlst );
-		int loadKeyframe ( ATourBlock* block, IXMLReader* reader );
-
-};
+#include "ATour.h"
 
 class ATourManager: public QObject
 {
-Q_OBJECT
+public:
+  
+  ATourManager();
+  virtual ~ATourManager();
+  
+  void listTours(QString dir);
+  void addTourToList(QString path);
 
-	public:
+  int tourCount();
+  ATour* tour(int idx);
+    
+ private:
+  QList<ATour *> tours;
+    
+  void dumpactt();
+  
+  ATour* currentTour;
 
-		ATourManager (IFileSystem*, ITimer*);
-		virtual ~ATourManager();
+  QTimeLine timeLine;
 
-		bool isRunning();
-		void load ( char* file );
-		void begin();
-		void skip();
-		void stop();
-		const wchar_t* getDescription();
-		const wchar_t* getTitle();
-
-		vector3df getTargetVector();
-
-                void listTours (c8*);
-                bool addTourToList (IXMLReader*, int);
-
-                char** tourFiles;
-                char** tourNames;
-                char** tourDescs;
-
-                int numTours;
-
-        public slots:
-		void timerEvent(QTimerEvent *event);
-
-        signals:
-
-                void camAnimatorAdded (irr::core::array<vector3df>);
-                void camAnimatorRemoved ();
-
-                void tarAnimatorAdded (irr::core::array<vector3df>);
-                void tarAnimatorRemoved ();
-
-                void tour_playsound ();
-                void tour_button (char *);
-                void tour_loadfile (QString);
-                void tour_ptchange (int);
-                void tour_tracksel (int);
-                void tour_camera (int);
-
-                void tour_stopped ();
-
-
-	private:
-
-		void startCamera();
-		void startTarget();
-
-		void advanceAction();
-		void advanceBlock();
-		void stopBlock();
-
-		void dumpactt();
-
-		IFileSystem* fs;
-
-		ITimer* timer;
-
-		ATour* tour;
-
-		bool running;
-		bool advancing;
-
+  Q_OBJECT
 };
 
 inline wchar_t* cstr_to_wstr ( char* cstr, int len )
 {
-
-	wchar_t* wstr = new wchar_t[len+1];
-
-	int i;
-
-	for ( i = 0; i < len; i++ )
-
-		wstr[i] = ( wchar_t ) cstr[i];
-
-        wstr [len] = '\0';
-
-	return wstr;
+  wchar_t* wstr = new wchar_t[len+1];
+  
+  int i;
+  
+  for ( i = 0; i < len; i++ )
+    
+    wstr[i] = ( wchar_t ) cstr[i];
+  
+  wstr [len] = '\0';
+  
+  return wstr;
 
 }
 
 inline char* wstr_to_cstr ( wchar_t* wstr, int len )
 {
-
-	char* cstr = new char[len+1];
-
-	int i;
-
-	for ( i = 0; i < len; i++ )
-
-		cstr[i] = ( char ) wstr[i];
-
-        cstr [len] = '\0';
-
-	return cstr;
+  
+  char* cstr = new char[len+1];
+  
+  int i;
+  
+  for ( i = 0; i < len; i++ )
+    
+    cstr[i] = ( char ) wstr[i];
+  
+  cstr [len] = '\0';
+  
+  return cstr;
 
 }
-#endif  //TOUR_H
+#endif  //TOURMANAGER_H_

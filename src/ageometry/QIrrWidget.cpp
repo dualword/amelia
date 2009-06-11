@@ -46,15 +46,15 @@ namespace irr
 {
 class CTimer : public ITimer
 {
-	virtual u32 getRealTime() const;
-    virtual u32 getTime() const;
-	virtual void setTime(u32 time);
-	virtual void stop();
-	virtual void start();
-	virtual void setSpeed(f32 speed = 1.0f);
-	virtual bool isStopped() const;
-	virtual void tick();
-	virtual f32 getSpeed() const;
+  virtual u32 getRealTime() const;
+  virtual u32 getTime() const;
+  virtual void setTime(u32 time);
+  virtual void stop();
+  virtual void start();
+  virtual void setSpeed(f32 speed = 1.0f);
+  virtual bool isStopped() const;
+  virtual void tick();
+  virtual f32 getSpeed() const;
 };
 
 #ifdef Q_WS_MAC
@@ -199,7 +199,7 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 
 QIrrWidget::~QIrrWidget()
 { 
-	killTimer(timerId);
+  killTimer(timerId);
 }
 
 
@@ -946,10 +946,10 @@ void QIrrWinWidgetPrivate::initialize()
   
 void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
 {
-	initialize();
+  initialize();
   if (parent->driver)
     {
-		irr::video::SColor color (0,0,0,0);
+      irr::video::SColor color (0,0,0,0);
       
       parent->driver->beginScene(true,true,color);
       
@@ -958,6 +958,8 @@ void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
       
       parent->driver->endScene();
     }
+
+  QWidget::paintEvent(event);
 }
 
 QPaintEngine* QIrrWinWidgetPrivate::paintEngine() const
@@ -1038,6 +1040,7 @@ void QIrrUnixWidgetPrivate::paintGL()
       parent->driver->endScene();
 #endif //Q_WS_MAC
     }
+  QGLWidget::paintGL();
 }
 
 #endif

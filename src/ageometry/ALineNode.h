@@ -12,6 +12,7 @@ class ALineNode : public scene::ISceneNode
   core::aabbox3d<f32> Box;
   core::vector3df start;
   core::vector3df end;
+  video::SMaterial mat; 
 
  public:
   ALineNode(core::vector3df,core::vector3df,scene::ISceneNode* parent, scene::ISceneManager* mgr, s32 id);

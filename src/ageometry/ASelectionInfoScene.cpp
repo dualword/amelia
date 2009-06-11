@@ -124,9 +124,13 @@ void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 {
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
-  analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
-  connect(analysisData,SIGNAL(updated()),
-	  this,SLOT(refresh()));
+
+  if(newEvent)
+    {
+      analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
+      connect(analysisData,SIGNAL(updated()),
+	      this,SLOT(refresh()));
+    }
 }
 
 void ASelectionInfoScene::displayMessage(QString text,QString headerText,QPixmap img)

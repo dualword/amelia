@@ -53,8 +53,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QTreeWidget>
 #include <QDialogButtonBox>
 
-#include "ATourManager.h"
-#include "ATourBuilder.h"
 #include "AGeometry.h"
 #include "AGeometryHUD.h"
 #include "AEventInfoScene.h"
@@ -82,8 +80,8 @@ public:
     ALayerGUI(QWidget* parent=0);
     virtual ~ALayerGUI();
     void setupElements(AEventManager*);
-    ATourManager* tourManager;
-    ATourBuilder* tourBuilder;
+    //ATourManager* tourManager;
+    //ATourBuilder* tourBuilder;
 
     void fakeCursor(int x,int y);
 
@@ -104,10 +102,13 @@ public slots:
     void toggleVisibilityParticles(bool toggle);
     void handleCropModeChange(int mode);
     void showLoadEventDialog();
-    bool loadEvent (QString);
-    void loadEvent (AEvent*);
     void pressButton (char*);
     void eventSettings();
+
+    void loadEvent(QString);
+    void loadEvent(AEvent*);
+
+    void unloadEvent();
 
     //Loaded event, sets up visibility of tables and other funfun stuff
     void handleEventLoaded();
@@ -116,24 +117,15 @@ public slots:
     //Slots for event manager
     void handleEventTagChange(bool status);
     
-    //Slots for the guided tours interface
-    void prepareTours ();
-    void toggleTour ();
-    void startTour ();
-    void endTour ();
-    void ffTour ();
-    void toggleRecording ();
-    void snapshotRecording ();
-
-    void recordButtonPress ();
     void about();
 
  protected:
-	void show(QWidget *);
+    void show(QWidget *);
 
  private:
     QSignalMapper smartShowMapper;
     QSignalMapper smartHideMapper;
+    QSignalMapper flapMapper;
     AEventInfoScene *eventInfo;
     ASelectionInfoScene *trackInfo;
 
@@ -178,6 +170,8 @@ public slots:
     AEvent* CompleteEvent;
     AFilteredEvent* FilteredEvent;
     AFilteredEvent* ModelEvent;
+
+    friend class AGeoPlugin;
 };
 
 

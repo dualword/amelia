@@ -216,6 +216,16 @@ QWidget* ABase::fakeCentralWidget()
     return _fakeCentralWidget;
 }
 
+QString ABase::currentMonitor()
+{
+  return _currentMonitor;
+}
+
+QString ABase::currentGroup()
+{
+  return _currentGroup;
+}
+
 void ABase::addMonitor(QString name,QString group,QWidget *tmp,QString description,Qt::Alignment align)
 {
     //Make sure to disable the widget
@@ -259,26 +269,26 @@ void ABase::changeToMenu()
 {
     if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
-    if (!currentMonitor.isEmpty()) //Not menu yet, update stuff
+    if (!_currentMonitor.isEmpty()) //Not menu yet, update stuff
     {
         //Restore background position
         background->setPos(-(background->sceneBoundingRect().width()-1024)/2,0);
 
-        AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
+        AMonitor* monitor=monitorGroups[_currentGroup]->monitor(_currentMonitor);
 
         monitor->setWidgetEnabled(false);
         setFakeCentralWidget(&menuWidget);
         monitor->restoreWidget();
     }
 
-    monitorGroups[currentGroup]->setHandlesChildEvents(true);
+    monitorGroups[_currentGroup]->setHandlesChildEvents(true);
     timer.setDirection(QTimeLine::Backward);
-    timer.setTimeLine(monitorGroups[currentGroup]->timeLine());
-    monitorGroups[currentGroup]->setSelected(QString());
+    timer.setTimeLine(monitorGroups[_currentGroup]->timeLine());
+    monitorGroups[_currentGroup]->setSelected(QString());
 
 
-    previousMonitor=currentMonitor;
-    currentMonitor=QString();
+    previousMonitor=_currentMonitor;
+    _currentMonitor=QString();
 
     showButtonGroup();
 }
@@ -304,16 +314,16 @@ void ABase::changeToMonitor(const QString& path)
 
     qDebug() << "Change to monitor: " << group << "/" << monitor;
 
-    if (currentGroup!=group) return; //TODO Allow changing of groups
-    if (monitor==currentMonitor) return; //Arealdy there...
+    if (_currentGroup!=group) return; //TODO Allow changing of groups
+    if (monitor==_currentMonitor) return; //Arealdy there...
     if (timer.state()==QTimeLine::Running) return; //TODO Allow changing levels in mid transition
 
     monitorGroups[group]->setHandlesChildEvents(true);
 
-    qDebug() << currentMonitor;
-    if (!currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
+    qDebug() << _currentMonitor;
+    if (!_currentMonitor.isEmpty()) //We are right now at some widget. Switch to the graphics view...
     {
-        AMonitor* current=monitorGroups[currentGroup]->monitor(currentMonitor);
+        AMonitor* current=monitorGroups[_currentGroup]->monitor(_currentMonitor);
 
         //Swap...
         current->setWidgetEnabled(false);
@@ -329,8 +339,8 @@ void ABase::changeToMonitor(const QString& path)
     monitorGroups[group]->setSelected(monitor);
 
     //For some reason setting previous to current here would make uicfile a "". Don't ask...
-    QString tmp=currentMonitor;
-    currentMonitor=monitor;
+    QString tmp=_currentMonitor;
+    _currentMonitor=monitor;
     previousMonitor=tmp;
 
     hideButtonGroup();
@@ -342,31 +352,30 @@ void ABase::changeToGroup(const QString& group)
     // This is currently the default response to help testing
 
 
-    if (!currentGroup.isEmpty())
+    if (!_currentGroup.isEmpty())
     {
-        disconnect(monitorGroups[currentGroup],SIGNAL(layoutReady()),
+        disconnect(monitorGroups[_currentGroup],SIGNAL(layoutReady()),
                    this,SLOT(animationFinished()));
     }
 
-    if (currentGroup==group)
+    if (_currentGroup==group)
     {
         monitorGroups[group]->hide();
-        currentGroup="";
+        _currentGroup="";
         return;
     }
 
-    if (!currentGroup.isEmpty()) monitorGroups[currentGroup]->hide(); //Hide currently shown group
+    if (!_currentGroup.isEmpty()) monitorGroups[_currentGroup]->hide(); //Hide currently shown group
 
     if (!monitorGroups.contains(group))
       {
-	currentGroup="";
+	_currentGroup="";
       }
     else
       {
-	qDebug() << "SHOW " << group;
 	monitorGroups[group]->show(); //Show it
 	
-	currentGroup=group; //Update the name of the currently shown group
+	_currentGroup=group; //Update the name of the currently shown group
 	
 	
 	animation.setItem(monitorGroups[group]);
@@ -402,11 +411,11 @@ void ABase::handleLoadingFinished()
 
 void ABase::animationFinished()
 {
-    monitorGroups[currentGroup]->setHandlesChildEvents(false);
+    monitorGroups[_currentGroup]->setHandlesChildEvents(false);
     timer.setTimeLine(0);
 
-    if (currentMonitor.isEmpty()) return;
-    AMonitor* monitor=monitorGroups[currentGroup]->monitor(currentMonitor);
+    if (_currentMonitor.isEmpty()) return;
+    AMonitor* monitor=monitorGroups[_currentGroup]->monitor(_currentMonitor);
     QWidget *widget=monitor->widget();
     monitor->storeWidget();
 
@@ -418,18 +427,18 @@ void ABase::keyPressEvent(QKeyEvent *event)
 {
     if (event->key()==Qt::Key_Escape)
     {
-        if (currentMonitor.isEmpty() && !previousMonitor.isEmpty())
-            changeToMonitor(currentGroup+"/"+previousMonitor);
+        if (_currentMonitor.isEmpty() && !previousMonitor.isEmpty())
+            changeToMonitor(_currentGroup+"/"+previousMonitor);
         else
             changeToMenu();
     }
 
     if (event->key()==Qt::Key_Delete)
     {
-        QList<QString> keys=monitorGroups[currentGroup]->monitors().keys();
-        int idx=keys.indexOf(currentMonitor);
+        QList<QString> keys=monitorGroups[_currentGroup]->monitors().keys();
+        int idx=keys.indexOf(_currentMonitor);
         idx=(idx+1)%keys.size();
-        changeToMonitor(currentGroup+"/"+keys[idx]);
+        changeToMonitor(_currentGroup+"/"+keys[idx]);
     }
 
     //What are we gonna do with menu's on Mac OS X?
@@ -454,8 +463,8 @@ void ABase::resizeEvent(QResizeEvent* event)
 
 bool ABase::eventFilter(QObject *obj, QEvent *event)
 {
-    if (!currentMonitor.isEmpty()) return false; //Don't care if this no mouse
-    if (currentGroup.isEmpty()) return false; //Don't care if this no mouse
+    if (!_currentMonitor.isEmpty()) return false; //Don't care if this no mouse
+    if (_currentGroup.isEmpty()) return false; //Don't care if this no mouse
     if (timer.state() == QTimeLine::Running) return false; //Don't care if switching menus..
 
     if (obj==&menu)
@@ -465,7 +474,7 @@ bool ABase::eventFilter(QObject *obj, QEvent *event)
             QGraphicsSceneMouseEvent *mEvent=(QGraphicsSceneMouseEvent*)event;
 
             //What are we gonna parallax?
-            AMonitorGroup* widgetGroup=monitorGroups[currentGroup];
+            AMonitorGroup* widgetGroup=monitorGroups[_currentGroup];
 
             //Need to figure out the bounding rectangle of our group widget
             QPointF lastPos=mEvent->lastScenePos();

@@ -145,12 +145,18 @@ QLabel
 	color: rgb(255, 255, 0);
 }</string>
         </property>
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
         <widget class="QWidget" name="page_3">
          <layout class="QVBoxLayout" name="verticalLayout_6">
-          <property name="topMargin">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="margin">
            <number>0</number>
           </property>
           <item>
@@ -160,6 +166,9 @@ QLabel
               <width>0</width>
               <height>0</height>
              </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
            </widget>
           </item>
@@ -801,7 +810,7 @@ color: rgb(255, 255, 0);
      </layout>
     </item>
     <item>
-     <widget class="QTabWidget" name="MainTab">
+     <widget class="QWidget" name="MainTab" native="true">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -825,591 +834,194 @@ color: rgb(255, 255, 0);
       <property name="styleSheet">
        <string notr="true"/>
       </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::North</enum>
-      </property>
-      <property name="tabShape">
-       <enum>QTabWidget::Rounded</enum>
-      </property>
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <property name="elideMode">
-       <enum>Qt::ElideNone</enum>
-      </property>
-      <widget class="QWidget" name="tab_detector">
-       <property name="baseSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <italic>false</italic>
-         <underline>false</underline>
-         <strikeout>false</strikeout>
-        </font>
-       </property>
-       <property name="accessibleName">
-        <string/>
-       </property>
-       <attribute name="title">
-        <string> Detector </string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QGroupBox" name="groupBox_Detector">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Toggle System Visibility</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QCheckBox" name="checkBox_MuonSpectr">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Muon Spectrometer</string>
-             </property>
-             <property name="shortcut">
-              <string>1</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBox_Magnets">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Magnet System</string>
-             </property>
-             <property name="shortcut">
-              <string>2</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>15</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_Calorimeter">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>100</height>
-              </size>
-             </property>
-             <property name="title">
-              <string>Calorimeters</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <widget class="QCheckBox" name="checkBox_Tilecal">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>34</y>
-                <width>145</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Hadronic Calorimeter</string>
-              </property>
-              <property name="shortcut">
-               <string>3</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="QCheckBox" name="checkBox_LAr">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>61</y>
-                <width>145</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>EM Calorimeter</string>
-              </property>
-              <property name="shortcut">
-               <string>4</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </widget>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_ID">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>150</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="title">
-              <string>Inner Detector</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <widget class="QCheckBox" name="checkBox_SCT">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>61</y>
-                <width>60</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>SCT</string>
-              </property>
-              <property name="shortcut">
-               <string>6</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="QCheckBox" name="checkBox_TRT">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>34</y>
-                <width>60</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>TRT</string>
-              </property>
-              <property name="shortcut">
-               <string>5</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-             <widget class="QCheckBox" name="checkBox_Pixels">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>88</y>
-                <width>60</width>
-                <height>23</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Pixels</string>
-              </property>
-              <property name="shortcut">
-               <string>7</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_3">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Fixed</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::MinimumExpanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>10</width>
-            <height>100</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_event">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <attribute name="title">
-        <string> Events</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_7">
-        <item>
-         <widget class="QLabel" name="label_4">
-          <property name="text">
-           <string>Bookmarked Tracks</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableView" name="selectedTracksTable">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>140</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(0, 0, 55);</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOn</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="textElideMode">
-           <enum>Qt::ElideMiddle</enum>
-          </property>
-          <property name="showGrid">
-           <bool>true</bool>
-          </property>
-          <property name="gridStyle">
-           <enum>Qt::SolidLine</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="rowCount" stdset="0">
-           <number>0</number>
-          </property>
-          <property name="columnCount" stdset="0">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QPushButton" name="combineTracks">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Combine 
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <item>
+        <widget class="QPushButton" name="button_eventInfo">
+         <property name="text">
+          <string>Event Info</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_detectorVisibility">
+         <property name="text">
+          <string>Detector Visibility</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_packageList">
+         <property name="text">
+          <string>Package Manager</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Bookmarked Tracks</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="selectedTracksTable">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>225</width>
+           <height>140</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 55);</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="gridStyle">
+          <enum>Qt::SolidLine</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="columnCount" stdset="0">
+          <number>3</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="combineTracks">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Combine 
  Selected Tracks</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="deleteTracks">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="text">
-             <string>Delete  
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deleteTracks">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Delete  
  Selected Tracks</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Combinations</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QTableViewWithContextMenu" name="combinedTracksTable">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>225</width>
-            <height>140</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">color: rgb(0, 0, 55);</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOn</enum>
-          </property>
-          <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
-          </property>
-          <property name="selectionBehavior">
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="textElideMode">
-           <enum>Qt::ElideMiddle</enum>
-          </property>
-          <property name="showGrid">
-           <bool>true</bool>
-          </property>
-          <property name="gridStyle">
-           <enum>Qt::SolidLine</enum>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <property name="rowCount" stdset="0">
-           <number>0</number>
-          </property>
-          <property name="columnCount" stdset="0">
-           <number>3</number>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_tours">
-       <attribute name="title">
-        <string> Tours </string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_10">
-        <item>
-         <widget class="QGroupBox" name="tourPlayerBox">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="title">
-           <string>Tour Player</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <item>
-            <widget class="QComboBox" name="tourSelector">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="tourDesc">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Please select a tour.</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_7">
-             <item>
-              <widget class="QPushButton" name="playTourButton">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="text">
-                <string>Play</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="ffTourButton">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>FF</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="title">
-           <string>Tour Recorder</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_9">
-           <item>
-            <widget class="QLineEdit" name="recTourName">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPlainTextEdit" name="recTourDesc">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QPushButton" name="recTourButton">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="text">
-                <string>Record</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="snapshotTourButton">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>Snapshot</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Combinations</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableViewWithContextMenu" name="combinedTracksTable">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>225</width>
+           <height>140</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 55);</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="showGrid">
+          <bool>true</bool>
+         </property>
+         <property name="gridStyle">
+          <enum>Qt::SolidLine</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="columnCount" stdset="0">
+          <number>3</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -1419,7 +1031,7 @@ color: rgb(255, 255, 0);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1056</width>
+     <width>1030</width>
      <height>32</height>
     </rect>
    </property>
@@ -1466,14 +1078,6 @@ color: rgb(255, 255, 0);
      <addaction name="actionOrthogonal"/>
      <addaction name="actionProjective"/>
     </widget>
-    <widget class="QMenu" name="menuHUD">
-     <property name="title">
-      <string>HUD</string>
-     </property>
-     <addaction name="actionHUD_FPS"/>
-     <addaction name="actionHUD_Tips"/>
-     <addaction name="actionHUD_Status"/>
-    </widget>
     <widget class="QMenu" name="menu3D_Camera">
      <property name="title">
       <string>3D Camera</string>
@@ -1492,7 +1096,6 @@ color: rgb(255, 255, 0);
     <addaction name="menuView"/>
     <addaction name="menu3D_Camera"/>
     <addaction name="actionSnapshot"/>
-    <addaction name="menuHUD"/>
    </widget>
    <widget class="QMenu" name="menuEvents">
     <property name="title">
@@ -1839,11 +1442,6 @@ color: rgb(255, 255, 0);
     <slot>toggleVisibilitySCT()</slot>
     <slot>toggleVisibilityTRT()</slot>
     <slot>toggleVisibilityPixels()</slot>
-    <slot>toggleTour()</slot>
-    <slot>toggleRecording()</slot>
-    <slot>ffTour()</slot>
-    <slot>snapshotRecording()</slot>
-    <slot>prepareTours()</slot>
     <slot>ptCutoff(int)</slot>
     <slot>toggleVisibilityParticles(bool)</slot>
     <slot>loadEvent()</slot>
@@ -1862,11 +1460,6 @@ color: rgb(255, 255, 0);
     <slot>actionSwitchView()</slot>
     <slot>ptCutoff(int)</slot>
     <slot>switchLeftViewport()</slot>
-    <slot>toggleTour()</slot>
-    <slot>ffTour()</slot>
-    <slot>toggleRecording()</slot>
-    <slot>snapshotRecording()</slot>
-    <slot>prepareTours()</slot>
     <slot>toggleVisibilityParticles(bool)</slot>
     <slot>showLoadEventDialog()</slot>
     <slot>loadEvent()</slot>
@@ -1899,22 +1492,6 @@ color: rgb(255, 255, 0);
   <include location="media/geoskin.qrc"/>
  </resources>
  <connections>
-  <connection>
-   <sender>Geometry</sender>
-   <signal>finishedLoading()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>prepareTours()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>383</x>
-     <y>286</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>actionFirst_Person</sender>
    <signal>triggered()</signal>
@@ -1996,22 +1573,6 @@ color: rgb(255, 255, 0);
    </hints>
   </connection>
   <connection>
-   <sender>actionSnapshot</sender>
-   <signal>triggered()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>snapshotRecording()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>actionAbout</sender>
    <signal>triggered()</signal>
    <receiver>LayerGUI</receiver>
@@ -2024,70 +1585,6 @@ color: rgb(255, 255, 0);
     <hint type="destinationlabel">
      <x>511</x>
      <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>snapshotTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>snapshotRecording()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>996</x>
-     <y>503</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ffTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>ffTour()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>996</x>
-     <y>204</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>recTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>toggleRecording()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>886</x>
-     <y>503</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>365</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>playTourButton</sender>
-   <signal>clicked()</signal>
-   <receiver>LayerGUI</receiver>
-   <slot>toggleTour()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>886</x>
-     <y>204</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>511</x>
-     <y>365</y>
     </hint>
    </hints>
   </connection>
@@ -2114,8 +1611,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>33</x>
-     <y>570</y>
+     <x>75</x>
+     <y>566</y>
     </hint>
     <hint type="destinationlabel">
      <x>9</x>
@@ -2162,8 +1659,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>371</x>
-     <y>570</y>
+     <x>451</x>
+     <y>566</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -2178,8 +1675,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>288</x>
-     <y>570</y>
+     <x>351</x>
+     <y>566</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -2210,8 +1707,8 @@ color: rgb(255, 255, 0);
    <slot>toggleVisibilityParticles(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>182</x>
-     <y>570</y>
+     <x>275</x>
+     <y>566</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>

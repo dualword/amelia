@@ -42,7 +42,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <ISceneNodeAnimatorCameraFPS.h>
 
 #include "QIrrWidgetRefresher.h"
-#include "AFPSControl.h"
 
 #include <QApplication>
 
@@ -50,7 +49,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::FPS), _event(0)
+  background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -83,6 +82,7 @@ AGeometry::AGeometry(QWidget* parent)
     camera[1] = NULL;
     camera[2] = NULL;
     camera[3] = NULL;
+    camera[4] = NULL;
 
     pos = core::vector3df ( 0,0,0 );
     rot = core::vector3df ( 0,0,0 );
@@ -93,8 +93,6 @@ AGeometry::AGeometry(QWidget* parent)
     cameraLoc = core::vector3df ( 0,0,0 ); //camera position for Moses Mode, initialized to zero
     DCamPos = core::vector3df ( 0,0,0 );
 
-
-    force_target = false;
 
 
     //Switches for the different modes
@@ -181,11 +179,8 @@ void AGeometry::load()
   //First load stuff originally loaded by ABase...
   //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
   getFileSystem()->addFolderFileArchive ( "./media/" );
-  getFileSystem()->addFolderFileArchive ( "./media/tours" );
-  getFileSystem()->addFolderFileArchive ( "./media/events" );  getFileSystem()->addFolderFileArchive ( TOURS_PREFIX );
   getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
-  getFileSystem()->addFolderFileArchive ( EVENTS_PREFIX );
-  
+
   //These first three lines are part of an offset test for the Irrlicht ray generator
   cube = getSceneManager()->addCubeSceneNode();
   cube->getMaterial ( 0 ).EmissiveColor.set ( 0,255,0,0 );
@@ -193,8 +188,6 @@ void AGeometry::load()
   cube->setPosition ( core::vector3df ( 400,1500,400 ) );
   cube->setVisible(offsetTest);
   
-  tar_node = getSceneManager()->addEmptySceneNode();
-  cam_node = getSceneManager()->addEmptySceneNode();
   OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
   OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
   getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
@@ -222,6 +215,14 @@ void AGeometry::load()
   
   //Create the dynamic camera and define some variables
   
+  camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+  camera[0]->setName("FPSCam");
+  camera[0]->setInputReceiverEnabled ( false );
+  camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
+  camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[0]->setFarValue ( 22000.0f );
+  camera[0]->setID(FPS);
+
   camera[1] = getSceneManager()->addCameraSceneNode();
   camera[1]->setName("FrontCam");
   camera[1]->setInputReceiverEnabled ( false );
@@ -246,20 +247,21 @@ void AGeometry::load()
   camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
   camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
   camera[3]->setID(Maya);
-  
-  camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
-  camera[0]->setName("FPSCam");
-  camera[0]->setInputReceiverEnabled ( false );
-  camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
-  camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[0]->setFarValue ( 22000.0f );
-  camera[0]->setID(FPS);
 
-  AFPSControl *fpsControl=new AFPSControl(camera[0],
-					  getSceneManager(),
-					  getGUIEnvironment(),
-					  getGUIEnvironment()->getRootGUIElement(),
-					  -1,core::rect<s32>(0,0,100,100));
+  camera[4] = getSceneManager()->addCameraSceneNode();
+  camera[4]->setName("LockCam");
+  camera[4]->setInputReceiverEnabled ( false );
+  camera[4]->setFarValue ( 22000.0f );
+  camera[4]->setPosition ( core::vector3df ( 12000,5000,-12000 ) );
+  camera[4]->setTarget ( core::vector3df ( 0,0,0 ) );
+  camera[4]->setID(Lock);
+  
+  fpsControl=new AFPSControl(camera[0],
+			     getSceneManager(),
+			     getGUIEnvironment(),
+			     getGUIEnvironment()->getRootGUIElement(),
+			     -1,core::rect<s32>(0,0,100,100));
+  fpsControl->setVisible(false);
   
   //Prepare spinning logo
   getFileSystem()->addZipFileArchive ( "logo.aml" );
@@ -414,18 +416,34 @@ QString AGeometry::detectorSelection( core::position2di pos )
 
 ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 {
-  if ( eventAnalysisMode )
+  if ( eventAnalysisMode && allowTrackSelection )
     {
       ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
       line3d<f32> ray = colmgr->getRayFromScreenCoordinates ( pos, getSceneManager()->getActiveCamera() );
+      
+      // Put all of the tracks into a selectable state, and store the previous state.
+      QMap<ATrack3DNode*,ATrack3DNode::Style> oldStyles;
+      for(int i=0;i<allTracks.size();i++)
+	{
+	  if(allTracks[i]->isVisible())
+	    {
+	      aabbox3d<f32> box=allTracks[i]->getTransformedBoundingBox();
+	      if(box.intersectsWithLine(ray))
+		{
+		  oldStyles[allTracks[i]]=allTracks[i]->trackStyle();
+		  allTracks[i]->setTrackStyle(ATrack3DNode::Selectable);
+		}
+	    }
+	}
+
+      // Find the selected scene node
       ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16 );
-      qDebug() << "Selected " << selectedSceneNode;
       ITriangleSelector* selector;
       vector3df target;
       triangle3df triangle;
       
+      //Find the track that this scene node belongs to
       ATrack3DNode *selectedNode=0;
-      
       for ( int i=0; i<allTracks.size(); i++)
 	{
 	  if(!allTracks[i]->isVisible()) continue;
@@ -455,7 +473,14 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 	    }
 	  
 	}
-
+      
+      // Restore the previous state to all of the tracks.
+      QMap<ATrack3DNode*,ATrack3DNode::Style>::const_iterator iter=oldStyles.begin();
+      QMap<ATrack3DNode*,ATrack3DNode::Style>::const_iterator iterE=oldStyles.end();
+      for(;iter!=iterE;iter++)
+	{
+	  iter.key()->setTrackStyle(iter.value());
+	}
       return selectedNode;
     }
   return 0;
@@ -673,7 +698,7 @@ void AGeometry::execute()
 {  
   if(firstShow)
     {
-      printf("First Show\n");
+      qDebug() << "First Show";
       //Remove the loading nodes
       _logoNode->remove();
       _logoLight->remove();
@@ -694,15 +719,6 @@ void AGeometry::execute()
       if ( _cropMode!=NoneMode )
 	{
 	  executeMosesMode(camPos);
-	}
-           
-	if (camera[0] && force_target)
-	{
-	  
-	  //vector3df vect = tar_node->getPosition () - camera[0]->getPosition ();
-	  //camera[0]->setRotation (vect.getHorizontalAngle ());
-	  camera[0]->setTarget (tar_node->getPosition());
-	  camera[0]->setPosition (cam_node->getPosition());
 	}
       //qDebug() << "STUFF UPDATED";
     }
@@ -927,8 +943,9 @@ void AGeometry::createAtlasGeometry()
       TRT_Reference=getSceneManager()->getSceneNodeFromName( "TRT_Reference" );
       SCT_Reference=getSceneManager()->getSceneNodeFromName( "SCT_Reference" );
       Pixels_Reference=getSceneManager()->getSceneNodeFromName( "Pixels_Reference" );
-
-      Atlas_Reference->setVisible(true);
+      
+      if(Atlas_Reference)
+	Atlas_Reference->setVisible(true);
 
       ref.allModules=0;
       if ( !isCrappyComputer )
@@ -1013,8 +1030,8 @@ void AGeometry::releaseControl()
     {
       getSceneManager()->getActiveCamera()->setInputReceiverEnabled ( false );
       setCursor( QCursor( Qt::ArrowCursor ) );
+      allowTrackSelection=true;
       emit cameraControlSwitched(false);
-      //allowTrackSelection=(XmlEvt->EventComplete.Tracks.size()>0); //Only allow track selection if event loaded, which is when number of tracks >0
     }
 }
 
@@ -1023,8 +1040,23 @@ void AGeometry::resizeEvent( QResizeEvent* event )
   if(rt) rt->drop();
   rt=0;
 
+  if(fpsControl)
+    {
+      QSize size=event->size();
+      core::rect<s32> fpsPos(size.width()-100,0,size.width(),100);
+      fpsControl->setRelativePosition(fpsPos);
+    }
+
   QIrrWidget::resizeEvent(event);
 }
+
+void AGeometry::mouseDoubleClickEvent(QMouseEvent *event)
+{
+  if (getSceneManager()->getActiveCamera()->isInputReceiverEnabled()) releaseControl();
+  else grabControl();
+}
+
+
 
 void AGeometry::mouseClickEvent(QMouseEvent *event)
 {
@@ -1035,11 +1067,6 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
       
       if(event->button()==Qt::LeftButton)
 	{
-	  //If you clicked an FPS camera and it does not have input, give it input! This allows us to focus the camera by clicking on AGeometry
-	  if (!getSceneManager()->getActiveCamera()->isInputReceiverEnabled() && !allowTrackSelection && !offsetTest)
-	    {
-	      grabControl();
-	    }
 	  if (event->button()==Qt::LeftButton)
 	    {
 	      if(allowTrackSelection)
@@ -1303,7 +1330,7 @@ AFilteredEvent* AGeometry::event()
   return _event;
 }
 
-void AGeometry::createTrackNode(ATrack* track)
+ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
 {
   ATrack3DNode *node=0;
   if(track->type()==ATrack::eJet)
@@ -1330,6 +1357,8 @@ void AGeometry::createTrackNode(ATrack* track)
       node->setVisible(false);
       allTracks.push_back(node);
     }
+
+  return node;
 }
 
 //Switch the current camera, viewport clicked
@@ -1370,6 +1399,10 @@ void AGeometry::setCamera(int to,bool animate)
       actSphere->setChecked(true);
       setCropMode(WedgeMode);
       camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
+      break;
+    case AGeometry::Lock:
+      actFPS->setChecked(false);
+      actSphere->setChecked(false);
       break;
     }
     camera[AGeometry::FPS]->setInputReceiverEnabled(false);
@@ -1450,52 +1483,26 @@ void AGeometry::setupView(int view)
 	}
 }
 
-void AGeometry::addCamAnimator (irr::core::array<vector3df> p)
+void AGeometry::setCameraPosition(APoint3D pos)
 {
-
-    ISceneNodeAnimator *anim = getSceneManager()->createFollowSplineAnimator (0, p, 1);
-
-    //camera[0]->addAnimator (anim);
-    cam_node->addAnimator (anim);
-    anim->drop ();
-
-    force_target = true;
-
-//    cout << "ANIMATOR" << endl;
-
+  vector3df irrpos(pos.x(),pos.y(),pos.z());
+  camera[active_cam]->setPosition(irrpos);
 }
 
-
-
-void AGeometry::addTarAnimator (irr::core::array<vector3df> p)
+void AGeometry::setCameraTarget(APoint3D pos)
 {
-
-    ISceneNodeAnimator *anim = getSceneManager()->createFollowSplineAnimator (0, p, 1);
-
-    tar_node->addAnimator (anim);
-    anim->drop ();
-
-    force_target = true;
-
+  vector3df irrpos(pos.x(),pos.y(),pos.z());
+  camera[active_cam]->setTarget(irrpos);
 }
 
-
-void AGeometry::removeCamAnimator ()
+APoint3D AGeometry::cameraPosition()
 {
-
-    cam_node->removeAnimators ();
-
-    force_target = false;
-
+  return APoint3D(camera[active_cam]->getPosition());
 }
 
-
-void AGeometry::removeTarAnimator ()
+APoint3D AGeometry::cameraTarget()
 {
-
-    tar_node->removeAnimators ();
-
-    force_target = false;
+  return APoint3D(camera[active_cam]->getTarget());
 }
 
 void AGeometry::setComboMenu(QMenu *comboMenu)
@@ -1533,7 +1540,8 @@ void AGeometry::updateTracks()
   QSet<ATrack*>::const_iterator iterE=tracks.end();
   for(;iter!=iterE;++iter)
     {
-      createTrackNode(*iter);
+      ATrack3DNode *node=createTrackNode(*iter);
+      node->setVisible(true);
     }
 
   QApplication::processEvents();

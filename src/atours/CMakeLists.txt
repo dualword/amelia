@@ -1,0 +1,80 @@
+SET(QT_USE_QTXML true)
+SET(QT_USE_QTOPENGL true)
+
+FIND_PACKAGE (Qt4 REQUIRED)
+INCLUDE_DIRECTORIES(${QT_INCLUDE_DIR})
+INCLUDE(${QT_USE_FILE})
+
+
+ADD_DEFINITIONS(${QT_DEFINITIONS})
+ADD_DEFINITIONS(-DQT_PLUGIN)
+ADD_DEFINITIONS(-DQT_NO_DEBUG)
+ADD_DEFINITIONS(-DQT_SHARED)
+
+IF(UNIX)
+       MESSAGE(STATUS "System UNIX")
+       FIND_PACKAGE(OpenGL REQUIRED)
+       FIND_PACKAGE(X11)
+       FIND_LIBRARY(XXF86VM_LIBRARY Xxf86vm)
+       SET(SYSTEMSPECIFIC_LIBRARIES
+             ${X11_LIBRARIES}
+             ${XXF86VM_LIBRARY}
+             ${OPENGL_LIBRARIES}
+             jpeg
+             png
+       )
+ENDIF(UNIX)
+
+IF(APPLE)
+	FIND_LIBRARY(IOKIT_LIBRARY IOKit REQUIRED)
+	SET(SYSTEMSPECIFIC_LIBRARIES
+		${SYSTEMSPECIFIC_LIBRARIES}
+		${IOKIT_LIBRARY})
+ENDIF(APPLE)
+
+FIND_PACKAGE (Irrlicht REQUIRED)
+INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
+
+SET(atours_SRCS
+  ATours.cpp
+  ATour.cpp
+  ATourBlock.cpp
+  ATourManager.cpp
+  ATourBuilder.cpp
+  ATourPlayer.cpp
+  ATourAction.cpp
+  ATourCameraAction.cpp
+  ATourMessageAction.cpp
+  ATourLoadEventAction.cpp
+  ATourPtCutAction.cpp
+  ATourMonitorAction.cpp)
+
+SET(atours_H
+  ATours.h
+  ATourBlock.h
+  ATourManager.h
+  ATourBuilder.h
+  ATourPlayer.h
+  ATourAction.h
+  ATourCameraAction.h
+  ATourMessageAction.h
+  ATourLoadEventAction.h
+  ATourPtCutAction.h
+  ATourMonitorAction.h)
+
+SET(atours_FILES
+  atours.qrc)
+
+QT4_WRAP_CPP(atours_SRCS ${atours_H})
+QT4_ADD_RESOURCES(atours_SRCS ${atours_FILES})
+
+ADD_LIBRARY(ATours SHARED ${atours_SRCS})
+LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
+TARGET_LINK_LIBRARIES(ATours
+  ${QT_LIBRARIES} 
+  ${SYSTEMSPECIFIC_LIBRARIES} 
+  amelia
+  Irrlicht
+  )
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

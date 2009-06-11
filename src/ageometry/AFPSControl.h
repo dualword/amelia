@@ -18,15 +18,17 @@ class AFPSControl : public IGUIElement
   void OnPostRender (u32 timeMs);
 
  private:
-  IGUIButton *upButton;
-  IGUIButton *rightButton;
-  IGUIButton *downButton;
-  IGUIButton *leftButton;
+  IGUIButton *_1Button;
+  IGUIButton *_2Button;
+  IGUIButton *_3Button;
+  IGUIButton *_4Button;
+  IGUIButton *_5Button;
+  IGUIButton *_6Button;
+  IGUIButton *_7Button;
+  IGUIButton *_8Button;
 
   IGUIButton *forwardButton;
   IGUIButton *backButton;
-
-  IGUIButton *grabButton;
 
   ICameraSceneNode *camera;
   ISceneNodeAnimatorCameraFPS *anim;

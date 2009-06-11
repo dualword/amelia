@@ -45,18 +45,17 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AViewport.h"
 
 #include "ui_eventadvanced.h"
+#include "ui_detectorvisibility.h"
+
 #include <config.h>
 #include <AAnimationGUI.h>
 #include <AAnimationLayoutGUI.h>
-#include <ASlidyWidget.h>
+#include <ASlidyManager.h>
 #include <aeventmanager/AXmlEvent.h>
 
 ALayerGUI::ALayerGUI(QWidget* parent)
         : QFrame(parent)
 {
-    tourBuilder = 0;
-    tourManager = 0;
-
     modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final);
     particleFilter=new AParticleFilter();
     ptFilter=new APtFilter(1,particleFilter);
@@ -93,16 +92,24 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QSpinBox *spinBox_Pt=findChild<QSpinBox*>("spinBox_Pt");
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
-    QGroupBox *groupBox_Detector=findChild<QGroupBox *>("groupBox_Detector");
-    QGroupBox *groupBox_Calorimeter=findChild<QGroupBox *>("groupBox_Calorimeter");
-    QGroupBox *groupBox_ID=findChild<QGroupBox *>("groupBox_ID");
-    QCheckBox *checkBox_Magnets=findChild<QCheckBox *>("checkBox_Magnets");
-    QCheckBox *checkBox_MuonSpectr=findChild<QCheckBox *>("checkBox_MuonSpectr");
-    QCheckBox *checkBox_LAr=findChild<QCheckBox *>("checkBox_LAr");
-    QCheckBox *checkBox_Tilecal=findChild<QCheckBox *>("checkBox_Tilecal");
-    QCheckBox *checkBox_Pixels=findChild<QCheckBox *>("checkBox_Pixels");
-    QCheckBox *checkBox_SCT=findChild<QCheckBox *>("checkBox_SCT");
-    QCheckBox *checkBox_TRT=findChild<QCheckBox *>("checkBox_TRT");
+    QPushButton *button_detectorVisibility=findChild<QPushButton *>("button_detectorVisibility");
+    QPushButton *button_packageList=findChild<QPushButton *>("button_packageList");
+    QPushButton *button_eventInfo=findChild<QPushButton *>("button_eventInfo");
+
+    QWidget *detectorVisibility=new QWidget();
+    Ui::DetectorVisibility ui;
+    ui.setupUi(detectorVisibility);
+    
+    QGroupBox *groupBox_Detector=detectorVisibility->findChild<QGroupBox *>("groupBox_Detector");
+    QGroupBox *groupBox_Calorimeter=detectorVisibility->findChild<QGroupBox *>("groupBox_Calorimeter");
+    QGroupBox *groupBox_ID=detectorVisibility->findChild<QGroupBox *>("groupBox_ID");
+    QCheckBox *checkBox_Magnets=detectorVisibility->findChild<QCheckBox *>("checkBox_Magnets");
+    QCheckBox *checkBox_MuonSpectr=detectorVisibility->findChild<QCheckBox *>("checkBox_MuonSpectr");
+    QCheckBox *checkBox_LAr=detectorVisibility->findChild<QCheckBox *>("checkBox_LAr");
+    QCheckBox *checkBox_Tilecal=detectorVisibility->findChild<QCheckBox *>("checkBox_Tilecal");
+    QCheckBox *checkBox_Pixels=detectorVisibility->findChild<QCheckBox *>("checkBox_Pixels");
+    QCheckBox *checkBox_SCT=detectorVisibility->findChild<QCheckBox *>("checkBox_SCT");
+    QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
 
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
@@ -222,9 +229,22 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	    mngr, SLOT(setActiveEvent()));
     
     //Setup slide widget
-    ASlidyWidget *slide=new ASlidyWidget(this);
+    ASlidyManager *slide=new ASlidyManager(this);
     slide->addWidget(eventInfoView,"Event Info");
     slide->addWidget(packageList,"Packages");
+    slide->addWidget(detectorVisibility,"Detector Visibility");
+    connect(&flapMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(toggleWidget(int)));
+    flapMapper.setMapping(button_eventInfo,0);
+    connect(button_eventInfo,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+    flapMapper.setMapping(button_packageList,1);
+    connect(button_packageList,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+    flapMapper.setMapping(button_detectorVisibility,2);
+    connect(button_detectorVisibility,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+
 
     // Setup random buttons
     if (buttonDeleteTracks)
@@ -244,26 +264,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	    ptFilter,SLOT(setMinPtMeV(double)));
     ptFilterSync.syncSlider(PtCutoff_Slider);
     ptFilterSync.syncSpinBox(spinBox_Pt);
-
-
-    //setup tour button connections
-
-    QList <QAbstractButton *> buttons = findChildren <QAbstractButton *> ();
-
-    while (!buttons.isEmpty ())
-    {
-
-        QAbstractButton *b  = buttons.takeFirst ();
-
-        QString name = b->objectName ();
-
-//        cout << name.toAscii ().data() << endl;
-
-        if (name == "") continue;
-        if (name == "recTourButton" || name == "snapshotTourButton" || name == "playTourButton" || name == "ffTourButton") continue;
-        QObject::connect (b, SIGNAL(clicked()), this, SLOT(recordButtonPress()));
-
-    }
 
     if (eventWidget)
       {
@@ -458,12 +458,12 @@ void ALayerGUI::showLoadEventDialog()
     loadEvent(fileName);
 }
 
-bool ALayerGUI::loadEvent(QString fileName)
+void ALayerGUI::loadEvent(QString fileName)
 {
   qDebug() << "Loading " << fileName << endl;
 
   //TODO Error somehow
-  if (!geo) return false;
+  if (!geo) return;
 
   if (!fileName.isEmpty())
     {
@@ -471,19 +471,16 @@ bool ALayerGUI::loadEvent(QString fileName)
 
       if (!eventFile.exists())
         {
-	  QMessageBox::warning(this, tr("Application"),
+	  QMessageBox::warning(window(), tr("Application"),
 			       tr("Cannot find event file: %1!\n.")
 			       .arg(fileName));
-	  return false;
+	  return;
         }
 
 
       AXmlEvent *event=new AXmlEvent(fileName);
       loadEvent(event);
-
-      tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
     }
-  return true;
 }
 
 void ALayerGUI::loadEvent(AEvent* event)
@@ -501,10 +498,15 @@ void ALayerGUI::loadEvent(AEvent* event)
   emit eventLoaded(event);
 }
 
+void ALayerGUI::unloadEvent()
+{
+  emit eventLoaded(0);
+  emit eventUnloaded();
+}
+
 void ALayerGUI::handleEventLoaded()
 {
   QWidget* tabEvent = findChild<QWidget*>("tab_event");
-  findChild<QTabWidget*>("MainTab")->setCurrentWidget(tabEvent);
 
   //Enable what needs to be enabled!
   QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
@@ -587,161 +589,6 @@ void ALayerGUI::handleEventTagChange(bool status)
 
   if (status)
     geo->event()->tag(tag,status);
-}
-
-void ALayerGUI::toggleTour ()
-{
-
-  if (tourManager->isRunning ()) endTour ();
-  else startTour ();
-
-}
-
-void ALayerGUI::endTour ()
-{
-
-  tourManager->stop ();
-  findChild<QPushButton *>("playTourButton")->setText ("Play");
-  findChild<QPushButton *>("ffTourButton")->setEnabled (false);
-
-}
-
-void ALayerGUI::startTour ()
-{
-
-  findChild<QPushButton *> ("playTourButton")->setText ("Stop");
-  findChild <QPushButton *> ("ffTourButton")->setEnabled (true);
-
-  int selIndex = findChild<QComboBox *> ("tourSelector")->currentIndex ();
-
-  tourManager->load (tourManager->tourFiles [selIndex]);
-
-  //Make sure we use the correct camera.
-  geo->setViewport(AGeometry::Cam3D);
-  geo->setCamera(AGeometry::FPS,false);
-  tourManager->begin ();
-
-}
-
-
-void ALayerGUI::ffTour ()
-{
-
-  if (tourManager->isRunning ()) tourManager->skip ();
-
-}
-
-
-
-void ALayerGUI::toggleRecording ()
-{
-
-  if (!tourBuilder->isRecording ())
-    {
-
-      //tourBuilder->startRecording ("rectest.xml");
-      findChild<QPushButton *> ("recTourButton")->setText ("Stop");
-      findChild <QPushButton *> ("snapshotTourButton")->setEnabled (true);
-
-    }
-  else
-    {
-
-      //tourBuilder->stopRecording ();
-      findChild<QPushButton *> ("recTourButton")->setText ("Record");
-      findChild <QPushButton *> ("snapshotTourButton")->setEnabled (false);
-
-    }
-
-}
-
-void ALayerGUI::snapshotRecording ()
-{
-
-  tourBuilder->markCamera ();
-
-}
-
-void ALayerGUI::recordButtonPress ()
-{
-	if(!tourBuilder) return;
-  wchar_t* name = cstr_to_wstr (QObject::sender ()->objectName ().toAscii ().data(), 100);
-
-  tourBuilder->markAction (ATour::AT_BUTTON, name);
-
-}
-
-void ALayerGUI::prepareTours ()
-{
-
-  // If we are keeping strict MVC this should be handled
-  // through a signal to the base app.
-  // This will work for the time being
-
-//    cout << "preptours called" << endl;
-  QComboBox* combo = parent()->findChild<QComboBox*> ("tourSelector");
-
-  tourManager = new ATourManager (geo->getFileSystem (), geo->getTimer ());
-  tourBuilder = new ATourBuilder (geo->getFileSystem (), geo->camera [0]);
-
-  geo->getFileSystem()->addFolderFileArchive ( geo->getFileSystem()->getWorkingDirectory() );
-  if (geo->getFileSystem()->existFile("media/tours"))
-    tourManager->listTours ("media/tours");
-  else
-    tourManager->listTours (TOURS_PREFIX);
-
-  if (combo)
-    {
-      for (int i = 0; i < tourManager->numTours; i++)
-        {
-
-	  if (strlen (tourManager->tourNames[i]) != 0)
-	    combo->addItem (tourManager->tourNames[i]);
-
-        }
-    }
-
-  QObject::connect (tourManager, SIGNAL(camAnimatorAdded(irr::core::array<vector3df>)), geo, SLOT(addCamAnimator(irr::core::array<vector3df>)));
-  QObject::connect (tourManager, SIGNAL(tarAnimatorAdded(irr::core::array<vector3df>)), geo, SLOT(addTarAnimator(irr::core::array<vector3df>)));
-
-  QObject::connect (tourManager, SIGNAL(camAnimatorRemoved()), geo, SLOT(removeCamAnimator ()));
-  QObject::connect (tourManager, SIGNAL(tarAnimatorRemoved()), geo, SLOT(removeTarAnimator ()));
-
-  QObject::connect (tourManager, SIGNAL(tour_camera(AGeometry::CameraMode)), geo, SLOT(setViewport(AGeometry::CameraMode)));
-  QObject::connect (tourManager, SIGNAL(tour_loadfile(QString)), this, SLOT(loadEvent(QString)));
-  QObject::connect (tourManager, SIGNAL(tour_stopped()), this, SLOT(endTour()));
-  QObject::connect (tourManager, SIGNAL(tour_button(char *)), this, SLOT(pressButton(char *)));
-  //QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), geo->XmlEvt, SLOT(PtCutoff(int)));
-
-  //QCoreApplication::installEventFilter (this);
-}
-
-void ALayerGUI::fakeCursor (int x, int y)
-{
-
-//    cout << "faking " << x << " " << y << endl;
-
-  QMouseEvent *evt = new QMouseEvent (QEvent::MouseButtonPress, QPoint (x, y), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-
-  QCoreApplication::postEvent (parent (), evt);
-
-  evt = new QMouseEvent (QEvent::MouseButtonRelease, QPoint (x, y), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-
-  QCoreApplication::postEvent (parent (), evt);
-
-  QCoreApplication::flush ();
-  QCoreApplication::processEvents ();
-
-  //    cout << "done" << endl;
-
-
-}
-
-void ALayerGUI::pressButton (char* name)
-{
-
-  findChild <QAbstractButton *> (name)->click ();
-
 }
 
 void ALayerGUI::about()

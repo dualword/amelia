@@ -48,6 +48,9 @@ public:
     void setFakeCentralWidget(QWidget *);
     QWidget* fakeCentralWidget();
 
+    QString currentMonitor();
+    QString currentGroup();
+
 public slots:
     void addMonitor( QString level,QString group ,QWidget *widget,QString description="",Qt::Alignment align=Qt::AlignHCenter);
     void addGroup( QString groupName );
@@ -100,8 +103,8 @@ private:
     QGraphicsItemAnimation parallaxAnimation,parallaxAnimationBg;
 
     //Currently shown things
-    QString currentGroup;
-    QString currentMonitor;
+    QString _currentGroup;
+    QString _currentMonitor;
     QString previousMonitor;
 
     QWidget *_fakeCentralWidget;

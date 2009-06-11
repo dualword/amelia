@@ -33,51 +33,46 @@ prepare derivative works, incorporate into other computer software, distribute,
 and sublicense such enhancements or derivative works thereof, in binary and source code form.
 ******************************************************/
 
-
-#ifndef XMLTOUR_H
-#define XMLTOUR_H
-
-#include "QIrrWidget.h"
 #include "ATourManager.h"
 
-class ATourBuilder
+#include <QDir>
+
+
+ATourManager::ATourManager()
+{}
+
+ATourManager::~ATourManager()
+{}
+
+void ATourManager::listTours(QString path)
 {
+  QDir dir(path);
 
-	public:
+  QStringList fl=dir.entryList(QDir::Files);
+  
+  for(int i=0; i<fl.size(); i++)
+    {
+      QString file=path+"/"+fl[i];
+      if(file.endsWith(".xml"))
+	addTourToList(file);
+    }
+}
 
-		ATourBuilder ( IFileSystem*, ICameraSceneNode * );
+void ATourManager::addTourToList(QString path)
+{
+  ATour *tour=new ATour(path);
+  tours.push_back(tour);
 
-                bool isRecording ();
+  qDebug() << "Found tour: " << path;
+  qDebug() << "\tTitle: " << tour->title();
+}
 
-		void startRecording ( char* filename );
-		void stopRecording();
+int ATourManager::tourCount()
+{
+  return tours.size();
+}
 
-		void markCamera();
-		void markLoadEvent ( wchar_t* path );
-		void markAction ( int type );
-		void markAction ( int type, wchar_t* value );
-
-	private:
-
-		bool recording;
-
-		void beginKeyframe();
-		void endKeyframe();
-		void writeCamPos();
-		void writeTarPos();
-
-		int time;
-
-		IFileSystem* fs;
-
-		IWriteFile* wf;
-		IXMLWriter* writer;
-
-                ICameraSceneNode *cam;
-
-		wchar_t* currentEventPath;
-
-};
-
-
-#endif
+ATour* ATourManager::tour(int idx)
+{
+  return tours[idx];
+}

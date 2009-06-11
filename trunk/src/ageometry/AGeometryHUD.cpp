@@ -44,7 +44,7 @@ void AGeometryHUD::clearText()
 void AGeometryHUD::handleNewCamera(int camid)
 {
   if(camid==AGeometry::FPS)
-    setText("Press SPACE to engage camera");
+    setText("Press SPACE or double click to engage camera");
   else
     clearText();
 }
@@ -52,9 +52,9 @@ void AGeometryHUD::handleNewCamera(int camid)
 void AGeometryHUD::handleCameraControl(bool grabbed)
 {
   if(grabbed)
-    setText("Press SPACE to release camera");
+    setText("Press SPACE or double click to release camera");
   else
-    setText("Press SPACE to engage camera");
+    setText("Press SPACE or double click to engage camera");
 }
 
 bool AGeometryHUD::eventFilter(QObject *obj,QEvent *event)

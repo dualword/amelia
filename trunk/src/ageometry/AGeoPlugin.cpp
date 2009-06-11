@@ -37,10 +37,13 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "ui_geometry.h"
 #include <abase/ABase.h>
+
 #include <aeventmanager/AEventManager.h>
+#include <aeventmanager/AEvent.h>
 
 #include "ASelectionInfoScene.h"
 #include "AGeometry.h"
+#include "ALayerGUI.h"
 
 AGeoPlugin::AGeoPlugin( QObject *parent )
         : QObject(parent)
@@ -70,12 +73,12 @@ void AGeoPlugin::load()
 	  base,SLOT(close()));
 
   //Load the ALayerGUI
-  ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
-  geoWin->setCentralWidget(_layerGUI);
+  layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
+  geoWin->setCentralWidget(layerGUI);
 
-  QList<QWidget*> children=_layerGUI->findChildren<QWidget*>();
+  QList<QWidget*> children=layerGUI->findChildren<QWidget*>();
   for(int i=0;i<children.size();i++)
-    if(children[i]->parentWidget()==_layerGUI && children[i]->objectName()!="AGeometryFrame")
+    if(children[i]->parentWidget()==layerGUI && children[i]->objectName()!="AGeometryFrame")
       {
 	qDebug() << children[i]->objectName();
 	children[i]->setEnabled(false);
@@ -88,8 +91,8 @@ void AGeoPlugin::load()
     toolbars[i]->setEnabled(false);      
 
   AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
-  _layerGUI->setupElements(mngr);
-  connect(_layerGUI,SIGNAL(eventLoaded(AEvent*)),
+  layerGUI->setupElements(mngr);
+  connect(layerGUI,SIGNAL(eventLoaded(AEvent*)),
 	  this,SLOT(handleNewEventLoaded(AEvent*)));
 
   //Setup the menu for the main view
@@ -156,6 +159,11 @@ void AGeoPlugin::addToDetectorMenu(QString partName,QAction* action)
 {
   geo->addToDetectorMenu(partName,action);
 }
+
+QDoubleSync* AGeoPlugin::ptCutSync()
+{
+  return &layerGUI->ptFilterSync;
+}
 				   
 
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)
@@ -173,6 +181,21 @@ void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)
 void AGeoPlugin::switchToMainView(int idx)
 {
   mainView->setCurrentIndex(idx);
+}
+
+void AGeoPlugin::loadEvent(QString fileName)
+{
+  layerGUI->loadEvent(fileName);
+}
+
+void AGeoPlugin::loadEvent(AEvent* event)
+{
+  layerGUI->loadEvent(event);
+}
+
+void AGeoPlugin::unloadEvent()
+{
+  layerGUI->unloadEvent();
 }
 
 Q_EXPORT_PLUGIN2(AGeoPlugin, AGeoPlugin)

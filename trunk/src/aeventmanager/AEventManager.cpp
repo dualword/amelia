@@ -36,6 +36,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AEventManager.h"
 
 #include "ATrackCollection.h"
+#include "config.h"
 
 #include <QDir>
 #include <QtConcurrentMap>
@@ -50,6 +51,9 @@ AEventPackage* packageLoadingThread(AEventPackage *pkg)
 AEventManager::AEventManager( QObject *parent )
         : QObject(parent)
 {
+  QDir::addSearchPath("event","media/events");
+  QDir::addSearchPath("event",EVENTS_PREFIX);
+
   loadedFutureWatcher.setPendingResultsLimit(1);
   connect(&loadedFutureWatcher,SIGNAL(resultReadyAt(int)),
 	  this,SLOT(handlePackageLoaded(int)));
@@ -61,7 +65,7 @@ AEventManager::~AEventManager()
 void AEventManager::load()
 {
   //Register some analysis data structures
-  AEventAnalysisData::addStructure(ATrackCollection::staticMetaObject);  
+  AEventAnalysisData::addStructure(ATrackCollection::staticMetaObject);
   
   loadWorkspace();
 }

@@ -39,16 +39,21 @@ void CSceneNodeAnimatorCameraSwitch::animateNode(scene::ISceneNode* node, u32 ti
   core::vector3df finalPosition = targetCam->getPosition();
   core::vector3df finalTarget = targetCam->getTarget();
 
+  core::vector3df currentLook = currentTarget - currentPosition;
+  core::vector3df finalLook = finalTarget - currentPosition;
+
   core::vector3df posDiff=calculateDelta(currentPosition,finalPosition,timeDiff);
-  core::vector3df tarDiff=calculateDelta(currentTarget,finalTarget,timeDiff*50);
+  core::vector3df looDiff=calculateDelta(currentLook,finalLook,timeDiff*3);
 
   f32 posDiffLength=posDiff.getLength();
-  f32 tarDiffLength=tarDiff.getLength();
+  f32 looDiffLength=looDiff.getLength();
 
-  if(tarDiffLength>0 || posDiffLength>0) //Are we there yet?
+  if(looDiffLength>0 || posDiffLength>0) //Are we there yet?
     { //Nope, update position/target
-      camera->setPosition(currentPosition + posDiff);
-      camera->setTarget(currentTarget + tarDiff);
+      core::vector3df updatedPosition = currentPosition + posDiff;
+      core::vector3df updatedLook = currentLook + looDiff;
+      camera->setPosition(updatedPosition);
+      camera->setTarget(updatedPosition + updatedLook);
     }
   else
     { //Yup, set the target camera

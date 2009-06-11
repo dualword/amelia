@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="atours">
+    <file>plugin.xml</file>
+  </qresource>
+</RCC>

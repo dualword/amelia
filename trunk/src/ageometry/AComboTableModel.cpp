@@ -23,10 +23,13 @@ void AComboTableModel::handleNewEventLoaded(AEvent *event)
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
 
-  analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
-
-  connect(analysisData,SIGNAL(updated()),
-	  this,SLOT(refresh()));
+  if(event)
+    {
+      analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
+      
+      connect(analysisData,SIGNAL(updated()),
+	      this,SLOT(refresh()));
+    }
   
   refresh();
 }

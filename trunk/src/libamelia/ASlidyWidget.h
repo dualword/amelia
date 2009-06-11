@@ -4,62 +4,21 @@
 #define _USE_MATH_DEFINES
 
 #include <QWidget>
-#include <QList>
-#include <QEvent>
-#include <QSignalMapper>
-#include <QTimer>
 
-#include "AAnimationGUI.h"
-#include "QTimeLineProxy.h"
-#include "ASlidyFlap.h"
 #include "ADefines.h"
 
-class LIBAMELIA_EXPORT ASlidyWidget : public QObject
+class LIBAMELIA_EXPORT ASlidyWidget : public QWidget
 {
  public:
-  ASlidyWidget(QWidget *parent);
+  ASlidyWidget(QWidget *parent=0);
 
-  int addWidget(QWidget *wdg,QString title);
-
- public slots:
-  void toggleWidget(int);
-  void showWidgetTimed(int);
-  void showWidget(int);
-  void hideWidget(int);
-
-  void raiseFlap(qreal);
-  void timerEvent();
+  void addWidget(QWidget *wdg);
 
  protected:
-  bool eventFilter(QObject *watched,QEvent *event);
+  void moveEvent(QMoveEvent *event);
+  void paintEvent(QPaintEvent *event);
 
- private:
-  QList<QWidget *> _pages;
-  QList<ASlidyFlap *> _flaps;
-
-  QSignalMapper flapMapper; //flapper
-
-  QTimeLine mainTimeline;
-
-  QTimeLineProxy showingTimeline;
-  AAnimationGUI showingAnimator;
-
-  QTimeLineProxy hidingTimeline;
-  AAnimationGUI hidingAnimator;
-
-  int _visibleId;
-  int _lastVisibleId;
-  int _maxWidth;
-
-  QPoint topCorner;
-  QTimer timer;
-
-  void recalculatePositions();
-
-  void prepareShowAnimation(ASlidyFlap *flap);
-  void prepareHideAnimation(ASlidyFlap *flap);
-
-  Q_OBJECT
+ Q_OBJECT
 };
 
 #endif //ASLIDYWIDGET_H_

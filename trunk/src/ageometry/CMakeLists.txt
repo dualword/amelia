@@ -29,7 +29,6 @@ IF(APPLE)
 		${IOKIT_LIBRARY})
 ENDIF(APPLE)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 FIND_PACKAGE (Irrlicht REQUIRED)
 INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
 
@@ -38,8 +37,9 @@ SET(ageometry_SRCS
   QIrrWidgetRefresher.cpp 
   AGeometry.cpp 
   ATrack3DNode.cpp 
-  ATourBuilder.cpp 
-  ATourManager.cpp 
+  ASTrack3DNode.cpp 
+  AJet3DNode.cpp 
+  AMisET3DNode.cpp 
   ALayerGUI.cpp 
   AViewport.cpp 
   AEventInfoScene.cpp 
@@ -55,6 +55,7 @@ SET(ageometry_SRCS
   ALineNode.cpp
   AGeometryHUD.cpp
   AFPSControl.cpp
+  APoint3D.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp
@@ -64,7 +65,6 @@ SET(ageometry_H
   QIrrWidget.h 
   AGeometry.h 
   AGeometryHUD.h
-  ATourManager.h 
   ALayerGUI.h 
   AViewport.h 
   AEventInfoScene.h 
@@ -85,6 +85,7 @@ SET(ageometry_FILES
 
 SET(ageometry_UI
 	geometry.ui
+	detectorvisibility.ui
 	eventadvanced.ui)
 
 QT4_WRAP_UI(ageometry_SRCS ${ageometry_UI})

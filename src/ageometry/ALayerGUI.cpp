@@ -84,6 +84,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
+    QAction *actionSnapshot=window()->findChild<QAction *>("actionSnapshot");
     actionNone=window()->findChild<QAction *>("actionNone");
     actionWedge_Mode=window()->findChild<QAction *>("actionWedge_Mode");
     actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
@@ -110,7 +111,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QCheckBox *checkBox_Pixels=detectorVisibility->findChild<QCheckBox *>("checkBox_Pixels");
     QCheckBox *checkBox_SCT=detectorVisibility->findChild<QCheckBox *>("checkBox_SCT");
     QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
-
+    
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
 
@@ -360,6 +361,11 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     smartShowMapper.setMapping(&ptFilterSync,0);
     connect(&ptFilterSync,SIGNAL(valueChanged(double)),
 	    &smartShowMapper,SLOT(map()));
+
+    //Prepare the snapshot controls
+    snapshotTool.setTarget(geo);
+    connect(actionSnapshot,SIGNAL(triggered()),
+	    &snapshotTool,SLOT(snapshot()));
 }
 
 void ALayerGUI::enableElements()
@@ -654,5 +660,3 @@ void ALayerGUI::about()
 
   about.exec();
 }
-
-

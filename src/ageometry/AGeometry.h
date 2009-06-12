@@ -56,19 +56,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <aeventmanager/AFilteredEvent.h>
 
-struct module
-{
-    //store data for each module, as we need it
-    bool waschanged;
-    int id; // id# (not within Irrlicht)
-    int mType; // module type 1-6 (muons) 0 otherwise
-    scene::ISceneNode* theModule;
-    core::vector3df loc;
-    bool isHiddenCustomView;
-    bool isHiddenMosesMode;
-    bool neverDisappear;
-};
-
 class AGeometry : public QIrrWidget
 {
 public:
@@ -82,8 +69,9 @@ public:
   void execute(); // The cycle function which will be called on every frame
   void load();
   
-  void setEvent(AFilteredEvent*); // Sets the current event
   AFilteredEvent* event();
+  int viewport();
+  int camera();
   
   void setComboMenu(QMenu*);
   void addToDetectorMenu(QString,QAction*);
@@ -105,9 +93,6 @@ public:
   APoint3D cameraTarget();
   
   scene::ISceneNode* cube;
-  
-  int active_viewport;
-  int active_cam;
   
   // Control variables for the dynamic hiding of parts of ATLAS
   bool isTC_on;
@@ -131,9 +116,8 @@ public:
   bool eventAnalysisMode;
   bool multiMediaMode;
   
-  scene::ISceneNode* selectedTrackBox;
-  
-  ICameraSceneNode *camera[5];
+  scene::ISceneNode* selectedTrackBox;  
+
   QAction *actFPS;
   QAction *actSphere;
 		    
@@ -142,6 +126,7 @@ public slots:
   void setCamera(int to,bool animate=true); //Switches the 3D camera
   void setCropMode(int to); //Switches to a new cropping mode...
   
+  void setEvent(AFilteredEvent*); // Sets the current event
   void clearEvent();    
   void updateTracks();
   
@@ -181,13 +166,9 @@ protected:
   
   void setupView(int);
   
-  module thisModule;
   core::vector3df pos;
   core::vector3df rot;
   core::vector3df scale;
-  
-  int frameSkipper;
-  static const int skipFrameNumber = 3;
   
   
 private:
@@ -204,7 +185,7 @@ private:
   
   const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
   const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
-  
+
   // Important parts of the detector //
   scene::ISceneNode* Pit_Reference;
   scene::ISceneNode* Atlas_Reference;
@@ -245,7 +226,6 @@ private:
   void restoreMosesMode();
 
   float angleBetween ( scene::ISceneNode* module, core::vector3df cam );
-  void addModuleToVector ( std::vector<module>* allModules, scene::ISceneNode* newNode, int id, int mType, bool neverDisappear );
   void createAtlasGeometry();
   void createFlatGeometry();
   
@@ -253,6 +233,10 @@ private:
   QString detectorSelection( core::position2di pos );
   bool offsetTest;
 
+  //Camera stuff
+  ICameraSceneNode *cameras[5];
+  int active_viewport;
+  int active_cam;
   AFPSControl *fpsControl;
   
   //State values

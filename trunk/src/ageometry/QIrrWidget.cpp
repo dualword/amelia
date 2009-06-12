@@ -319,13 +319,12 @@ void QIrrWidget::forceUpdate()
 
 void QIrrWidget::paintEvent(QPaintEvent *event)
 {
-  if(isEnabled())
-    QWidget::paintEvent(event);
-  else
+  if(!isEnabled())
     {
       QPainter painter(this);
       painter.drawPixmap(0,0,ss);
     }
+  QWidget::paintEvent(event);
 }
   
 void QIrrWidget::changeEvent(QEvent *event)

@@ -62,8 +62,10 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AComboTableModel.h"
 #include "AMainView.h"
 #include "AAdvancedEventSettings.h"
+#include "ASnapshotTool.h"
 
 #include <QDoubleSync.h>
+#include <QFaderWidget.h>
 
 #include <aeventmanager/AEventManagerTreeView.h>
 #include <aeventmanager/AEventManagerScene.h>
@@ -80,12 +82,6 @@ public:
     ALayerGUI(QWidget* parent=0);
     virtual ~ALayerGUI();
     void setupElements(AEventManager*);
-    //ATourManager* tourManager;
-    //ATourBuilder* tourBuilder;
-
-    void fakeCursor(int x,int y);
-
-    //void mousePressEvent (QMouseEvent *);
 
  signals:
     // Emitted when an event has finished loading from the JiveXML file
@@ -154,6 +150,8 @@ public slots:
     QGraphicsView *selectedEventInfoView;
     QPushButton *buttonCombineTracks;
     QPushButton *buttonDeleteTracks;
+
+    ASnapshotTool snapshotTool;
 
     QMap<QString,QPoint> widgetPositions;
     QSignalMapper *signalMapper;

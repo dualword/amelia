@@ -80,8 +80,6 @@ void ATours::load()
 
 void ATours::prepareTours()
 {
-  tourBuilder = new ATourBuilder (geo->getFileSystem (), geo->camera [0]);
-
   connect(&tourMapper,SIGNAL(mapped(int)),
 	  this,SLOT(startTour(int)));
 

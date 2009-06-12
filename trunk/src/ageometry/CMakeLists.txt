@@ -56,6 +56,7 @@ SET(ageometry_SRCS
   AGeometryHUD.cpp
   AFPSControl.cpp
   APoint3D.cpp
+  ASnapshotTool.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp
@@ -74,6 +75,7 @@ SET(ageometry_H
   AComboTableModel.h
   AAdvancedEventSettings.h
   AGeoPlugin.h
+  ASnapshotTool.h
 
   QAbstractTableModelWithContextMenu.h
   QTableViewWithContextMenu.h

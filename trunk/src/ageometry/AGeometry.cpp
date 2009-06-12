@@ -49,7 +49,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), frameSkipper ( 0 ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0)
+  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -78,11 +78,11 @@ AGeometry::AGeometry(QWidget* parent)
     Pix_switch = 1;
 
     // Cameras
-    camera[0] = NULL;
-    camera[1] = NULL;
-    camera[2] = NULL;
-    camera[3] = NULL;
-    camera[4] = NULL;
+    cameras[0] = NULL;
+    cameras[1] = NULL;
+    cameras[2] = NULL;
+    cameras[3] = NULL;
+    cameras[4] = NULL;
 
     pos = core::vector3df ( 0,0,0 );
     rot = core::vector3df ( 0,0,0 );
@@ -215,48 +215,48 @@ void AGeometry::load()
   
   //Create the dynamic camera and define some variables
   
-  camera[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
-  camera[0]->setName("FPSCam");
-  camera[0]->setInputReceiverEnabled ( false );
-  camera[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
-  camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[0]->setFarValue ( 22000.0f );
-  camera[0]->setID(FPS);
+  cameras[0] = getSceneManager()->addCameraSceneNodeFPS ( 0, 40.0f, 100.0f );
+  cameras[0]->setName("FPSCam");
+  cameras[0]->setInputReceiverEnabled ( false );
+  cameras[0]->setPosition ( core::vector3df ( 1200,500,-1200 ) );
+  cameras[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+  cameras[0]->setFarValue ( 22000.0f );
+  cameras[0]->setID(FPS);
 
-  camera[1] = getSceneManager()->addCameraSceneNode();
-  camera[1]->setName("FrontCam");
-  camera[1]->setInputReceiverEnabled ( false );
-  camera[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
-  camera[1]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[1]->setProjectionMatrix ( OrthoCameraFront );
-  camera[1]->setID(Projective);
+  cameras[1] = getSceneManager()->addCameraSceneNode();
+  cameras[1]->setName("FrontCam");
+  cameras[1]->setInputReceiverEnabled ( false );
+  cameras[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
+  cameras[1]->setTarget ( core::vector3df ( 0,0,0 ) );
+  cameras[1]->setProjectionMatrix ( OrthoCameraFront );
+  cameras[1]->setID(Projective);
   
-  camera[2] = getSceneManager()->addCameraSceneNode();
-  camera[2]->setName("SideCam");
-  camera[2]->setInputReceiverEnabled ( false );
-  camera[2]->setPosition ( core::vector3df ( 1,0,0 ) );
-  camera[2]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[2]->setProjectionMatrix ( OrthoCameraSide );
-  camera[2]->setID(Orthogonal);
+  cameras[2] = getSceneManager()->addCameraSceneNode();
+  cameras[2]->setName("SideCam");
+  cameras[2]->setInputReceiverEnabled ( false );
+  cameras[2]->setPosition ( core::vector3df ( 1,0,0 ) );
+  cameras[2]->setTarget ( core::vector3df ( 0,0,0 ) );
+  cameras[2]->setProjectionMatrix ( OrthoCameraSide );
+  cameras[2]->setID(Orthogonal);
   
-  camera[3] = getSceneManager()->addCameraSceneNode();
-  camera[3]->setName("SphereCam");
-  camera[3]->setInputReceiverEnabled ( false );
-  camera[3]->setFarValue ( 22000.0f );
-  camera[3]->setPosition ( core::vector3df ( 250,0,0 ) );
-  camera[3]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
-  camera[3]->setID(Maya);
+  cameras[3] = getSceneManager()->addCameraSceneNode();
+  cameras[3]->setName("SphereCam");
+  cameras[3]->setInputReceiverEnabled ( false );
+  cameras[3]->setFarValue ( 22000.0f );
+  cameras[3]->setPosition ( core::vector3df ( 250,0,0 ) );
+  cameras[3]->setTarget ( core::vector3df ( 0,0,0 ) );
+  cameras[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
+  cameras[3]->setID(Maya);
 
-  camera[4] = getSceneManager()->addCameraSceneNode();
-  camera[4]->setName("LockCam");
-  camera[4]->setInputReceiverEnabled ( false );
-  camera[4]->setFarValue ( 22000.0f );
-  camera[4]->setPosition ( core::vector3df ( 12000,5000,-12000 ) );
-  camera[4]->setTarget ( core::vector3df ( 0,0,0 ) );
-  camera[4]->setID(Lock);
+  cameras[4] = getSceneManager()->addCameraSceneNode();
+  cameras[4]->setName("LockCam");
+  cameras[4]->setInputReceiverEnabled ( false );
+  cameras[4]->setFarValue ( 22000.0f );
+  cameras[4]->setPosition ( core::vector3df ( 12000,5000,-12000 ) );
+  cameras[4]->setTarget ( core::vector3df ( 0,0,0 ) );
+  cameras[4]->setID(Lock);
   
-  fpsControl=new AFPSControl(camera[0],
+  fpsControl=new AFPSControl(cameras[0],
 			     getSceneManager(),
 			     getGUIEnvironment(),
 			     getGUIEnvironment()->getRootGUIElement(),
@@ -289,11 +289,11 @@ void AGeometry::load()
   _logoLight->addAnimator(_logoAnim);
   forceUpdate();
   
-  core::vector3df camRot = camera[0]->getRotation();
+  core::vector3df camRot = cameras[0]->getRotation();
   core::vector3df DCamPos = core::vector3df ( 0,0,0 );
   
   //This is the camera bounding box, used to define the Moses mode area
-  CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, camera[0]->getPosition() ,camera[0]->getRotation(), core::vector3df ( 55,55,55 ) );
+  CameraBB = getSceneManager()->addCubeSceneNode ( 1.0f, 0, -1, cameras[0]->getPosition() ,cameras[0]->getRotation(), core::vector3df ( 55,55,55 ) );
   CameraBB->setID ( 0 );
   CameraBB->setName ("Moses Mode Box");
   CameraBB->setVisible(false);
@@ -518,7 +518,7 @@ void AGeometry::renderViewport(int view)
     //New View
     ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
     originalCamera->grab();
-    getSceneManager()->setActiveCamera ( camera[ camId ] );
+    getSceneManager()->setActiveCamera ( cameras[ camId ] );
     setupView(view);
 
     getVideoDriver()->setRenderTarget(rt, true, true, color);
@@ -577,7 +577,7 @@ void AGeometry::dynamicCameraSpeed(core::vector3df camPos)  //Modifying camera s
 
         qDebug() << "Changing FPS camera speed to " << newCameraSpeed;
         //The FPS Animator should always be the first one...
-        core::list<ISceneNodeAnimator*>::ConstIterator anims=camera[0]->getAnimators().begin();
+        core::list<ISceneNodeAnimator*>::ConstIterator anims=cameras[0]->getAnimators().begin();
         ISceneNodeAnimatorCameraFPS *anim=(ISceneNodeAnimatorCameraFPS*)*anims;
         //Make sure to scale the speed by 1000, which is what the FPS constructor does but not the setter
         anim->setMoveSpeed(newCameraSpeed/1000);
@@ -931,7 +931,7 @@ void AGeometry::createAtlasGeometry()
     {
 
       ref.allModules=&this->allModules;
-      getSceneManager()->loadScene ( "geometry.irr" , &ref );
+      //getSceneManager()->loadScene ( "geometry.irr" , &ref );
       Atlas_Reference=getSceneManager()->getSceneNodeFromName( "Atlas_Reference" );
       Trackers_Reference=getSceneManager()->getSceneNodeFromName( "Trackers_Reference" );
       Calorimeters_Reference=getSceneManager()->getSceneNodeFromName( "Calorimeters_Reference" );
@@ -1149,8 +1149,8 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
     {
       //toggles moses mode
     case Qt::Key_P:
-      camera[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
-      camera[0]->setTarget ( core::vector3df ( 0,0,0 ) );
+      cameras[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
+      cameras[0]->setTarget ( core::vector3df ( 0,0,0 ) );
       return;
       break;
       
@@ -1330,6 +1330,16 @@ AFilteredEvent* AGeometry::event()
   return _event;
 }
 
+int AGeometry::viewport()
+{
+  return active_viewport;
+}
+
+int AGeometry::camera()
+{
+  return active_cam;
+}
+
 ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
 {
   ATrack3DNode *node=0;
@@ -1372,7 +1382,7 @@ void AGeometry::setViewport(int to)
 
     int from=active_viewport;
 
-    getSceneManager()->setActiveCamera (camera[camId]);
+    getSceneManager()->setActiveCamera (cameras[camId]);
 
     setupView(to);
 
@@ -1398,21 +1408,21 @@ void AGeometry::setCamera(int to,bool animate)
       actFPS->setChecked(false);
       actSphere->setChecked(true);
       setCropMode(WedgeMode);
-      camera[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
+      cameras[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
       break;
     case AGeometry::Lock:
       actFPS->setChecked(false);
       actSphere->setChecked(false);
       break;
     }
-    camera[AGeometry::FPS]->setInputReceiverEnabled(false);
+    cameras[AGeometry::FPS]->setInputReceiverEnabled(false);
     setCursor(Qt::ArrowCursor);
 
     if (active_viewport==AGeometry::Cam3D)
       if(animate)
-        cameraSwitcher->setTargetCamera(camera[to]);
+        cameraSwitcher->setTargetCamera(cameras[to]);
       else
-	getSceneManager()->setActiveCamera(camera[to]);
+	getSceneManager()->setActiveCamera(cameras[to]);
 
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
@@ -1486,23 +1496,23 @@ void AGeometry::setupView(int view)
 void AGeometry::setCameraPosition(APoint3D pos)
 {
   vector3df irrpos(pos.x(),pos.y(),pos.z());
-  camera[active_cam]->setPosition(irrpos);
+  cameras[active_cam]->setPosition(irrpos);
 }
 
 void AGeometry::setCameraTarget(APoint3D pos)
 {
   vector3df irrpos(pos.x(),pos.y(),pos.z());
-  camera[active_cam]->setTarget(irrpos);
+  cameras[active_cam]->setTarget(irrpos);
 }
 
 APoint3D AGeometry::cameraPosition()
 {
-  return APoint3D(camera[active_cam]->getPosition());
+  return APoint3D(cameras[active_cam]->getPosition());
 }
 
 APoint3D AGeometry::cameraTarget()
 {
-  return APoint3D(camera[active_cam]->getTarget());
+  return APoint3D(cameras[active_cam]->getTarget());
 }
 
 void AGeometry::setComboMenu(QMenu *comboMenu)

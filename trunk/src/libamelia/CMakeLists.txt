@@ -21,6 +21,7 @@ SET(amelia_SRCS
 	QBoolSync.cpp
 	QDoubleSync.cpp
 	QWaitForReady.cpp
+	QFaderWidget.cpp
 	AAnimationGUI.cpp
 	AAnimationLayoutGUI.cpp
 	AHideAButton.cpp
@@ -42,6 +43,7 @@ SET(amelia_H
 	QBoolSync.h
 	QDoubleSync.h
 	QWaitForReady.h
+	QFaderWidget.h
 	AAnimationGUI.h
 	AAnimationLayoutGUI.h
 	AHideAButton.h

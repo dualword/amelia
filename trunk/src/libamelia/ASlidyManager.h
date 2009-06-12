@@ -11,7 +11,9 @@
 #include "QTimeLineProxy.h"
 #include "ASlidyWidget.h"
 
-class ASlidyManager : public QObject
+#include "ADefines.h"
+
+class LIBAMELIA_EXPORT ASlidyManager : public QObject
 {
  public:
   ASlidyManager(QWidget *parent,Qt::Alignment align=Qt::AlignLeft);

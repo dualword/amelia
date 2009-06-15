@@ -191,25 +191,6 @@ void AGeometry::load()
   OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
   OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
   getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
-  
-  //*****************CHANGED************************//
-  
-  //Base->Gui->statusmessage = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 465, 650, 780, 750 ), false );
-  //Base->Gui->statusmessage->setOverrideColor ( SColor ( 255,255,0,0 ) );
-  //Base->Gui->trackinfo = Base->GetGuiEnv()->addStaticText ( L"", irr::core::rect<s32> ( 420, 670, 780, 770 ), false );
-  //Base->Gui->trackinfo->setOverrideColor ( SColor ( 255,255,255,255 ) );
-  
-  
-  /***************** PREPARE BB MODELS ********************/
-  
-  /*    for (vector<module>::iterator it = allModules.begin(); it!=allModules.end(); it++)
-        {
-	it->theModule->getAbsoluteTransformation().transformBox(it->theModule->getTransformedBoundingBox());
-	it->theModule->setID(1);
-	//it->theModule->setDebugDataVisible(true);
-        }*/
-  /********************************************************/
-  
 
   cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
   
@@ -229,7 +210,7 @@ void AGeometry::load()
   cameras[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
   cameras[1]->setTarget ( core::vector3df ( 0,0,0 ) );
   cameras[1]->setProjectionMatrix ( OrthoCameraFront );
-  cameras[1]->setID(Projective);
+  cameras[1]->setID(Side);
   
   cameras[2] = getSceneManager()->addCameraSceneNode();
   cameras[2]->setName("SideCam");
@@ -237,7 +218,7 @@ void AGeometry::load()
   cameras[2]->setPosition ( core::vector3df ( 1,0,0 ) );
   cameras[2]->setTarget ( core::vector3df ( 0,0,0 ) );
   cameras[2]->setProjectionMatrix ( OrthoCameraSide );
-  cameras[2]->setID(Orthogonal);
+  cameras[2]->setID(Front);
   
   cameras[3] = getSceneManager()->addCameraSceneNode();
   cameras[3]->setName("SphereCam");
@@ -919,8 +900,8 @@ void AGeometry::createFlatGeometry()
     background_node_s->setName("Background_Side.X");
     background_node_s->setVisible ( false );
 
-    renderViewport(AGeometry::Orthogonal);
-    renderViewport(AGeometry::Projective);
+    renderViewport(AGeometry::Front);
+    renderViewport(AGeometry::Side);
 }
 
 void AGeometry::createAtlasGeometry()
@@ -1294,6 +1275,10 @@ void AGeometry::clearEvent()
     }
   allTracks.clear();
   allJets.clear();
+
+  renderViewport(AGeometry::Front);
+  renderViewport(AGeometry::Side);
+  renderViewport(AGeometry::Cam3D);
 }
 
 void AGeometry::setEvent(AFilteredEvent* e)
@@ -1455,12 +1440,12 @@ void AGeometry::setupView(int view)
         s=false;
         fps=true;
         break;
-    case AGeometry::Orthogonal:
+    case AGeometry::Front:
         f=true;
         s=false;
         fps=false;
         break;
-    case AGeometry::Projective:
+    case AGeometry::Side:
         f=false;
         s=true;
         fps=false;
@@ -1554,11 +1539,7 @@ void AGeometry::updateTracks()
       node->setVisible(true);
     }
 
-  QApplication::processEvents();
-  renderViewport(AGeometry::Orthogonal);
-  QApplication::processEvents();
-  renderViewport(AGeometry::Projective);
-  QApplication::processEvents();
+  renderViewport(AGeometry::Front);
+  renderViewport(AGeometry::Side);
   renderViewport(AGeometry::Cam3D);
-  QApplication::processEvents();
 }

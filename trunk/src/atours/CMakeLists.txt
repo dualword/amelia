@@ -47,7 +47,10 @@ SET(atours_SRCS
   ATourMessageAction.cpp
   ATourLoadEventAction.cpp
   ATourPtCutAction.cpp
-  ATourMonitorAction.cpp)
+  ATourMonitorAction.cpp
+  ATourMouseMoveAction.cpp
+  ATourMouseConnectAction.cpp
+  ATourViewportChangeAction.cpp)
 
 SET(atours_H
   ATours.h
@@ -60,10 +63,14 @@ SET(atours_H
   ATourMessageAction.h
   ATourLoadEventAction.h
   ATourPtCutAction.h
-  ATourMonitorAction.h)
+  ATourMonitorAction.h
+  ATourMouseMoveAction.h
+  ATourMouseConnectAction.h
+  ATourViewportChangeAction.h)
 
 SET(atours_FILES
-  atours.qrc)
+  atours.qrc
+  media/skin.qrc)
 
 QT4_WRAP_CPP(atours_SRCS ${atours_H})
 QT4_ADD_RESOURCES(atours_SRCS ${atours_FILES})

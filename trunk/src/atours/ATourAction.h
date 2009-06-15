@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QDomElement>
 #include <QMap>
+#include <QPoint>
 
 class ATourAction : public QObject
 {
@@ -13,12 +14,17 @@ public:
   void setDuration(int);
   int duration();
 
+  virtual QString widgetOfInterest();
+
   virtual void doAction();
   virtual void updateAction(double done);
   virtual void endAction();
   virtual void undoAction();
+  virtual void cleanupAction();
 
   virtual void loadFromXML(QDomElement actionElement);
+
+  virtual QPoint cursor();
 
   ATourAction* previousAction();
   void setPreviousAction(ATourAction *action);
@@ -69,6 +75,8 @@ private:
   QList<bool> subactionsPerformed;
 
   static QMap<QString,QMetaObject> _listOfActionTypes;
+
+  QString _widgetOfInterest;
 
   Q_OBJECT
 };

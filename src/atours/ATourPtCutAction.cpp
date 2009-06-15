@@ -19,6 +19,8 @@ void ATourPtCutAction::loadFromXML(QDomElement actionElement)
 
 void ATourPtCutAction::doAction()
 {
+  ATourAction::doAction();
+
   ATourPtCutAction *prev=previousAction<ATourPtCutAction*>();
   if(prev)
     valueInitial=prev->value;
@@ -28,11 +30,15 @@ void ATourPtCutAction::doAction()
 
 void ATourPtCutAction::updateAction(double done)
 {
+  ATourAction::updateAction(done);
+
   double delta=value-valueInitial;
   ptFilter->setValue(valueInitial+delta*done);
 }
 
 void ATourPtCutAction::undoAction()
 {
+  ATourAction::undoAction();
+
   ptFilter->setValue(valueInitial);
 }

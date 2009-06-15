@@ -1075,8 +1075,8 @@ color: rgb(255, 255, 0);
       <string>Active Viewport</string>
      </property>
      <addaction name="actionFirst_Person"/>
-     <addaction name="actionOrthogonal"/>
-     <addaction name="actionProjective"/>
+     <addaction name="actionFront"/>
+     <addaction name="actionSide"/>
     </widget>
     <widget class="QMenu" name="menu3D_Camera">
      <property name="title">
@@ -1211,12 +1211,12 @@ color: rgb(255, 255, 0);
     <string>3D First Person</string>
    </property>
   </action>
-  <action name="actionOrthogonal">
+  <action name="actionFront">
    <property name="text">
     <string>eta-theta projection</string>
    </property>
   </action>
-  <action name="actionProjective">
+  <action name="actionSide">
    <property name="text">
     <string>theta-phi projection</string>
    </property>
@@ -1509,7 +1509,7 @@ color: rgb(255, 255, 0);
    </hints>
   </connection>
   <connection>
-   <sender>actionOrthogonal</sender>
+   <sender>actionFront</sender>
    <signal>triggered()</signal>
    <receiver>LayerGUI</receiver>
    <slot>actionSwitchView()</slot>
@@ -1525,7 +1525,7 @@ color: rgb(255, 255, 0);
    </hints>
   </connection>
   <connection>
-   <sender>actionProjective</sender>
+   <sender>actionSide</sender>
    <signal>triggered()</signal>
    <receiver>LayerGUI</receiver>
    <slot>actionSwitchView()</slot>

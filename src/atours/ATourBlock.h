@@ -19,6 +19,8 @@ public:
   int duration();
   void reset();
 
+  void cleanup();
+
 public slots:
   void updateFrame(int frame);
   

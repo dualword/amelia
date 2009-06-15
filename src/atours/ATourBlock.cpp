@@ -2,6 +2,7 @@
 
 #include <QTimeLine>
 #include <QDebug>
+#include <ATourMouseConnectAction.h>
 
 ATourBlock::ATourBlock()
   :_duration(0),lastAction(0)
@@ -19,6 +20,14 @@ void ATourBlock::reset()
 
 void ATourBlock::addAction(ATourAction *action)
 {
+  QPoint cursorPos=action->cursor();
+  if(!cursorPos.isNull())
+    {
+      ATourMouseConnectAction *move=new ATourMouseConnectAction();
+      move->setDuration(2000);
+      addAction(move);
+    }
+
   if(act.size()>0)
     {
       action->setPreviousAction(act[act.size()-1]);
@@ -63,7 +72,14 @@ void ATourBlock::updateFrame(int frame)
     
   double timeInAction=frame-actiont;
   action->updateAction(timeInAction/(double)action->duration());
-  
+}
 
+void ATourBlock::cleanup()
+{
+  for(int i=0;i<act.size();i++)
+    {
+      ATourAction *action=act[i];
+      action->cleanupAction();
+    }
 }
 

@@ -60,7 +60,7 @@ class AGeometry : public QIrrWidget
 {
 public:
   static const int FPS=0,Maya=3,Lock=4;
-  static const int Cam3D=-1,Orthogonal=1,Projective=2;
+  static const int Cam3D=-1,Front=1,Side=2;
   static const int NoneMode=0,WedgeMode=1,MosesMode=2;
   
   AGeometry(QWidget* parent=0);

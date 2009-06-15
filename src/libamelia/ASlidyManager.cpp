@@ -30,6 +30,11 @@ ASlidyManager::ASlidyManager(QWidget *parent,Qt::Alignment align)
   recalculatePositions();
 }
 
+int ASlidyManager::visibleId()
+{
+  return _visibleId;
+}
+
 void ASlidyManager::setMaxSize(int maxSize)
 {
   _maxSize=maxSize;

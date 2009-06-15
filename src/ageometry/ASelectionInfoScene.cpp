@@ -113,8 +113,8 @@ void ASelectionInfoScene::handleViewportChange(int from,int to)
     case AGeometry::Cam3D:
       hideMessage();
       break;
-    case AGeometry::Orthogonal:
-    case AGeometry::Projective:
+    case AGeometry::Front:
+    case AGeometry::Side:
       displayMessage("Track selection only supported<br/> in first-person camera mode.");
       break;
     }

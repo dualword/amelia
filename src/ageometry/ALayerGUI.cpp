@@ -300,9 +300,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
 
     if(LeftViewport)
-      LeftViewport->setViewport(AGeometry::Orthogonal);
+      LeftViewport->setViewport(AGeometry::Front);
     if(RightViewport)
-      RightViewport->setViewport(AGeometry::Projective);
+      RightViewport->setViewport(AGeometry::Side);
     
     //Connect the action tags
     connect(actionTagBlackHole,SIGNAL(toggled(bool)),
@@ -396,13 +396,13 @@ void ALayerGUI::actionSwitchView()
     {
       geo->setViewport(AGeometry::Cam3D);
     }
-  else if (from=="actionOrthogonal")
+  else if (from=="actionFront")
     {
-      geo->setViewport(AGeometry::Orthogonal);
+      geo->setViewport(AGeometry::Front);
     }
-  else if (from=="actionProjective")
+  else if (from=="actionSide")
     {
-      geo->setViewport(AGeometry::Projective);
+      geo->setViewport(AGeometry::Side);
     }
 }
 

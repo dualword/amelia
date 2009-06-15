@@ -29,5 +29,8 @@ void ATourLoadEventAction::doAction()
 void ATourLoadEventAction::undoAction()
 {
   ATourAction::undoAction();
-  geo->loadEvent(eventFileIninial);
+  if(eventFileIninial.isEmpty())
+    geo->unloadEvent();
+  else
+    geo->loadEvent(eventFileIninial);
 }

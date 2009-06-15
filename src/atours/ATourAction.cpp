@@ -1,5 +1,9 @@
 #include "ATourAction.h"
 #include <QDebug>
+#include <QList>
+#include <QApplication>
+#include <QRect>
+#include <QWidget>
 
 QMap<QString,QMetaObject> ATourAction::_listOfActionTypes;
 
@@ -96,7 +100,17 @@ void ATourAction::updateAction(double done)
 
 void ATourAction::endAction()
 {
-
+  for(int i=0;i<subactions.size();i++)
+    {
+      ATourAction *subaction=subactions[i];
+      //Action is over, and it is in performed state. Undo!
+      if(subactionsPerformed[i])
+	{
+	  subaction->endAction();
+	  subactionsPerformed[i]=false;
+	  //qDebug() << "END " << subaction;
+	}      
+    }
 }
 
 void ATourAction::undoAction()
@@ -114,9 +128,29 @@ void ATourAction::undoAction()
     }
 }
 
+void ATourAction::cleanupAction()
+{
+  for(int i=0;i<subactions.size();i++)
+    {
+      ATourAction *subaction=subactions[i];
+      subaction->cleanupAction();
+    }
+}
+
 void ATourAction::loadFromXML(QDomElement actionElement)
 {
   _duration=actionElement.attribute("duration").toInt();
+
+  QDomNodeList hintNodes=actionElement.elementsByTagName("hint");
+  for(int i=0;i<hintNodes.size();i++)
+    {
+      QDomElement hintElement=hintNodes.at(i).toElement();
+      QString hintType=hintElement.attribute("type");
+      if(hintType=="Widget")
+	{
+	  _widgetOfInterest=hintElement.attribute("name");
+	}
+    }
 
   QDomNodeList actionNodes=actionElement.elementsByTagName("action");
   for(int i=0;i<actionNodes.size();i++)
@@ -163,4 +197,35 @@ ATourAction* ATourAction::newInstance(QString classname)
   
   QObject* obj=_listOfActionTypes[classname].newInstance();
   return qobject_cast<ATourAction*>(obj);
+}
+
+QString ATourAction::widgetOfInterest()
+{
+  return _widgetOfInterest;
+}
+
+QPoint ATourAction::cursor()
+{
+  QString widgetOfInterest=this->widgetOfInterest();
+  if(widgetOfInterest.isEmpty()) return QPoint();
+
+  QWidget *widget=0;
+  QWidget *widgetParent=0;
+  QList<QWidget*> wdgs=QApplication::topLevelWidgets();
+  for(int i=0;i<wdgs.size();i++)
+    {
+      widget=wdgs[i]->findChild<QWidget*>(widgetOfInterest);
+      if(widget)
+	{
+	  widgetParent=wdgs[i];
+	  break;
+	}
+    }
+
+  if(!widget) return QPoint();
+
+  QRect geo(QPoint(0,0),widget->size());
+  QPoint center=geo.center();
+
+  return widget->mapTo(widgetParent,center);
 }

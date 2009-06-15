@@ -18,6 +18,8 @@ class LIBAMELIA_EXPORT ASlidyManager : public QObject
  public:
   ASlidyManager(QWidget *parent,Qt::Alignment align=Qt::AlignLeft);
 
+  int visibleId();
+
   void setMaxSize(int maxSize);
   int addWidget(QWidget *wdg,QString title);
   

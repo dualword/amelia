@@ -6,7 +6,7 @@
 #include <QPushButton>
 
 ATourPlayer::ATourPlayer()
-  :currentTour(0),currentBlock(0),timeLine(1)
+  :currentTour(0),currentBlock(0),controls(0),playerControls(0),timeLine(1)
 {
   connect(&timeLine,SIGNAL(finished()),
 	  this,SLOT(tourFinished()));
@@ -193,6 +193,8 @@ void ATourPlayer::tourFinished()
   geo->setCameraPosition(oldPos);
   geo->setCameraTarget(oldTar);
 
+  currentBlock->cleanup();
+
   emit tour_stopped();
 
   controls->showWidget(1);
@@ -200,7 +202,28 @@ void ATourPlayer::tourFinished()
 
 bool ATourPlayer::eventFilter(QObject *obj, QEvent *event)
 {
-  if(timeLine.state()!=QTimeLine::Running) return QObject::eventFilter(obj,event);
+  if(timeLine.state()!=QTimeLine::Running)
+    {
+      if(obj!=playerControls && !hasParent(obj,playerControls) && controls && controls->visibleId()!=-1)
+	{
+	  switch(event->type())
+	    {
+	    case QEvent::GraphicsSceneMouseDoubleClick:
+	    case QEvent::GraphicsSceneMousePress:
+	    case QEvent::GraphicsSceneMouseRelease:
+	    case QEvent::KeyPress:
+	    case QEvent::KeyRelease:
+	    case QEvent::MouseButtonDblClick:
+	    case QEvent::MouseButtonPress:
+	    case QEvent::MouseButtonRelease:
+	      controls->hideWidget();
+	      break;
+	    default:
+	      break;
+	    }
+	}
+      return QObject::eventFilter(obj,event);
+    }
   if(obj==playerControls || hasParent(obj,playerControls)) return false;
 
   switch(event->type())

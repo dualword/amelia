@@ -11,24 +11,20 @@ class ATourMouseMoveAction : public ATourAction
 {
 public:
   Q_INVOKABLE ATourMouseMoveAction();
-  Q_INVOKABLE ATourMouseMoveAction(QPoint tar);
 
-  QPoint target();
+  virtual QPoint target();
   void setTarget(QPoint);
 
   void loadFromXML(QDomElement actionElement);
   
-  void doAction();
-  void updateAction(double done);
-  void cleanupAction();
+  void update(double done);
+  void cleanup();
 
   QWidget* mouseCursor();
   QPoint cursor();
 
 private:
   QPoint _target;
-
-  QPoint targetInitial;
 
   ABase *base;
 

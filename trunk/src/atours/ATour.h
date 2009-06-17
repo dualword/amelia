@@ -28,7 +28,6 @@ class ATour
   
   void loadTour();
   void loadBlock(QDomElement blockElement);
-  void loadAction( ATourBlock* block, QDomElement actionNode);
 };
 
 #endif //ATOUR_H_

@@ -13,49 +13,68 @@ ATourCameraAction::ATourCameraAction()
 
 void ATourCameraAction::loadFromXML(QDomElement actionElement)
 {
-  ATourAction::loadFromXML(actionElement);
-
   QDomElement cameraElement=actionElement.namedItem("camera").toElement();
   QDomElement targetElement=actionElement.namedItem("target").toElement();
 
   position=APoint3D(cameraElement.attribute("x").toInt(),
 		    cameraElement.attribute("y").toInt(),
 		    cameraElement.attribute("z").toInt() );
-
+  
   target=APoint3D(targetElement.attribute("x").toInt(),
 		  targetElement.attribute("y").toInt(),
 		  targetElement.attribute("z").toInt() );
+  
+  ATourAction::loadFromXML(actionElement);
 }
 
-void ATourCameraAction::doAction()
+void ATourCameraAction::update(double done)
 {
-  ATourAction::doAction();
+  ATourAction::update(done);
 
-  ATourCameraAction *prev=previousAction<ATourCameraAction*>();
-  if(prev)
+  APoint3D pos;
+  APoint3D tar;
+  if(!previousAction() || done==1)
     {
-      positionInitial=prev->position;
-      targetInitial=prev->target;
+      pos=position;
+      tar=target;
     }
   else
     {
-      positionInitial=geo->cameraPosition();
-      targetInitial=geo->cameraTarget();
+      APoint3D posIni=((ATourCameraAction*)previousAction())->position;
+      APoint3D posFin=position;
+      pos=interpolate(posIni,posFin,done);
+
+      APoint3D tarIni=((ATourCameraAction*)previousAction())->target;
+      APoint3D tarFin=target;
+      tar=interpolate(tarIni,tarFin,done);
     }
-  geo->setCameraPosition(positionInitial);
-  geo->setCameraTarget(targetInitial);
+
+  geo->setCameraPosition(pos);
+  geo->setCameraTarget(tar);
 }
 
-void ATourCameraAction::updateAction(double done)
+void ATourCameraAction::prepare()
 {
-  ATourAction::updateAction(done);
+  ATourAction::prepare();
 
-  APoint3D pos=interpolate(positionInitial,position,done);
-  geo->setCameraPosition(pos);
-  
-  APoint3D tar=interpolate(targetInitial,target,done);
-  geo->setCameraTarget(tar);
+  geo->setViewport(AGeometry::Cam3D);
 
+  position=geo->cameraPosition();
+  target=geo->cameraTarget();
+  geo->setCamera(AGeometry::Lock,false);
+  geo->setCameraPosition(position);
+  geo->setCameraTarget(target);
+}
+
+void ATourCameraAction::cleanup()
+{
+  ATourAction::cleanup();
+
+  APoint3D oldPos=geo->cameraPosition();
+  APoint3D oldTar=geo->cameraTarget();  
+  geo->setCamera(AGeometry::FPS,false);
+  geo->setCameraPosition(oldPos);
+  geo->setCameraTarget(oldTar);
 }
 
 APoint3D ATourCameraAction::interpolate(APoint3D start,APoint3D end,double time)

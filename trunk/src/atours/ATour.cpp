@@ -59,23 +59,6 @@ void ATour::loadTour()
 void ATour::loadBlock(QDomElement blockElement)
 {
     ATourBlock* block = new ATourBlock();
-
+    block->loadBlock(blockElement);
     blocks.push_back( block );
-
-    QDomElement actionNode=blockElement.firstChildElement("action");
-    ATourAction *firstAction=0;
-    while(!actionNode.isNull())
-      {
-	loadAction(block, actionNode);
-	actionNode=actionNode.nextSiblingElement("action");
-      }
-}
-
-void ATour::loadAction(ATourBlock* block, QDomElement actionElement)
-{
-  QString type=actionElement.attribute("type");
-  ATourAction* action=ATourAction::newInstance(type);
-  qDebug() << type << " " << action;
-  action->loadFromXML(actionElement);
-  block->addAction(action);
 }

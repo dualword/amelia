@@ -66,6 +66,9 @@ QLayout* AAnimationLayoutGUI::findLayout(QLayout *layout)
 
 void AAnimationLayoutGUI::handleFinished()
 {
+  if(timeLine()->direction()==QTimeLine::Backward)
+    widget()->hide();
+
   layout->addWidget(widget());
 }
 

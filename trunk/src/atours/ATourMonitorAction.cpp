@@ -14,23 +14,12 @@ void ATourMonitorAction::loadFromXML(QDomElement actionElement)
   monitor=actionElement.attribute("monitor");
 }
 
-void ATourMonitorAction::doAction()
+void ATourMonitorAction::act()
 {
-  ATourMonitorAction *prev=previousAction<ATourMonitorAction*>();
-  if(prev)
-    {
-      monitorInitial=monitor;
-    }
-  else
-    {
-      monitorInitial=base->currentGroup()+"/"+base->currentMonitor();
-    }
-
-
   base->changeToMonitor(monitor);
 }
 
-void ATourMonitorAction::undoAction()
+void ATourMonitorAction::prepare()
 {
-  base->changeToMonitor(monitorInitial);
+  monitor=base->currentGroup()+"/"+base->currentMonitor();
 }

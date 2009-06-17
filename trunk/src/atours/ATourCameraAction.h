@@ -15,17 +15,15 @@ public:
 
   void loadFromXML(QDomElement actionElement);
   
-  void doAction();
-  void updateAction(double done);
+  void update(double done);
 
+  void prepare();
+  void cleanup();
 private:
+  AGeometry *geo;
+
   APoint3D position;
   APoint3D target;
-
-  APoint3D positionInitial;
-  APoint3D targetInitial;
-
-  AGeometry *geo;
 
   APoint3D interpolate(APoint3D start,APoint3D end,double time);
 

@@ -15,12 +15,11 @@ public:
 
   void loadFromXML(QDomElement actionElement);
   
-  void doAction();
-  void undoAction();
+  void act();
+  void prepare();
   
 private:
   int viewport;
-  int viewportInitial;
 
   AGeoPlugin *geoplugin;
   AGeometry *geo;

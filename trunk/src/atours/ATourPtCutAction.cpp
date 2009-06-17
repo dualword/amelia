@@ -13,32 +13,39 @@ ATourPtCutAction::ATourPtCutAction()
 
 void ATourPtCutAction::loadFromXML(QDomElement actionElement)
 {
-  ATourAction::loadFromXML(actionElement);
   value=actionElement.attribute("value").toDouble();
+
+  ATourAction::loadFromXML(actionElement); 
 }
 
-void ATourPtCutAction::doAction()
+QString ATourPtCutAction::widgetOfInterest()
 {
-  ATourAction::doAction();
+  return "PtCutoff_Slider";
+}
 
-  ATourPtCutAction *prev=previousAction<ATourPtCutAction*>();
-  if(prev)
-    valueInitial=prev->value;
+void ATourPtCutAction::update(double done)
+{
+  ATourAction::update(done);
+
+  double usevalue;
+  if(!previousAction() || done==1)
+    {
+      usevalue=value;
+    }
   else
-    valueInitial=ptFilter->value();
+    {
+      double valueIni=((ATourPtCutAction*)previousAction())->value;
+      double valueFin=value;
+      double delta=valueFin-valueIni;
+      usevalue=valueIni+delta*done;
+    }
+
+  ptFilter->setValue(usevalue);
 }
 
-void ATourPtCutAction::updateAction(double done)
+void ATourPtCutAction::prepare()
 {
-  ATourAction::updateAction(done);
+  ATourAction::prepare();
 
-  double delta=value-valueInitial;
-  ptFilter->setValue(valueInitial+delta*done);
-}
-
-void ATourPtCutAction::undoAction()
-{
-  ATourAction::undoAction();
-
-  ptFilter->setValue(valueInitial);
+  value=ptFilter->value();
 }

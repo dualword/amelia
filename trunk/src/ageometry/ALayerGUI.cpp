@@ -506,6 +506,8 @@ void ALayerGUI::loadEvent(AEvent* event)
 
 void ALayerGUI::unloadEvent()
 {
+  handleEventUnloaded();
+
   emit eventLoaded(0);
   emit eventUnloaded();
 }
@@ -540,7 +542,10 @@ void ALayerGUI::handleEventLoaded()
 
 void ALayerGUI::handleEventUnloaded()
 {
-    menuTagCurrentEvent->setEnabled(false);
+  menuTagCurrentEvent->setEnabled(false);
+
+  if (eventWidget->isVisible())
+    hide(eventWidget);
 }
 
 void ALayerGUI::eventSettings()
@@ -580,6 +585,28 @@ void ALayerGUI::show(QWidget *w)
 
   animTime->start();
   setUpdatesEnabled(true);
+}
+
+void ALayerGUI::hide(QWidget *w)
+{
+  if (!w) return;
+
+  QPoint hiddenPosition=w->pos();
+  hiddenPosition.setX(-w->width()-100); //Move it 100 off screen
+
+  QTimeLine *animTime=new QTimeLine(1000,this);
+  animTime->setDirection(QTimeLine::Backward);
+
+  AAnimationLayoutGUI *anim=new AAnimationLayoutGUI(w,this);
+  anim->setTimeLine(animTime);
+  anim->setPosAt(0,hiddenPosition);
+  //Final position is calculated automatically by AAnimationLayoutGUI as where it should be in the layout..
+  connect(animTime,SIGNAL(finished()),
+	  anim,SLOT(deleteLater()));
+  connect(animTime,SIGNAL(finished()),
+	  animTime,SLOT(deleteLater()));
+
+  animTime->start();
 }
 
 void ALayerGUI::handleEventTagChange(bool status)

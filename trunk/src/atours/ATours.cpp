@@ -43,6 +43,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATourPtCutAction.h"
 #include "ATourMouseMoveAction.h"
 #include "ATourViewportChangeAction.h"
+#include "ATourMouseConnectAction.h"
 #include "config.h"
 
 #include <QDebug>
@@ -59,6 +60,7 @@ ATours::ATours( QObject *parent )
   ATourAction::addActionType(ATourPtCutAction::staticMetaObject); 
   ATourAction::addActionType(ATourMouseMoveAction::staticMetaObject); 
   ATourAction::addActionType(ATourViewportChangeAction::staticMetaObject); 
+  ATourAction::addActionType(ATourMouseConnectAction::staticMetaObject); 
 }
 
 ATours::~ATours()

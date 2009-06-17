@@ -117,6 +117,7 @@ public slots:
 
  protected:
     void show(QWidget *);
+    void hide(QWidget *);
 
  private:
     QSignalMapper smartShowMapper;

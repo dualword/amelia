@@ -2,10 +2,11 @@
 
 #include <QTimeLine>
 #include <QDebug>
-#include <ATourMouseConnectAction.h>
+
+#include "ATourMouseConnectAction.h"
 
 ATourBlock::ATourBlock()
-  :_duration(0),lastAction(0)
+  :_duration(0)
 { }
 
 int ATourBlock::duration()
@@ -13,73 +14,115 @@ int ATourBlock::duration()
   return _duration;
 }
 
-void ATourBlock::reset()
+void ATourBlock::loadBlock(QDomElement blockElement)
 {
-  lastAction=0;
-}
-
-void ATourBlock::addAction(ATourAction *action)
-{
-  QPoint cursorPos=action->cursor();
-  if(!cursorPos.isNull())
+  QDomElement actionElement=blockElement.firstChildElement("action");
+  while(!actionElement.isNull())
     {
-      ATourMouseConnectAction *move=new ATourMouseConnectAction();
-      move->setDuration(2000);
-      addAction(move);
+      QString type=actionElement.attribute("type");
+      ATourAction *action=ATourAction::newInstance(type);
+
+      qDebug() << type << " " << action;
+
+      if(action)
+	{
+	  action->loadFromXML(actionElement);
+	  
+	  addAction(action);
+	  
+	  QPoint pos=action->cursor();
+	  if(!pos.isNull())
+	    {
+	      ATourMouseConnectAction *connectAction=new ATourMouseConnectAction();
+	      connectAction->connectTo(action);
+	      addAction(connectAction);
+	    }
+	    
+	  int _tmpDuration=action->time()+action->duration();
+	  if(_duration<_tmpDuration) _duration=_tmpDuration;
+	}
+      
+      actionElement=actionElement.nextSiblingElement("action");
     }
-
-  if(act.size()>0)
-    {
-      action->setPreviousAction(act[act.size()-1]);
-      act[act.size()-1]->setNextAction(action);
-    }
-
-  act.push_back(action);
-  actt.push_back(_duration);
-
-  _duration+=action->duration();
 }
 
 void ATourBlock::updateFrame(int frame)
 {
   QTimeLine *timeLine=qobject_cast<QTimeLine *>(sender());
 
-  int at=actt.size()-1;
-  for(int i=actt.size()-1;i>=0;i--)
+  QMap<QString,ATourAction *>::const_iterator iter=actions.begin();
+  QMap<QString,ATourAction *>::const_iterator iterE=actions.end();
+  for(;iter!=iterE;iter++)
     {
-      if(frame >= actt[i])
+      QString type=iter.key();
+      ATourAction *topaction=iter.value();
+      ATourAction *action=topaction->getActionFor(frame);
+
+      // Handle changes in action (act/undo)
+      if(lastActions[type]!=action)
 	{
-	  at=i;
-	  break;
+	  if(lastActions[type]) lastActions[type]->undo();
+	  if(action) action->act();
+
+	  lastActions[type]=action;
 	}
+
+      if(!action) continue;
+
+      int duration=action->duration();
+      int start=action->time();
+      int end=start+duration;
+      double done=frame-start;
+      if(frame<=end)
+	action->update(done/((double)duration));
+      else
+	action->update(1);
+    }
+}
+
+void ATourBlock::prepare()
+{
+  QMap<QString,ATourAction *>::const_iterator iter=actions.begin();
+  QMap<QString,ATourAction *>::const_iterator iterE=actions.end();
+  for(;iter!=iterE;iter++)
+    {
+      ATourAction *action=iter.value();
+      action->prepare();
     }
 
-  ATourAction *action=act[at];
-  int actiont=actt[at];
-
-  if(action!=lastAction)
+  iter=actions.begin();
+  iterE=actions.end();
+  for(;iter!=iterE;iter++)
     {
-      if(lastAction)
-	{
-	  lastAction->endAction();
-	  if(timeLine->direction()==QTimeLine::Backward)
-	    lastAction->undoAction();
-	}
-      lastAction=action;
-
-      action->doAction();
+      lastActions[iter.key()]=0;
     }
-    
-  double timeInAction=frame-actiont;
-  action->updateAction(timeInAction/(double)action->duration());
 }
 
 void ATourBlock::cleanup()
 {
-  for(int i=0;i<act.size();i++)
+  QMap<QString,ATourAction *>::const_iterator iter=actions.begin();
+  QMap<QString,ATourAction *>::const_iterator iterE=actions.end();
+  for(;iter!=iterE;iter++)
     {
-      ATourAction *action=act[i];
-      action->cleanupAction();
+      ATourAction *action=iter.value();
+      action->cleanup();
+    }
+}
+
+void ATourBlock::addAction(ATourAction *action)
+{
+  QString type=action->metaObject()->className();
+
+  if(!actions.contains(type))
+    actions[type]=ATourAction::newInstance(type);
+
+  actions[type]->insertAction(action);
+
+  ATourAction *iter=actions[type];
+  while(iter)
+    {
+      qDebug() << "FOUND: " << iter << " " << iter->time();
+      iter=iter->nextAction();
     }
 }
 

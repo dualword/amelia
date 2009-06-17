@@ -15,8 +15,10 @@ public:
 
   void loadFromXML(QDomElement actionElement);
   
-  void doAction();
-  void endAction();
+  void act();
+  void undo();
+
+  void cleanup();
 
 private:
   QString message;

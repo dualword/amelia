@@ -13,71 +13,47 @@ public:
 
   void setDuration(int);
   int duration();
+  void setTime(int);
+  int time();
 
-  virtual QString widgetOfInterest();
+  bool isStateless();
+  void setStateless(bool);
 
-  virtual void doAction();
-  virtual void updateAction(double done);
-  virtual void endAction();
-  virtual void undoAction();
-  virtual void cleanupAction();
+  void setNextAction(ATourAction*);
+  ATourAction* nextAction();
+  void setPreviousAction(ATourAction*);
+  ATourAction* previousAction();
+
+  bool canPerform(int frame);
+
+  virtual void act();
+  virtual void undo();
+  virtual void update(double done);
+  
+  virtual void prepare();
+  virtual void cleanup();
 
   virtual void loadFromXML(QDomElement actionElement);
 
+  virtual QString widgetOfInterest();
   virtual QPoint cursor();
 
-  ATourAction* previousAction();
-  void setPreviousAction(ATourAction *action);
-  ATourAction* nextAction();
-  void setNextAction(ATourAction *action);
+  void insertAction(ATourAction *action);
+  ATourAction* getActionFor(int frame);
 
   static void addActionType(QMetaObject);
   static ATourAction* newInstance(QString classname);
 
-protected:
-  int frameFromTime(double time);
-
-  void addSubaction(ATourAction* subaction);
-
-  template <class T>
-  T previousAction()
-  {
-    ATourAction *action=previousAction();
-    while(action)
-      {
-	T castAction=qobject_cast<T>(action);
-	if(castAction) return castAction;
-	action=action->previousAction();
-      }
-    return 0;
-  }
-
-  template <class T>
-  T nextAction()
-  {
-    ATourAction *action=nextAction();
-    while(action)
-      {
-	T castAction=qobject_cast<T>(action);
-	if(castAction) return castAction;
-	action=action->nextAction();
-      }
-    return 0;
-  }
-
 private:
+  ATourAction *_previous;
+  ATourAction *_next;
+
+  bool _stateless;
   int _duration;
+  int _time;
 
-  ATourAction *_previousAction;
-  ATourAction *_nextAction;
-
-  QList<ATourAction*> subactions;
-  QList<bool> subactionsPerformed;
 
   static QMap<QString,QMetaObject> _listOfActionTypes;
-
-  QString _widgetOfInterest;
-
   Q_OBJECT
 };
 

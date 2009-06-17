@@ -50,7 +50,8 @@ SET(atours_SRCS
   ATourMonitorAction.cpp
   ATourMouseMoveAction.cpp
   ATourMouseConnectAction.cpp
-  ATourViewportChangeAction.cpp)
+  ATourViewportChangeAction.cpp
+  )
 
 SET(atours_H
   ATours.h
@@ -66,7 +67,8 @@ SET(atours_H
   ATourMonitorAction.h
   ATourMouseMoveAction.h
   ATourMouseConnectAction.h
-  ATourViewportChangeAction.h)
+  ATourViewportChangeAction.h
+  )
 
 SET(atours_FILES
   atours.qrc

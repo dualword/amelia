@@ -12,12 +12,10 @@ public:
 
   void loadFromXML(QDomElement actionElement);
 
-  void doAction();
-  void undoAction();
+  void act(void);
 
 private:
   QString eventFile;
-  QString eventFileIninial;
 
   AGeoPlugin *geo;
 

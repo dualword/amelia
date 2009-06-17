@@ -14,12 +14,12 @@ public:
 
   void loadFromXML(QDomElement actionElement);
   
-  void doAction();
-  void undoAction();
+  void act();
+
+  void prepare();
 
 private:
   QString monitor;
-  QString monitorInitial;
 
   ABase *base;
 

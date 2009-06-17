@@ -8,7 +8,7 @@
 QMap<QString,QMetaObject> ATourAction::_listOfActionTypes;
 
 ATourAction::ATourAction()
-  :_previousAction(0),_nextAction(0)
+  :_previous(0),_next(0),_stateless(false),_duration(0),_time(0)
 { }
 
 void ATourAction::setDuration(int _duration)
@@ -21,168 +21,152 @@ int ATourAction::duration()
   return _duration;
 }
 
-ATourAction* ATourAction::previousAction()
+void ATourAction::setTime(int time)
 {
-  if(subactions.size()>0)
-    {
-      return subactions[subactions.size()-1];
-    }
-  else
-    {
-      return _previousAction;
-    }
+  _time=time;
 }
 
-void ATourAction::setPreviousAction(ATourAction *action)
+int ATourAction::time()
 {
-  _previousAction=action;
-  if(subactions.size()>0)
-    subactions[0]->setPreviousAction(_previousAction);
+  return _time;
+}
+
+bool ATourAction::isStateless()
+{
+  return _stateless;
+}
+
+void ATourAction::setStateless(bool stateless)
+{
+  _stateless=stateless;
+}
+
+void ATourAction::setNextAction(ATourAction *next)
+{
+  _next=next;
 }
 
 ATourAction* ATourAction::nextAction()
 {
-  if(subactions.size()>0)
-    {
-      return subactions[0];
-    }
-  else
-    {
-      return _nextAction;
-    }
+  return _next;
 }
-
-void ATourAction::setNextAction(ATourAction *action)
+ 
+void ATourAction::setPreviousAction(ATourAction *previous)
 {
-  _nextAction=action;
-  if(subactions.size()>0)
-    subactions[subactions.size()-1]->setNextAction(_nextAction);
+  _previous=previous;
 }
 
-void ATourAction::doAction()
-{ 
-  for(int i=0;i<subactions.size();i++)
-    subactionsPerformed[i]=false;
-}
-
-void ATourAction::updateAction(double done)
-{ 
-  int frame=frameFromTime(done);
-  for(int i=0;i<subactions.size();i++)
-    {
-      ATourAction *subaction=subactions[i];
-      
-      //Should be performed
-      if(frame<=subaction->duration())
-	{
-	  // Has not yet started
-	  if(!subactionsPerformed[i])
-	    {
-	      subaction->doAction();
-	      subactionsPerformed[i]=true;
-	      //qDebug() << "DO " << subaction;
-	    }
-
-	  double time=((double)frame)/((double)subaction->duration());
-	  subaction->updateAction(time);
-	  //qDebug() << "UPDATE " << subaction << " " << time << " " << frame;
-	}
-
-      //Subaction is over, and it is in performed state. Undo!
-      if(frame>subaction->duration() && subactionsPerformed[i])
-	{
-	  subaction->endAction();
-	  subactionsPerformed[i]=false;
-	  //qDebug() << "UNDO " << subaction;
-	}      
-    }
-}
-
-void ATourAction::endAction()
+ATourAction* ATourAction::previousAction()
 {
-  for(int i=0;i<subactions.size();i++)
-    {
-      ATourAction *subaction=subactions[i];
-      //Action is over, and it is in performed state. Undo!
-      if(subactionsPerformed[i])
-	{
-	  subaction->endAction();
-	  subactionsPerformed[i]=false;
-	  //qDebug() << "END " << subaction;
-	}      
-    }
-}
-
-void ATourAction::undoAction()
-{
-  for(int i=0;i<subactions.size();i++)
-    {
-      ATourAction *subaction=subactions[i];
-      //Action is over, and it is in performed state. Undo!
-      if(subactionsPerformed[i])
-	{
-	  subaction->undoAction();
-	  subactionsPerformed[i]=false;
-	  //qDebug() << "UNDO " << subaction;
-	}      
-    }
-}
-
-void ATourAction::cleanupAction()
-{
-  for(int i=0;i<subactions.size();i++)
-    {
-      ATourAction *subaction=subactions[i];
-      subaction->cleanupAction();
-    }
+  return _previous;
 }
 
 void ATourAction::loadFromXML(QDomElement actionElement)
 {
   _duration=actionElement.attribute("duration").toInt();
-
-  QDomNodeList hintNodes=actionElement.elementsByTagName("hint");
-  for(int i=0;i<hintNodes.size();i++)
-    {
-      QDomElement hintElement=hintNodes.at(i).toElement();
-      QString hintType=hintElement.attribute("type");
-      if(hintType=="Widget")
-	{
-	  _widgetOfInterest=hintElement.attribute("name");
-	}
-    }
-
-  QDomNodeList actionNodes=actionElement.elementsByTagName("action");
-  for(int i=0;i<actionNodes.size();i++)
-    {
-      QDomElement actionElement=actionNodes.at(i).toElement();
-      QString type=actionElement.attribute("type");
-      
-      ATourAction* subaction=ATourAction::newInstance(type);
-      subaction->loadFromXML(actionElement);
-
-      addSubaction(subaction);
-    }
+  _time=actionElement.attribute("time").toInt();
 }
 
-int ATourAction::frameFromTime(double time)
+bool ATourAction::canPerform(int frame)
 {
-  return _duration*time;
-}
+  int start=_time;
+  int end=_time+_duration;
+  int nextEnd=(nextAction())?nextAction()->time():end;
 
-void ATourAction::addSubaction(ATourAction* subaction)
-{
-  if(duration()<subaction->duration())
-    setDuration(subaction->duration());
+  if(frame < start) return false;
 
-  subaction->setNextAction(_nextAction);
-  if(subactions.size()>0)
-    subaction->setPreviousAction(subactions[subactions.size()-1]);
-  else
-    subaction->setPreviousAction(_previousAction);
+  if(frame <= end) return true;
   
-  subactions.push_back(subaction);
-  subactionsPerformed.push_back(false);
+  if(!isStateless() && frame < nextEnd) return true;
+  if(!isStateless() && !nextAction()) return true;
+  
+  return false;
+}
+
+void ATourAction::act()
+{ }
+
+void ATourAction::undo()
+{ }
+
+void ATourAction::update(double done)
+{ }
+
+void ATourAction::prepare()
+{ }
+
+void ATourAction::cleanup()
+{ }
+
+QString ATourAction::widgetOfInterest()
+{
+  return QString();
+}
+
+QPoint ATourAction::cursor()
+{
+  QString widgetOfInterest=this->widgetOfInterest();
+
+  if(widgetOfInterest.isEmpty()) return QPoint();
+
+  QWidget *widget=0;
+  QWidget *widgetParent=0;
+  QList<QWidget*> wdgs=QApplication::topLevelWidgets();
+  for(int i=0;i<wdgs.size();i++)
+    {
+      widget=wdgs[i]->findChild<QWidget*>(widgetOfInterest);
+      if(widget)
+        {
+          widgetParent=wdgs[i];
+          break;
+        }
+    }
+
+  if(!widget) return QPoint();
+
+  QRect geo(QPoint(0,0),widget->size());
+  QPoint center=geo.center();
+
+  //qDebug() << "Map to " << widget->mapTo(widgetParent,center);
+
+  return widget->mapTo(widgetParent,center);
+}
+
+void ATourAction::insertAction(ATourAction *action)
+{
+  bool insert=false;
+  if(_next)
+    {
+      int nextTime=_next->time();
+      int time=action->time();
+      if(time<nextTime)
+	insert=true;
+    }
+  else
+    insert=true;
+
+  if(insert)
+    {
+      if(nextAction())
+	nextAction()->setPreviousAction(action);
+      action->setNextAction(nextAction());
+
+      setNextAction(action);
+      action->setPreviousAction(this);
+    }
+  else if(_next)
+    nextAction()->insertAction(action);
+}
+
+ATourAction* ATourAction::getActionFor(int frame)
+{
+  if(canPerform(frame) && !(nextAction() && nextAction()->canPerform(frame)))
+    return this;
+  
+  if(nextAction())
+    return nextAction()->getActionFor(frame);
+  
+  return 0;
 }
 
 void ATourAction::addActionType(QMetaObject metaobj)
@@ -197,35 +181,4 @@ ATourAction* ATourAction::newInstance(QString classname)
   
   QObject* obj=_listOfActionTypes[classname].newInstance();
   return qobject_cast<ATourAction*>(obj);
-}
-
-QString ATourAction::widgetOfInterest()
-{
-  return _widgetOfInterest;
-}
-
-QPoint ATourAction::cursor()
-{
-  QString widgetOfInterest=this->widgetOfInterest();
-  if(widgetOfInterest.isEmpty()) return QPoint();
-
-  QWidget *widget=0;
-  QWidget *widgetParent=0;
-  QList<QWidget*> wdgs=QApplication::topLevelWidgets();
-  for(int i=0;i<wdgs.size();i++)
-    {
-      widget=wdgs[i]->findChild<QWidget*>(widgetOfInterest);
-      if(widget)
-	{
-	  widgetParent=wdgs[i];
-	  break;
-	}
-    }
-
-  if(!widget) return QPoint();
-
-  QRect geo(QPoint(0,0),widget->size());
-  QPoint center=geo.center();
-
-  return widget->mapTo(widgetParent,center);
 }

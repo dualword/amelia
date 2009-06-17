@@ -11,14 +11,16 @@ public:
   Q_INVOKABLE ATourPtCutAction();
 
   void loadFromXML(QDomElement actionElement);
-  void doAction();
-  void updateAction(double done);
-  void undoAction();
+
+  void update(double done);
+
+  void prepare();
+
+  QString widgetOfInterest();
 
 private:
   QDoubleSync *ptFilter;
 
-  double valueInitial;
   double value;
 
   Q_OBJECT

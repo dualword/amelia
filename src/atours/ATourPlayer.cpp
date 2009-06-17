@@ -20,7 +20,6 @@ void ATourPlayer::setupElements()
   ABase *baseplugin=(ABase*)AMELIA::global->plugin("ABase");  
   geo=(AGeometry*)geoplugin->findWidget("Geometry");
   
-  //controls=new ASlidyManager(geoplugin->findWidget("LayerGUI"),Qt::AlignTop);
   controls=new ASlidyManager(baseplugin,Qt::AlignTop);
   controls->setMaxSize(50);
   qDebug() << "USE " << baseplugin;
@@ -52,6 +51,24 @@ void ATourPlayer::setupElements()
   connect(forwardsButton,SIGNAL(clicked()),
 	  this,SLOT(forward()));
   playerLayout->addWidget(forwardsButton);
+
+  timeControl=new QSlider(Qt::Horizontal);
+  connect(&timeLine,SIGNAL(frameChanged(int)),
+	  timeControl,SLOT(setValue(int)));
+  connect(timeControl,SIGNAL(sliderMoved(int)),
+	  this,SLOT(seek(int)));
+  connect(timeControl,SIGNAL(sliderPressed()),
+	  this,SLOT(pause()));
+  connect(timeControl,SIGNAL(sliderReleased()),
+	  this,SLOT(resume()));
+  playerLayout->addWidget(timeControl);
+
+  timeShow=new QSpinBox();
+  connect(&timeLine,SIGNAL(frameChanged(int)),
+	  timeShow,SLOT(setValue(int)));
+  playerLayout->addWidget(timeShow);
+
+
 
   QWidget *blocksControls=new QWidget();
   QHBoxLayout *blocksOuterLayout=new QHBoxLayout(blocksControls);
@@ -139,7 +156,9 @@ void ATourPlayer::playBlock(int idx)
   currentBlock=currentTour->block(idx);
   connect(&timeLine,SIGNAL(frameChanged(int)),
 	  currentBlock,SLOT(updateFrame(int)));
-  currentBlock->reset();  
+
+  timeControl->setMaximum(currentBlock->duration());
+  timeShow->setMaximum(currentBlock->duration());
 
   timeLine.setDuration(currentBlock->duration());
   timeLine.setFrameRange(0,currentBlock->duration());
@@ -148,24 +167,27 @@ void ATourPlayer::playBlock(int idx)
   timeLine.setCurrentTime(0);
   timeLine.start();
 
-  geo->setViewport(AGeometry::Cam3D);
+  currentBlock->prepare();
 
-  APoint3D oldPos=geo->cameraPosition();
-  APoint3D oldTar=geo->cameraTarget();  
-  geo->setCamera(AGeometry::Lock,false);
-  geo->setCameraPosition(oldPos);
-  geo->setCameraTarget(oldTar);
-    
   emit tour_started();
 }
 
+void ATourPlayer::pause()
+{
+  timeLine.setPaused(true);
+}
+
+void ATourPlayer::resume()
+{
+  timeLine.resume();
+}
 
 void ATourPlayer::toggle()
 {
   if(timeLine.state()==QTimeLine::Running)
     timeLine.setPaused(true);
   else if(timeLine.state()==QTimeLine::Paused)
-    timeLine.setPaused(false);
+    timeLine.resume();
 }
 
 void ATourPlayer::stop()
@@ -174,6 +196,12 @@ void ATourPlayer::stop()
   tourFinished();
 }
 
+void ATourPlayer::seek(int to)
+{
+  if(sender()==&timeLine) return;
+
+  timeLine.setCurrentTime(((double)to)/((double)timeLine.endFrame())*timeLine.duration());
+}
 
 void ATourPlayer::backward()
 {
@@ -187,12 +215,6 @@ void ATourPlayer::forward()
 
 void ATourPlayer::tourFinished()
 {
-  APoint3D oldPos=geo->cameraPosition();
-  APoint3D oldTar=geo->cameraTarget();  
-  geo->setCamera(AGeometry::FPS,false);
-  geo->setCameraPosition(oldPos);
-  geo->setCameraTarget(oldTar);
-
   currentBlock->cleanup();
 
   emit tour_stopped();

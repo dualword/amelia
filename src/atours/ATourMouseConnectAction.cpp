@@ -1,22 +1,28 @@
 #include "ATourMouseConnectAction.h"
 #include <QDebug>
-#include <QApplication>
+#include <QLabel>
+#include <QCursor>
+
+#include <AMELIA.h>
 
 ATourMouseConnectAction::ATourMouseConnectAction()
-  :ATourMouseMoveAction()
-{ }
-
-void ATourMouseConnectAction::loadFromXML(QDomElement actionElement)
-{
-  ATourAction::loadFromXML(actionElement);
+  :ATourMouseMoveAction(),action(0)
+{ 
+  base=(ABase *)AMELIA::global->plugin("ABase");
 }
 
-void ATourMouseConnectAction::doAction()
+void ATourMouseConnectAction::connectTo(ATourAction *act)
 {
-  ATourMouseMoveAction::doAction();
-
-  ATourAction *next=nextAction();
-  QPoint tar=next->cursor();
-  setTarget(tar);
+  int time=act->time()-2000;
+  setTime(time);
+  setDuration(2000);
+  action=act;
 }
 
+QPoint ATourMouseConnectAction::target()
+{
+  if(action)
+      return action->cursor();
+  else
+      return ATourMouseMoveAction::target();
+}

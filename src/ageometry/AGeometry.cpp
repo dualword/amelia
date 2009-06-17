@@ -1265,8 +1265,14 @@ void AGeometry::contextMenuEvent( QContextMenuEvent *event )
 
 void AGeometry::clearEvent()
 {
-  _event=0;
+  if(!_event) return;
 
+  
+  disconnect(_event,SIGNAL(filtersUpdated()),
+	     this,SLOT(updateTracks()));
+  disconnect(_event,SIGNAL(filtersUpdated()),
+	     this,SLOT(makeDirty()));
+  
   clearTrackSelection();
   ISceneManager* mngr=getSceneManager();
   for(int i=0;i<allTracks.size();i++)
@@ -1279,26 +1285,15 @@ void AGeometry::clearEvent()
   renderViewport(AGeometry::Front);
   renderViewport(AGeometry::Side);
   renderViewport(AGeometry::Cam3D);
+  _event=0;
+  makeDirty();
 }
 
 void AGeometry::setEvent(AFilteredEvent* e)
 {
-  if(!_event)
-    {
-      disconnect(_event,SIGNAL(filtersUpdated()),
-		 this,SLOT(updateTracks()));
-      disconnect(_event,SIGNAL(filtersUpdated()),
-		 this,SLOT(makeDirty()));
+  clearEvent();
 
-      for(int i=0;i<e->Tracks.size();i++)
-	{
-	  ATrack* track=e->Tracks[i];
-	  createTrackNode(track);
-	}
-    }
-
-  _event=e;
-  
+  _event=e;  
   connect(_event,SIGNAL(filtersUpdated()),
 	  this,SLOT(updateTracks()));
   connect(_event,SIGNAL(filtersUpdated()),
@@ -1518,6 +1513,8 @@ void AGeometry::addToDetectorMenu(QString partName,QAction *action)
 
 void AGeometry::updateTracks()
 {
+  if(!_event) return;
+
   QSet<ATrack*> tracks=QSet<ATrack*>::fromList(_event->Tracks);
   
   // Toggle the visibility of all the tracks

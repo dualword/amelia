@@ -17,21 +17,20 @@ public:
   void addAction(ATourAction *act);
   
   int duration();
-  void reset();
 
+  void loadBlock(QDomElement blockElement);
+    
+  void prepare();
   void cleanup();
 
 public slots:
   void updateFrame(int frame);
   
 private:
-  
-  QList<ATourAction *> act;
-  QList<int>           actt;
+  QMap<QString,ATourAction *> actions;
+  QMap<QString,ATourAction *> lastActions;
 
   int _duration;
-
-  ATourAction *lastAction;
 
   Q_OBJECT
 };

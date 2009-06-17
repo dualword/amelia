@@ -9,28 +9,17 @@ ATourLoadEventAction::ATourLoadEventAction()
 
 void ATourLoadEventAction::loadFromXML(QDomElement actionElement)
 {
-  ATourAction::loadFromXML(actionElement);
   eventFile=actionElement.attribute("file");
+
+  ATourAction::loadFromXML(actionElement);
 }
 
-void ATourLoadEventAction::doAction()
+void ATourLoadEventAction::act()
 {
-  ATourAction::doAction();
+  ATourAction::act();
 
-  ATourLoadEventAction *prev=nextAction<ATourLoadEventAction*>();
-  if(prev)
-    eventFileIninial=prev->eventFile;
-  else
-    eventFileIninial="";
-
-  geo->loadEvent(eventFile);
-}
-
-void ATourLoadEventAction::undoAction()
-{
-  ATourAction::undoAction();
-  if(eventFileIninial.isEmpty())
+  if(eventFile.isEmpty())
     geo->unloadEvent();
   else
-    geo->loadEvent(eventFileIninial);
+    geo->loadEvent(eventFile);
 }

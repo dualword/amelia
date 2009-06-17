@@ -8,12 +8,6 @@ ATourMouseMoveAction::ATourMouseMoveAction()
   base=(ABase *)AMELIA::global->plugin("ABase");
 }
 
-ATourMouseMoveAction::ATourMouseMoveAction(QPoint tar)
-  :ATourAction(),_target(tar)
-{
-  base=(ABase *)AMELIA::global->plugin("ABase");
-}
-
 QPoint ATourMouseMoveAction::target()
 {
   return _target;
@@ -27,7 +21,7 @@ void ATourMouseMoveAction::setTarget(QPoint target)
 void ATourMouseMoveAction::loadFromXML(QDomElement actionElement)
 {
   ATourAction::loadFromXML(actionElement);
-
+  
   QDomElement targetElement=actionElement.namedItem("target").toElement();
   
   if(!targetElement.isNull())
@@ -35,36 +29,42 @@ void ATourMouseMoveAction::loadFromXML(QDomElement actionElement)
 		   targetElement.attribute("y").toInt());
 }
 
-void ATourMouseMoveAction::doAction()
+void ATourMouseMoveAction::update(double done)
 {
-  ATourAction::doAction();
+  ATourAction::update(done);
 
-  ATourMouseMoveAction *prev=previousAction<ATourMouseMoveAction*>();
-  if(prev)
+  QWidget *cursor=mouseCursor();
+
+  if(target().isNull())
     {
-      targetInitial=prev->target();
+      cursor->hide();
+      return;
+    }
+
+  if(cursor->isHidden())
+    cursor->show();
+
+  QPoint tar;
+  if(!previousAction() || done==1)
+    {
+      tar=target();
     }
   else
     {
-      targetInitial=QCursor::pos();
+      QPoint tarIni=((ATourMouseMoveAction*)previousAction())->target();
+      if(tarIni.isNull()) tarIni=base->mapFromGlobal(QCursor::pos());
+      QPoint tarFin=target();
+      tar=interpolate(tarIni,tarFin,done);
     }
 
-  mouseCursor()->show();
+  cursor->move(tar);
 }
 
-void ATourMouseMoveAction::cleanupAction()
+void ATourMouseMoveAction::cleanup()
 {
-  ATourAction::cleanupAction();
+  ATourAction::cleanup();
+
   mouseCursor()->hide();
-}
-
-void ATourMouseMoveAction::updateAction(double done)
-{
-  ATourAction::updateAction(done);
-
-  QPoint tar=interpolate(targetInitial,target(),done);
-
-  mouseCursor()->move(tar);
 }
 
 QWidget* ATourMouseMoveAction::mouseCursor()

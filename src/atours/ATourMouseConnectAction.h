@@ -3,19 +3,21 @@
 
 #include "ATourMouseMoveAction.h"
 
+#include <abase/ABase.h>
+
 class ATourMouseConnectAction : public ATourMouseMoveAction
 {
 public:
   Q_INVOKABLE ATourMouseConnectAction();
-  Q_INVOKABLE ATourMouseConnectAction(QString wdg);
 
-  void loadFromXML(QDomElement actionElement);
+  void connectTo(ATourAction *act);
+
+  QPoint target();
   
-  void doAction();
-
 private:
-  QString _targetWidget;
-
+  ATourAction *action;
+  ABase *base;
+  
   Q_OBJECT
 };
 

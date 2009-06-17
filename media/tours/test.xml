@@ -1,72 +1,31 @@
 <?xml version="1.0"?>
 <amtour title="Test" description="Quick tour used for testing">
   <block>
-    <action type="ATourCameraAction" duration="2000">
+    <action type="ATourCameraAction" duration="2000" time="0">
       <camera x="1000" y="1000" z="1000" />
       <target x="0" y="0" z="0" />
     </action>
-    <action type="ATourCameraAction" duration="5000">
+    <action type="ATourLoadEventAction" time="2000" file="event:special-higgs.xml" />
+    <action type="ATourPtCutAction" time="10000" duration="5000" value="10000" />
+    <action type="ATourMessageAction" duration="5000" time="5000">
+      <message>
+	KABOOOM! I'm awesome!
+      </message>
+    </action>
+    <action type="ATourCameraAction" duration="5000" time="10000">
       <camera x="100" y="200" z="-300" />
       <target x="30" y="30" z="30" />
-      <action type="ATourMessageAction" duration="4000">
-	<message>
-	  KABOOM! I'm awesome!!!!
-	</message>
-      </action>
     </action>
-    <action type="ATourLoadEventAction" duration="5000" file="event:special-higgs.xml">
-      <action type="ATourMessageAction" duration="5000">
-        <message>
-		Look mommy, I've found the Higgs!
-        </message>
-      </action>
+    <action type="ATourCameraAction" duration="5000" time="15000">
+      <camera x="100" y="0" z="-300" />
+      <target x="30" y="0" z="30" />
     </action>
-    <action type="ATourCameraAction" duration="6000">
-      <camera x="1000" y="200" z="-300" />
-      <target x="30" y="30" z="30" />
-    </action>
-    <action type="ATourPtCutAction" duration="5000" value="10000">
-      <hint type="Widget" name="PtCutoff_Slider"/>
-      <action type="ATourMessageAction" duration="5000">
-        <message>
-                Gimme the big a$$ leptons!
-        </message>
-      </action>
-    </action>
-    <action type="ATourCameraAction" duration="7000">
-      <camera x="1000" y="2000" z="-300" />
-      <target x="0" y="0" z="0" />
-    </action>
-    <action type="ATourCameraAction" duration="7000">
-      <camera x="0" y="200" z="00" />
-      <target x="0" y="0" z="0" />
-    </action>
-    <action type="ATourViewportChangeAction" duration="10000">
+    <action type="ATourViewportChangeAction" time="20000">
       <viewport name="Front"/>
     </action>
-    <action type="ATourViewportChangeAction" duration="10000">
+    <action type="ATourViewportChangeAction" time="30000">
       <viewport name="Side"/>
     </action>
-  </block>
-  <block>
-    <action type="ATourCameraAction" duration="10000">
-      <camera x="0" y="1000" z="1000" />
-      <target x="0" y="0" z="0" />
-    </action>
-    <action type="ATourCameraAction" duration="5000">
-      <camera x="100" y="2000" z="-300" />
-      <target x="30" y="100" z="30" />
-    </action>
-    <action type="ATourCameraAction" duration="6000">
-      <camera x="1000" y="200" z="-300" />
-      <target x="30" y="30" z="30" />
-    </action>
-    <action type="ATourCameraAction" duration="7000">
-      <camera x="1000" y="2000" z="-300" />
-      <target x="0" y="1000" z="0" />
-    </action>
-    <action type="ATourMonitorAction" duration="10000" monitor=""/>
-    <action type="ATourMonitorAction" duration="5000" monitor="Default/ageometry"/>
   </block>
 </amtour>
 

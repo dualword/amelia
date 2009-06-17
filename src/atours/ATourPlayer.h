@@ -5,6 +5,7 @@
 #include <QTimeLine>
 #include <QLayout>
 #include <QSignalMapper>
+#include <QSlider>
 
 #include <ASlidyManager.h>
 
@@ -25,14 +26,18 @@ public:
   void setupElements();
 
   QTimeLine::State state();
+
 public slots:
   void play(ATour *tour);
   void playBlock(int idx);
 
   void toggle();
+  void resume();
+  void pause();
   void stop();
   void backward();
   void forward();
+  void seek(int to);
 
   void tourFinished();
 
@@ -56,6 +61,8 @@ private:
   ASlidyManager *controls;
   QWidget *playerControls;
   QLayout *blocksLayout;
+  QSlider *timeControl;
+  QSpinBox *timeShow;
   
   QSignalMapper blocksMapper;
 

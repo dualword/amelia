@@ -42,10 +42,10 @@ void ASlidyManager::setMaxSize(int maxSize)
   recalculateAlignment();
 }
 
-int ASlidyManager::addWidget(QWidget *wdg,QString title)
+int ASlidyManager::addWidget(QWidget *wdg,QString title,bool controlable)
 {
   // Create the flaps
-  ASlidyWidget *flap=new ASlidyWidget((QWidget*)parent());
+  ASlidyWidget *flap=new ASlidyWidget(this,title,(QWidget*)parent(),controlable);
 
   if(verticalSlide)
     wdg->resize(wdg->size().width(),_maxSize);
@@ -71,7 +71,7 @@ bool ASlidyManager::eventFilter(QObject *watched,QEvent *event)
 	{
 	default:
 	case Qt::AlignLeft:
-	  topCorner=QPoint(parentSize.width(),100);
+	  topCorner=QPoint(parentSize.width(),125);
 	  break;
 	case Qt::AlignTop:
 	  topCorner=QPoint(50,-_maxSize);

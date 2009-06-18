@@ -6,23 +6,39 @@
 #include <QDebug>
 #include <QMoveEvent>
 
-ASlidyWidget::ASlidyWidget(QWidget *parent)
-  :QWidget(parent)
+#include "ASlidyManager.h"
+
+ASlidyWidget::ASlidyWidget(ASlidyManager *mngr,const QString title, QWidget *parent, bool controlable)
+  :QWidget(parent),_mngr(mngr)
 { 
   setLayout(new QVBoxLayout());
 
-  setStyleSheet("background: gray;");
+  setStyleSheet("ASlidyWidget { background: gray; }");
+
+  if(controlable)
+    {
+      closeButton=new AHideAButton(this);
+      closeButton->move(0,0);
+      closeButton->resize(15,15);
+      closeButton->setPixmap(QPixmap(":/media/stop.png"));
+      connect(closeButton,SIGNAL(clicked()),
+	      mngr,SLOT(hideWidget()));
+    }
+
+  if(!title.isEmpty())
+    {
+      titleLabel=new QLabel(this);
+      titleLabel->setText(QString("<b>")+title+QString("</b>"));
+      titleLabel->setAlignment(Qt::AlignHCenter);
+
+      layout()->addWidget(titleLabel);
+    }
 }
 
 void ASlidyWidget::addWidget(QWidget *wdg)
 {
   resize(wdg->size());
   layout()->addWidget(wdg);
-}
-
-void ASlidyWidget::moveEvent(QMoveEvent *event)
-{
-
 }
 
 void ASlidyWidget::paintEvent(QPaintEvent *event)

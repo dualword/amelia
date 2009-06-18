@@ -5,27 +5,57 @@
       <camera x="1000" y="1000" z="1000" />
       <target x="0" y="0" z="0" />
     </action>
-    <action type="ATourLoadEventAction" time="2000" file="event:special-higgs.xml" />
-    <action type="ATourPtCutAction" time="10000" duration="5000" value="10000" />
-    <action type="ATourMessageAction" duration="5000" time="5000">
+
+    <action type="ATourCameraAction" duration="2000" time="2000">
+      <camera x="1000" y="1000" z="1000" />
+      <target x="0" y="1000" z="0" />
+    </action>
+
+    <action type="ATourCameraAction" duration="10000" time="4000">
+      <camera x="1000" y="0" z="1000" />
+      <target x="0" y="0" z="0" />
+    </action>
+
+    <action type="ATourCameraAction" duration="2000" time="14000">
+      <camera x="100" y="0" z="0" />
+      <target x="0" y="0" z="0" />
+    </action>
+
+    <action type="ATourLoadEventAction" time="16000" file="event:special-higgs.xml" />
+
+    <action type="ATourPtCutAction" time="20000" duration="5000" value="10000" />
+
+    <action type="ATourMessageAction" time="21000" duration="9000">
       <message>
-	KABOOOM! I'm awesome!
+	Any interesting particles are of high mass, and thus they break up into high energy particles.
       </message>
     </action>
-    <action type="ATourCameraAction" duration="5000" time="10000">
-      <camera x="100" y="200" z="-300" />
-      <target x="30" y="30" z="30" />
+
+    <action type="ATourMessageAction" time="30000" duration="16000">
+      <message>
+	We find that electrons, photons, hadrons and jets are quite boring for this analysis.
+      </message>
     </action>
-    <action type="ATourCameraAction" duration="5000" time="15000">
-      <camera x="100" y="0" z="-300" />
-      <target x="30" y="0" z="30" />
-    </action>
-    <action type="ATourViewportChangeAction" time="20000">
+
+    <action type="ATourParticleFilterAction" time="30000" particle="electrons" state="off"/>
+    <action type="ATourParticleFilterAction" time="33000" particle="jets" state="off"/>
+    <action type="ATourParticleFilterAction" time="36000" particle="photons" state="off"/>
+    <action type="ATourParticleFilterAction" time="39000" particle="neutralhadrons" state="off"/>
+    <action type="ATourParticleFilterAction" time="42000" particle="chargedhadrons" state="off"/>
+    <action type="ATourParticleFilterAction" time="45000" particle="met" state="off"/>
+
+    <action type="ATourSelectTrackAction" time="48000" id="17" multi="true"/>
+    <action type="ATourSelectTrackAction" time="51000" id="11" multi="true"/>
+
+    <!--<action type="ATourSelectTrackAction" time="30000">
+      <track id=""/>
+    </action>-->
+    <!--<action type="ATourViewportChangeAction" time="20000">
       <viewport name="Front"/>
     </action>
     <action type="ATourViewportChangeAction" time="30000">
       <viewport name="Side"/>
-    </action>
+    </action>-->
   </block>
 </amtour>
 

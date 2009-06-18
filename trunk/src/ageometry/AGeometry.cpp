@@ -937,7 +937,7 @@ void AGeometry::createAtlasGeometry()
     }
 }
 
-ATrack* AGeometry::selectTrackByID (int ID, bool multi)
+void AGeometry::selectTrackByID (int ID, bool multi)
 {
   if (!multi) //If we are not doing multiselection, the deselect anything selected
     {
@@ -959,13 +959,12 @@ ATrack* AGeometry::selectTrackByID (int ID, bool multi)
 	  allTracks[i]->select();
 	  selectedTracks.push_back(allTracks[i]);
 	  emit trackSelected(selectedTrack);
-	  return selectedTrack;
+	  return;
 	}
     }
-  return NULL;
 }
 
-ATrack* AGeometry::deselectTrackByID (int ID)
+void AGeometry::deselectTrackByID (int ID)
 {
   ATrack* tr;
   for (int i=0;i<selectedTracks.size();i++)
@@ -976,10 +975,45 @@ ATrack* AGeometry::deselectTrackByID (int ID)
 	  selectedTracks[i]->deselect();
 	  emit trackDeselected(tr);
 	  selectedTracks.removeAt(i);
-	  return tr;
+	  return;
         }
     }
-  return NULL;
+}
+
+ATrack3DNode* AGeometry::getTrackNodeByID( int ID )
+{
+  if(!_event) return 0;
+
+  //Loop through all the tracks...
+  for ( int i=0;i<allTracks.size();i++)
+    {
+      ATrack* selectedTrack = allTracks[i]->getTrack();
+      if ( selectedTrack->trackID() == ID ) //Found it
+	{
+	  return allTracks[i];
+	}
+    }
+
+  ATrack *track=_event->completeEvent()->getTrackById(ID);
+
+  if(track)
+    return createTrackNode(track);
+  else
+    return 0;
+}
+
+bool AGeometry::isTrackSelected(int ID)
+{
+  ATrack* tr;
+  for (int i=0;i<selectedTracks.size();i++)
+    {
+      tr=selectedTracks[i]->getTrack();
+      if (tr->trackID() == ID)
+        {
+	  return true;
+        }
+    }
+  return false;
 }
 
 void AGeometry::clearTrackSelection()

@@ -95,7 +95,6 @@ public slots:
     void enableElements();
 
     //Slots for event handling
-    void toggleVisibilityParticles(bool toggle);
     void handleCropModeChange(int mode);
     void showLoadEventDialog();
     void pressButton (char*);

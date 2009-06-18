@@ -86,11 +86,6 @@ QWidget* ATourMouseMoveAction::mouseCursor()
   return _mouseCursor;
 }
 
-QPoint ATourMouseMoveAction::cursor()
-{
-  return QPoint();
-}
-
 QPoint ATourMouseMoveAction::interpolate(QPoint start,QPoint end,double time)
 {
   QPoint diff=end-start;

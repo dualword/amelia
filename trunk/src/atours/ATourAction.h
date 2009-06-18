@@ -11,13 +11,21 @@ class ATourAction : public QObject
 public:
   ATourAction();
 
+  virtual QString type();
+
   void setDuration(int);
   int duration();
   void setTime(int);
   int time();
 
+  void setWidgetOfInterest(QString);
+  virtual QString widgetOfInterest();
+
   bool isStateless();
   void setStateless(bool);
+
+  bool isCursorable();
+  void setCursorable(bool);
 
   void setNextAction(ATourAction*);
   ATourAction* nextAction();
@@ -35,7 +43,6 @@ public:
 
   virtual void loadFromXML(QDomElement actionElement);
 
-  virtual QString widgetOfInterest();
   virtual QPoint cursor();
 
   void insertAction(ATourAction *action);
@@ -49,9 +56,11 @@ private:
   ATourAction *_next;
 
   bool _stateless;
+  bool _cursorable;
   int _duration;
   int _time;
 
+  QString _widgetOfInterest;
 
   static QMap<QString,QMetaObject> _listOfActionTypes;
   Q_OBJECT

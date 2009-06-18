@@ -21,7 +21,6 @@ public:
   void cleanup();
 
   QWidget* mouseCursor();
-  QPoint cursor();
 
 private:
   QPoint _target;

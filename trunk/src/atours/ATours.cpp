@@ -44,6 +44,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATourMouseMoveAction.h"
 #include "ATourViewportChangeAction.h"
 #include "ATourMouseConnectAction.h"
+#include "ATourParticleFilterAction.h"
+#include "ATourSelectTrackAction.h"
 #include "config.h"
 
 #include <QDebug>
@@ -61,6 +63,8 @@ ATours::ATours( QObject *parent )
   ATourAction::addActionType(ATourMouseMoveAction::staticMetaObject); 
   ATourAction::addActionType(ATourViewportChangeAction::staticMetaObject); 
   ATourAction::addActionType(ATourMouseConnectAction::staticMetaObject); 
+  ATourAction::addActionType(ATourParticleFilterAction::staticMetaObject); 
+  ATourAction::addActionType(ATourSelectTrackAction::staticMetaObject); 
 }
 
 ATours::~ATours()

@@ -8,8 +8,14 @@
 QMap<QString,QMetaObject> ATourAction::_listOfActionTypes;
 
 ATourAction::ATourAction()
-  :_previous(0),_next(0),_stateless(false),_duration(0),_time(0)
+  :_previous(0),_next(0),_stateless(false),_cursorable(false),_duration(0),_time(0)
 { }
+
+QString ATourAction::type()
+{
+  QString type=metaObject()->className();
+  return type;
+}
 
 void ATourAction::setDuration(int _duration)
 {
@@ -39,6 +45,16 @@ bool ATourAction::isStateless()
 void ATourAction::setStateless(bool stateless)
 {
   _stateless=stateless;
+}
+
+void ATourAction::setCursorable(bool cursorable)
+{
+  _cursorable=cursorable;
+}
+
+bool ATourAction::isCursorable()
+{
+  return _cursorable;
 }
 
 void ATourAction::setNextAction(ATourAction *next)
@@ -98,9 +114,15 @@ void ATourAction::prepare()
 void ATourAction::cleanup()
 { }
 
+void ATourAction::setWidgetOfInterest(QString widgetOfInterest)
+{
+  setCursorable(!widgetOfInterest.isEmpty());
+  _widgetOfInterest=widgetOfInterest;
+}
+
 QString ATourAction::widgetOfInterest()
 {
-  return QString();
+  return _widgetOfInterest;
 }
 
 QPoint ATourAction::cursor()
@@ -176,9 +198,17 @@ void ATourAction::addActionType(QMetaObject metaobj)
 
 ATourAction* ATourAction::newInstance(QString classname)
 {
+  QStringList parts=classname.split("_");
+  classname=parts[0];
+
   if(!_listOfActionTypes.contains(classname))
     return 0;
   
-  QObject* obj=_listOfActionTypes[classname].newInstance();
+  QObject* obj;
+  if(parts.size()==1)
+    obj=_listOfActionTypes[classname].newInstance();
+  else
+    obj=_listOfActionTypes[parts[0]].newInstance(Q_ARG(QString,parts[1]));
+  
   return qobject_cast<ATourAction*>(obj);
 }

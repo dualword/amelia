@@ -91,6 +91,9 @@ public:
   
   APoint3D cameraPosition();
   APoint3D cameraTarget();
+
+  ATrack3DNode* getTrackNodeByID ( int ID );
+  bool isTrackSelected(int ID);
   
   scene::ISceneNode* cube;
   
@@ -137,8 +140,8 @@ public slots:
   
   void renderViewport(int view);
   
-  ATrack* selectTrackByID ( int ID ,bool multitrack=false);
-  ATrack* deselectTrackByID ( int ID );
+  void selectTrackByID ( int ID ,bool multitrack=false);
+  void deselectTrackByID ( int ID );
   void clearTrackSelection();
   
   //Functions to grab and release control of the camera

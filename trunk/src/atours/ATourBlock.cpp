@@ -30,8 +30,7 @@ void ATourBlock::loadBlock(QDomElement blockElement)
 	  
 	  addAction(action);
 	  
-	  QPoint pos=action->cursor();
-	  if(!pos.isNull())
+	  if(action->isCursorable())
 	    {
 	      ATourMouseConnectAction *connectAction=new ATourMouseConnectAction();
 	      connectAction->connectTo(action);
@@ -111,18 +110,18 @@ void ATourBlock::cleanup()
 
 void ATourBlock::addAction(ATourAction *action)
 {
-  QString type=action->metaObject()->className();
+  QString type=action->type();
 
   if(!actions.contains(type))
     actions[type]=ATourAction::newInstance(type);
-
+  qDebug() << actions[type];
   actions[type]->insertAction(action);
 
-  ATourAction *iter=actions[type];
+  /*ATourAction *iter=actions[type];
   while(iter)
     {
       qDebug() << "FOUND: " << iter << " " << iter->time();
       iter=iter->nextAction();
-    }
+      }*/
 }
 

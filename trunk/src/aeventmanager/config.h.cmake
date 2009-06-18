@@ -1,0 +1,1 @@
+#define EVENTS_PREFIX "${CMAKE_INSTALL_PREFIX}/share/amelia/events"

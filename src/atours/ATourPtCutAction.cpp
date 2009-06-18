@@ -8,7 +8,9 @@ ATourPtCutAction::ATourPtCutAction()
   :ATourAction()
 {
   AGeoPlugin *geo=(AGeoPlugin*)AMELIA::global->plugin("AGeometry");
-  ptFilter=geo->ptCutSync();
+  ptFilter=geo->ptFilter();
+
+  setWidgetOfInterest("PtCutoff_Slider");
 }
 
 void ATourPtCutAction::loadFromXML(QDomElement actionElement)
@@ -16,11 +18,6 @@ void ATourPtCutAction::loadFromXML(QDomElement actionElement)
   value=actionElement.attribute("value").toDouble();
 
   ATourAction::loadFromXML(actionElement); 
-}
-
-QString ATourPtCutAction::widgetOfInterest()
-{
-  return "PtCutoff_Slider";
 }
 
 void ATourPtCutAction::update(double done)
@@ -40,12 +37,12 @@ void ATourPtCutAction::update(double done)
       usevalue=valueIni+delta*done;
     }
 
-  ptFilter->setValue(usevalue);
+  ptFilter->setMinPtMeV(usevalue);
 }
 
 void ATourPtCutAction::prepare()
 {
   ATourAction::prepare();
 
-  value=ptFilter->value();
+  value=ptFilter->minPt()*1000;
 }

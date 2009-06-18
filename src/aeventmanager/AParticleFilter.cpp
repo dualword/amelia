@@ -16,42 +16,84 @@ void AParticleFilter::setShowElectrons(bool toggle)
 {
   _showElectrons=toggle;
   emit filterUpdated();
+  emit showElectronsChanged(toggle);
 }
 
 void AParticleFilter::setShowMuons(bool toggle)
 {
   _showMuons=toggle;
   emit filterUpdated();
+  emit showMuonsChanged(toggle);
 }
 
 void AParticleFilter::setShowChargedHadrons(bool toggle)
 {
   _showChargedHadrons=toggle;
   emit filterUpdated();
+  emit showChargedHadronsChanged(toggle);
 }
 
 void AParticleFilter::setShowNeutralHadrons(bool toggle)
 {
   _showNeutralHadrons=toggle;
   emit filterUpdated();
+  emit showNeutralHadronsChanged(toggle);
 }
 
 void AParticleFilter::setShowPhotons(bool toggle)
 {
   _showPhotons=toggle;
   emit filterUpdated();
+  emit showPhotonsChanged(toggle);
 }
 
 void AParticleFilter::setShowJets(bool toggle)
 {
   _showJets=toggle;
   emit filterUpdated();
+  emit showJetsChanged(toggle);
 }
 
 void AParticleFilter::setShowMissingEt(bool toggle)
 {
   _showMissingEt=toggle;
   emit filterUpdated();
+  emit showMissingEtChanged(toggle);
+}
+
+bool AParticleFilter::showElectrons()
+{
+  return _showElectrons;
+}
+
+bool AParticleFilter::showMuons() 
+{
+  return _showMuons;
+}
+
+bool AParticleFilter::showChargedHadrons()
+{
+  return _showChargedHadrons;
+}
+
+bool AParticleFilter::showNeutralHadrons() 
+{ 
+  return _showNeutralHadrons;
+}
+
+bool AParticleFilter::showPhotons() 
+{ 
+  return _showPhotons;
+}
+
+bool AParticleFilter::showJets()
+{ 
+  return _showJets;
+}
+
+bool AParticleFilter::showMissingEt() 
+{
+  return _showMissingEt;
 }
 
 bool AParticleFilter::checkTrack(ATrack *track)

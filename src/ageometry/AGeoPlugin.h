@@ -14,6 +14,9 @@
 #include <AMainViewTmpWidget.h>
 #include <QDoubleSync.h>
 
+#include <aeventmanager/AParticleFilter.h>
+#include <aeventmanager/APtFilter.h>
+
 #include "AGeometryDefines.h"
 
 class AEvent;
@@ -35,7 +38,8 @@ public:
   AMainViewTmpWidget* addMainViewTmpWidget(QWidget* widget);
   void addToDetectorMenu(QString partName,QAction *action);
 
-  QDoubleSync *ptCutSync();
+  APtFilter* ptFilter();
+  AParticleFilter *particleFilter();
 
  public slots:
   void handleNewEventLoaded(AEvent*);

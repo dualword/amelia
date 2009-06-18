@@ -13,9 +13,9 @@ ATourMouseConnectAction::ATourMouseConnectAction()
 
 void ATourMouseConnectAction::connectTo(ATourAction *act)
 {
-  int time=act->time()-2000;
+  int time=act->time()-1000;
   setTime(time);
-  setDuration(2000);
+  setDuration(1000);
   action=act;
 }
 

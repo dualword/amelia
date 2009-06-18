@@ -51,6 +51,8 @@ SET(atours_SRCS
   ATourMouseMoveAction.cpp
   ATourMouseConnectAction.cpp
   ATourViewportChangeAction.cpp
+  ATourParticleFilterAction.cpp
+  ATourSelectTrackAction.cpp
   )
 
 SET(atours_H
@@ -68,6 +70,8 @@ SET(atours_H
   ATourMouseMoveAction.h
   ATourMouseConnectAction.h
   ATourViewportChangeAction.h
+  ATourParticleFilterAction.h
+  ATourSelectTrackAction.h
   )
 
 SET(atours_FILES

@@ -160,9 +160,14 @@ void AGeoPlugin::addToDetectorMenu(QString partName,QAction* action)
   geo->addToDetectorMenu(partName,action);
 }
 
-QDoubleSync* AGeoPlugin::ptCutSync()
+APtFilter* AGeoPlugin::ptFilter()
 {
-  return &layerGUI->ptFilterSync;
+  return layerGUI->ptFilter;
+}
+
+AParticleFilter* AGeoPlugin::particleFilter()
+{
+  return layerGUI->particleFilter;
 }
 				   
 
@@ -175,7 +180,10 @@ void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)
 {
   QGraphicsView *trackInfoView=(QGraphicsView*)findWidget("trackInfo");
   ASelectionInfoScene *trackInfo=(ASelectionInfoScene*)trackInfoView->scene();
-  trackInfo->displayMessage(text,header,img);
+  if(text.isEmpty())
+    trackInfo->hideMessage();
+  else
+    trackInfo->displayMessage(text,header,img);    
 }
 
 void AGeoPlugin::switchToMainView(int idx)

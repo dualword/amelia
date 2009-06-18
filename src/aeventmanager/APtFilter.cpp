@@ -14,6 +14,8 @@ void APtFilter::setMinPt(double _minPt)
   this->_minPt=_minPt;
 
   emit filterUpdated();
+  emit minPtChanged(_minPt);
+  emit minPtMeVChanged(_minPt*1000);
 }
 
 void APtFilter::setMinPtMeV(double _minPt)

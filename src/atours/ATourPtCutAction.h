@@ -3,7 +3,7 @@
 
 #include "ATourAction.h"
 
-#include <QDoubleSync.h>
+#include <aeventmanager/APtFilter.h>
 
 class ATourPtCutAction : public ATourAction
 {
@@ -16,10 +16,8 @@ public:
 
   void prepare();
 
-  QString widgetOfInterest();
-
-private:
-  QDoubleSync *ptFilter;
+ private:
+  APtFilter *ptFilter;
 
   double value;
 

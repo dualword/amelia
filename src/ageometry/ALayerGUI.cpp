@@ -112,6 +112,14 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QCheckBox *checkBox_SCT=detectorVisibility->findChild<QCheckBox *>("checkBox_SCT");
     QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
     
+    QCheckBox *checkBox_Electrons=findChild<QCheckBox *>("checkBox_Electrons");
+    QCheckBox *checkBox_ChargedHadrons=findChild<QCheckBox *>("checkBox_ChargedHadrons");
+    QCheckBox *checkBox_NeutralHadrons=findChild<QCheckBox *>("checkBox_NeutralHadrons");
+    QCheckBox *checkBox_Muons=findChild<QCheckBox *>("checkBox_Muons");
+    QCheckBox *checkBox_Photons=findChild<QCheckBox *>("checkBox_Photons");
+    QCheckBox *checkBox_Jets=findChild<QCheckBox *>("checkBox_Jets");
+    QCheckBox *checkBox_MissingEt=findChild<QCheckBox *>("checkBox_MissingEt");
+
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
 
@@ -231,9 +239,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     
     //Setup slide widget
     ASlidyManager *slide=new ASlidyManager(this);
-    slide->addWidget(eventInfoView,"Event Info");
-    slide->addWidget(packageList,"Packages");
-    slide->addWidget(detectorVisibility,"Detector Visibility");
+    slide->addWidget(eventInfoView,"Event Info",true);
+    slide->addWidget(packageList,"Packages",true);
+    slide->addWidget(detectorVisibility,"Detector Visibility",true);
     connect(&flapMapper,SIGNAL(mapped(int)),
 	    slide,SLOT(toggleWidget(int)));
     flapMapper.setMapping(button_eventInfo,0);
@@ -263,6 +271,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     ptFilterSync.setValue(1000);
     connect(&ptFilterSync,SIGNAL(valueChanged(double)),
 	    ptFilter,SLOT(setMinPtMeV(double)));
+    connect(ptFilter,SIGNAL(minPtMeVChanged(double)),
+	    &ptFilterSync,SLOT(setValue(double)));
     ptFilterSync.syncSlider(PtCutoff_Slider);
     ptFilterSync.syncSpinBox(spinBox_Pt);
 
@@ -352,6 +362,73 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     if(checkBox_TRT)
       geo->trtVisibility()->syncButton(checkBox_TRT);
 
+    //Setup particle visiblility toggles
+    if(checkBox_Electrons)
+      {
+	QBoolSync *electronSync=new QBoolSync(checkBox_Electrons->isChecked());
+	electronSync->syncButton(checkBox_Electrons);
+	connect(electronSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowElectrons(bool)));
+	connect(particleFilter,SIGNAL(showElectronsChanged(bool)),
+		electronSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Muons)
+      {
+	QBoolSync *muonSync=new QBoolSync(checkBox_Muons->isChecked());
+	muonSync->syncButton(checkBox_Muons);
+	connect(muonSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowMuons(bool)));
+	connect(particleFilter,SIGNAL(showMuonsChanged(bool)),
+		muonSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Photons)
+      {
+	QBoolSync *photonSync=new QBoolSync(checkBox_Photons->isChecked());
+	photonSync->syncButton(checkBox_Photons);
+	connect(photonSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowPhotons(bool)));
+	connect(particleFilter,SIGNAL(showPhotonsChanged(bool)),
+		photonSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Jets)
+      {
+	QBoolSync *jetSync=new QBoolSync(checkBox_Jets->isChecked());
+	jetSync->syncButton(checkBox_Jets);
+	connect(jetSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowJets(bool)));
+	connect(particleFilter,SIGNAL(showJetsChanged(bool)),
+		jetSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_ChargedHadrons)
+      {
+	QBoolSync *chargedHadronsSync=new QBoolSync(checkBox_ChargedHadrons->isChecked());
+	chargedHadronsSync->syncButton(checkBox_ChargedHadrons);
+	connect(chargedHadronsSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowChargedHadrons(bool)));
+	connect(particleFilter,SIGNAL(showChargedHadronsChanged(bool)),
+		chargedHadronsSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_NeutralHadrons)
+      {
+	QBoolSync *neutralHadronsSync=new QBoolSync(checkBox_NeutralHadrons->isChecked());
+	neutralHadronsSync->syncButton(checkBox_NeutralHadrons);
+	connect(neutralHadronsSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowNeutralHadrons(bool)));
+	connect(particleFilter,SIGNAL(showNeutralHadronsChanged(bool)),
+		neutralHadronsSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_MissingEt)
+      {
+	QBoolSync *metSync=new QBoolSync(checkBox_MissingEt->isChecked());
+	metSync->syncButton(checkBox_MissingEt);
+	connect(metSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowMissingEt(bool)));
+	connect(particleFilter,SIGNAL(showMissingEtChanged(bool)),
+		metSync,SLOT(setValue(bool)));
+      }
+
+
+
     //Setup the smart shower
     connect(&smartShowMapper,SIGNAL(mapped(int)),
 	    slide,SLOT(showWidgetTimed(int)));
@@ -403,40 +480,6 @@ void ALayerGUI::actionSwitchView()
   else if (from=="actionSide")
     {
       geo->setViewport(AGeometry::Side);
-    }
-}
-
-void ALayerGUI::toggleVisibilityParticles(bool toggle)
-{
-  QString from=sender()->objectName();
-  
-  if (from=="checkBox_Electrons")
-    {
-      particleFilter->setShowElectrons(toggle);
-    }
-  else if (from=="checkBox_Muons")
-    {
-      particleFilter->setShowMuons(toggle);
-    }
-  else if (from=="checkBox_ChargedHadrons")
-    {
-      particleFilter->setShowChargedHadrons(toggle);
-    }
-  else if (from=="checkBox_NeutralHadrons")
-    {
-      particleFilter->setShowNeutralHadrons(toggle);
-    }
-  else if (from=="checkBox_Photons")
-    {
-      particleFilter->setShowPhotons(toggle);
-    }
-  else if (from=="checkBox_Jets")
-    {
-      particleFilter->setShowJets(toggle);
-    }
-  else if (from=="checkBox_MissingEt")
-    {
-      particleFilter->setShowMissingEt(toggle);
     }
 }
 

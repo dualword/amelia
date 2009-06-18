@@ -21,7 +21,7 @@ class LIBAMELIA_EXPORT ASlidyManager : public QObject
   int visibleId();
 
   void setMaxSize(int maxSize);
-  int addWidget(QWidget *wdg,QString title);
+  int addWidget(QWidget *wdg,QString title, bool controlable);
   
  public slots:
   void toggleWidget(int);

@@ -9,6 +9,8 @@ ATourViewportChangeAction::ATourViewportChangeAction()
 { 
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
   geo=(AGeometry*)geoplugin->findWidget("Geometry");
+
+  setCursorable(true);
 }
 
 QString ATourViewportChangeAction::widgetOfInterest()

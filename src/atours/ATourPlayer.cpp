@@ -22,7 +22,6 @@ void ATourPlayer::setupElements()
   
   controls=new ASlidyManager(baseplugin,Qt::AlignTop);
   controls->setMaxSize(50);
-  qDebug() << "USE " << baseplugin;
 
   playerControls=new QWidget();
   QLayout *playerLayout=new QHBoxLayout(playerControls);
@@ -84,8 +83,8 @@ void ATourPlayer::setupElements()
   blocksOuterLayout->addLayout(blocksLayout);
   blocksOuterLayout->addWidget(closeButton);
   
-  controls->addWidget(playerControls,"Controls");
-  controls->addWidget(blocksControls,"Blocks");
+  controls->addWidget(playerControls,"",false);
+  controls->addWidget(blocksControls,"",false);
   
   /*QObject::connect (&tourManager, SIGNAL(tour_camera(AGeometry::CameraMode)),
 		    geo, SLOT(setViewport(AGeometry::CameraMode)));

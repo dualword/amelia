@@ -34,6 +34,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 ******************************************************/
 
 #include "ASTrack3DNode.h"
+#include <QDebug>
 
 static const float Length = 2500; // half-length
 static const float Radius = 43; //radius of the tracking zone
@@ -57,7 +58,7 @@ const video::SColor colorlist[52] =
   };
 
 ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ASTrack* track)
-  : ATrack3DNode ( parent, smgr, id ,track)
+  : ATrack3DNode ( parent, smgr, id ,track),_blinkTimer(-1)
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "ASTrack3DNode" );
@@ -127,6 +128,7 @@ void ASTrack3DNode::setTrackStyle ( Style style )
       boxMode = false;
       color = this->vividColor;
       addAnimator(boxSizeAnim);
+      emit lookChanged();
       break;
       
     case Selectable:
@@ -173,7 +175,6 @@ void ASTrack3DNode::setTrackStyle ( Style style )
 	{
 	  createBoxes();
 	}
-      isLineVisible = false;
       boxMode = true;
       removeAnimator(boxSizeAnim);
       setScale(vector3df(1,1,1));
@@ -188,6 +189,20 @@ void ASTrack3DNode::setTrackStyle ( Style style )
 	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
 	  m->EmissiveColor = vividColor ;
 	}
+      if(!getTrack()->isInteresting())
+	{
+	  isLineVisible = true;
+	  if(_blinkTimer==-1)
+	    {
+	      _blinkCount=0;
+	      _blinkTimer=startTimer(100);
+	    }
+	} 
+      else
+	{
+	  isLineVisible = false;
+	}
+      emit lookChanged();
       break;
     case Disabled:
       //simple line invisible, boxes visible in grey
@@ -206,6 +221,7 @@ void ASTrack3DNode::setTrackStyle ( Style style )
 	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
 	  m->EmissiveColor = video::SColor ( 0,122,122,122 );
 	}
+      emit lookChanged();
       break;
   
   //simple line invisible, boxes invisible if present
@@ -605,4 +621,21 @@ const core::aabbox3d<f32>& ASTrack3DNode::getBoundingBox() const
 video::SMaterial& ASTrack3DNode::getMaterial ( s32 i )
 {
   return Material;
+}
+
+void ASTrack3DNode::timerEvent(QTimerEvent *event)
+{
+  for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
+    {
+      ( *it )->setVisible ( !( *it )->isVisible() );
+    }
+  _blinkCount++;
+  if(_blinkCount>=10)
+    {
+      killTimer(_blinkTimer);
+      _blinkTimer==-1;
+      deselect();
+    }
+  
+  emit lookChanged();
 }

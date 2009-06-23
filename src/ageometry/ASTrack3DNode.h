@@ -80,10 +80,16 @@ public:
   virtual const core::aabbox3d<f32>& getBoundingBox() const;
   
   virtual video::SMaterial& getMaterial ( s32 i );
-  
+
+protected:
+  void timerEvent(QTimerEvent*);
 
 private:
   CRelativeScaleSceneNodeAnimator *boxSizeAnim;
+  int _blinkTimer;
+  int _blinkCount;
+
+  Q_OBJECT
 };
 
 #endif // ASTRACK3DNODE_H_

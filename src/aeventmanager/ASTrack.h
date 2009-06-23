@@ -32,6 +32,8 @@ public:
 
   float getTl();
 
+  bool isInteresting();
+
  private:
   static const int codelist[];
   static const int chargelist[];

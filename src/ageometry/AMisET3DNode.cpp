@@ -43,6 +43,7 @@ void AMisET3DNode::setTrackStyle ( Style style )
 	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
 	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
 	  m->EmissiveColor = video::SColor ( 0,255,255,122 );
+	  emit lookChanged();
 	}
       break;
       
@@ -54,6 +55,7 @@ void AMisET3DNode::setTrackStyle ( Style style )
 	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
 	  m->EmissiveColor = video::SColor ( 0,0,0,0 );
 	}
+      emit lookChanged();
       break;
       
       //invisible Missing Et style

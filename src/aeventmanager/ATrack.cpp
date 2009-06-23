@@ -2,10 +2,10 @@
 
 unsigned int ATrack::highestTrackID=0;
 
-ATrack::ATrack():_type(ATrack::eUndefined)
+ATrack::ATrack():_type(ATrack::eUndefined),_interesting(true)
 {}
 
-ATrack::ATrack(QString name,ATrack::eType type):_name(name),_type(type)
+ATrack::ATrack(QString name,ATrack::eType type):_name(name),_type(type),_interesting(true)
 { }
 
 ATrack::ATrack(const ATrack& o)
@@ -72,4 +72,14 @@ float ATrack::Pt()
 void ATrack::setPt(float pt)
 {
   _pt=pt;
+}
+
+bool ATrack::isInteresting()
+{
+  return _interesting;
+}
+
+void ATrack::setInteresting(bool interesting)
+{
+  _interesting=interesting;
 }

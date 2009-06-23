@@ -39,10 +39,6 @@ void ASelectionInfoScene::init()
     id->setPos(0,55);
     id->setDefaultTextColor("white");
 
-    nonSelectable=addText("Non Selectable");
-    nonSelectable->setPos(230,15);
-    nonSelectable->setDefaultTextColor("black");
-
     pt=addText("Pt:");
     pt->setPos(130,25);
     pt->setDefaultTextColor("white");
@@ -166,7 +162,6 @@ void ASelectionInfoScene::displayMessage(QString text,QString headerText,QPixmap
     }
 
   //Hide track information
-  nonSelectable->setVisible(false);
   name->setVisible(false);
   charge->setVisible(false);
   invmass->setVisible(false);
@@ -212,7 +207,6 @@ void ASelectionInfoScene::refresh()
   if (combo->size()==0)
     {
       header->setVisible(false);
-      nonSelectable->setVisible(false);
       name->setVisible(false);
       charge->setVisible(false);
       invmass->setVisible(false);
@@ -235,7 +229,6 @@ void ASelectionInfoScene::refresh()
 	  charge->setHtml("<b>Charge:</b> "+QString::number(STrack->charge()));
 	  pt->setHtml("<b>Pt:</b> "+QString::number(STrack->Pt()));
 	  id->setHtml("<b>id:</b> "+QString::number(STrack->trackID()));
-	  nonSelectable->setHtml("<b>This track cannot<br/> be saved. It is<br/> irrelevant for<br/> analysis.</b>");
 	  
 	  
 	  header->setVisible(true);
@@ -246,7 +239,6 @@ void ASelectionInfoScene::refresh()
 	  id->setVisible(true);
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
-	  nonSelectable->setVisible(false);
         }
       else if ( (*combo)[0]->type() == ATrack::eJet ) //jet
         {
@@ -301,7 +293,6 @@ void ASelectionInfoScene::refresh()
       name->setHtml("<b>Name:</b> "+combName);
       charge->setHtml("<b>Charge:</b> "+QString::number(combo->charge()));
       invmass->setHtml("<b>Invariant Mass:</b> "+QString::number(combo->getInvariantMass()));
-      nonSelectable->setHtml("<b>At least one of the<br>selected tracks<br>is irrelevant for<br>the analysis</b>");
       
       header->setVisible(true);
       name->setVisible(true);
@@ -309,7 +300,6 @@ void ASelectionInfoScene::refresh()
       invmass->setVisible(true);
       pt->setVisible(false);
       id->setVisible(false);
-      nonSelectable->setVisible(false);
       icon->setVisible(false);
     }
   
@@ -318,41 +308,12 @@ void ASelectionInfoScene::refresh()
   addTrack->setVisible(false);
   for (int i=0;i<combo->size();i++)
     {
-      if (!particleFilter((*combo)[i]))
-        {
-	  nonSelectable->setVisible(true);
-        }
-      
       if ( !tracks.contains((*combo)[i]) )
         {
 	  addTrack->setVisible (true );
         }
     }
 
-  // Unalyziable track selected, disable everything
-  if ((nonSelectable->isVisible()))
-    {
-      combTrack->setVisible(false);
-      addTrack ->setVisible(false);
-    }
   emit combineButtonEnabled(combTrack->isVisible());
 
-}
-
-bool ASelectionInfoScene::particleFilter(ATrack* track) // We don't want to allow every track to be added to the table
-{
-  if ((track->type() == ATrack::eJet) || (track->type() == ATrack::eMissingEt))
-    {
-      return true;
-    }
-  else if(track->type() == ATrack::eSTrack)
-    {
-      ASTrack *strack=(ASTrack*)track;
-      return (strack->isElectron() || strack->isMuon() || strack->isPhoton());
-    }
-  else
-    {
-      return false;
-    }
-  
 }

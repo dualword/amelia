@@ -71,7 +71,6 @@ class ASelectionInfoScene : public QGraphicsScene
   
   void displayMessage(QString message,QString headerText="",QPixmap img=QPixmap());
   void hideMessage();
-  bool particleFilter(ATrack* strack);
   void refresh();
   
  signals:
@@ -83,7 +82,6 @@ class ASelectionInfoScene : public QGraphicsScene
   ATrackCollection *analysisData;
   
   QGraphicsTextItem *header;
-  QGraphicsTextItem *nonSelectable;
   
   QGraphicsTextItem *name;
   QGraphicsTextItem *charge;

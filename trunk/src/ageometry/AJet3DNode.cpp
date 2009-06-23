@@ -33,12 +33,14 @@ void AJet3DNode::setTrackStyle ( ATrack3DNode::Style style )
       //unselected jet style
       Pyramid->setVisible(true);
       m->EmissiveColor = video::SColor ( 0,100,100,100 );
+      emit lookChanged();
       break;
 
     case Selected:
       //selected jet style
       Pyramid->setVisible(true);
       m->EmissiveColor = video::SColor ( 0,255,0,0 );
+      emit lookChanged();
       break;
     }
       //invisible jet style

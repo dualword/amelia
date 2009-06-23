@@ -9,7 +9,6 @@
 /// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
 class AEVENTMANAGER_EXPORT ATrack : public QObject
 {
-
  public:
   enum eType //element type
   {
@@ -22,7 +21,7 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
     eCombination
   };
   static unsigned int highestTrackID;
-
+  
   ATrack();
   ATrack(QString name,ATrack::eType);
   ATrack(const ATrack&);
@@ -44,7 +43,8 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
   float Pt();
   void setPt(float);
 
-  
+  virtual bool isInteresting();
+  void setInteresting(bool);
 
  private:
   eType _type;
@@ -55,6 +55,8 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
 
   int _charge;
   float _pt;
+
+  bool _interesting;
 
   Q_OBJECT
 };

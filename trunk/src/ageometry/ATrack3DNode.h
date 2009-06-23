@@ -36,6 +36,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #ifndef ATRACK3DNODE_H_
 #define ATRACK3DNODE_H_
 
+#include <QObject>
+
 #include <aeventmanager/ATrack.h>
 #include <aeventmanager/ASTrack.h>
 #include <aeventmanager/AMisET.h>
@@ -53,11 +55,11 @@ using namespace irr::core;
 using namespace io;
 using namespace std;
 
-class ATrack3DNode : public scene::ISceneNode
+class ATrack3DNode : public QObject, public scene::ISceneNode
 {
 public:  
   enum Style { Basic, Selected, Selectable, Disabled };
-
+  
   ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,ATrack* track=0);
   virtual ~ATrack3DNode();
   
@@ -71,11 +73,16 @@ public:
   
   virtual void select();
   virtual void deselect();
+
+signals:
+  void lookChanged();
   
 protected:
   video::SMaterial Material;
   
   void setTrack(ATrack* track);
+
+  Q_OBJECT
 };
 
 

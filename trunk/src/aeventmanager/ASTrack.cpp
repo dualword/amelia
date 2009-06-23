@@ -109,3 +109,8 @@ float ASTrack::getTl()
 {
   return tL = 0.5 * ( exp (eta) - exp (-eta));
 }
+
+bool ASTrack::isInteresting()
+{
+  return (isElectron() || isMuon() || isPhoton());
+}

@@ -110,11 +110,6 @@ AGeometry::AGeometry(QWidget* parent)
     zoomIn=0;
     zoomOut=0;
 
-    connect(this,SIGNAL(trackSelected(ATrack*)),
-	    this,SLOT(makeDirty()));
-    connect(this,SIGNAL(trackDeselected(ATrack*)),
-	    this,SLOT(makeDirty()));
-
     // Prepare visility controls
     _detectorVisibility.setValue(true);
     visibilityMapper.setMapping(&_detectorVisibility,8);
@@ -416,7 +411,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 		}
 	    }
 	}
-
+      
       // Find the selected scene node
       ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16 );
       ITriangleSelector* selector;
@@ -1087,28 +1082,31 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 	      if(allowTrackSelection)
 		{ //Start track selection
 		  ATrack3DNode *selected=trackSelection(posMouse);
-	      
-	      //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-	      if (!Shift)
+		  
+		  //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
+		  if (!Shift)
 		    { // Deselect every selected track
-		  while (!selectedTracks.isEmpty())
-		    {
-		      ATrack3DNode *node=selectedTracks.back();
-		      node->deselect();
-		      selectedTracks.pop_back();
-		      emit trackDeselected(node->getTrack());
-		    }
+		      while (!selectedTracks.isEmpty())
+			{
+			  ATrack3DNode *node=selectedTracks.back();
+			  node->deselect();
+			  selectedTracks.pop_back();
+			  emit trackDeselected(node->getTrack());
+			}
 		    }
 		  
-	      if (selected)
-		{
-		  int idx=selectedTracks.indexOf(selected);
-		  if (idx==-1) //Make sure the track is not already selected
+		  if (selected)
 		    {
-		      selected->select();
-		      selectedTracks.push_back(selected);
-		      emit trackSelected(selected->getTrack());
-		      qDebug() << "Found and selected a track...";
+		      int idx=selectedTracks.indexOf(selected);
+		      if (idx==-1) //Make sure the track is not already selected
+			{
+			  selected->select();
+			  if(selected->getTrack()->isInteresting())
+			    {
+			      selectedTracks.push_back(selected);
+			      emit trackSelected(selected->getTrack());
+			      qDebug() << "Found and selected a track...";
+			    }
 			}
 		      else //else deselect it
 			{
@@ -1117,9 +1115,9 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 			  emit trackDeselected(selected->getTrack());
 			  qDebug() << "Found and delselected a track...";
 			}
-		      return;
-		    }
-		} //End track selection
+		    } //End track selection
+		  return;
+		}
 	      
 	      if(!Shift) // When we press shift, then for sure we only want track selection
 	      { //Start detector selection
@@ -1312,6 +1310,7 @@ void AGeometry::clearEvent()
   for(int i=0;i<allTracks.size();i++)
     {
       mngr->addToDeletionQueue(allTracks[i]);
+      allTracks[i]->deleteLater();
     }
   allTracks.clear();
   allJets.clear();
@@ -1381,6 +1380,9 @@ ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
       node->setVisible(false);
       allTracks.push_back(node);
     }
+
+  connect(node,SIGNAL(lookChanged()),
+	  this,SLOT(makeDirty()));
 
   return node;
 }

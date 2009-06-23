@@ -65,6 +65,8 @@ SET(ageometry_SRCS
 SET(ageometry_H
   QIrrWidget.h 
   AGeometry.h 
+  ATrack3DNode.h
+  ASTrack3DNode.h
   AGeometryHUD.h
   ALayerGUI.h 
   AViewport.h 

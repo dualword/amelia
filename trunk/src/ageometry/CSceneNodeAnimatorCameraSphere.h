@@ -42,6 +42,8 @@ namespace irr
       f32 queueZoom;
       f32 maxZoom;
       
+      f32 MaxVerticalAngle;
+
       bool toggleMouse;
       core::position2di cursorPos;
       core::position2di cursorCenter;

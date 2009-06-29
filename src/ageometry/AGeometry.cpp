@@ -150,7 +150,7 @@ AGeometry::AGeometry(QWidget* parent)
     connect(&_magnetsVisibility,SIGNAL(valueChanged(bool)),
 	    &visibilityMapper,SLOT(map()));
     _pitVisibility.setValue(true);
-    visibilityMapper.setMapping(&_pitVisibility,8);
+    visibilityMapper.setMapping(&_pitVisibility,0);
     connect(&_pitVisibility,SIGNAL(valueChanged(bool)),
 	    &visibilityMapper,SLOT(map()));
 
@@ -736,9 +736,7 @@ void AGeometry::switchVisibility ( int modType )
 	  if ( Pit_Reference )
 	    Pit_Reference->setVisible ( _pitVisibility.value()) ;
 	  if ( getSceneManager()->getSceneNodeFromName ( "Shielding_JT" ) )
-	    {
-	      getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( _pitVisibility.value());
-	    }
+	    getSceneManager()->getSceneNodeFromName ( "Shielding_JT" )->setVisible ( _pitVisibility.value());
 	  break;
 
 

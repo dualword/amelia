@@ -22,24 +22,20 @@ class AEventPackage;
 
 class AEVENTMANAGER_EXPORT AEvent : public QObject
 {
-  Q_OBJECT
-  public:
+ public:
   AEvent();
   ~AEvent() {};
-  QString filename;
-  QString location;
-  QSet<QString> tags;
-
+  
   //Data
   int runNumber;
   int eventNumber;
-
+  
   QList<ATrack*> Tracks; // Tracks pointers are stored here
-
+  
   QList<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
   QList<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
   QList<AMisET*> MisET;  // Pointers to Jets within "EventTracks" are stored here
-
+  
   int numTracks;
   int numChargedHadrons;
   int numPhotons;
@@ -49,25 +45,31 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int numElectrons;
   int numShowers;
   int numJets;
-
+  
   QList<AShower*> LArshowers;
   QList<AFCALShower*> FCALshowers;
   QList<AShower*> HECshowers;
   QList<AShower*> TILEshowers;
   float ETMis;
   float CaloETMis;
-
+  
   virtual void LoadEvent();
-
-  void tag(QString,bool);
-
+  
+  void setName(QString);
+  QString name();
+  
+  QString uid();
+  
+  void tag(QString tag,bool state);
+  QSet<QString> tags();
+  
   AEventPackage *package();
   virtual void setPackage(AEventPackage *package);
-
+  
   ATrack* getTrackById(unsigned int id);
-
+  
   template <class T>
-   T* getAnalysisData(QString module)
+    T* getAnalysisData(QString module)
   {
     QList<AEventAnalysisData*> data=_analysisData.values(module);
     for(unsigned int i=0;i<data.size();i++)
@@ -86,9 +88,12 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   void addAnalysisData(QString module,AEventAnalysisData* data);
   QList<QString> listAnalysisData();
   QList<AEventAnalysisData*> allAnalysisData();
-
+  
   QList<ATrack*> getInterestingTracks();
 
+ signals:
+  void modified();
+  
  protected:
   int highestTrackID;
 
@@ -103,6 +108,10 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QMultiMap<QString,AEventAnalysisData*> _analysisData;
 
   AEventPackage *_package;
+  QSet<QString> _tags;
+  QString _name;
+
+  Q_OBJECT
 };
 
 #endif //AEVENT_H_

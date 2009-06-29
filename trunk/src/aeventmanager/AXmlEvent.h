@@ -40,6 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <QDomNode>
 #include <QDomDocument>
+#include <QFileInfo>
 
 #include "AEvent.h"
 
@@ -81,6 +82,9 @@ class AEVENTMANAGER_EXPORT AXmlEvent : public AEvent
   void GetMisETFromDOM ( QDomDocument doc);
   void GetShowersFromDOM ( QDomDocument doc, QString calo );
   void GetFCALShowersFromDOM ( QDomDocument doc );
+
+  QString filename;
+  QString location;
 };
 
 #endif //AXMLEVENT_H

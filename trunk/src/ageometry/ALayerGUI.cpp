@@ -546,7 +546,6 @@ void ALayerGUI::loadEvent(AEvent* event)
 
   handleEventLoaded();
 
-  emit eventLoaded(event->filename);
   emit eventLoaded(event);
 }
 
@@ -574,8 +573,8 @@ void ALayerGUI::handleEventLoaded()
   if (buttonCombineTracks) buttonCombineTracks->setEnabled(true);
   if (actionTable) actionTable->setEnabled(true);
   if (menuTagCurrentEvent) menuTagCurrentEvent->setEnabled(true);
-  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(CompleteEvent->tags.contains("higgs"));
-  if (actionTagBlackHole) actionTagBlackHole->setChecked(CompleteEvent->tags.contains("blackhole"));
+  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(CompleteEvent->tags().contains("higgs"));
+  if (actionTagBlackHole) actionTagBlackHole->setChecked(CompleteEvent->tags().contains("blackhole"));
 
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);

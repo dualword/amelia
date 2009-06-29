@@ -85,7 +85,6 @@ public:
 
  signals:
     // Emitted when an event has finished loading from the JiveXML file
-    void eventLoaded(QString);
     void eventLoaded(AEvent*);
     void eventChanged(AEvent*);
     void eventUnloaded();

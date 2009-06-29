@@ -72,7 +72,7 @@ void AJet3DNode::createJetPyramids()
   float c = 180/pi;
   float theta = 2*atan ( exp ( -(((AJet*)getTrack())->eta )) );
   core::vector3df zero = core::vector3df ( 0,0,0 );
-  core::vector3df scale = core::vector3df ( 0.5,0.5,1 );
+  core::vector3df scale = core::vector3df ( 0.5,0.5, 1+0.06*log(((AJet*)getTrack())->et) );
   //core::vector3df rot = core::vector3df(phi * c - 90, 90, theta * c);
   core::vector3df rot = core::vector3df ( -theta * c, 0, -((AJet*)getTrack())->phi * c ); //
   

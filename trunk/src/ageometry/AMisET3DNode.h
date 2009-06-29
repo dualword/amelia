@@ -12,37 +12,32 @@ public:
   void select();
   void deselect();
   
-  video::SColor color;
-  video::SColor dimmedColor;
-  video::SColor vividColor;
-  core::vector3df start;
-  core::vector3df end;
-  
-  bool boxMode;
-  float boxWidth;
-  std::vector<scene::ISceneNode*> boxSegments;
-  virtual void setBoxesVisibility ( bool boxVisibility );
-  int trackNumber;
   virtual int getTrackNumber();
-  virtual void setBoxesSelected ( bool boxesSelected );
   virtual void setTrackStyle (Style style );
   void setTrack(AMisET* track);
   
   void createMisEtBoxes();
-  
-  
-  virtual void constructNeutral();
-  
+    
+  //Irrlicht node stuff
   virtual void OnRegisterSceneNode();
-
-  virtual void render() {};
-  
+  virtual void render();
   virtual const core::aabbox3d<f32>& getBoundingBox() const;
-  
   virtual video::SMaterial& getMaterial ( s32 i );
 
 private:
   CRelativeScaleSceneNodeAnimator *boxSizeAnim;
+
+  video::SColor color;
+  video::SColor dimmedColor;
+  video::SColor vividColor;
+  //core::vector3df start;
+  //core::vector3df end;
+  
+  bool boxMode;
+  float boxWidth;
+  std::vector<scene::ISceneNode*> boxSegments;
+
+  int trackNumber;
 };
 
 #endif // AMISET3DNODE_H_

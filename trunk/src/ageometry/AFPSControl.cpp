@@ -6,6 +6,7 @@ AFPSControl::AFPSControl(ICameraSceneNode *camera,
 			 IGUIElement *parent, s32 id,
 			 rect<s32> rectangle)
   : ACameraControl(camera,scene,environment,parent,id,rectangle),
+    MaxVerticalAngle(88.0f),
     anim(0)
 { 
   setOnlyIfEnabled(true);
@@ -91,6 +92,13 @@ void AFPSControl::OnAnimate(u32 timeDeltaMs)
       relativeRotation.X-=RotateSpeed;
       relativeRotation.Y-=RotateSpeed;
     }
+
+  if(relativeRotation.X > MaxVerticalAngle*2 &&
+     relativeRotation.X < 360.0f-MaxVerticalAngle)
+    relativeRotation.X = 360.0f-MaxVerticalAngle;
+  else if(relativeRotation.X > MaxVerticalAngle &&
+	  relativeRotation.X < 360.0f-MaxVerticalAngle)
+    relativeRotation.X = MaxVerticalAngle;
 
   if(forwardButton->isPressed())
     pos+=target*MoveSpeed;

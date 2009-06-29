@@ -23,6 +23,8 @@ class AFPSControl : public ACameraControl
   IGUIButton *forwardButton;
   IGUIButton *backButton;
 
+  float MaxVerticalAngle;
+
   ISceneNodeAnimatorCameraFPS *anim;
 };
 

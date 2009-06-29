@@ -1029,8 +1029,6 @@ void QIrrUnixWidgetPrivate::resizeGL(int width,int height)
   size.Width = width;
   size.Height = height;
 
-  qDebug() << "RESIZE " << width << " x " << height;
-
   parent->driver->OnResize( size );
 
   QGLWidget::resizeGL(width,height);

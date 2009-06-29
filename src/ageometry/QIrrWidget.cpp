@@ -350,20 +350,6 @@ void QIrrWidget::changeEvent(QEvent *event)
   QWidget::changeEvent(event);
 }
 
-void QIrrWidget::resizeEvent( QResizeEvent* event )
-{
-  if ( driver != 0 )
-    {
-      irr::core::dimension2d<int> size;
-      size.Width = event->size().width();
-      size.Height = event->size().height();
-
-      driver->OnResize( size );
-    }
-  QWidget::resizeEvent(event);
-}
-
-
 void QIrrWidget::execute()
 { }
 
@@ -805,7 +791,6 @@ void QIrrWidget::mousePressEvent(QMouseEvent *event)
   e.MouseInput.Y = event->y();
   
   lastPressPos=event->pos();
-
   if(postEventFromUser(e))
     event->accept();
 
@@ -942,6 +927,19 @@ void QIrrWinWidgetPrivate::initialize()
   
   parent->update();
 }
+
+void QIrrWinWidgetWidget::resizeEvent( QResizeEvent* event )
+{
+  if ( p->driver != 0 )
+    {
+      irr::core::dimension2d<int> size;
+      size.Width = event->size().width();
+      size.Height = event->size().height();
+
+      driver->OnResize( size );
+    }
+  QWidget::resizeEvent(event);
+}
   
 void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
 {
@@ -1023,6 +1021,19 @@ void QIrrUnixWidgetPrivate::initializeGL()
   parent->timer = new CTimer();
   
   parent->internalLoad();
+}
+
+void QIrrUnixWidgetPrivate::resizeGL(int width,int height)
+{
+  irr::core::dimension2d<int> size;
+  size.Width = width;
+  size.Height = height;
+
+  qDebug() << "RESIZE " << width << " x " << height;
+
+  parent->driver->OnResize( size );
+
+  QGLWidget::resizeGL(width,height);
 }
 
 void QIrrUnixWidgetPrivate::paintGL()

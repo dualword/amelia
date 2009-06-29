@@ -58,7 +58,7 @@ const video::SColor colorlist[52] =
   };
 
 ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ASTrack* track)
-  : ATrack3DNode ( parent, smgr, id ,track),_blinkTimer(-1)
+  : ATrack3DNode ( parent, smgr, id ,track),_blinkTimer(-1),_blinkCount(0)
 {
     boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
     this->setName ( "ASTrack3DNode" );
@@ -630,10 +630,10 @@ void ASTrack3DNode::timerEvent(QTimerEvent *event)
       ( *it )->setVisible ( !( *it )->isVisible() );
     }
   _blinkCount++;
-  if(_blinkCount>=10)
+  if(_blinkCount>10)
     {
       killTimer(_blinkTimer);
-      _blinkTimer==-1;
+      _blinkTimer=-1;
       deselect();
     }
   

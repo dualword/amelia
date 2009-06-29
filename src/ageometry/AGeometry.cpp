@@ -49,7 +49,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0)
+  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0),sphereControl(0)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -107,8 +107,6 @@ AGeometry::AGeometry(QWidget* parent)
     rt=0;
 
     multiSelectButton=0;
-    zoomIn=0;
-    zoomOut=0;
 
     // Prepare visility controls
     _detectorVisibility.setValue(true);
@@ -222,7 +220,7 @@ void AGeometry::load()
   cameras[3]->setPosition ( core::vector3df ( 250,0,0 ) );
   cameras[3]->setTarget ( core::vector3df ( 0,0,0 ) );
   cameras[3]->addAnimator(new scene::CSceneNodeAnimatorCameraSphere());
-  cameras[3]->setID(Maya);
+  cameras[3]->setID(Sphere);
 
   cameras[4] = getSceneManager()->addCameraSceneNode();
   cameras[4]->setName("LockCam");
@@ -238,6 +236,13 @@ void AGeometry::load()
 			     getGUIEnvironment()->getRootGUIElement(),
 			     -1,core::rect<s32>(0,0,100,100));
   fpsControl->setVisible(false);
+
+  sphereControl=new ASphereControl(cameras[3],
+				   getSceneManager(),
+				   getGUIEnvironment(),
+				   getGUIEnvironment()->getRootGUIElement(),
+				   -1,core::rect<s32>(0,0,100,20));
+  sphereControl->setVisible(false);
   
   //Prepare spinning logo
   getFileSystem()->addZipFileArchive ( "logo.aml" );
@@ -275,11 +280,6 @@ void AGeometry::load()
   CameraBB->setVisible(false);
   createFlatGeometry();
   
-  zoomIn=getGUIEnvironment()->addButton(core::rect<s32>(width()-250,height()-40,width()-140,height()-20), 0, 100, L"Zoom In", L"Zoom in camera.");
-  zoomIn->setVisible(false);
-  zoomOut=getGUIEnvironment()->addButton(core::rect<s32>(width()-130,height()-40,width()-30,height()-20), 0, 100, L"Zoom Out", L"Zoom out camera.");
-  zoomOut->setVisible(false);
-
   //Create the geometry
   createAtlasGeometry();
   
@@ -679,7 +679,7 @@ void AGeometry::execute()
       _logoNode->remove();
       _logoLight->remove();
       _logoAnim->drop();
-      setCamera(AGeometry::Maya);
+      setCamera(AGeometry::Sphere);
       firstShow=false;
     }
 
@@ -697,20 +697,6 @@ void AGeometry::execute()
 	  executeMosesMode(camPos);
 	}
       //qDebug() << "STUFF UPDATED";
-    }
-  
-  ICameraSceneNode *active=getSceneManager()->getActiveCamera();
-  if(zoomIn && zoomIn->isPressed())
-    {
-      vector3df curpos=active->getPosition();
-      curpos*=0.95;
-      active->setPosition(curpos);
-    }
-  if(zoomOut && zoomOut->isPressed())
-    {
-      vector3df curpos=active->getPosition();
-      curpos*=1.05;
-      active->setPosition(curpos);
     }
   
   QIrrWidget::execute();
@@ -1057,6 +1043,16 @@ void AGeometry::resizeEvent( QResizeEvent* event )
       fpsControl->setRelativePosition(fpsPos);
     }
 
+
+  if(sphereControl)
+    {
+      QSize size=event->size();
+      ////core::rect<s32> spherePos(size.width()-100,0,size.width(),100);
+      core::rect<s32> spherePos(size.width()-100,size.height()-20,size.width(),size.height());
+      sphereControl->setRelativePosition(spherePos);
+      sphereControl->updateAbsolutePosition();
+    }
+
   QIrrWidget::resizeEvent(event);
 }
 
@@ -1160,18 +1156,6 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
 {
   switch ( event->key() )
     {
-      //toggles moses mode
-    case Qt::Key_P:
-      cameras[0]->setPosition ( core::vector3df ( 0,0,-1200 ) );
-      cameras[0]->setTarget ( core::vector3df ( 0,0,0 ) );
-      return;
-      break;
-      
-    case Qt::Key_G:
-      //selectTrackByID ( 11 );
-      return;
-      break;
-      
       //toggles camera/cursor control
     case Qt::Key_Space:
       if (getSceneManager()->getActiveCamera()->isInputReceiverEnabled()) releaseControl();
@@ -1179,13 +1163,7 @@ void AGeometry::keyPressEvent ( QKeyEvent* event )
       return;
       break;
       
-      //sets PtCutoff to 1GeV
-    case Qt::Key_C:
-      //XmlEvt->PtCutoff ( 1 );
-      return;
-      break;
-      
-    // Toggle detector system visibility
+      // Toggle detector system visibility
     case Qt::Key_0:
       _detectorVisibility.setValue(!_detectorVisibility.value());
       return;
@@ -1420,11 +1398,11 @@ void AGeometry::setCamera(int to,bool animate)
       actFPS->setChecked(true);
       setCropMode(MosesMode);
       break;
-    case AGeometry::Maya:
+    case AGeometry::Sphere:
       actFPS->setChecked(false);
       actSphere->setChecked(true);
       setCropMode(WedgeMode);
-      cameras[AGeometry::Maya]->setInputReceiverEnabled(true); //Maya always wants the input receiver enabled
+      cameras[AGeometry::Sphere]->setInputReceiverEnabled(true); //Sphere always wants the input receiver enabled
       break;
     case AGeometry::Lock:
       actFPS->setChecked(false);
@@ -1442,9 +1420,6 @@ void AGeometry::setCamera(int to,bool animate)
 
     active_cam=to;
     renderViewport(AGeometry::Cam3D);
-
-    zoomIn->setVisible(to==AGeometry::Maya);
-    zoomOut->setVisible(to==AGeometry::Maya);
 }
 
 void AGeometry::setCropMode(int newMode)
@@ -1492,21 +1467,14 @@ void AGeometry::setupView(int view)
     if ( Pit_Reference )
       Pit_Reference->setVisible ( fps && _pitVisibility.value() );
 
-	if(view==Cam3D)
-	{
-		if(active_cam==Maya) 
-		{
-			if(zoomIn) zoomIn->setVisible(true);
-			if(zoomOut) zoomOut->setVisible(true);
-		}
-		if(multiSelectButton) multiSelectButton->setVisible(true);
-	}
-	else
-	{
-		if(multiSelectButton) multiSelectButton->setVisible(false);
-		if(zoomIn) zoomIn->setVisible(false);
-		if(zoomOut) zoomOut->setVisible(false);
-	}
+    if(view==Cam3D)
+      {
+	if(multiSelectButton) multiSelectButton->setVisible(true);
+      }
+    else
+      {
+	if(multiSelectButton) multiSelectButton->setVisible(false);
+      }
 }
 
 void AGeometry::setCameraPosition(APoint3D pos)

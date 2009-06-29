@@ -128,12 +128,14 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
         {
 	  if (index.column()==0)
             {
-	      return e->filename;
+	      
+	      return e->name();
             }
 	  else
             {
 	      QString tagString="";
-	      for (QSetIterator<QString> iter(e->tags);iter.hasNext();)
+	      QSet<QString> tags=e->tags();
+	      for (QSetIterator<QString> iter(tags);iter.hasNext();)
 		tagString+=iter.next()+" ";
 	      return tagString;
 	    }

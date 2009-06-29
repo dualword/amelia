@@ -31,9 +31,8 @@ void AEventPackage::load()
         {
 	  AEvent *event=new AXmlEvent(_location+"/"+elist[i]);
 	  event->setPackage(this);
-	  event->filename=elist[i];
 	  event->LoadEvent();
-	  
+
 	  events.append(event);
         }
     }
@@ -95,12 +94,14 @@ void AEventPackage::loadLogBook()
     {
       QDomNode eventNode=eventNodes.at(i);
       QDomElement event=eventNode.toElement();
-      QString filename=event.attributes().namedItem("filename").toAttr().value();
+      QString uid=event.attributes().namedItem("uid").toAttr().value();
       for (int j=0;j<events.size();j++)
         {
-	  if (events[j]->filename==filename)
+	  if (events[j]->uid()==uid)
             {
-	      qDebug() << "Filename " << events[j]->filename;
+	      qDebug() << "UID " << events[j]->uid();
+
+	      events[j]->blockSignals(true);
 	      
 	      // Load tags
 	      QDomNode tagsNode=event.firstChildElement("tags");
@@ -109,7 +110,7 @@ void AEventPackage::loadLogBook()
                 {
 		  QString tag=tagNodes.at(i).firstChild().toText().data();
 		  qDebug() << "Tag " <<  tag;
-		  events[j]->tags.insert(tag);
+		  events[j]->tag(tag,true);
                 }
 	      
 	      // Load analysis data
@@ -142,7 +143,10 @@ void AEventPackage::loadLogBook()
 		  data->loadFromXML(analysisElement,events[j]);
 		  
 		  events[j]->addAnalysisData(moduleName,data);
+
 		} //END load analysis nodes
+
+	      events[j]->blockSignals(false);
             }
         }
     }
@@ -174,12 +178,13 @@ void AEventPackage::save()
     {
         AEvent *e=events[i];
 
-	in << "\t<event filename=\"" << e->filename << "\">" << endl;
+	in << "\t<event uid=\"" << e->uid() << "\">" << endl;
 	// Save tags!!
-	if (e->tags.size()>0)
+	QSet<QString> tags=e->tags();
+	if (tags.size()>0)
 	  {
 	    in << "\t\t<tags>"<<endl;
-	    QSetIterator<QString> iter(e->tags);
+	    QSetIterator<QString> iter(tags);
 	    while (iter.hasNext())
 	      {
 		in << "\t\t\t<tag>"<<iter.next()<<"</tag>"<<endl;

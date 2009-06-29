@@ -25,17 +25,14 @@ public:
   virtual video::SMaterial& getMaterial ( s32 i );
 
 private:
-  CRelativeScaleSceneNodeAnimator *boxSizeAnim;
-
   video::SColor color;
   video::SColor dimmedColor;
   video::SColor vividColor;
-  //core::vector3df start;
-  //core::vector3df end;
   
   bool boxMode;
   float boxWidth;
   std::vector<scene::ISceneNode*> boxSegments;
+  CRelativeScaleSceneNodeAnimator *boxSizeAnim;
 
   int trackNumber;
 };

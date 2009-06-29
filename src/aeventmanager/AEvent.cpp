@@ -3,6 +3,7 @@
 #include <aeventmanager/AEventPackage.h>
 
 #include <QDebug>
+#include <QStringList>
 
 AEvent::AEvent()
   :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),numJets(0),
@@ -10,6 +11,21 @@ AEvent::AEvent()
 {}
 
 void AEvent::LoadEvent() { }
+
+void AEvent::setName(QString name)
+{
+  _name=name;
+}
+
+QString AEvent::name()
+{
+  return _name;
+}
+
+QString AEvent::uid()
+{
+  return QString::number(runNumber)+":"+QString::number(eventNumber);
+}
 
 void AEvent::addTrack(ATrack* track)
 {
@@ -86,11 +102,16 @@ void AEvent::addTrack(AFCALShower* shower)
 void AEvent::tag(QString tag, bool status)
 {
   if(status)
-    tags.insert(tag);
+    _tags.insert(tag);
   else
-    tags.remove(tag);
+    _tags.remove(tag);
 
-  if(_package) _package->save();
+  emit modified();
+}
+
+QSet<QString> AEvent::tags()
+{
+  return _tags;
 }
 
 ATrack* AEvent::getTrackById(unsigned int ID)
@@ -186,7 +207,15 @@ void AEvent::setPackage(AEventPackage *pkg)
 {
   AEventPackage *tmpPkg=_package;
   _package=0;
-  if(tmpPkg==pkg) return;
+  if(tmpPkg==pkg)
+    {
+      disconnect(this,SIGNAL(modified()),
+		 tmpPkg,SLOT(save()));
+	return;
+    }
   if(tmpPkg!=0) tmpPkg->removeEvent(this);
   _package=pkg;
+
+  connect(this,SIGNAL(modified()),
+	  pkg,SLOT(save()));
 }

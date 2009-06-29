@@ -64,7 +64,10 @@ AXmlEvent* AXmlEvent::CachedEvent(QString file)
 
 AXmlEvent::AXmlEvent(QString file):isLoaded(false)
 {
-  location=file;
+  QFileInfo fileInfo(file);
+  location=fileInfo.filePath();
+  filename=fileInfo.fileName();
+  setName(fileInfo.baseName());
 }
 
 AXmlEvent::~AXmlEvent()

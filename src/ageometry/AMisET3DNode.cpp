@@ -38,7 +38,7 @@ void AMisET3DNode::setTrackStyle ( Style style )
 	int i=0;
 	for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
 	{
-	  
+	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
 	  if(i%2==0)
 	    m->EmissiveColor = video::SColor ( 0,255,250,0 );
 	  else

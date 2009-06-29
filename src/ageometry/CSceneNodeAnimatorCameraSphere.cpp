@@ -11,7 +11,9 @@ namespace irr
   {
     
     //! constructor
-    CSceneNodeAnimatorCameraSphere::CSceneNodeAnimatorCameraSphere(f32 _moveSpeed,f32 _zoomSpeed,f32 _maxZoom):moveSpeed(_moveSpeed),zoomSpeed(_zoomSpeed),queueZoom(0.0f),toggleMouse(false),maxZoom(_maxZoom)
+    CSceneNodeAnimatorCameraSphere::CSceneNodeAnimatorCameraSphere(f32 _moveSpeed,f32 _zoomSpeed,f32 _maxZoom)
+      : moveSpeed(_moveSpeed),zoomSpeed(_zoomSpeed),queueZoom(0.0f),toggleMouse(false),maxZoom(_maxZoom),
+	MaxVerticalAngle(88.0f)
     {
 #ifdef _DEBUG
       setDebugName("CSceneNodeAnimatorCameraSphere");
@@ -70,22 +72,25 @@ namespace irr
       f32 dTheta=(KeyControl[0]-KeyControl[2])*timeDiff*moveSpeed+queueTheta;
       f32 r=Diff.getLength()+queueZoom;
       if(r<maxZoom) r=maxZoom;
-      
-      core::vector3df angles=Diff.getHorizontalAngle();
-      f32 theta=angles.X;
-      f32 phi=angles.Y;
-      
-      phi=phi+dPhi;
-      theta=theta+dTheta;
 
-      theta=theta*core::PI/180;
-      phi=phi*core::PI/180;
+      core::vector3df relativeRotation=Diff.getHorizontalAngle();
       
-      f32 Z=r*cos(phi)*cos(theta);
-      f32 X=r*sin(phi)*cos(theta);
-      f32 Y=-r*sin(theta);
+      relativeRotation.Y=relativeRotation.Y+dPhi;
+      relativeRotation.X=relativeRotation.X+dTheta;
       
-      Diff=core::vector3df(X,Y,Z);
+      if(relativeRotation.X > MaxVerticalAngle*2 &&
+	 relativeRotation.X < 360.0f-MaxVerticalAngle)
+	relativeRotation.X = 360.0f-MaxVerticalAngle;
+      else if(relativeRotation.X > MaxVerticalAngle &&
+	      relativeRotation.X < 360.0f-MaxVerticalAngle)
+	relativeRotation.X = MaxVerticalAngle;
+      
+      //It is much faster to rotate a unit vector, and then scale it.
+      Diff.set(0,0,1);
+      core::matrix4 mat;
+      mat.setRotationDegrees(core::vector3df(relativeRotation.X, relativeRotation.Y, 0));
+      mat.transformVect(Diff);
+      Diff.setLength(r);
       
       lastUpdate=timeMs;
 

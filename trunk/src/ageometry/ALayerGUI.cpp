@@ -104,6 +104,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QGroupBox *groupBox_Detector=detectorVisibility->findChild<QGroupBox *>("groupBox_Detector");
     QGroupBox *groupBox_Calorimeter=detectorVisibility->findChild<QGroupBox *>("groupBox_Calorimeter");
     QGroupBox *groupBox_ID=detectorVisibility->findChild<QGroupBox *>("groupBox_ID");
+    QCheckBox *checkBox_Pit=detectorVisibility->findChild<QCheckBox *>("checkBox_Pit");
     QCheckBox *checkBox_Magnets=detectorVisibility->findChild<QCheckBox *>("checkBox_Magnets");
     QCheckBox *checkBox_MuonSpectr=detectorVisibility->findChild<QCheckBox *>("checkBox_MuonSpectr");
     QCheckBox *checkBox_LAr=detectorVisibility->findChild<QCheckBox *>("checkBox_LAr");
@@ -347,6 +348,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     if(groupBox_ID)
       geo->trackerVisibility()->syncGroupBox(groupBox_ID);
 
+    if(checkBox_Pit)
+      geo->pitVisibility()->syncButton(checkBox_Pit);
     if(checkBox_Magnets)
       geo->magnetsVisibility()->syncButton(checkBox_Magnets);
     if(checkBox_MuonSpectr)

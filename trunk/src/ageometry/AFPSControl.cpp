@@ -5,11 +5,10 @@ AFPSControl::AFPSControl(ICameraSceneNode *camera,
 			 IGUIEnvironment *environment,
 			 IGUIElement *parent, s32 id,
 			 rect<s32> rectangle)
-  : IGUIElement(EGUIET_ELEMENT,environment,parent,id,rectangle),
-    camera(0),anim(0),lastUpdate(0)
+  : ACameraControl(camera,scene,environment,parent,id,rectangle),
+    anim(0)
 { 
-  SceneManager=scene;
-
+  setOnlyIfEnabled(true);
 
   _1Button=environment->addButton(rect<s32>(),this,-1,L"Up",L"");
   _2Button=environment->addButton(rect<s32>(),this,-1,L"",L"");
@@ -50,55 +49,17 @@ AFPSControl::AFPSControl(ICameraSceneNode *camera,
   list<ISceneNodeAnimator*>::ConstIterator anims=camera->getAnimators().begin();
   ISceneNodeAnimatorCameraFPS *anim=(ISceneNodeAnimatorCameraFPS*)*anims;
   this->anim=anim;
-  this->camera=camera;
 }
 
-bool AFPSControl::OnEvent(const SEvent &event)
+void AFPSControl::OnAnimate(u32 timeDeltaMs)
 {
-  switch(event.EventType)
-    {
-    case EET_GUI_EVENT:
-      switch(event.GUIEvent.EventType)
-	{
-	case EGET_BUTTON_CLICKED:
-	  break;
-	default:
-	  break;
-	}
-      break;
-    default:
-      break;
-    }
-  return false;
-}
-
-void AFPSControl::OnPostRender(u32 timeMs)
-{
-  if(camera->isInputReceiverEnabled() || SceneManager->getActiveCamera()!=camera)
-    {
-      if(isVisible())
-	setVisible(false);
-      return;
-    }
-  else
-    if(!isVisible())
-      setVisible(true);
-  
-
-
-  if(lastUpdate==0)
-    {
-      lastUpdate=timeMs;
-      return;
-    }
-
-  vector3df pos = camera->getAbsolutePosition();
-  vector3df target = (camera->getTarget() - pos);
+  vector3df pos = camera()->getAbsolutePosition();
+  vector3df target = (camera()->getTarget() - pos);
   vector3df relativeRotation = target.getHorizontalAngle();
 
   target.normalize();
 
-  f32 TimeDelta=(float)(timeMs-lastUpdate);
+  f32 TimeDelta=(float)timeDeltaMs;
   f32 RotateSpeed=anim->getRotateSpeed()*TimeDelta/1000.;
   f32 MoveSpeed=anim->getMoveSpeed()*TimeDelta;
   
@@ -144,8 +105,6 @@ void AFPSControl::OnPostRender(u32 timeMs)
   mat.transformVect(target);
 
   
-  camera->setTarget(target + pos);
-  camera->setPosition(pos);
-
-  lastUpdate=timeMs;
+  camera()->setTarget(target + pos);
+  camera()->setPosition(pos);
 }

@@ -97,7 +97,6 @@ public slots:
     //Slots for event handling
     void handleCropModeChange(int mode);
     void showLoadEventDialog();
-    void pressButton (char*);
     void eventSettings();
 
     void loadEvent(QString);

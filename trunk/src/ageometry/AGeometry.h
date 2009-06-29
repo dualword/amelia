@@ -48,6 +48,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "CSceneNodeAnimatorCameraSwitch.h"
 #include "AFPSControl.h"
+#include "ASphereControl.h"
 #include "APoint3D.h"
 
 #include "ASTrack3DNode.h"
@@ -59,7 +60,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 class AGeometry : public QIrrWidget
 {
 public:
-  static const int FPS=0,Maya=3,Lock=4;
+  static const int FPS=0,Sphere=3,Lock=4;
   static const int Cam3D=-1,Front=1,Side=2;
   static const int NoneMode=0,WedgeMode=1,MosesMode=2;
   
@@ -184,7 +185,7 @@ private:
   //GUI stuff
   QMenu *_comboMenu;
   QMap<QString,QMenu*>  _detectorMenu;
-  gui::IGUIButton* multiSelectButton,*zoomIn,*zoomOut;
+  gui::IGUIButton* multiSelectButton;
   
   const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
   const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
@@ -241,6 +242,7 @@ private:
   int active_viewport;
   int active_cam;
   AFPSControl *fpsControl;
+  ASphereControl *sphereControl;
   
   //State values
   bool allowTrackSelection; //Whether to allow track selection

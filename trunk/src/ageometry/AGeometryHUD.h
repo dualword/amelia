@@ -15,9 +15,6 @@ class AGeometryHUD : public QObject
 
   void handleNewCamera(int camid);
   void handleCameraControl(bool grabbed);
-
- protected:
-  bool eventFilter(QObject *obj,QEvent *event);
   
  private:
   AGeometry *geo;

@@ -1,21 +1,14 @@
 #ifndef AFPSCONTROL_H_
 #define AFPSCONTROL_H_
 
-#include <irrlicht.h>
-using namespace irr;
-using namespace gui;
-using namespace video;
-using namespace core;
-using namespace scene;
+#include "ACameraControl.h"
 
-class AFPSControl : public IGUIElement
+class AFPSControl : public ACameraControl
 {
  public:
   AFPSControl(ICameraSceneNode *camera,ISceneManager *scenemanager, IGUIEnvironment *environment, IGUIElement *parent, s32 id,rect<s32> rectangle);
   
-  bool OnEvent (const SEvent &event);
-
-  void OnPostRender (u32 timeMs);
+  virtual void OnAnimate(u32 timeDeltaMs);
 
  private:
   IGUIButton *_1Button;
@@ -30,12 +23,7 @@ class AFPSControl : public IGUIElement
   IGUIButton *forwardButton;
   IGUIButton *backButton;
 
-  ICameraSceneNode *camera;
   ISceneNodeAnimatorCameraFPS *anim;
-
-  ISceneManager *SceneManager;
-
-  u32 lastUpdate;
 };
 
 #endif //AFPSCONTROL_H_

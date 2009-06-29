@@ -54,6 +54,8 @@ SET(ageometry_SRCS
   AGeoPlugin.cpp
   ALineNode.cpp
   AGeometryHUD.cpp
+  ACameraControl.cpp
+  ASphereControl.cpp
   AFPSControl.cpp
   APoint3D.cpp
   ASnapshotTool.cpp

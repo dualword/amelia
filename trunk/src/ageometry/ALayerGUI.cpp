@@ -284,7 +284,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     if (geo) //Setup signals pertaining to AGeometry
       {
         signalMapper=new QSignalMapper(this);
-        signalMapper->setMapping(actionSphere, AGeometry::Maya);
+        signalMapper->setMapping(actionSphere, AGeometry::Sphere);
         signalMapper->setMapping(actionFPS, AGeometry::FPS);
 
         connect(actionSphere,SIGNAL(triggered()),

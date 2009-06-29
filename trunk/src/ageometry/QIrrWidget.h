@@ -77,142 +77,143 @@ using namespace gui;
 
 class QIrrWidget : public QWidget,public IEventReceiver
 {
-    Q_OBJECT
-
 public:
-    QIrrWidget( QWidget *parent=0 );
-    ~QIrrWidget();
-
-    ISceneManager* getSceneManager();
-    IVideoDriver* getVideoDriver();
-    IGUIEnvironment* getGUIEnvironment();
-    IFileSystem* getFileSystem();
-    ITimer* getTimer();
-    ICursorControl* getCursorControl();
-
-    void setDirty(bool dirty);
-    bool isDirty();
-
-    void setDriverType( irr::video::E_DRIVER_TYPE driver );
-    irr::video::E_DRIVER_TYPE driverType();
-
-    QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage,QRect baseRect=QRect() ,QRect overlayRect=QRect()); // Composites an overlayed image over another, with alpha channel
-
-    /* STATIC HELPER FUNCTIONS */
-    static QImage::Format Irr2Qt_ColorFormat(irr::video::ECOLOR_FORMAT); //Converts Irr colors format definitions to Qt color format definitions
-    static EKEY_CODE Qt2Irr_KeyCode(int keycode);
-    static int Irr2Qt_KeyCode(EKEY_CODE keycode);
-
-public slots:
-    void toggleDisabled();
-    void makeDirty();
-    void forceUpdate();
-
-signals:
-    void cameraSwitched(int);
-    void finishedLoading();
-
-protected:
-    /* Override these 3 functions in QIrrWidgets */
-    virtual void load();
-    virtual void execute();
-    virtual bool OnEvent(const SEvent &event);
-
-    /* Event */
-    void paintEvent(QPaintEvent *event);
-    void changeEvent(QEvent* event); //Will be used for diabled widget image caching
-    void resizeEvent( QResizeEvent* event );
-    void timerEvent(QTimerEvent*);
+  QIrrWidget( QWidget *parent=0 );
+  ~QIrrWidget();
   
-    void enterEvent(QEvent* event);
-    void leaveEvent(QEvent* event);
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
-
-    virtual void mouseClickEvent(QMouseEvent *event);
-    virtual void mouseMoveEvent(QMouseEvent *event);
-    virtual void keyPressEvent(QKeyEvent *event);
-    virtual void keyReleaseEvent(QKeyEvent *event);
-    virtual void mousePressEvent(QMouseEvent *event);
-    virtual void mouseReleaseEvent(QMouseEvent *event);
-    virtual void wheelEvent(QWheelEvent *event);
-    
-    bool postEventFromUser(const SEvent& event);
-    bool hasCameraMoved();
-
+  ISceneManager* getSceneManager();
+  IVideoDriver* getVideoDriver();
+  IGUIEnvironment* getGUIEnvironment();
+  IFileSystem* getFileSystem();
+  ITimer* getTimer();
+  ICursorControl* getCursorControl();
+  
+  void setDirty(bool dirty);
+  bool isDirty();
+  
+  void setDriverType( irr::video::E_DRIVER_TYPE driver );
+  irr::video::E_DRIVER_TYPE driverType();
+  
+  QImage createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage,QRect baseRect=QRect() ,QRect overlayRect=QRect()); // Composites an overlayed image over another, with alpha channel
+  
+  /* STATIC HELPER FUNCTIONS */
+  static QImage::Format Irr2Qt_ColorFormat(irr::video::ECOLOR_FORMAT); //Converts Irr colors format definitions to Qt color format definitions
+  static EKEY_CODE Qt2Irr_KeyCode(int keycode);
+  static int Irr2Qt_KeyCode(EKEY_CODE keycode);
+					      
+public slots:
+  void toggleDisabled();
+  void makeDirty();
+  void forceUpdate();
+  
+signals:
+  void cameraSwitched(int);
+  void finishedLoading();
+  
+protected:
+  /* Override these 3 functions in QIrrWidgets */
+  virtual void load();
+  virtual void execute();
+  virtual bool OnEvent(const SEvent &event);
+  
+  /* Event */
+  void paintEvent(QPaintEvent *event);
+  void changeEvent(QEvent* event); //Will be used for diabled widget image caching
+  void timerEvent(QTimerEvent*);
+  
+  void enterEvent(QEvent* event);
+  void leaveEvent(QEvent* event);
+  void showEvent(QShowEvent *event);
+  void hideEvent(QHideEvent *event);
+  
+  virtual void mouseClickEvent(QMouseEvent *event);
+  virtual void mouseMoveEvent(QMouseEvent *event);
+  virtual void keyPressEvent(QKeyEvent *event);
+  virtual void keyReleaseEvent(QKeyEvent *event);
+  virtual void mousePressEvent(QMouseEvent *event);
+  virtual void mouseReleaseEvent(QMouseEvent *event);
+  virtual void wheelEvent(QWheelEvent *event);
+  
+  bool postEventFromUser(const SEvent& event);
+  bool hasCameraMoved();
+  
 private:
-    irr::video::E_DRIVER_TYPE _driverType;
-
-    QWidget *p;    
-    QPoint lastPressPos;
-    int timerId;
-
-    // Used for loading
-    bool _ready;
-    bool _loading;
-    
-    // Irrlicht things
-	IrrlichtDevice* device;
-    IVideoDriver* driver;
-    ISceneManager* smgr;
-    IFileSystem* fs;
-    IGUIEnvironment* gui;
-    ICursorControl* cursorcontrol;
-    ITimer *timer;
-    
-    // Render checks
-    bool _dirty;
-    ICameraSceneNode *lastActiveCamera;
-    vector3df lastCameraPosition,lastCameraTarget;
-
-    // Screenshot
-    video::ITexture *disabledRenderTexture;
-    QPixmap ss;
-
-    void internalLoad();
-
-    void updateLastCamera();
-    void updateScreenshot();
-
+  irr::video::E_DRIVER_TYPE _driverType;
+  
+  QWidget *p;    
+  QPoint lastPressPos;
+  int timerId;
+  
+  // Used for loading
+  bool _ready;
+  bool _loading;
+  
+  // Irrlicht things
+  IrrlichtDevice* device;
+  IVideoDriver* driver;
+  ISceneManager* smgr;
+  IFileSystem* fs;
+  IGUIEnvironment* gui;
+  ICursorControl* cursorcontrol;
+  ITimer *timer;
+  
+  // Render checks
+  bool _dirty;
+  ICameraSceneNode *lastActiveCamera;
+  vector3df lastCameraPosition,lastCameraTarget;
+  
+  // Screenshot
+  video::ITexture *disabledRenderTexture;
+  QPixmap ss;
+  
+  void internalLoad();
+  
+  void updateLastCamera();
+  void updateScreenshot();
+  
+  Q_OBJECT
+  
 #ifdef Q_WS_WIN
-    friend class QIrrWinWidgetPrivate;
+  friend class QIrrWinWidgetPrivate;
 #else
-    friend class QIrrUnixWidgetPrivate;
+  friend class QIrrUnixWidgetPrivate;
 #endif
 };
 
 #ifdef Q_WS_WIN
 class QIrrWinWidgetPrivate : public QWidget
 {
-
- public:
+  
+public:
   QIrrWinWidgetPrivate(QIrrWidget *parent);
   ~QIrrWinWidgetPrivate();
-
-
- protected:
-  virtual void paintEvent( QPaintEvent* event );
-
+  
+  
+protected:
+  virtual void resizeEvent( QResizeEvent *event );
+  virtual void paintEvent( QPaintEvent *event );
+  
   void initialize();
-
+  
   QPaintEngine* paintEngine() const;
   
- private:
+private:
   QIrrWidget* parent;
 };
 #else
 class QIrrUnixWidgetPrivate : public QGLWidget
 {    
-  public:
+public:
   QIrrUnixWidgetPrivate( QIrrWidget *parent=0 );
   ~QIrrUnixWidgetPrivate();
-
+  
   void initializeGL();
   void paintGL();
-
+  void resizeGL(int width,int height);
+  
 private:
   int timerId;
-
+  
   QIrrWidget* parent;
 };
 #endif

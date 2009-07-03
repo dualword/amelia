@@ -160,7 +160,7 @@ void AXmlEvent::GetJetsFromDOM ( QDomDocument dom )
       
       
       // Now we should load every node individually, and assign the proper type to them
-      for ( unsigned int s = 0; s < et.size(); s++ )
+      for ( int s = 0; s < et.size(); s++ )
         {
 	  AJet* j = new AJet();
 	  j->et = et[s];
@@ -203,7 +203,7 @@ void AXmlEvent::GetMisETFromDOM ( QDomDocument dom )
       ety = getDataFloat ( node.elementsByTagName("ety").at(0) );
       
       // Now we should load every node individually, and assign the proper type to them
-      for ( unsigned int s = 0; s < et.size(); s++ )
+      for ( int s = 0; s < et.size(); s++ )
         {
 	  AMisET* m = new AMisET();
 	  m->et = et[s];
@@ -255,7 +255,7 @@ void AXmlEvent::GetSTracksFromDOM ( QDomDocument dom )
       str_zVertex = getDataFloat ( node.elementsByTagName("zVertex").at(0) );
 
       // Tracks section
-      for ( unsigned int j = 0; j < str_code.size(); j++ )
+      for ( int j = 0; j < str_code.size(); j++ )
 	{
 	  
 	  ASTrack* t = new ASTrack();
@@ -296,7 +296,7 @@ void AXmlEvent::GetShowersFromDOM ( QDomDocument dom, QString calo )
       layer = getDataInt ( node.elementsByTagName("layer").at(0) );
       phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
       sub = getDataInt ( node.elementsByTagName("sub").at(0) );
-      for (unsigned int j = 0; j < energy.size(); j++ )
+      for (int j = 0; j < energy.size(); j++ )
 	{
 	  AShower* s=new AShower();
 	  s->energy = energy[j];
@@ -343,7 +343,7 @@ void AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
       x = getDataFloat ( node.elementsByTagName("x").at(0) );
       y = getDataFloat ( node.elementsByTagName("y").at(0) );
       
-      for (unsigned int j = 0; j < energy.size(); j++ )
+      for (int j = 0; j < energy.size(); j++ )
 	{
 	  s=new AFCALShower();
 	  if ( j<dx.size() ) s->dx = dx[j];

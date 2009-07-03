@@ -75,7 +75,9 @@ using namespace gui;
 
 #pragma comment(lib, "irrlicht.lib")
 
-class QIrrWidget : public QWidget,public IEventReceiver
+#include "AGeometryDefines.h"
+
+class AGEOMETRY_EXPORT QIrrWidget : public QWidget,public IEventReceiver
 {
 public:
   QIrrWidget( QWidget *parent=0 );

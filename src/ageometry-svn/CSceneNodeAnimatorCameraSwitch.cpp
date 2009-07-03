@@ -29,7 +29,7 @@ void CSceneNodeAnimatorCameraSwitch::animateNode(scene::ISceneNode* node, u32 ti
   scene::ICameraSceneNode* camera = static_cast<scene::ICameraSceneNode*>(node);
 
   if(lastUpdate==0) lastUpdate=timeMs;
-  f32 timeDiff=timeMs-lastUpdate;
+  f32 timeDiff=(f32)(timeMs-lastUpdate);
   lastUpdate=timeMs;
   if(timeDiff==0) return;
 

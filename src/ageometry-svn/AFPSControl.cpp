@@ -23,17 +23,17 @@ AFPSControl::AFPSControl(ICameraSceneNode *camera,
   forwardButton=environment->addButton(rect<s32>(),this,-1,L"Forward",L"");
   backButton=environment->addButton(rect<s32>(),this,-1,L"Back",L"");
 
-  core::rect<f32> _1Rect(0.2,0.0,0.8,0.2);
-  core::rect<f32> _2Rect(0.8,0.0,1.0,0.2);
-  core::rect<f32> _3Rect(0.8,0.2,1.0,0.8);
-  core::rect<f32> _4Rect(0.8,0.8,1.0,1.0);
-  core::rect<f32> _5Rect(0.2,0.8,0.8,1.0);
-  core::rect<f32> _6Rect(0.0,0.8,0.2,1.0);
-  core::rect<f32> _7Rect(0.0,0.2,0.2,0.8);
-  core::rect<f32> _8Rect(0.0,0.0,0.2,0.2);
+  core::rect<f32> _1Rect(0.2f,0.0f,0.8f,0.2f);
+  core::rect<f32> _2Rect(0.8f,0.0f,1.0f,0.2f);
+  core::rect<f32> _3Rect(0.8f,0.2f,1.0f,0.8f);
+  core::rect<f32> _4Rect(0.8f,0.8f,1.0f,1.0f);
+  core::rect<f32> _5Rect(0.2f,0.8f,0.8f,1.0f);
+  core::rect<f32> _6Rect(0.0f,0.8f,0.2f,1.0f);
+  core::rect<f32> _7Rect(0.0f,0.2f,0.2f,0.8f);
+  core::rect<f32> _8Rect(0.0f,0.0f,0.2f,0.2f);
 
-  core::rect<f32> forwardRect(0.25,0.25,0.75,0.5);
-  core::rect<f32> backRect(0.25,0.5,0.75,0.75);
+  core::rect<f32> forwardRect(0.25f,0.25f,0.75f,0.50f);
+  core::rect<f32>    backRect(0.25f,0.50f,0.75f,0.75f);
 
   _1Button->setRelativePositionProportional(_1Rect);
   _2Button->setRelativePositionProportional(_2Rect);

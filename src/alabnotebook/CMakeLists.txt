@@ -38,4 +38,5 @@ LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 TARGET_LINK_LIBRARIES(ALabNoteBook
   ${QT_LIBRARIES}
   AEventManager
+  AGeometry
   amelia)

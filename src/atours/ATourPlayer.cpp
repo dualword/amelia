@@ -109,7 +109,7 @@ QTimeLine::State ATourPlayer::state()
 
 void ATourPlayer::play(ATour *tour)
 {
-  if(timeLine.state()!=QTimeLine::QTimeLine::NotRunning)
+  if(timeLine.state()!=QTimeLine::NotRunning)
     {
       timeLine.stop();
     }

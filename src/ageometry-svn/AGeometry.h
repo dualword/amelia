@@ -56,14 +56,27 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AJet3DNode.h"
 #include "AMisET3DNode.h"
 
+#include "AGeometryDefines.h"
+
 #include <aeventmanager/AFilteredEvent.h>
 
-class AGeometry : public QIrrWidget
+class AGEOMETRY_EXPORT AGeometry : public QIrrWidget
 {
 public:
-  static const int FPS=0,Sphere=3,Lock=4;
-  static const int Cam3D=-1,Front=1,Side=2;
-  static const int NoneMode=0,WedgeMode=1,MosesMode=2;
+	// 3D Cameras
+  static const int FPS=0;
+  static const int Sphere=3;
+  static const int Lock=4;
+
+	// Viewports
+  static const int Cam3D=-1;
+  static const int Front=1;
+  static const int Side=2;
+
+	// Crop modes
+  static const int NoneMode=0;
+  static const int WedgeMode=1;
+  static const int MosesMode=2;
   
   AGeometry(QWidget* parent=0);
   virtual ~AGeometry();

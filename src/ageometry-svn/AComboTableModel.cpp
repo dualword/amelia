@@ -145,6 +145,7 @@ bool AComboTableModel::setData(const QModelIndex& index,const QVariant& value,in
       combinations()[index.row()]->setName(newName);
       analysisData->forceUpdate();
     }
+  return true;
 }
 
 void AComboTableModel::handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected)

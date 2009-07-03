@@ -72,7 +72,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
     T* getAnalysisData(QString module)
   {
     QList<AEventAnalysisData*> data=_analysisData.values(module);
-    for(unsigned int i=0;i<data.size();i++)
+    for(int i=0;i<data.size();i++)
       {
 	T* ret=qobject_cast<T*>(data[i]);
 	if(ret!=0)

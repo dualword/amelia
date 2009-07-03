@@ -19,7 +19,7 @@ void AGeometryHUD::setupElements()
   
   core::dimension2d<u32> size=geo->getVideoDriver()->getScreenSize();
   
-  core::rect<f32> textRect(0.2,0.9,0.8,1.0);
+  core::rect<f32> textRect(0.2f,0.9f,0.8f,1.0f);
   
   textNode=gui->addStaticText(L"",
 			      core::rect<s32>(0,0,0,0));

@@ -12,7 +12,7 @@ namespace irr
     
     //! constructor
     CSceneNodeAnimatorCameraFOV::CSceneNodeAnimatorCameraFOV(f32 _fovSpeed)
-      : fovSpeed(_fovSpeed),queueFOV(0),_maxFOV(1.3),_minFOV(0.0001)
+      : fovSpeed(_fovSpeed),queueFOV(0),_maxFOV(1.3f),_minFOV(0.0001f)
     {
 #ifdef _DEBUG
       setDebugName("CSceneNodeAnimatorCameraFOV");
@@ -62,7 +62,7 @@ namespace irr
     {
       if (event.EventType == EET_KEY_INPUT_EVENT)
 	{
-	  f32 PressedDown=(event.KeyInput.PressedDown)?1:0;
+	  u32 PressedDown=(event.KeyInput.PressedDown)?1:0;
 	  switch(event.KeyInput.Key)
 	    {
 	    case KEY_DOWN:

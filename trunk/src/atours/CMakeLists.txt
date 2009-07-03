@@ -87,6 +87,9 @@ TARGET_LINK_LIBRARIES(ATours
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES} 
   amelia
+  ABase
+  AGeometry
+  AEventManager
   Irrlicht
   )
 

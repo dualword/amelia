@@ -36,14 +36,14 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ASTrack3DNode.h"
 #include <QDebug>
 
-static const float Length = 2500; // half-length
-static const float Radius = 43; //radius of the tracking zone
-static const float DetectorRadius = 1500; //radius of the detector
+static const float Length = 2500.f; // half-length
+static const float Radius = 43.f; //radius of the tracking zone
+static const float DetectorRadius = 1500.f; //radius of the detector
 const float Pi = 3.14159265358979f;
 const float RadDeg = 180.0f/Pi;
 //float mField = 1; // Magnetic Field (Tesla)
 int helixSections = 10; // Number of sections in each helix track
-const float scaleEvent = 0.05; // Adjustment scaling factor
+const float scaleEvent = 0.05f; // Adjustment scaling factor
 
 const video::SColor colorlist[52] =
   {
@@ -273,8 +273,8 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 {
     std::vector<core::vector3df> StartEnd ( 2 );
-    float c = 180/3.1415926;
-    float sc = 0.001;
+    float c = 180/3.1415926f;
+    float sc = 0.001f;
     float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
 
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc;
@@ -340,7 +340,7 @@ void ASTrack3DNode::createBoxesNeutral()
   
   
   core::vector3df vect = vect0/10;
-  core::vector3df scale = core::vector3df ( 0.2,0.2, vect.getLength() );
+  core::vector3df scale = core::vector3df ( 0.2f,0.2f, vect.getLength() );
   for (int i = 0; i < 10; i++) // let's reate segments for the neutral tracks, to avoid perspective tappering
     {
       core::vector3df pos = vect*i + ( vect ) /2 + this->start;
@@ -415,8 +415,8 @@ float ASTrack3DNode::getChargedMaxAngle ()
 {
 
 
-    float C = 1000./0.6;
-    float sc = 0.001;
+    float C = 1000.f/0.6f;
+    float sc = 0.001f;
     float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The X coordinate of the vertex
     float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The Y coordinate of the vertex
@@ -441,14 +441,17 @@ float ASTrack3DNode::getChargedMaxAngle ()
 
 
     }
+	
+	//TODO: Return a sensible value
+	return 0;
 }
 
 
 void ASTrack3DNode::createCurveVector()
 {
-    float pi = 3.1415926;
+    float pi = 3.1415926f;
     float phiTrans = -(((ASTrack*)getTrack())->phi) + pi;
-    float C = 1000/0.6;
+    float C = 1000/0.6f;
     float theta = 2*atan ( exp ( - ( ((ASTrack*)getTrack())->eta ) ) );
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
     float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex
@@ -525,7 +528,7 @@ void ASTrack3DNode::createBoxesCharged()
        core::vector3df vect = *it - previous;
       core::vector3df pos = ( *it - previous ) /2 + previous;
       core::vector3df rot = vect.getHorizontalAngle();
-      core::vector3df scale = core::vector3df ( 0.2,0.2,vect.getLength() );
+      core::vector3df scale = core::vector3df ( 0.2f,0.2f,vect.getLength() );
       
       scene::ISceneNode* nodeBox = 0;
       //nodeBox = SceneManager->addCubeSceneNode(1.0f, 0, -1, pos, rot, scale );

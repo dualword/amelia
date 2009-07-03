@@ -3,7 +3,9 @@
 
 #include <irrlicht.h>
 
-class APoint3D
+#include "AGeometryDefines.h"
+
+class AGEOMETRY_EXPORT APoint3D
 {
  public:
   APoint3D(double x=0,double y=0,double z=0);

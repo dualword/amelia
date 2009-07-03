@@ -103,6 +103,8 @@ int ASTrack::getIndex()
 	  return j;
 	}
     }
+  //TODO: Return an "other" value
+  return 0;
 }
 
 float ASTrack::getTl()

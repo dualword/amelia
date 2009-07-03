@@ -46,6 +46,8 @@ QString ATrackCombination::name(bool generateDefault)
   _name=QString::number(tracks[0]->trackID());
   for(int i=1;i<tracks.size();i++)
     _name+="|"+QString::number(tracks[i]->trackID());
+
+  return _name;
 }
 
 int ATrackCombination::size()

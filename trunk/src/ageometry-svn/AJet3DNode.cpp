@@ -68,7 +68,7 @@ void AJet3DNode::deselect()
 
 void AJet3DNode::createJetPyramids()
 {
-  float pi = 3.1415926;
+  float pi = 3.1415926f;
   float c = 180/pi;
   float theta = 2*atan ( exp ( -(((AJet*)getTrack())->eta )) );
   float eta = ((AJet*)getTrack())->eta;

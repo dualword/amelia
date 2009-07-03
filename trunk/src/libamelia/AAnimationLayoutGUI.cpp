@@ -62,6 +62,7 @@ QLayout* AAnimationLayoutGUI::findLayout(QLayout *layout)
 	  if(found) return found;
 	}
     }
+  return 0;
 }
 
 void AAnimationLayoutGUI::handleFinished()

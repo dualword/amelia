@@ -266,7 +266,7 @@ void ASelectionInfoScene::refresh()
       QString combName="Unknown Combination";
       combTrack->setVisible(true);
       emit combineButtonEnabled(true);
-      for(unsigned int i=0;i<combines.size();i++)
+      for(int i=0;i<combines.size();i++)
 	if((*combo)==(*((ATrackCombination*)combines[i])))
 	  {
 	    combTrack->setVisible(false);

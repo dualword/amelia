@@ -14,8 +14,8 @@ void CRelativeScaleSceneNodeAnimator::animateNode(ISceneNode *node,u32 timeMs)
   float fov=smgr->getActiveCamera()->getFOV();
 
   vector3df diff=posNode-posCam;
-  f32 scale=diff.getLength()*0.01;
-  if(scale<=0.1) scale=0.1;
+  f32 scale=diff.getLength()*0.01f;
+  if(scale<=0.1f) scale=0.1f;
 
   if(scale>=_maxScale) scale=_maxScale;
 

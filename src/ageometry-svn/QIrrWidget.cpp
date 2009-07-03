@@ -322,7 +322,7 @@ void QIrrWidget::paintEvent(QPaintEvent *event)
   if(!isEnabled())
     {
       QPainter painter(this);
-      painter.drawPixmap(0,0,ss);
+      painter.drawPixmap(QRect(QPoint(0,0),size()),ss);
     }
   QWidget::paintEvent(event);
 }

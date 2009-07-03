@@ -66,7 +66,6 @@ class ASelectionInfoScene : public QGraphicsScene
   void removeTrackInfo ( ATrack* strack );
   void handleAddTrack();
   void handleCombTracks();
-  void handleViewportChange(int from,int to);
   void handleNewEventLoaded(AEvent*);
   
   void displayMessage(QString message,QString headerText="",QPixmap img=QPixmap());

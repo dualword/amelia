@@ -38,24 +38,26 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QToolBar>
+#include <QCheckBox>
 #include <QDebug>
 
 #include "ALayerGUI.h"
 #include "AViewport.h"
 
 #include "ui_eventadvanced.h"
+#include "ui_detectorvisibility.h"
+
 #include <config.h>
 #include <AAnimationGUI.h>
+#include <AAnimationLayoutGUI.h>
+#include <ASlidyManager.h>
 #include <aeventmanager/AXmlEvent.h>
 
 ALayerGUI::ALayerGUI(QWidget* parent)
         : QFrame(parent)
 {
-    tourBuilder = 0;
-    tourManager = 0;
-
     modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final);
-    particleFilter=new AParticleFilter(modelFilter);
+    particleFilter=new AParticleFilter();
     ptFilter=new APtFilter(1,particleFilter);
 }
 
@@ -82,12 +84,42 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
-    packageList = findChild<AEventManagerTreeView*>("packageList");
+    QAction *actionSnapshot=window()->findChild<QAction *>("actionSnapshot");
+    actionNone=window()->findChild<QAction *>("actionNone");
+    actionWedge_Mode=window()->findChild<QAction *>("actionWedge_Mode");
+    actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
     QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
-    PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
+    QSlider *PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
+    QSpinBox *spinBox_Pt=findChild<QSpinBox*>("spinBox_Pt");
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
-    selectedEventInfoView=findChild<QGraphicsView *>("selectedEventInfo");
+    QPushButton *button_detectorVisibility=findChild<QPushButton *>("button_detectorVisibility");
+    QPushButton *button_packageList=findChild<QPushButton *>("button_packageList");
+    QPushButton *button_eventInfo=findChild<QPushButton *>("button_eventInfo");
+
+    QWidget *detectorVisibility=new QWidget();
+    Ui::DetectorVisibility ui;
+    ui.setupUi(detectorVisibility);
+    
+    QGroupBox *groupBox_Detector=detectorVisibility->findChild<QGroupBox *>("groupBox_Detector");
+    QGroupBox *groupBox_Calorimeter=detectorVisibility->findChild<QGroupBox *>("groupBox_Calorimeter");
+    QGroupBox *groupBox_ID=detectorVisibility->findChild<QGroupBox *>("groupBox_ID");
+    QCheckBox *checkBox_Pit=detectorVisibility->findChild<QCheckBox *>("checkBox_Pit");
+    QCheckBox *checkBox_Magnets=detectorVisibility->findChild<QCheckBox *>("checkBox_Magnets");
+    QCheckBox *checkBox_MuonSpectr=detectorVisibility->findChild<QCheckBox *>("checkBox_MuonSpectr");
+    QCheckBox *checkBox_LAr=detectorVisibility->findChild<QCheckBox *>("checkBox_LAr");
+    QCheckBox *checkBox_Tilecal=detectorVisibility->findChild<QCheckBox *>("checkBox_Tilecal");
+    QCheckBox *checkBox_Pixels=detectorVisibility->findChild<QCheckBox *>("checkBox_Pixels");
+    QCheckBox *checkBox_SCT=detectorVisibility->findChild<QCheckBox *>("checkBox_SCT");
+    QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
+    
+    QCheckBox *checkBox_Electrons=findChild<QCheckBox *>("checkBox_Electrons");
+    QCheckBox *checkBox_ChargedHadrons=findChild<QCheckBox *>("checkBox_ChargedHadrons");
+    QCheckBox *checkBox_NeutralHadrons=findChild<QCheckBox *>("checkBox_NeutralHadrons");
+    QCheckBox *checkBox_Muons=findChild<QCheckBox *>("checkBox_Muons");
+    QCheckBox *checkBox_Photons=findChild<QCheckBox *>("checkBox_Photons");
+    QCheckBox *checkBox_Jets=findChild<QCheckBox *>("checkBox_Jets");
+    QCheckBox *checkBox_MissingEt=findChild<QCheckBox *>("checkBox_MissingEt");
 
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
@@ -149,6 +181,11 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         tableCombinedTracks->setColumnWidth ( 0, 90 );
         tableCombinedTracks->setColumnWidth ( 1, 50 );
         tableCombinedTracks->setColumnWidth ( 2, 70 );
+	
+        connect(comboModel,SIGNAL(entrySelected(int,bool)),
+                geo,SLOT(selectTrackByID(int,bool)));
+        connect(comboModel,SIGNAL(entryDeselected(int)),
+                geo,SLOT(deselectTrackByID(int)));
     }
 
     if (detailedCombinedTracksTable)
@@ -171,37 +208,51 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(updateTrackInfo(ATrack*)));
         connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
                 trackInfo,SLOT(removeTrackInfo(ATrack*)));
+        connect(geo,SIGNAL(emptySelection()),
+                trackInfo,SLOT(hideMessage()));
 
-        connect(geo,SIGNAL(viewportSwitched(int,int)),//Basically clear the track selection on camera change
-                trackInfo,SLOT(handleViewportChange(int,int)));
 
         connect(trackInfo,SIGNAL(combineButtonEnabled(bool)),
-                buttonCombineTracks,SLOT(setEnabled(bool)));
+		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
 
-    // Setup event view
-    if(eventInfoView)
-    {
-      eventInfo=new AEventInfoScene;
-      eventInfoView->setScene(eventInfo);
-      eventInfoView->ensureVisible(0,0,450,300,10,10);
-    }
+    eventInfoView=new QGraphicsView();
+    eventInfo=new AEventInfoScene;
+    eventInfoView->resize(300,200);
+    eventInfoView->setScene(eventInfo);
+    eventInfoView->ensureVisible(0,0,450,300,10,10);
 
     // Setup package list
-
     mngr=new AEventManagerScene(eventmanager,"AGeometry");
-    if (packageList)
-      {
-        packageList->setModel(mngr);
-	//This crashes QPixmap::grabWidget() when the list is not visible for some reason...
-        packageList->setColumnWidth(0,200);
-        connect(packageList, SIGNAL(eventClicked ( AEvent* )),
-		this, SLOT(loadEvent( AEvent* )));
-        connect(this, SIGNAL(eventLoaded(AEvent*)),
-		mngr, SLOT(setActiveEvent(AEvent*)));
-        connect(this,SIGNAL(eventUnloaded()),
-		mngr, SLOT(setActiveEvent()));
-      }
+    packageList=new AEventManagerTreeView();
+    packageList->setModel(mngr);
+    packageList->setColumnWidth(0,200);
+    
+    connect(packageList, SIGNAL(eventClicked ( AEvent* )),
+	    this, SLOT(loadEvent( AEvent* )));
+    connect(this, SIGNAL(eventLoaded(AEvent*)),
+	    mngr, SLOT(setActiveEvent(AEvent*)));
+    connect(this,SIGNAL(eventUnloaded()),
+	    mngr, SLOT(setActiveEvent()));
+    
+    //Setup slide widget
+    ASlidyManager *slide=new ASlidyManager(this);
+    slide->setObjectName("AGeoControl");
+    slide->addWidget(eventInfoView,"Event Info",true);
+    slide->addWidget(packageList,"Packages",true);
+    slide->addWidget(detectorVisibility,"Detector Visibility",true);
+    connect(&flapMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(toggleWidget(int)));
+    flapMapper.setMapping(button_eventInfo,0);
+    connect(button_eventInfo,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+    flapMapper.setMapping(button_packageList,1);
+    connect(button_packageList,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+    flapMapper.setMapping(button_detectorVisibility,2);
+    connect(button_detectorVisibility,SIGNAL(clicked()),
+	    &flapMapper,SLOT(map()));
+
 
     // Setup random buttons
     if (buttonDeleteTracks)
@@ -215,43 +266,24 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 packageList,SLOT(clickNextEvent()));
       }
     
-    if (PtCutoff_Slider)
-      {
-	connect(PtCutoff_Slider,SIGNAL(valueChanged(int)),
-		ptFilter,SLOT(setMinPtMeV(int)));
-      }
-
-
-    //setup tour button connections
-
-    QList <QAbstractButton *> buttons = findChildren <QAbstractButton *> ();
-
-    while (!buttons.isEmpty ())
-    {
-
-        QAbstractButton *b  = buttons.takeFirst ();
-
-        QString name = b->objectName ();
-
-//        cout << name.toAscii ().data() << endl;
-
-        if (name == "") continue;
-        if (name == "recTourButton" || name == "snapshotTourButton" || name == "playTourButton" || name == "ffTourButton") continue;
-        QObject::connect (b, SIGNAL(clicked()), this, SLOT(recordButtonPress()));
-
-    }
+    // Setup pt cutoff
+    ptFilterSync.setValue(1000);
+    connect(&ptFilterSync,SIGNAL(valueChanged(double)),
+	    ptFilter,SLOT(setMinPtMeV(double)));
+    connect(ptFilter,SIGNAL(minPtMeVChanged(double)),
+	    &ptFilterSync,SLOT(setValue(double)));
+    ptFilterSync.syncSlider(PtCutoff_Slider);
+    ptFilterSync.syncSpinBox(spinBox_Pt);
 
     if (eventWidget)
       {
-	//Must remove widget from layout, otherwise it flashes even if WA_Moved is set...
-	findChild<QLayout *>("eventWidgetLayout")->removeWidget(eventWidget);
         eventWidget->hide();
       }
 
     if (geo) //Setup signals pertaining to AGeometry
       {
         signalMapper=new QSignalMapper(this);
-        signalMapper->setMapping(actionSphere, AGeometry::Maya);
+        signalMapper->setMapping(actionSphere, AGeometry::Sphere);
         signalMapper->setMapping(actionFPS, AGeometry::FPS);
 
         connect(actionSphere,SIGNAL(triggered()),
@@ -272,26 +304,146 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	//Setup event load/update/unload connections
 	connect(this,SIGNAL(eventUnloaded()),
 		geo,SLOT(clearEvent()));
+
+	hud=new AGeometryHUD(geo);
       }
 
-    selectedEventInfo=new AEventInfoScene;
-    if (selectedEventInfoView)
-    {
-        selectedEventInfoView->setScene(selectedEventInfo);
-        selectedEventInfoView->ensureVisible(0,0,450,300,10,10);
-    }
-
     if(LeftViewport)
-      LeftViewport->setViewport(AGeometry::Orthogonal);
+      LeftViewport->setViewport(AGeometry::Front);
     if(RightViewport)
-      RightViewport->setViewport(AGeometry::Projective);
+      RightViewport->setViewport(AGeometry::Side);
     
     //Connect the action tags
     connect(actionTagBlackHole,SIGNAL(toggled(bool)),
 	    this, SLOT(handleEventTagChange(bool)));
     connect(actionTagHiggsBoson,SIGNAL(toggled(bool)),
 	    this, SLOT(handleEventTagChange(bool)));
+
+    //Setup cropping modes
+    croppingModes=new QActionGroup(this);
+    croppingModes->addAction(actionNone);
+    croppingModes->addAction(actionWedge_Mode);
+    croppingModes->addAction(actionMoses_Mode);
+    croppingMapper.setMapping(actionNone,AGeometry::NoneMode);
+    croppingMapper.setMapping(actionWedge_Mode,AGeometry::WedgeMode);
+    croppingMapper.setMapping(actionMoses_Mode,AGeometry::MosesMode);
+    connect(actionNone,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(actionWedge_Mode,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(actionMoses_Mode,SIGNAL(triggered()),
+	    &croppingMapper,SLOT(map()));
+    connect(&croppingMapper,SIGNAL(mapped(int)),
+	    geo,SLOT(setCropMode(int)));
+    connect(geo,SIGNAL(cropModeSwitched(int)),
+	    this,SLOT(handleCropModeChange(int)));
     
+    //Setup visibility toggles
+    if(groupBox_Detector)
+      geo->detectorVisibility()->syncGroupBox(groupBox_Detector);
+    if(groupBox_Calorimeter)
+      geo->calorimetersVisibility()->syncGroupBox(groupBox_Calorimeter);
+    if(groupBox_ID)
+      geo->trackerVisibility()->syncGroupBox(groupBox_ID);
+
+    if(checkBox_Pit)
+      geo->pitVisibility()->syncButton(checkBox_Pit);
+    if(checkBox_Magnets)
+      geo->magnetsVisibility()->syncButton(checkBox_Magnets);
+    if(checkBox_MuonSpectr)
+      geo->muonSpecVisibility()->syncButton(checkBox_MuonSpectr);
+    if(checkBox_LAr)
+      geo->larVisibility()->syncButton(checkBox_LAr);
+    if(checkBox_Tilecal)
+      geo->tileVisibility()->syncButton(checkBox_Tilecal);
+    if(checkBox_Pixels)
+      geo->pixelsVisibility()->syncButton(checkBox_Pixels);
+    if(checkBox_SCT)
+      geo->sctVisibility()->syncButton(checkBox_SCT);
+    if(checkBox_TRT)
+      geo->trtVisibility()->syncButton(checkBox_TRT);
+
+    //Setup particle visiblility toggles
+    if(checkBox_Electrons)
+      {
+	QBoolSync *electronSync=new QBoolSync(checkBox_Electrons->isChecked());
+	electronSync->syncButton(checkBox_Electrons);
+	connect(electronSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowElectrons(bool)));
+	connect(particleFilter,SIGNAL(showElectronsChanged(bool)),
+		electronSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Muons)
+      {
+	QBoolSync *muonSync=new QBoolSync(checkBox_Muons->isChecked());
+	muonSync->syncButton(checkBox_Muons);
+	connect(muonSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowMuons(bool)));
+	connect(particleFilter,SIGNAL(showMuonsChanged(bool)),
+		muonSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Photons)
+      {
+	QBoolSync *photonSync=new QBoolSync(checkBox_Photons->isChecked());
+	photonSync->syncButton(checkBox_Photons);
+	connect(photonSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowPhotons(bool)));
+	connect(particleFilter,SIGNAL(showPhotonsChanged(bool)),
+		photonSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_Jets)
+      {
+	QBoolSync *jetSync=new QBoolSync(checkBox_Jets->isChecked());
+	jetSync->syncButton(checkBox_Jets);
+	connect(jetSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowJets(bool)));
+	connect(particleFilter,SIGNAL(showJetsChanged(bool)),
+		jetSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_ChargedHadrons)
+      {
+	QBoolSync *chargedHadronsSync=new QBoolSync(checkBox_ChargedHadrons->isChecked());
+	chargedHadronsSync->syncButton(checkBox_ChargedHadrons);
+	connect(chargedHadronsSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowChargedHadrons(bool)));
+	connect(particleFilter,SIGNAL(showChargedHadronsChanged(bool)),
+		chargedHadronsSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_NeutralHadrons)
+      {
+	QBoolSync *neutralHadronsSync=new QBoolSync(checkBox_NeutralHadrons->isChecked());
+	neutralHadronsSync->syncButton(checkBox_NeutralHadrons);
+	connect(neutralHadronsSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowNeutralHadrons(bool)));
+	connect(particleFilter,SIGNAL(showNeutralHadronsChanged(bool)),
+		neutralHadronsSync,SLOT(setValue(bool)));
+      }
+    if(checkBox_MissingEt)
+      {
+	QBoolSync *metSync=new QBoolSync(checkBox_MissingEt->isChecked());
+	metSync->syncButton(checkBox_MissingEt);
+	connect(metSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowMissingEt(bool)));
+	connect(particleFilter,SIGNAL(showMissingEtChanged(bool)),
+		metSync,SLOT(setValue(bool)));
+      }
+
+
+
+    //Setup the smart shower
+    connect(&smartShowMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(showWidgetTimed(int)));
+    connect(&smartHideMapper,SIGNAL(mapped(int)),
+	    slide,SLOT(hideWidget(int)));
+    
+    smartShowMapper.setMapping(&ptFilterSync,0);
+    connect(&ptFilterSync,SIGNAL(valueChanged(double)),
+	    &smartShowMapper,SLOT(map()));
+
+    //Prepare the snapshot controls
+    snapshotTool.setTarget(geo);
+    connect(actionSnapshot,SIGNAL(triggered()),
+	    &snapshotTool,SLOT(snapshot()));
 }
 
 void ALayerGUI::enableElements()
@@ -322,47 +474,29 @@ void ALayerGUI::actionSwitchView()
     {
       geo->setViewport(AGeometry::Cam3D);
     }
-  else if (from=="actionOrthogonal")
+  else if (from=="actionFront")
     {
-      geo->setViewport(AGeometry::Orthogonal);
+      geo->setViewport(AGeometry::Front);
     }
-  else if (from=="actionProjective")
+  else if (from=="actionSide")
     {
-      geo->setViewport(AGeometry::Projective);
+      geo->setViewport(AGeometry::Side);
     }
 }
 
-void ALayerGUI::toggleVisibilityParticles(bool toggle)
+void ALayerGUI::handleCropModeChange(int mode)
 {
-  QString from=sender()->objectName();
-  
-  if (from=="checkBox_Electrons")
+  switch(mode)
     {
-      particleFilter->setShowElectrons(toggle);
-    }
-  else if (from=="checkBox_Muons")
-    {
-      particleFilter->setShowMuons(toggle);
-    }
-  else if (from=="checkBox_ChargedHadrons")
-    {
-      particleFilter->setShowChargedHadrons(toggle);
-    }
-  else if (from=="checkBox_NeutralHadrons")
-    {
-      particleFilter->setShowNeutralHadrons(toggle);
-    }
-  else if (from=="checkBox_Photons")
-    {
-      particleFilter->setShowPhotons(toggle);
-    }
-  else if (from=="checkBox_Jets")
-    {
-      particleFilter->setShowJets(toggle);
-    }
-  else if (from=="checkBox_MissingEt")
-    {
-      particleFilter->setShowMissingEt(toggle);
+    case AGeometry::NoneMode:
+      actionNone->setChecked(true);
+      break;
+    case AGeometry::WedgeMode:
+      actionWedge_Mode->setChecked(true);
+      break;
+    case AGeometry::MosesMode:
+      actionMoses_Mode->setChecked(true);
+      break;
     }
 }
 
@@ -374,12 +508,12 @@ void ALayerGUI::showLoadEventDialog()
     loadEvent(fileName);
 }
 
-bool ALayerGUI::loadEvent(QString fileName)
+void ALayerGUI::loadEvent(QString fileName)
 {
   qDebug() << "Loading " << fileName << endl;
 
   //TODO Error somehow
-  if (!geo) return false;
+  if (!geo) return;
 
   if (!fileName.isEmpty())
     {
@@ -387,19 +521,16 @@ bool ALayerGUI::loadEvent(QString fileName)
 
       if (!eventFile.exists())
         {
-	  QMessageBox::warning(this, tr("Application"),
+	  QMessageBox::warning(window(), tr("Application"),
 			       tr("Cannot find event file: %1!\n.")
 			       .arg(fileName));
-	  return false;
+	  return;
         }
 
 
       AXmlEvent *event=new AXmlEvent(fileName);
       loadEvent(event);
-
-      tourBuilder->markLoadEvent (cstr_to_wstr(fileName.toAscii().data(),fileName.length()));
     }
-  return true;
 }
 
 void ALayerGUI::loadEvent(AEvent* event)
@@ -408,26 +539,25 @@ void ALayerGUI::loadEvent(AEvent* event)
   emit eventUnloaded();
   event->LoadEvent();
   CompleteEvent=event;
-  FilteredEvent=new AFilteredEvent(event,ptFilter);
+  ModelEvent=new AFilteredEvent(event,modelFilter);
+  FilteredEvent=new AFilteredEvent(ModelEvent,ptFilter);
 
   handleEventLoaded();
 
-  emit eventLoaded(event->filename);
   emit eventLoaded(event);
+}
+
+void ALayerGUI::unloadEvent()
+{
+  handleEventUnloaded();
+
+  emit eventLoaded(0);
+  emit eventUnloaded();
 }
 
 void ALayerGUI::handleEventLoaded()
 {
-  if (!eventWidget->isVisible())
-    { // Move the eventWidget to some far far away place, if this is the first time an even was loaded
-        widgetPositions["eventWidget"]=AGeometryFrame->geometry().bottomLeft();
-        eventWidget->move(-AGeometryFrame->geometry().width()-10,widgetPositions["eventWidget"].y());
-        eventWidget->setAttribute(Qt::WA_Moved);
-	show(eventWidget);
-    }
-
   QWidget* tabEvent = findChild<QWidget*>("tab_event");
-  findChild<QTabWidget*>("MainTab")->setCurrentWidget(tabEvent);
 
   //Enable what needs to be enabled!
   QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
@@ -441,18 +571,24 @@ void ALayerGUI::handleEventLoaded()
   if (buttonCombineTracks) buttonCombineTracks->setEnabled(true);
   if (actionTable) actionTable->setEnabled(true);
   if (menuTagCurrentEvent) menuTagCurrentEvent->setEnabled(true);
-  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(CompleteEvent->tags.contains("higgs"));
-  if (actionTagBlackHole) actionTagBlackHole->setChecked(CompleteEvent->tags.contains("blackhole"));
+  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(CompleteEvent->tags().contains("higgs"));
+  if (actionTagBlackHole) actionTagBlackHole->setChecked(CompleteEvent->tags().contains("blackhole"));
 
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);
+
+  if (!eventWidget->isVisible())
+    show(eventWidget);
 
   QApplication::restoreOverrideCursor();
 }
 
 void ALayerGUI::handleEventUnloaded()
 {
-    menuTagCurrentEvent->setEnabled(false);
+  menuTagCurrentEvent->setEnabled(false);
+
+  if (eventWidget->isVisible())
+    hide(eventWidget);
 }
 
 void ALayerGUI::eventSettings()
@@ -472,19 +608,48 @@ void ALayerGUI::eventSettings()
 
 void ALayerGUI::show(QWidget *w)
 {
-    if (!w) return;
-    w->show();
+  if (!w) return;
 
-    QTimeLine *animTime=new QTimeLine(1000,this);
-    AAnimationGUI *anim=new AAnimationGUI(w,this);
-    anim->setTimeLine(animTime);
-    anim->setPosAt(0,w->pos());
-    anim->setPosAt(1,widgetPositions[w->objectName()]);
-    connect(animTime,SIGNAL(finished()),
-            anim,SLOT(deleteLater()));
-    connect(animTime,SIGNAL(finished()),
-            animTime,SLOT(deleteLater()));
-    animTime->start();
+  setUpdatesEnabled(false);
+  w->show(); //Need to show the widget to calculate the layout position. It will not be displayed, because updates are disabled.
+  QPoint hiddenPosition=w->pos();
+  w->hide();
+  hiddenPosition.setX(-w->width()-100); //Move it 100 off screen
+
+  QTimeLine *animTime=new QTimeLine(1000,this);
+  AAnimationLayoutGUI *anim=new AAnimationLayoutGUI(w,this);
+  anim->setTimeLine(animTime);
+  anim->setPosAt(0,hiddenPosition);
+  //Final position is calculated automatically by AAnimationLayoutGUI as where it should be in the layout..
+  connect(animTime,SIGNAL(finished()),
+	  anim,SLOT(deleteLater()));
+  connect(animTime,SIGNAL(finished()),
+	  animTime,SLOT(deleteLater()));
+
+  animTime->start();
+  setUpdatesEnabled(true);
+}
+
+void ALayerGUI::hide(QWidget *w)
+{
+  if (!w) return;
+
+  QPoint hiddenPosition=w->pos();
+  hiddenPosition.setX(-w->width()-100); //Move it 100 off screen
+
+  QTimeLine *animTime=new QTimeLine(1000,this);
+  animTime->setDirection(QTimeLine::Backward);
+
+  AAnimationLayoutGUI *anim=new AAnimationLayoutGUI(w,this);
+  anim->setTimeLine(animTime);
+  anim->setPosAt(0,hiddenPosition);
+  //Final position is calculated automatically by AAnimationLayoutGUI as where it should be in the layout..
+  connect(animTime,SIGNAL(finished()),
+	  anim,SLOT(deleteLater()));
+  connect(animTime,SIGNAL(finished()),
+	  animTime,SLOT(deleteLater()));
+
+  animTime->start();
 }
 
 void ALayerGUI::handleEventTagChange(bool status)
@@ -500,161 +665,6 @@ void ALayerGUI::handleEventTagChange(bool status)
 
   if (status)
     geo->event()->tag(tag,status);
-}
-
-void ALayerGUI::toggleTour ()
-{
-
-  if (tourManager->isRunning ()) endTour ();
-  else startTour ();
-
-}
-
-void ALayerGUI::endTour ()
-{
-
-  tourManager->stop ();
-  findChild<QPushButton *>("playTourButton")->setText ("Play");
-  findChild<QPushButton *>("ffTourButton")->setEnabled (false);
-
-}
-
-void ALayerGUI::startTour ()
-{
-
-  findChild<QPushButton *> ("playTourButton")->setText ("Stop");
-  findChild <QPushButton *> ("ffTourButton")->setEnabled (true);
-
-  int selIndex = findChild<QComboBox *> ("tourSelector")->currentIndex ();
-
-  tourManager->load (tourManager->tourFiles [selIndex]);
-
-  //Make sure we use the correct camera.
-  geo->setViewport(AGeometry::Cam3D);
-  geo->setCamera(AGeometry::FPS,false);
-  tourManager->begin ();
-
-}
-
-
-void ALayerGUI::ffTour ()
-{
-
-  if (tourManager->isRunning ()) tourManager->skip ();
-
-}
-
-
-
-void ALayerGUI::toggleRecording ()
-{
-
-  if (!tourBuilder->isRecording ())
-    {
-
-      //tourBuilder->startRecording ("rectest.xml");
-      findChild<QPushButton *> ("recTourButton")->setText ("Stop");
-      findChild <QPushButton *> ("snapshotTourButton")->setEnabled (true);
-
-    }
-  else
-    {
-
-      //tourBuilder->stopRecording ();
-      findChild<QPushButton *> ("recTourButton")->setText ("Record");
-      findChild <QPushButton *> ("snapshotTourButton")->setEnabled (false);
-
-    }
-
-}
-
-void ALayerGUI::snapshotRecording ()
-{
-
-  tourBuilder->markCamera ();
-
-}
-
-void ALayerGUI::recordButtonPress ()
-{
-	if(!tourBuilder) return;
-  wchar_t* name = cstr_to_wstr (QObject::sender ()->objectName ().toAscii ().data(), 100);
-
-  tourBuilder->markAction (ATour::AT_BUTTON, name);
-
-}
-
-void ALayerGUI::prepareTours ()
-{
-
-  // If we are keeping strict MVC this should be handled
-  // through a signal to the base app.
-  // This will work for the time being
-
-//    cout << "preptours called" << endl;
-  QComboBox* combo = parent()->findChild<QComboBox*> ("tourSelector");
-
-  tourManager = new ATourManager (geo->getFileSystem (), geo->getTimer ());
-  tourBuilder = new ATourBuilder (geo->getFileSystem (), geo->camera [0]);
-
-  //geo->getFileSystem()->addFolderFileArchive ( geo->getFileSystem()->getWorkingDirectory() );
-  if (geo->getFileSystem()->existFile("media/tours"))
-    tourManager->listTours ("media/tours");
-  else
-    tourManager->listTours (TOURS_PREFIX);
-
-  if (combo)
-    {
-      for (int i = 0; i < tourManager->numTours; i++)
-        {
-
-	  if (tourManager->tourNames[i].size() != 0)
-	    combo->addItem (tourManager->tourNames[i].c_str());
-
-        }
-    }
-
-  QObject::connect (tourManager, SIGNAL(camAnimatorAdded(irr::core::array<vector3df>)), geo, SLOT(addCamAnimator(irr::core::array<vector3df>)));
-  QObject::connect (tourManager, SIGNAL(tarAnimatorAdded(irr::core::array<vector3df>)), geo, SLOT(addTarAnimator(irr::core::array<vector3df>)));
-
-  QObject::connect (tourManager, SIGNAL(camAnimatorRemoved()), geo, SLOT(removeCamAnimator ()));
-  QObject::connect (tourManager, SIGNAL(tarAnimatorRemoved()), geo, SLOT(removeTarAnimator ()));
-
-  QObject::connect (tourManager, SIGNAL(tour_camera(AGeometry::CameraMode)), geo, SLOT(setViewport(AGeometry::CameraMode)));
-  QObject::connect (tourManager, SIGNAL(tour_loadfile(QString)), this, SLOT(loadEvent(QString)));
-  QObject::connect (tourManager, SIGNAL(tour_stopped()), this, SLOT(endTour()));
-  QObject::connect (tourManager, SIGNAL(tour_button(char *)), this, SLOT(pressButton(char *)));
-  //QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), geo->XmlEvt, SLOT(PtCutoff(int)));
-
-  //QCoreApplication::installEventFilter (this);
-}
-
-void ALayerGUI::fakeCursor (int x, int y)
-{
-
-//    cout << "faking " << x << " " << y << endl;
-
-  QMouseEvent *evt = new QMouseEvent (QEvent::MouseButtonPress, QPoint (x, y), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-
-  QCoreApplication::postEvent (parent (), evt);
-
-  evt = new QMouseEvent (QEvent::MouseButtonRelease, QPoint (x, y), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-
-  QCoreApplication::postEvent (parent (), evt);
-
-  QCoreApplication::flush ();
-  QCoreApplication::processEvents ();
-
-  //    cout << "done" << endl;
-
-
-}
-
-void ALayerGUI::pressButton (char* name)
-{
-
-  findChild <QAbstractButton *> (name)->click ();
-
 }
 
 void ALayerGUI::about()
@@ -720,5 +730,3 @@ void ALayerGUI::about()
 
   about.exec();
 }
-
-

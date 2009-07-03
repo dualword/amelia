@@ -229,8 +229,11 @@ void AInterestingTrackTableModel::clear()
 void AInterestingTrackTableModel::setEvent(AEvent* event)
 {
   clear();
-  QList<ATrack*> tracks=event->getInterestingTracks();
-  
-  for(int i=0;i<tracks.size();i++)
-    addTrack(tracks[i]);
+  if(event)
+    {
+      QList<ATrack*> tracks=event->getInterestingTracks();
+      
+      for(int i=0;i<tracks.size();i++)
+	addTrack(tracks[i]);
+    }
 }

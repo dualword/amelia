@@ -37,7 +37,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AGeometry.h"
 #include <config.h>
 
-#include "CSceneNodeAnimatorCameraOrbit.h"
+#include "CSceneNodeAnimatorCameraFOV.h"
 #include "CSceneNodeAnimatorCameraSphere.h"
 #include <ISceneNodeAnimatorCameraFPS.h>
 
@@ -49,7 +49,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 AGeometry::AGeometry(QWidget* parent)
         : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0),sphereControl(0)
+  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0),sphereControl(0),frontControl(0),sideControl(0)
 
 {
     setCursor(Qt::ArrowCursor);
@@ -181,8 +181,6 @@ void AGeometry::load()
   cube->setPosition ( core::vector3df ( 400,1500,400 ) );
   cube->setVisible(offsetTest);
   
-  OrthoCameraFront.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
-  OrthoCameraSide.buildProjectionMatrixOrthoLH ( 240.0f,180.0f,-400.0f,400.0f );
   getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
 
   cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
@@ -200,17 +198,25 @@ void AGeometry::load()
   cameras[1] = getSceneManager()->addCameraSceneNode();
   cameras[1]->setName("FrontCam");
   cameras[1]->setInputReceiverEnabled ( false );
-  cameras[1]->setPosition ( core::vector3df ( 0,0,-1 ) );
+  cameras[1]->setFarValue ( 100000.0f );
+  cameras[1]->setPosition ( core::vector3df ( 0,0,-30400.0 ) );
+  cameras[1]->setFOV ( 0.005 );
   cameras[1]->setTarget ( core::vector3df ( 0,0,0 ) );
-  cameras[1]->setProjectionMatrix ( OrthoCameraFront );
+  scene::CSceneNodeAnimatorCameraFOV *frontAnimator=new scene::CSceneNodeAnimatorCameraFOV();
+  frontAnimator->setMaxFOV(0.0185);
+  cameras[1]->addAnimator(frontAnimator);
   cameras[1]->setID(Side);
   
   cameras[2] = getSceneManager()->addCameraSceneNode();
   cameras[2]->setName("SideCam");
   cameras[2]->setInputReceiverEnabled ( false );
-  cameras[2]->setPosition ( core::vector3df ( 1,0,0 ) );
+  cameras[2]->setFarValue ( 100000.0f );
+  cameras[2]->setPosition ( core::vector3df ( 30400.0,0,0 ) );
+  cameras[2]->setFOV ( 0.005 );
   cameras[2]->setTarget ( core::vector3df ( 0,0,0 ) );
-  cameras[2]->setProjectionMatrix ( OrthoCameraSide );
+  scene::CSceneNodeAnimatorCameraFOV *sideAnimator=new scene::CSceneNodeAnimatorCameraFOV();
+  sideAnimator->setMaxFOV(0.006);
+  cameras[2]->addAnimator(sideAnimator);
   cameras[2]->setID(Front);
   
   cameras[3] = getSceneManager()->addCameraSceneNode();
@@ -235,6 +241,9 @@ void AGeometry::load()
 			     getGUIEnvironment(),
 			     getGUIEnvironment()->getRootGUIElement(),
 			     -1,core::rect<s32>(0,0,100,100));
+			     fpsControl->setVisible(false);
+  connect(this,SIGNAL(cameraSwitched(ICameraSceneNode*)),
+	  fpsControl,SLOT(handleNewActiveCamera(ICameraSceneNode*)));
   fpsControl->setVisible(false);
 
   sphereControl=new ASphereControl(cameras[3],
@@ -242,7 +251,29 @@ void AGeometry::load()
 				   getGUIEnvironment(),
 				   getGUIEnvironment()->getRootGUIElement(),
 				   -1,core::rect<s32>(0,0,100,20));
+  connect(this,SIGNAL(cameraSwitched(ICameraSceneNode*)),
+	  sphereControl,SLOT(handleNewActiveCamera(ICameraSceneNode*)));
   sphereControl->setVisible(false);
+  
+  sideControl=new AFOVControl(cameras[2],
+			      getSceneManager(),
+			      getGUIEnvironment(),
+			      getGUIEnvironment()->getRootGUIElement(),
+			      -1,core::rect<s32>(0,0,20,300));
+			      sideControl->setVisible(false);
+  connect(this,SIGNAL(cameraSwitched(ICameraSceneNode*)),
+	  sideControl,SLOT(handleNewActiveCamera(ICameraSceneNode*)));
+  sideControl->setVisible(false);
+
+  frontControl=new AFOVControl(cameras[1],
+			       getSceneManager(),
+			       getGUIEnvironment(),
+			       getGUIEnvironment()->getRootGUIElement(),
+			       -1,core::rect<s32>(0,0,20,300));
+  connect(this,SIGNAL(cameraSwitched(ICameraSceneNode*)),
+	  frontControl,SLOT(handleNewActiveCamera(ICameraSceneNode*)));
+  frontControl->setVisible(false);
+
   
   //Prepare spinning logo
   getFileSystem()->addZipFileArchive ( "logo.aml" );
@@ -392,6 +423,7 @@ QString AGeometry::detectorSelection( core::position2di pos )
 
 ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 {
+  qDebug() << "trackSelection";
   if ( eventAnalysisMode && allowTrackSelection )
     {
       ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
@@ -1041,7 +1073,6 @@ void AGeometry::resizeEvent( QResizeEvent* event )
       fpsControl->setRelativePosition(fpsPos);
     }
 
-
   if(sphereControl)
     {
       QSize size=event->size();
@@ -1049,6 +1080,20 @@ void AGeometry::resizeEvent( QResizeEvent* event )
       core::rect<s32> spherePos(size.width()-100,size.height()-20,size.width(),size.height());
       sphereControl->setRelativePosition(spherePos);
       sphereControl->updateAbsolutePosition();
+    }
+
+  if(frontControl)
+    {
+      QSize size=event->size();
+      core::rect<s32> frontPos(size.width()-20,size.height()/2-150,size.width(),size.height()/2+150);
+      frontControl->setRelativePosition(frontPos);
+    }
+
+  if(sideControl)
+    {
+      QSize size=event->size();
+      core::rect<s32> sidePos(size.width()-20,size.height()/2-150,size.width(),size.height()/2+150);
+      sideControl->setRelativePosition(sidePos);
     }
 
   QIrrWidget::resizeEvent(event);
@@ -1064,66 +1109,60 @@ void AGeometry::mouseDoubleClickEvent(QMouseEvent *event)
 
 void AGeometry::mouseClickEvent(QMouseEvent *event)
 {
-  if ( active_viewport == AGeometry::Cam3D )
+  core::position2di posMouse = core::position2di(event->x(),event->y());
+  bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+  
+  if (event->button()==Qt::LeftButton)
     {
-      core::position2di posMouse = core::position2di(event->x(),event->y());
-      bool Shift =((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
-      
-      if(event->button()==Qt::LeftButton)
-	{
-	  if (event->button()==Qt::LeftButton)
-	    {
-	      if(allowTrackSelection)
-		{ //Start track selection
-		  ATrack3DNode *selected=trackSelection(posMouse);
-		  
-		  //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
-		  if (!Shift)
-		    { // Deselect every selected track
-		      while (!selectedTracks.isEmpty())
-			{
-			  ATrack3DNode *node=selectedTracks.back();
-			  node->deselect();
-			  selectedTracks.pop_back();
-			  emit trackDeselected(node->getTrack());
-			}
-		    }
-		  
-		  if (selected)
-		    {
-		      int idx=selectedTracks.indexOf(selected);
-		      if (idx==-1) //Make sure the track is not already selected
-			{
-			  selected->select();
-			  if(selected->getTrack()->isInteresting())
-			    {
-			      selectedTracks.push_back(selected);
-			      emit trackSelected(selected->getTrack());
-			      qDebug() << "Found and selected a track...";
-			    }
-			}
-		      else //else deselect it
-			{
-			  selectedTracks.removeAt(idx);
-			  selected->deselect();
-			  emit trackDeselected(selected->getTrack());
-			  qDebug() << "Found and delselected a track...";
-			}
-		    } //End track selection
-		  return;
-		}
-	      
-	      if(!Shift) // When we press shift, then for sure we only want track selection
-	      { //Start detector selection
-	      QString partName=detectorSelection(posMouse);
-	      if(partName!="")
+      if(allowTrackSelection)
+	{ //Start track selection
+	  ATrack3DNode *selected=trackSelection(posMouse);
+	  
+	  //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
+	  if (!Shift)
+	    { // Deselect every selected track
+	      while (!selectedTracks.isEmpty())
 		{
-		  emit detectorPartSelected(partName);
-		  return;
+		  ATrack3DNode *node=selectedTracks.back();
+		  node->deselect();
+		  selectedTracks.pop_back();
+		  emit trackDeselected(node->getTrack());
 		}
-	      } //End detector selection
 	    }
+	  
+	  if (selected)
+	    {
+	      int idx=selectedTracks.indexOf(selected);
+	      if (idx==-1) //Make sure the track is not already selected
+		{
+		  selected->select();
+		  if(selected->getTrack()->isInteresting())
+		    {
+		      selectedTracks.push_back(selected);
+		      emit trackSelected(selected->getTrack());
+		      qDebug() << "Found and selected a track...";
+		    }
+		}
+	      else //else deselect it
+		{
+		  selectedTracks.removeAt(idx);
+		  selected->deselect();
+		  emit trackDeselected(selected->getTrack());
+		  qDebug() << "Found and delselected a track...";
+		}
+	    } //End track selection
+	  return;
 	}
+      
+      if(!Shift) // When we press shift, then for sure we only want track selection
+	{ //Start detector selection
+	  QString partName=detectorSelection(posMouse);
+	  if(partName!="")
+	    {
+	      emit detectorPartSelected(partName);
+	      return;
+	    }
+	} //End detector selection
       
       //This next block is part of an offset test for the Irrlicht ray generator
       if ( offsetTest )
@@ -1141,7 +1180,7 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
 			    cout << ""  <<endl;
 			    cout << "Width: " <<  width() << "  Heigth: " <<  height() <<endl;*/
 	}
-
+      
     }
   
   emit emptySelection();
@@ -1375,6 +1414,9 @@ void AGeometry::setViewport(int to)
     int from=active_viewport;
 
     getSceneManager()->setActiveCamera (cameras[camId]);
+
+    if(to==AGeometry::Side || to==AGeometry::Front)
+	cameras[to]->setInputReceiverEnabled(true);
 
     setupView(to);
 

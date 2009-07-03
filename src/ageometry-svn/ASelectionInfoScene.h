@@ -66,12 +66,10 @@ class ASelectionInfoScene : public QGraphicsScene
   void removeTrackInfo ( ATrack* strack );
   void handleAddTrack();
   void handleCombTracks();
-  void handleViewportChange(int from,int to);
   void handleNewEventLoaded(AEvent*);
   
-  void displayMessage(QString message);
+  void displayMessage(QString message,QString headerText="",QPixmap img=QPixmap());
   void hideMessage();
-  bool particleFilter(ATrack* strack);
   void refresh();
   
  signals:
@@ -83,14 +81,11 @@ class ASelectionInfoScene : public QGraphicsScene
   ATrackCollection *analysisData;
   
   QGraphicsTextItem *header;
-  QGraphicsTextItem *nonSelectable;
   
   QGraphicsTextItem *name;
   QGraphicsTextItem *charge;
   QGraphicsTextItem *invmass;
   QGraphicsTextItem *pt;
-  QGraphicsTextItem *phi;
-  QGraphicsTextItem *eta;
   QGraphicsTextItem *id;
   
   QGraphicsTextItem* dataComplete;
@@ -103,6 +98,7 @@ class ASelectionInfoScene : public QGraphicsScene
   QGraphicsProxyWidget *addTrack;
   QGraphicsProxyWidget *combTrack;
   QGraphicsTextItem *message;
+  QGraphicsPixmapItem *icon;
   
   void init();
   

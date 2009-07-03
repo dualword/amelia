@@ -49,6 +49,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "CSceneNodeAnimatorCameraSwitch.h"
 #include "AFPSControl.h"
 #include "ASphereControl.h"
+#include "AFOVControl.h"
 #include "APoint3D.h"
 
 #include "ASTrack3DNode.h"
@@ -107,9 +108,6 @@ public:
   int LAr_switch;
   int SCT_switch;
   int Pix_switch;
-  
-  int jetIdCounter;
-  
   
   bool generateCameraStats;
   bool displayFPS;
@@ -205,8 +203,8 @@ private:
   scene::ISceneNode* background_node_f; //Used for flat view
   scene::ISceneNode* background_node_s; //Used for flat view
   scene::ISceneNode* CameraBB;
-  core::matrix4 OrthoCameraFront;
-  core::matrix4 OrthoCameraSide;
+  //core::matrix4 OrthoCameraFront;
+  //core::matrix4 OrthoCameraSide;
   CSceneNodeAnimatorCameraSwitch *cameraSwitcher; //Used for switching the camera modes in 3D
   f32 moduleDistanceFromCam;
   f32 moduleAngleFromCam;
@@ -243,6 +241,7 @@ private:
   int active_cam;
   AFPSControl *fpsControl;
   ASphereControl *sphereControl;
+  AFOVControl *sideControl,*frontControl;
   
   //State values
   bool allowTrackSelection; //Whether to allow track selection

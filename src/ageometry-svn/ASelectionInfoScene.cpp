@@ -39,19 +39,9 @@ void ASelectionInfoScene::init()
     id->setPos(0,55);
     id->setDefaultTextColor("white");
 
-    nonSelectable=addText("Non Selectable");
-    nonSelectable->setPos(230,25);
-    nonSelectable->setDefaultTextColor("black");
-
     pt=addText("Pt:");
     pt->setPos(130,25);
     pt->setDefaultTextColor("white");
-    eta=addText("Eta:");
-    eta->setPos(130,40);
-    eta->setDefaultTextColor("white");
-    phi=addText("Phi:");
-    phi->setPos(130,55);
-    phi->setDefaultTextColor("white");
 
     // Buttons
     QPushButton *_addTrack=new QPushButton("Bookmark Selected");
@@ -71,8 +61,11 @@ void ASelectionInfoScene::init()
     // Main message
     serifFont.setPointSize(14);
     message=addText("",serifFont);
-    message->setPos(20,10);
+    message->setPos(20,20);
     message->setVisible(false);
+
+    icon=addPixmap(QPixmap());
+    icon->setPos(10,20);
 
 
     // Hide Everything by Default
@@ -104,62 +97,61 @@ void ASelectionInfoScene::handleAddTrack()
 
 void ASelectionInfoScene::handleCombTracks()
 {
-  bool ok;
-  
-  QString name=QInputDialog::getText(0,
-				     tr("Track Combination Name"),
-				     tr("Combination Name:"),
-				     QLineEdit::Normal,
-				     combo->name(),
-				     &ok);
-  
-  if (ok) //Proceed only if OK clicked
-    {
-      QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
-      combo->setName(name);
-      tracks.append(new ATrackCombination(*combo));
-      analysisData->setCollection("combined_tracks",tracks);
-    }
-}
-
-void ASelectionInfoScene::handleViewportChange(int from,int to)
-{
-  switch (to)
-    {
-    case AGeometry::Cam3D:
-      hideMessage();
-      break;
-    case AGeometry::Orthogonal:
-    case AGeometry::Projective:
-      displayMessage("Track selection only supported<br/> in first-person camera mode.");
-      break;
-    }
+  QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
+  tracks.append(new ATrackCombination(*combo));
+  analysisData->setCollection("combined_tracks",tracks);
 }
 
 void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 {
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
-  analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
-  connect(analysisData,SIGNAL(updated()),
-	  this,SLOT(refresh()));
+
+  if(newEvent)
+    {
+      analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
+      connect(analysisData,SIGNAL(updated()),
+	      this,SLOT(refresh()));
+    }
 }
 
-void ASelectionInfoScene::displayMessage(QString text)
+void ASelectionInfoScene::displayMessage(QString text,QString headerText,QPixmap img)
 {
   //TODO: Automatic line breaks and centering using font metrics
-  message->setHtml("<center>"+text+"</center>");
   message->setVisible(true);
+
+  if(!img.isNull())
+    {
+      int imgWidth=img.width();
+      message->setPos(25+imgWidth,15);
+      message->setTextWidth(350-imgWidth-5);
+      icon->setVisible(true);      
+      icon->setPixmap(img);
+    }
+  else
+    {
+      message->setPos(20,20);
+      message->setTextWidth(350);
+      icon->setVisible(false);
+    }
   
+  if(!headerText.isEmpty())
+    {
+      message->setHtml(text);
+      header->setPlainText(headerText);
+      header->setVisible(true);
+    }
+  else
+    {
+      message->setHtml("<center>"+text+"</center>");
+      header->setVisible(false);
+    }
+
   //Hide track information
-  header->setVisible(false);
-  nonSelectable->setVisible(false);
   name->setVisible(false);
   charge->setVisible(false);
   invmass->setVisible(false);
   pt->setVisible(false);
-  eta->setVisible(false);
-  phi->setVisible(false);
   id->setVisible(false);
   addTrack->setVisible(false);
   combTrack->setVisible(false);
@@ -167,7 +159,16 @@ void ASelectionInfoScene::displayMessage(QString text)
 
 void ASelectionInfoScene::hideMessage()
 {
-  message->setVisible(false);
+  // Only hide if a message is displayed
+  // This makes sure that we don't hide
+  // The header during track selection..
+  // TODO: Restore any previous display, ei track selection
+  if(message->isVisible())
+    {
+      message->setVisible(false);
+      icon->setVisible(false);
+      header->setVisible(false);
+    }
 }
 
 void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
@@ -192,17 +193,15 @@ void ASelectionInfoScene::refresh()
   if (combo->size()==0)
     {
       header->setVisible(false);
-      nonSelectable->setVisible(false);
       name->setVisible(false);
       charge->setVisible(false);
       invmass->setVisible(false);
       pt->setVisible(false);
-      eta->setVisible(false);
-      phi->setVisible(false);
       id->setVisible(false);
       addTrack->setVisible(false);
       combTrack->setVisible(false);
       message->setVisible(false);
+      icon->setVisible(false);
       return; //Dooone;
     }
   else if (combo->size()==1)
@@ -215,10 +214,7 @@ void ASelectionInfoScene::refresh()
 	  name->setHtml("<b>Name:</b> "+QString(STrack->name()));
 	  charge->setHtml("<b>Charge:</b> "+QString::number(STrack->charge()));
 	  pt->setHtml("<b>Pt:</b> "+QString::number(STrack->Pt()));
-	  eta->setHtml("<b>&#951;:</b> "+QString::number(STrack->eta));
-	  phi->setHtml("<b>&#966;:</b> "+QString::number(STrack->phi));
 	  id->setHtml("<b>id:</b> "+QString::number(STrack->trackID()));
-	  nonSelectable->setHtml("<b>This track is<br>irrelevant for<br>the analysis</b>");
 	  
 	  
 	  header->setVisible(true);
@@ -226,20 +222,15 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(true);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  id->setVisible(true);
 	  combTrack->setVisible(false);
-
-	  nonSelectable->setVisible(false);
+	  icon->setVisible(false);
         }
       else if ( (*combo)[0]->type() == ATrack::eJet ) //jet
         {
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
 	  name->setHtml("<b>Type:</b> Jet");
-	  eta->setHtml("<b>&#951;:</b> "+QString::number(Jet->eta));
-	  phi->setHtml("<b>&#966;</b> "+QString::number(Jet->phi));
 	  pt->setHtml("<b>Pt:</b> "+QString::number(Jet->et));
 	  
 	  header->setVisible(true);
@@ -247,17 +238,14 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(false);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  combTrack->setVisible(false);
+	  icon->setVisible(false);
         }
       else if ( (*combo)[0]->type() == ATrack::eMissingEt ) //Missing Et
         {
 	  AMisET* ET = static_cast<AMisET*>((*combo)[0]);
 	  header->setPlainText("SELECTED MisEt INFO");
 	  name->setHtml("<b>Type:</b> Missing Et");
-	  eta->setHtml("<b>etx:</b> "+QString::number(ET->etx));
-	  phi->setHtml("<b>ety:</b> "+QString::number(ET->ety));
 	  pt->setHtml("<b>Et:</b> "+QString::number(ET->et));
 	  
 	  header->setVisible(true);
@@ -265,33 +253,40 @@ void ASelectionInfoScene::refresh()
 	  charge->setVisible(false);
 	  invmass->setVisible(false);
 	  pt->setVisible(true);
-	  eta->setVisible(true);
-	  phi->setVisible(true);
 	  combTrack->setVisible(false);
+	  icon->setVisible(false);
         }
     }
   else
     //Multi-track selection
     {
+
+      // Show the combo button if more than one track is selected..
+      QList<ATrack*> combines=analysisData->getCollection("combined_tracks");
+      QString combName="Unknown Combination";
+      combTrack->setVisible(true);
+      emit combineButtonEnabled(true);
+      for(unsigned int i=0;i<combines.size();i++)
+	if((*combo)==(*((ATrackCombination*)combines[i])))
+	  {
+	    combTrack->setVisible(false);
+	    combName=combines[i]->name();
+	    break;
+	  }
+      
       header->setPlainText("MULTIPLE TRACKS SELECTED");
-      //TODO: Print out some cool information, I'm guessing
-      name->setHtml("<b>Name:</b> Unknown Combination");
+
+      name->setHtml("<b>Name:</b> "+combName);
       charge->setHtml("<b>Charge:</b> "+QString::number(combo->charge()));
       invmass->setHtml("<b>Invariant Mass:</b> "+QString::number(combo->getInvariantMass()));
-      nonSelectable->setHtml("<b>At least one of the<br>selected tracks<br>is irrelevant for<br>the analysis</b>");
       
       header->setVisible(true);
       name->setVisible(true);
       charge->setVisible(true);
       invmass->setVisible(true);
       pt->setVisible(false);
-      eta->setVisible(false);
-      phi->setVisible(false);
       id->setVisible(false);
-      nonSelectable->setVisible(false);
-      
-      
-      combTrack->setVisible(true);
+      icon->setVisible(false);
     }
   
   // Show the add button if at least one of the tracks are not in the list already...
@@ -299,61 +294,12 @@ void ASelectionInfoScene::refresh()
   addTrack->setVisible(false);
   for (int i=0;i<combo->size();i++)
     {
-      if (!particleFilter((*combo)[i]))
-        {
-	  nonSelectable->setVisible(true);
-        }
-      
       if ( !tracks.contains((*combo)[i]) )
         {
 	  addTrack->setVisible (true );
         }
     }
 
-  // Show the combo button if more than one track is selected..
-  QList<ATrack*> combines=analysisData->getCollection("combined_tracks");
-  if(combo->size()>=2)
-    {
-      combTrack->setVisible(true);
-      emit combineButtonEnabled(true);
-      for(unsigned int i=0;i<combines.size();i++)
-	if((*combo)==(*((ATrackCombination*)combines[i])))
-	  {
-	    combTrack->setVisible(false);
-	    emit combineButtonEnabled(false);
-	    break;
-	  }
-    }
-  else
-    {
-      emit combineButtonEnabled(false);
-      combTrack->setVisible(false);
-    }
+  emit combineButtonEnabled(combTrack->isVisible());
 
-  // Unalyziable track selected, disable everything
-  if ((nonSelectable->isVisible()))
-    {
-      combTrack->setVisible(false);
-      addTrack ->setVisible(false);
-      emit combineButtonEnabled(false);
-      return;
-    }
-}
-
-bool ASelectionInfoScene::particleFilter(ATrack* track) // We don't want to allow every track to be added to the table
-{
-  if ((track->type() == ATrack::eJet) || (track->type() == ATrack::eMissingEt))
-    {
-      return true;
-    }
-  else if(track->type() == ATrack::eSTrack)
-    {
-      ASTrack *strack=(ASTrack*)track;
-      return (strack->isElectron() || strack->isMuon() || strack->isPhoton());
-    }
-  else
-    {
-      return false;
-    }
-  
 }

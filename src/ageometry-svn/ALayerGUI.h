@@ -53,9 +53,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QTreeWidget>
 #include <QDialogButtonBox>
 
-#include "ATourManager.h"
-#include "ATourBuilder.h"
 #include "AGeometry.h"
+#include "AGeometryHUD.h"
 #include "AEventInfoScene.h"
 #include "ASelectionInfoScene.h"
 #include "ATrackTableModel.h"
@@ -63,6 +62,10 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AComboTableModel.h"
 #include "AMainView.h"
 #include "AAdvancedEventSettings.h"
+#include "ASnapshotTool.h"
+
+#include <QDoubleSync.h>
+#include <QFaderWidget.h>
 
 #include <aeventmanager/AEventManagerTreeView.h>
 #include <aeventmanager/AEventManagerScene.h>
@@ -79,16 +82,9 @@ public:
     ALayerGUI(QWidget* parent=0);
     virtual ~ALayerGUI();
     void setupElements(AEventManager*);
-    ATourManager* tourManager;
-    ATourBuilder* tourBuilder;
-
-    void fakeCursor(int x,int y);
-
-    //void mousePressEvent (QMouseEvent *);
 
  signals:
     // Emitted when an event has finished loading from the JiveXML file
-    void eventLoaded(QString);
     void eventLoaded(AEvent*);
     void eventChanged(AEvent*);
     void eventUnloaded();
@@ -98,12 +94,14 @@ public slots:
     void enableElements();
 
     //Slots for event handling
-    void toggleVisibilityParticles(bool toggle);
+    void handleCropModeChange(int mode);
     void showLoadEventDialog();
-    bool loadEvent (QString);
-    void loadEvent (AEvent*);
-    void pressButton (char*);
     void eventSettings();
+
+    void loadEvent(QString);
+    void loadEvent(AEvent*);
+
+    void unloadEvent();
 
     //Loaded event, sets up visibility of tables and other funfun stuff
     void handleEventLoaded();
@@ -111,44 +109,47 @@ public slots:
 
     //Slots for event manager
     void handleEventTagChange(bool status);
-
-    //Slots for the guided tours interface
-    void prepareTours ();
-    void toggleTour ();
-    void startTour ();
-    void endTour ();
-    void ffTour ();
-    void toggleRecording ();
-    void snapshotRecording ();
-
-    void recordButtonPress ();
+    
     void about();
 
  protected:
-	void show(QWidget *);
+    void show(QWidget *);
+    void hide(QWidget *);
 
  private:
+    QSignalMapper smartShowMapper;
+    QSignalMapper smartHideMapper;
+    QSignalMapper flapMapper;
     AEventInfoScene *eventInfo;
-    AEventInfoScene *selectedEventInfo;
     ASelectionInfoScene *trackInfo;
 
     // Pointers to commonly used widgets
     AGeometry* geo;
+    AGeometryHUD* hud;
     ATrackTableModel *tracksModel;
     AInterestingTrackTableModel *interestingTracksModel;
     AComboTableModel *comboModel;
     QTableView *tableSelectedTracks;
     QTableView *tableCombinedTracks;
     QTableView *tableInterestingTracks;
-    QSlider *PtCutoff_Slider;
     QWidget *eventWidget;
     AMainView *AGeometryFrame;
     QMenu *menuTagCurrentEvent;
     QAction *actionTagHiggsBoson;
     QAction *actionTagBlackHole;
+    
+    //Cropping controls
+    QActionGroup *croppingModes;
+    QAction *actionNone;
+    QAction *actionWedge_Mode;
+    QAction *actionMoses_Mode;
+    QSignalMapper croppingMapper;
+
     QGraphicsView *selectedEventInfoView;
     QPushButton *buttonCombineTracks;
     QPushButton *buttonDeleteTracks;
+
+    ASnapshotTool snapshotTool;
 
     QMap<QString,QPoint> widgetPositions;
     QSignalMapper *signalMapper;
@@ -158,11 +159,15 @@ public slots:
     AEventManagerTreeView *packageList;
 
     // Filters
+    QDoubleSync ptFilterSync;
     APtFilter *ptFilter;
     AModelFilter *modelFilter;
     AParticleFilter *particleFilter;
     AEvent* CompleteEvent;
     AFilteredEvent* FilteredEvent;
+    AFilteredEvent* ModelEvent;
+
+    friend class AGeoPlugin;
 };
 
 

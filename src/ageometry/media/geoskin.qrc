@@ -20,5 +20,10 @@
     <file>higgs_next.png</file>
     <file>table.png</file>
     <file>AMELIA_logo.png</file>
+
+    <file>side_slide.png</file>
+    <file>top_slide.png</file>
+
+    <file>skin.qss</file>
   </qresource>
 </RCC>

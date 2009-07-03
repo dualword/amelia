@@ -1,0 +1,5 @@
+#Event_Info, #Packages, #Detector_Visibility
+{
+	border-image: url(:/media/side_slide.png) 5 5 5 5;
+	border: 5 5 5 5;
+}

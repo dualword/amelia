@@ -48,6 +48,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATourSelectTrackAction.h"
 #include "config.h"
 
+#include <abase/ABase.h>
+
 #include <QDebug>
 #include <QFile>
 #include <QApplication>
@@ -72,13 +74,15 @@ ATours::~ATours()
 
 void ATours::load()
 {
+  ABase *baseplugin=(ABase*)AMELIA::global->plugin("ABase");  
+  
+  baseplugin->addStyleSheet(":/atours/skin.qss");
+
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
 
   geo=(AGeometry*)geoplugin->findWidget("Geometry");
   QMenu *menu=(QMenu*)geoplugin->findWidget("menubar");
   QWidget *layerGUI=(QWidget*)geoplugin->findWidget("LayerGUI");
-
-
   
   toursMenu=menu->addMenu("Tours");
   toursListMenu=toursMenu->addMenu("List");

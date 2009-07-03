@@ -24,6 +24,7 @@ void ATourPlayer::setupElements()
   controls->setMaxSize(50);
 
   playerControls=new QWidget();
+  playerControls->setObjectName("TourControls");
   QLayout *playerLayout=new QHBoxLayout(playerControls);
   playerLayout->setContentsMargins(0,0,0,0);
 
@@ -70,6 +71,7 @@ void ATourPlayer::setupElements()
 
 
   QWidget *blocksControls=new QWidget();
+  blocksControls->setObjectName("TourBlockControls");
   QHBoxLayout *blocksOuterLayout=new QHBoxLayout(blocksControls);
   blocksOuterLayout->setContentsMargins(0,0,0,0);
   connect(&blocksMapper,SIGNAL(mapped(int)),

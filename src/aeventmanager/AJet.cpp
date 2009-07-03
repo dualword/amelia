@@ -3,7 +3,9 @@
 #include <math.h>
 
 AJet::AJet():ATrack("Jet",ATrack::eJet)
-{ }
+{ 
+  setCharge(0);
+}
 
 void AJet::setJetType(jType type)
 {

@@ -57,6 +57,16 @@ int ASlidyManager::addWidget(QWidget *wdg,QString title,bool controlable)
 
   recalculatePositions();
 
+  QString name;
+  if(title.isEmpty())
+    name=wdg->objectName()+"_SlidyFrame";
+  else
+    {
+      name=QString(title);
+      name.replace(" ","_");
+    }
+  flap->setObjectName(name);
+
   return _flaps.size()-1;
 }
 

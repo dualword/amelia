@@ -102,20 +102,6 @@ void ASelectionInfoScene::handleCombTracks()
   analysisData->setCollection("combined_tracks",tracks);
 }
 
-void ASelectionInfoScene::handleViewportChange(int from,int to)
-{
-  switch (to)
-    {
-    case AGeometry::Cam3D:
-      hideMessage();
-      break;
-    case AGeometry::Front:
-    case AGeometry::Side:
-      displayMessage("Track selection only supported<br/> in first-person camera mode.");
-      break;
-    }
-}
-
 void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 {
   disconnect(analysisData,SIGNAL(updated()),

@@ -4,7 +4,9 @@
 #include <QPushButton>
 #include <QPixmap>
 
-class AViewport : public QPushButton
+#include "AGeometryDefines.h"
+
+class AGEOMETRY_EXPORT AViewport : public QPushButton
 {
     Q_OBJECT
 

@@ -200,10 +200,10 @@ void AGeometry::load()
   cameras[1]->setInputReceiverEnabled ( false );
   cameras[1]->setFarValue ( 100000.0f );
   cameras[1]->setPosition ( core::vector3df ( 0,0,-30400.0 ) );
-  cameras[1]->setFOV ( 0.005 );
+  cameras[1]->setFOV ( 0.005f );
   cameras[1]->setTarget ( core::vector3df ( 0,0,0 ) );
   scene::CSceneNodeAnimatorCameraFOV *frontAnimator=new scene::CSceneNodeAnimatorCameraFOV();
-  frontAnimator->setMaxFOV(0.0185);
+  frontAnimator->setMaxFOV(0.0185f);
   cameras[1]->addAnimator(frontAnimator);
   cameras[1]->setID(Side);
   
@@ -211,11 +211,11 @@ void AGeometry::load()
   cameras[2]->setName("SideCam");
   cameras[2]->setInputReceiverEnabled ( false );
   cameras[2]->setFarValue ( 100000.0f );
-  cameras[2]->setPosition ( core::vector3df ( 30400.0,0,0 ) );
-  cameras[2]->setFOV ( 0.005 );
+  cameras[2]->setPosition ( core::vector3df ( 30400.0f,0,0 ) );
+  cameras[2]->setFOV ( 0.005f );
   cameras[2]->setTarget ( core::vector3df ( 0,0,0 ) );
   scene::CSceneNodeAnimatorCameraFOV *sideAnimator=new scene::CSceneNodeAnimatorCameraFOV();
-  sideAnimator->setMaxFOV(0.006);
+  sideAnimator->setMaxFOV(0.006f);
   cameras[2]->addAnimator(sideAnimator);
   cameras[2]->setID(Front);
   
@@ -296,7 +296,7 @@ void AGeometry::load()
   
   _logoAnim=getSceneManager()->createFlyCircleAnimator(core::vector3df(1200,500,-1200),
 									   50.f,
-									   0.004,
+									   0.004f,
 									   core::vector3df(1,1,-1)); 
   _logoLight->addAnimator(_logoAnim);
   forceUpdate();
@@ -881,7 +881,7 @@ QBoolSync *AGeometry::pitVisibility()
 
 void AGeometry::createFlatGeometry()
 {
-	float mscale = 0.4; //model scale
+	float mscale = 0.4f; //model scale
 
     ///* Background images for the viewports
 

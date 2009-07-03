@@ -934,15 +934,15 @@ void QIrrWinWidgetPrivate::initialize()
   parent->update();
 }
 
-void QIrrWinWidgetWidget::resizeEvent( QResizeEvent* event )
+void QIrrWinWidgetPrivate::resizeEvent( QResizeEvent* event )
 {
-  if ( p->driver != 0 )
+  if ( parent->driver != 0 )
     {
       irr::core::dimension2d<int> size;
       size.Width = event->size().width();
       size.Height = event->size().height();
 
-      driver->OnResize( size );
+      parent->driver->OnResize( size );
     }
   QWidget::resizeEvent(event);
 }

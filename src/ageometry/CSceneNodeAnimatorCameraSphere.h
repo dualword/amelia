@@ -48,7 +48,7 @@ namespace irr
       core::position2di cursorPos;
       core::position2di cursorCenter;
       
-      f32 KeyControl[4];
+      u32 KeyControl[4];
       u32 lastUpdate;
     };
 

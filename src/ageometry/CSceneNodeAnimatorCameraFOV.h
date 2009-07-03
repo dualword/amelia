@@ -48,7 +48,7 @@ namespace irr
       f32 _maxFOV;
       f32 _minFOV;
       
-      f32 KeyControl[2];
+      u32 KeyControl[2];
       u32 lastUpdate;
     };
 

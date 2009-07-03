@@ -105,7 +105,7 @@ namespace irr
     {
       if (event.EventType == EET_KEY_INPUT_EVENT)
 	{
-	  f32 PressedDown=(event.KeyInput.PressedDown)?1:0;
+	  u32 PressedDown=(event.KeyInput.PressedDown)?1:0;
 	  switch(event.KeyInput.Key)
 	    {
 	    case KEY_UP:

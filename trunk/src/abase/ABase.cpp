@@ -150,6 +150,24 @@ void ABase::load()
     show();
 }
 
+void ABase::addStyleSheet(QString file)
+{
+  //Get current style
+  QString styleSheet=this->styleSheet();
+
+  //Read in the stylesheet and append it to the current stylesheet
+  QFile fh(file);
+  if (!fh.open(QIODevice::ReadOnly))
+    return;
+  QTextStream in(&fh);
+  while (!in.atEnd())
+      styleSheet += in.readLine();
+
+  fh.close();
+  //Save it
+  setStyleSheet(styleSheet);
+}
+
 QWaitForReady* ABase::startConditions()
 {
     return &_startConditions;

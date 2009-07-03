@@ -1,6 +1,7 @@
 #include "AComboTableModel.h"
 
 #include <QDebug>
+#include <QApplication>
 
 AComboTableModel::AComboTableModel(QWidget* parent):QAbstractTableModelWithContextMenu(parent)
 {
@@ -8,6 +9,8 @@ AComboTableModel::AComboTableModel(QWidget* parent):QAbstractTableModelWithConte
 
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
+  connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+	  this,SLOT(handleSelectionChanged(const QItemSelection&,const QItemSelection&)));
 }
 
 AComboTableModel::~AComboTableModel()
@@ -20,10 +23,13 @@ void AComboTableModel::handleNewEventLoaded(AEvent *event)
   disconnect(analysisData,SIGNAL(updated()),
 	     this,SLOT(refresh()));
 
-  analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
-
-  connect(analysisData,SIGNAL(updated()),
-	  this,SLOT(refresh()));
+  if(event)
+    {
+      analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
+      
+      connect(analysisData,SIGNAL(updated()),
+	      this,SLOT(refresh()));
+    }
   
   refresh();
 }
@@ -117,6 +123,69 @@ QVariant AComboTableModel::headerData (int section, Qt::Orientation orientation,
     return (section+1);
   return QVariant();
 }
+
+Qt::ItemFlags AComboTableModel::flags(const QModelIndex& index) const
+{
+  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+
+  if(index.column()==0)
+    flags|=Qt::ItemIsEditable;
+
+  return flags;
+}
+
+bool AComboTableModel::setData(const QModelIndex& index,const QVariant& value,int role)
+{
+  if(!index.isValid()) return false;
+
+  if(role==Qt::EditRole)
+    {
+      if(index.column()!=0) return false;
+      QString newName=value.toString();
+      combinations()[index.row()]->setName(newName);
+      analysisData->forceUpdate();
+    }
+}
+
+void AComboTableModel::handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected)
+{
+  // PERFORM DESELECTION
+  //Deselection should be performed first, because in the case of singletrack selection, everything will be deselected anyways. Even though in theory
+  //there shouldn't be any problems, might as well do this to keep safe.
+  QModelIndexList idxs=deselected.indexes();
+  for (int i=0;i<idxs.size();i++)
+    {
+      if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
+        {
+	  ATrackCombination *comb=combinations()[idxs[i].row()];
+	  for(int i=0;i<comb->size();i++)
+	    {	    
+	      int id=comb->getTrack(i)->trackID();
+	      emit entryDeselected(id);
+	    }
+        }
+    }
+  
+  // PERFORM SELECTION
+  idxs=selected.indexes();
+  
+  bool multi = ((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+  
+  for (int i=0;i<idxs.size();i++)
+    {
+      if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
+        {
+	  ATrackCombination *comb=combinations()[idxs[i].row()];
+	  for(int i=0;i<comb->size();i++)
+	    {	    
+	      int id=comb->getTrack(i)->trackID();
+	      emit entrySelected(id,multi || i>0);
+	    }
+        }
+    }
+}
+
+
 
 void AComboTableModel::sort(int column, Qt::SortOrder order) {
   //Do a bubble sort... Switch to something faster later?

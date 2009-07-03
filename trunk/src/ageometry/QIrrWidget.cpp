@@ -360,6 +360,7 @@ void QIrrWidget::updateLastCamera()
   lastActiveCamera=smgr->getActiveCamera();
   lastCameraPosition=lastActiveCamera->getPosition();
   lastCameraTarget=lastActiveCamera->getTarget();
+  lastCameraFOV=lastActiveCamera->getFOV();
 }
 
 bool QIrrWidget::OnEvent(const SEvent &event)
@@ -507,7 +508,7 @@ EKEY_CODE QIrrWidget::Qt2Irr_KeyCode(int keycode)
     case Qt::Key_Asterisk:
       return KEY_MULTIPLY;
     case Qt::Key_Plus:
-      return KEY_ADD;
+      return KEY_PLUS;
     case Qt::Key_Slash:
       return KEY_DIVIDE;
     case Qt::Key_Minus:
@@ -673,7 +674,10 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
       //single camera change.
       ICameraSceneNode *activeCam=smgr->getActiveCamera();
       if(lastActiveCamera!=activeCam)
+	{
 	  emit cameraSwitched(activeCam->getID());
+	  emit cameraSwitched(activeCam);
+	}
     }
 
   if(hasCameraMoved() || isDirty())
@@ -761,6 +765,7 @@ void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
   e.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+
   if(postEventFromUser(e))
     event->accept();
   else
@@ -873,8 +878,9 @@ bool QIrrWidget::hasCameraMoved()
   bool cameraChanged=(lastActiveCamera!=activeCam);
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
   bool cameraTargetMoved=(lastCameraTarget!=activeCam->getTarget());
+  bool cameraFOVChanged=(lastCameraFOV!=activeCam->getFOV());
 
-  return cameraChanged || cameraMoved || cameraTargetMoved;
+  return cameraChanged || cameraMoved || cameraTargetMoved || cameraFOVChanged;
 }
 
 #ifdef Q_WS_WIN

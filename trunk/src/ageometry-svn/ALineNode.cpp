@@ -35,7 +35,6 @@ u32 ALineNode::getMaterialCount() const
 
 video::SMaterial& ALineNode::getMaterial(u32 i)
 {
-  video::SMaterial mat; 
   return mat;
 }
 

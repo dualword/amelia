@@ -37,7 +37,13 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "ui_geometry.h"
 #include <abase/ABase.h>
+
 #include <aeventmanager/AEventManager.h>
+#include <aeventmanager/AEvent.h>
+
+#include "ASelectionInfoScene.h"
+#include "AGeometry.h"
+#include "ALayerGUI.h"
 
 AGeoPlugin::AGeoPlugin( QObject *parent )
         : QObject(parent)
@@ -53,18 +59,28 @@ void AGeoPlugin::load()
   AMELIA *app=pluginBase();
   ABase *base=(ABase *)app->plugin("ABase");
 
+  base->addStyleSheet(":/media/skin.qss");
+
   //Setup the UI
   Ui::MainWindow geoUI;
   geoWin=new QMainWindow(base);
   geoUI.setupUi(geoWin);
+  
+  //Setup menubar connections
+  QAction *MenuButton = base->findChild<QAction*>("MenuButton");
+  QAction *QuitButton = base->findChild<QAction*>("QuitButton");
+  connect(MenuButton,SIGNAL(triggered()),
+	  base,SLOT(changeToMenu()));
+  connect(QuitButton,SIGNAL(triggered()),
+	  base,SLOT(close()));
 
   //Load the ALayerGUI
-  ALayerGUI* _layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
-  geoWin->setCentralWidget(_layerGUI);
+  layerGUI=geoWin->findChild<ALayerGUI*>("LayerGUI");
+  geoWin->setCentralWidget(layerGUI);
 
-  QList<QWidget*> children=_layerGUI->findChildren<QWidget*>();
+  QList<QWidget*> children=layerGUI->findChildren<QWidget*>();
   for(int i=0;i<children.size();i++)
-    if(children[i]->parentWidget()==_layerGUI && children[i]->objectName()!="AGeometryFrame")
+    if(children[i]->parentWidget()==layerGUI && children[i]->objectName()!="AGeometryFrame")
       {
 	qDebug() << children[i]->objectName();
 	children[i]->setEnabled(false);
@@ -77,12 +93,12 @@ void AGeoPlugin::load()
     toolbars[i]->setEnabled(false);      
 
   AEventManager *mngr=(AEventManager *)app->plugin("AEventManager");
-  _layerGUI->setupElements(mngr);
-  connect(_layerGUI,SIGNAL(eventLoaded(AEvent*)),
+  layerGUI->setupElements(mngr);
+  connect(layerGUI,SIGNAL(eventLoaded(AEvent*)),
 	  this,SLOT(handleNewEventLoaded(AEvent*)));
 
   //Setup the menu for the main view
-  mainView=geoWin->findChild<QStackedWidget*>("AGeometryFrame");
+  mainView=geoWin->findChild<AMainView*>("AGeometryFrame");
   menuMain_View=geoWin->findChild<QMenu*>("menuMain_View");
   QAction* actionDetector=geoWin->findChild<QAction*>("actionDetector");
   QAction* actionTables=geoWin->findChild<QAction*>("actionTables");
@@ -95,6 +111,9 @@ void AGeoPlugin::load()
   
   connect(&mainViewMapper,SIGNAL(mapped(int)),
 	  mainView,SLOT(setCurrentIndex(int)));
+
+  //Setup the geometry object
+  geo=geoWin->findChild<AGeometry*>("Geometry");
 
   //Setup the menu for track combinations
   QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
@@ -117,18 +136,76 @@ QMenu* AGeoPlugin::addTrackComboMenu(QString text)
   return comboMenu.addMenu(text);
 }
 
-void AGeoPlugin::addMainViewWidget(QWidget* widget,QString title)
+int AGeoPlugin::addMainViewWidget(QWidget* widget,QString title)
 {
   int idx=mainView->addWidget(widget);
-  QAction* newAction=menuMain_View->addAction(title);
-  mainViewMapper.setMapping(newAction,idx);
-  connect(newAction,SIGNAL(triggered()),
-	  &mainViewMapper,SLOT(map()));
+  
+  if(!title.isEmpty())
+    {
+      QAction* newAction=menuMain_View->addAction(title);
+      mainViewMapper.setMapping(newAction,idx);
+      connect(newAction,SIGNAL(triggered()),
+	      &mainViewMapper,SLOT(map()));
+    }
+
+  return idx;
 }
+
+AMainViewTmpWidget* AGeoPlugin::addMainViewTmpWidget(QWidget* widget)
+{
+  AMainViewTmpWidget *tmpwidget=new AMainViewTmpWidget(widget,mainView);
+  return tmpwidget;
+}
+
+void AGeoPlugin::addToDetectorMenu(QString partName,QAction* action)
+{
+  geo->addToDetectorMenu(partName,action);
+}
+
+APtFilter* AGeoPlugin::ptFilter()
+{
+  return layerGUI->ptFilter;
+}
+
+AParticleFilter* AGeoPlugin::particleFilter()
+{
+  return layerGUI->particleFilter;
+}
+				   
 
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)
 {
   emit eventLoaded(event);
+}
+
+void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)
+{
+  QGraphicsView *trackInfoView=(QGraphicsView*)findWidget("trackInfo");
+  ASelectionInfoScene *trackInfo=(ASelectionInfoScene*)trackInfoView->scene();
+  if(text.isEmpty())
+    trackInfo->hideMessage();
+  else
+    trackInfo->displayMessage(text,header,img);    
+}
+
+void AGeoPlugin::switchToMainView(int idx)
+{
+  mainView->setCurrentIndex(idx);
+}
+
+void AGeoPlugin::loadEvent(QString fileName)
+{
+  layerGUI->loadEvent(fileName);
+}
+
+void AGeoPlugin::loadEvent(AEvent* event)
+{
+  layerGUI->loadEvent(event);
+}
+
+void AGeoPlugin::unloadEvent()
+{
+  layerGUI->unloadEvent();
 }
 
 Q_EXPORT_PLUGIN2(AGeoPlugin, AGeoPlugin)

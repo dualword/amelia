@@ -44,8 +44,9 @@ public:
     void load();
 
     QWaitForReady* startConditions();
+    void addStyleSheet(QString file);
 
-    void setFakeCentralWidget(QWidget *);
+    void     setFakeCentralWidget(QWidget *);
     QWidget* fakeCentralWidget();
 
     QString currentMonitor();

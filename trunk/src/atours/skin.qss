@@ -1,0 +1,5 @@
+#TourControls_SlidyFrame, #TourBlockControls_SlidyFrame
+{
+	border-image: url(:/media/top_slide.png) 5 5 5 5;
+	border: 5 5 5 5;
+}

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="atours">
     <file>plugin.xml</file>
+    <file>skin.qss</file>
   </qresource>
 </RCC>

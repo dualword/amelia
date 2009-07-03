@@ -45,6 +45,7 @@ SET(ageometry_SRCS
   AEventInfoScene.cpp 
   ASelectionInfoScene.cpp 
   CSceneNodeAnimatorCameraSphere.cpp
+  CSceneNodeAnimatorCameraFOV.cpp
   CSceneNodeAnimatorCameraSwitch.cpp
   ATrackTableModel.cpp 
   AInterestingTrackTableModel.cpp 
@@ -57,6 +58,7 @@ SET(ageometry_SRCS
   ACameraControl.cpp
   ASphereControl.cpp
   AFPSControl.cpp
+  AFOVControl.cpp
   APoint3D.cpp
   ASnapshotTool.cpp
 
@@ -80,6 +82,7 @@ SET(ageometry_H
   AAdvancedEventSettings.h
   AGeoPlugin.h
   ASnapshotTool.h
+  ACameraControl.h
 
   QAbstractTableModelWithContextMenu.h
   QTableViewWithContextMenu.h

@@ -3,7 +3,7 @@
 
 #define _USE_MATH_DEFINES
 
-#include <QWidget>
+#include <QFrame>
 #include <QLabel>
 
 #include "ADefines.h"
@@ -11,15 +11,12 @@
 
 class ASlidyManager;
 
-class LIBAMELIA_EXPORT ASlidyWidget : public QWidget
+class LIBAMELIA_EXPORT ASlidyWidget : public QFrame
 {
  public:
   ASlidyWidget(ASlidyManager *mngr,const QString title=QString(),QWidget *parent=0,bool controlable=true);
   
   void addWidget(QWidget *wdg);
-  
- protected:
-  void paintEvent(QPaintEvent *event);
   
  private:
   QLabel *titleLabel;

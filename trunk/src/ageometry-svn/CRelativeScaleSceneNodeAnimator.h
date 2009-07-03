@@ -13,16 +13,18 @@ using namespace gui;
 class CRelativeScaleSceneNodeAnimator : public ISceneNodeAnimator
 {
 public:
-    CRelativeScaleSceneNodeAnimator(ISceneManager* mgr);
-    ~CRelativeScaleSceneNodeAnimator();
-
-    void animateNode(ISceneNode *node,u32 timeMs);
-
-    //! We need to define this method because it's a pure virtual function on ISceneNodeAnimator
-    virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) { return 0; };
-
+  CRelativeScaleSceneNodeAnimator(ISceneManager* mgr,f32 maxScale=2);
+  ~CRelativeScaleSceneNodeAnimator();
+  
+  void animateNode(ISceneNode *node,u32 timeMs);
+  
+  //! We need to define this method because it's a pure virtual function on ISceneNodeAnimator
+  virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) { return 0; };
+  
 private:
-    ISceneManager* smgr;
+  ISceneManager* smgr;
+  
+  f32 _maxScale;
 };
 
 #endif // CRELATIVECUBESCENENODE_H_INCLUDED

@@ -212,9 +212,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(hideMessage()));
 
 
-        connect(geo,SIGNAL(viewportSwitched(int,int)),//Basically clear the track selection on camera change
-                trackInfo,SLOT(handleViewportChange(int,int)));
-
         connect(trackInfo,SIGNAL(combineButtonEnabled(bool)),
 		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
@@ -240,6 +237,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     
     //Setup slide widget
     ASlidyManager *slide=new ASlidyManager(this);
+    slide->setObjectName("AGeoControl");
     slide->addWidget(eventInfoView,"Event Info",true);
     slide->addWidget(packageList,"Packages",true);
     slide->addWidget(detectorVisibility,"Detector Visibility",true);

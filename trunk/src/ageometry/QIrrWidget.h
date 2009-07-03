@@ -100,7 +100,7 @@ public:
   static QImage::Format Irr2Qt_ColorFormat(irr::video::ECOLOR_FORMAT); //Converts Irr colors format definitions to Qt color format definitions
   static EKEY_CODE Qt2Irr_KeyCode(int keycode);
   static int Irr2Qt_KeyCode(EKEY_CODE keycode);
-					      
+  
 public slots:
   void toggleDisabled();
   void makeDirty();
@@ -108,6 +108,7 @@ public slots:
   
 signals:
   void cameraSwitched(int);
+  void cameraSwitched(ICameraSceneNode *);
   void finishedLoading();
   
 protected:
@@ -161,6 +162,7 @@ private:
   bool _dirty;
   ICameraSceneNode *lastActiveCamera;
   vector3df lastCameraPosition,lastCameraTarget;
+  float lastCameraFOV;
   
   // Screenshot
   video::ITexture *disabledRenderTexture;

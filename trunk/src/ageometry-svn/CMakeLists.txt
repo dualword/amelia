@@ -17,6 +17,8 @@ IF(UNIX)
              ${X11_LIBRARIES}
              ${XXF86VM_LIBRARY}
              ${OPENGL_LIBRARIES}
+             jpeg
+             png
        )
 ENDIF(UNIX)
 
@@ -27,7 +29,6 @@ IF(APPLE)
 		${IOKIT_LIBRARY})
 ENDIF(APPLE)
 
-SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 FIND_PACKAGE (Irrlicht REQUIRED)
 INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
 
@@ -36,13 +37,15 @@ SET(ageometry_SRCS
   QIrrWidgetRefresher.cpp 
   AGeometry.cpp 
   ATrack3DNode.cpp 
-  ATourBuilder.cpp 
-  ATourManager.cpp 
+  ASTrack3DNode.cpp 
+  AJet3DNode.cpp 
+  AMisET3DNode.cpp 
   ALayerGUI.cpp 
   AViewport.cpp 
   AEventInfoScene.cpp 
   ASelectionInfoScene.cpp 
   CSceneNodeAnimatorCameraSphere.cpp
+  CSceneNodeAnimatorCameraFOV.cpp
   CSceneNodeAnimatorCameraSwitch.cpp
   ATrackTableModel.cpp 
   AInterestingTrackTableModel.cpp 
@@ -51,6 +54,13 @@ SET(ageometry_SRCS
   AAdvancedEventSettings.cpp
   AGeoPlugin.cpp
   ALineNode.cpp
+  AGeometryHUD.cpp
+  ACameraControl.cpp
+  ASphereControl.cpp
+  AFPSControl.cpp
+  AFOVControl.cpp
+  APoint3D.cpp
+  ASnapshotTool.cpp
 
   QAbstractTableModelWithContextMenu.cpp
   QTableViewWithContextMenu.cpp
@@ -59,7 +69,9 @@ SET(ageometry_SRCS
 SET(ageometry_H
   QIrrWidget.h 
   AGeometry.h 
-  ATourManager.h 
+  ATrack3DNode.h
+  ASTrack3DNode.h
+  AGeometryHUD.h
   ALayerGUI.h 
   AViewport.h 
   AEventInfoScene.h 
@@ -69,7 +81,10 @@ SET(ageometry_H
   AComboTableModel.h
   AAdvancedEventSettings.h
   AGeoPlugin.h
+  ASnapshotTool.h
+  ACameraControl.h
 
+  QAbstractTableModelWithContextMenu.h
   QTableViewWithContextMenu.h
   )
 
@@ -79,6 +94,7 @@ SET(ageometry_FILES
 
 SET(ageometry_UI
 	geometry.ui
+	detectorvisibility.ui
 	eventadvanced.ui)
 
 QT4_WRAP_UI(ageometry_SRCS ${ageometry_UI})
@@ -86,7 +102,7 @@ QT4_WRAP_CPP(ageometry_SRCS ${ageometry_H})
 QT4_ADD_RESOURCES(ageometry_SRCS ${ageometry_FILES})
 
 ADD_LIBRARY(AGeometry SHARED ${ageometry_SRCS})
-
+SET_PROPERTY(TARGET AGeometry PROPERTY LINK_INTERFACE_LIBRARIES "")
 TARGET_LINK_LIBRARIES(AGeometry
   ${QT_LIBRARIES} 
   ${SYSTEMSPECIFIC_LIBRARIES}   

@@ -9,11 +9,9 @@
 #include "ASlidyManager.h"
 
 ASlidyWidget::ASlidyWidget(ASlidyManager *mngr,const QString title, QWidget *parent, bool controlable)
-  :QWidget(parent),_mngr(mngr)
+  :QFrame(parent),_mngr(mngr)
 { 
   setLayout(new QVBoxLayout());
-
-  setStyleSheet("ASlidyWidget { background: gray; }");
 
   if(controlable)
     {
@@ -32,19 +30,11 @@ ASlidyWidget::ASlidyWidget(ASlidyManager *mngr,const QString title, QWidget *par
       titleLabel->setAlignment(Qt::AlignHCenter);
 
       layout()->addWidget(titleLabel);
-    }
+    }  
 }
 
 void ASlidyWidget::addWidget(QWidget *wdg)
 {
   resize(wdg->size());
   layout()->addWidget(wdg);
-}
-
-void ASlidyWidget::paintEvent(QPaintEvent *event)
-{
-  QStyleOption opt;
-  opt.init(this);
-  QPainter p(this);
-  style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }

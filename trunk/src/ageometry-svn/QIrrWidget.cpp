@@ -46,15 +46,15 @@ namespace irr
 {
 class CTimer : public ITimer
 {
-	virtual u32 getRealTime() const;
-    virtual u32 getTime() const;
-	virtual void setTime(u32 time);
-	virtual void stop();
-	virtual void start();
-	virtual void setSpeed(f32 speed = 1.0f);
-	virtual bool isStopped() const;
-	virtual void tick();
-	virtual f32 getSpeed() const;
+  virtual u32 getRealTime() const;
+  virtual u32 getTime() const;
+  virtual void setTime(u32 time);
+  virtual void stop();
+  virtual void start();
+  virtual void setSpeed(f32 speed = 1.0f);
+  virtual bool isStopped() const;
+  virtual void tick();
+  virtual f32 getSpeed() const;
 };
 
 #ifdef Q_WS_MAC
@@ -170,7 +170,7 @@ private:
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0),gui(0),
+  : QWidget(parent),driver(0),smgr(0),gui(0),timer(0),
     _dirty(false),disabledRenderTexture(0),
     _ready(false),_loading(false),timerId(-1)
 {
@@ -199,7 +199,7 @@ QIrrWidget::QIrrWidget( QWidget *parent )
 
 QIrrWidget::~QIrrWidget()
 { 
-	killTimer(timerId);
+  killTimer(timerId);
 }
 
 
@@ -250,6 +250,12 @@ void QIrrWidget::setDirty(bool dirty)
 
 bool QIrrWidget::isDirty()
 {
+#ifdef Q_WS_WIN
+  // On windows, we have lots of things happening while loading.
+  // So make sure to redraw.
+  if(_loading) return true;
+#endif //Q_WS_WIN
+
   return _dirty;
 }
 
@@ -313,13 +319,12 @@ void QIrrWidget::forceUpdate()
 
 void QIrrWidget::paintEvent(QPaintEvent *event)
 {
-  if(isEnabled())
-    QWidget::paintEvent(event);
-  else
+  if(!isEnabled())
     {
       QPainter painter(this);
       painter.drawPixmap(0,0,ss);
     }
+  QWidget::paintEvent(event);
 }
   
 void QIrrWidget::changeEvent(QEvent *event)
@@ -345,20 +350,6 @@ void QIrrWidget::changeEvent(QEvent *event)
   QWidget::changeEvent(event);
 }
 
-void QIrrWidget::resizeEvent( QResizeEvent* event )
-{
-  if ( driver != 0 )
-    {
-      irr::core::dimension2d<u32> size;
-      size.Width = event->size().width();
-      size.Height = event->size().height();
-
-      driver->OnResize( size );
-    }
-  QWidget::resizeEvent(event);
-}
-
-
 void QIrrWidget::execute()
 { }
 
@@ -369,6 +360,7 @@ void QIrrWidget::updateLastCamera()
   lastActiveCamera=smgr->getActiveCamera();
   lastCameraPosition=lastActiveCamera->getPosition();
   lastCameraTarget=lastActiveCamera->getTarget();
+  lastCameraFOV=lastActiveCamera->getFOV();
 }
 
 bool QIrrWidget::OnEvent(const SEvent &event)
@@ -384,6 +376,8 @@ void QIrrWidget::internalLoad()
   load();
   _ready=true;
   _loading=false;
+
+  emit finishedLoading();
 }
 
 QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage& overlayImage, QRect baseRect, QRect overlayRect)
@@ -514,7 +508,7 @@ EKEY_CODE QIrrWidget::Qt2Irr_KeyCode(int keycode)
     case Qt::Key_Asterisk:
       return KEY_MULTIPLY;
     case Qt::Key_Plus:
-      return KEY_ADD;
+      return KEY_PLUS;
     case Qt::Key_Slash:
       return KEY_DIVIDE;
     case Qt::Key_Minus:
@@ -659,6 +653,32 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
   return 0;
 }
 
+u32 QIrrWidget::Qt2Irr_ButtonStates(Qt::MouseButtons buttons)
+{
+  u32 result=0;
+  if(buttons & Qt::LeftButton)
+    result |= EMBSM_LEFT;
+  if(buttons & Qt::MidButton)
+    result |= EMBSM_MIDDLE;
+  if(buttons & Qt::RightButton)
+    result |= EMBSM_RIGHT;
+
+  return result;
+}
+static Qt::MouseButtons Irr2Qt_ButtonStates(u32 buttons)
+{
+  Qt::MouseButtons result=Qt::NoButton;
+  if(buttons & EMBSM_LEFT)
+    result |= Qt::LeftButton;
+  if(buttons & EMBSM_MIDDLE)
+    result |= Qt::MidButton;
+  if(buttons & EMBSM_RIGHT)
+    result |= Qt::RightButton;
+
+  return result;
+}
+
+
 void QIrrWidget::timerEvent(QTimerEvent *event)
 {
   if(!isEnabled()) return;
@@ -670,20 +690,33 @@ void QIrrWidget::timerEvent(QTimerEvent *event)
 #endif
 
   if(_ready)
-    execute();
+    {
+      execute();
+      //We do not use QIrrWidget::hasCameraMoved() for this,
+      //because it also checks for different position/target
+      //of the camera.
+      //Nor do we put this block into QIrrWidget::hasCameraMoved(),
+      //because that function can be executes multiple times per 
+      //single camera change.
+      ICameraSceneNode *activeCam=smgr->getActiveCamera();
+      if(lastActiveCamera!=activeCam)
+	{
+	  emit cameraSwitched(activeCam->getID());
+	  emit cameraSwitched(activeCam);
+	}
+    }
 
   if(hasCameraMoved() || isDirty())
     {
-      p->repaint();
       updateLastCamera();
+      p->repaint();
       setDirty(false);
     }
-#ifndef Q_WS_WIN
-  else
+  else if(timer)
     {
       smgr->getRootSceneNode()->OnAnimate(timer->getTime());
+      gui->getRootGUIElement()->OnPostRender(timer->getTime());
     }
-#endif
 }
 
 void QIrrWidget::showEvent(QShowEvent *event)
@@ -729,8 +762,8 @@ void QIrrWidget::keyPressEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::keyPressEvent(event);
+  else
+    QWidget::keyPressEvent(event);
 }
 
 void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
@@ -744,8 +777,8 @@ void QIrrWidget::keyReleaseEvent(QKeyEvent *event)
   e.KeyInput.Shift=event->modifiers() & Qt::ShiftModifier;
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::keyReleaseEvent(event);
+  else
+    QWidget::keyReleaseEvent(event);
 }
 
 void QIrrWidget::mouseClickEvent(QMouseEvent *event)
@@ -758,10 +791,12 @@ void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
   e.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
+
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::mouseMoveEvent(event);
+  else
+    QWidget::mouseMoveEvent(event);
 }
 
 void QIrrWidget::mousePressEvent(QMouseEvent *event)
@@ -786,9 +821,9 @@ void QIrrWidget::mousePressEvent(QMouseEvent *event)
   
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   
   lastPressPos=event->pos();
-
   if(postEventFromUser(e))
     event->accept();
 
@@ -817,14 +852,16 @@ void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
 
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   
   if(postEventFromUser(e))
     event->accept();
-  
-  if((event->pos()-lastPressPos).manhattanLength()<1)
-    mouseClickEvent(event);
-
-  QWidget::mouseReleaseEvent(event);
+  else
+    {
+      QWidget::mouseReleaseEvent(event);
+      if((event->pos()-lastPressPos).manhattanLength()<1)
+	mouseClickEvent(event);
+    }
 }
 
 void QIrrWidget::wheelEvent(QWheelEvent *event)
@@ -834,11 +871,12 @@ void QIrrWidget::wheelEvent(QWheelEvent *event)
   e.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
   if(postEventFromUser(e))
     event->accept();
-
-  QWidget::wheelEvent(event);
+  else
+    QWidget::wheelEvent(event);
 }
 
 bool QIrrWidget::postEventFromUser(const SEvent& event)
@@ -846,25 +884,33 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
   bool absorbed = false;
   
   if (!absorbed && getGUIEnvironment())
-    absorbed|=getGUIEnvironment()->postEventFromUser(event);
+    {
+      bool absorbedGUI=getGUIEnvironment()->postEventFromUser(event);
+      if(absorbedGUI) //Some widgets might be repainted after they are clicked (ei: buttons)
+	makeDirty();
+
+      absorbed|=absorbedGUI;
+    }
 
 
   if(!absorbed && getSceneManager())
-    absorbed|=getSceneManager()->postEventFromUser(event);
+    {
+      bool absorbedScene=getSceneManager()->postEventFromUser(event);
+      absorbed|=absorbedScene;
+    }
 
   return absorbed;
 }
 
 bool QIrrWidget::hasCameraMoved()
 {
-  if(!_ready) return true;
-
   ICameraSceneNode* activeCam=smgr->getActiveCamera();
   bool cameraChanged=(lastActiveCamera!=activeCam);
   bool cameraMoved=(lastCameraPosition!=activeCam->getPosition());
   bool cameraTargetMoved=(lastCameraTarget!=activeCam->getTarget());
+  bool cameraFOVChanged=(lastCameraFOV!=activeCam->getFOV());
 
-  return cameraChanged || cameraMoved || cameraTargetMoved || isDirty();
+  return cameraChanged || cameraMoved || cameraTargetMoved || cameraFOVChanged;
 }
 
 #ifdef Q_WS_WIN
@@ -911,18 +957,32 @@ void QIrrWinWidgetPrivate::initialize()
 
   parent->cursorcontrol = parent->device->getCursorControl();
   parent->smgr=parent->device->getSceneManager();
+  parent->timer=parent->device->getTimer();
 
   parent->internalLoad();
   
   parent->update();
 }
+
+void QIrrWinWidgetWidget::resizeEvent( QResizeEvent* event )
+{
+  if ( p->driver != 0 )
+    {
+      irr::core::dimension2d<int> size;
+      size.Width = event->size().width();
+      size.Height = event->size().height();
+
+      driver->OnResize( size );
+    }
+  QWidget::resizeEvent(event);
+}
   
 void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
 {
-	initialize();
+  initialize();
   if (parent->driver)
     {
-		irr::video::SColor color (0,0,0,0);
+      irr::video::SColor color (0,0,0,0);
       
       parent->driver->beginScene(true,true,color);
       
@@ -931,6 +991,8 @@ void QIrrWinWidgetPrivate::paintEvent( QPaintEvent* event )
       
       parent->driver->endScene();
     }
+
+  QWidget::paintEvent(event);
 }
 
 QPaintEngine* QIrrWinWidgetPrivate::paintEngine() const
@@ -951,7 +1013,6 @@ QIrrUnixWidgetPrivate::QIrrUnixWidgetPrivate( QIrrWidget *parent )
 #else
   setAutoBufferSwap(true);
 #endif
-  
   this->parent=parent;
 }
 
@@ -971,7 +1032,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
   // Don't initialize more than once!
   if ( parent->driver != 0 ) return;
   irr::SIrrlichtCreationParameters params;
-  
+
   params.DriverType = video::EDT_OPENGL;
   params.WindowId = (void*)winId();
   params.WindowSize.Width = (width()>0)?width():1;
@@ -994,8 +1055,19 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
   os::Timer::initTimer();  
   parent->timer = new CTimer();
-
+  
   parent->internalLoad();
+}
+
+void QIrrUnixWidgetPrivate::resizeGL(int width,int height)
+{
+  irr::core::dimension2d<unsigned int> size;
+  size.Width = width;
+  size.Height = height;
+
+  parent->driver->OnResize( size );
+
+  QGLWidget::resizeGL(width,height);
 }
 
 void QIrrUnixWidgetPrivate::paintGL()
@@ -1011,12 +1083,8 @@ void QIrrUnixWidgetPrivate::paintGL()
 #ifndef Q_WS_MAC
       parent->driver->endScene();
 #endif //Q_WS_MAC
-
-      /*static int c=0;
-      QPixmap ss=QPixmap::grabWindow(winId());  
-      ss.save("images/"+QString::number(c)+".jpg");
-      c++;*/
     }
+  QGLWidget::paintGL();
 }
 
 #endif

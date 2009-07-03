@@ -59,6 +59,8 @@ void AGeoPlugin::load()
   AMELIA *app=pluginBase();
   ABase *base=(ABase *)app->plugin("ABase");
 
+  base->addStyleSheet(":/media/skin.qss");
+
   //Setup the UI
   Ui::MainWindow geoUI;
   geoWin=new QMainWindow(base);

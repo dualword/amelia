@@ -10,9 +10,16 @@
 #include <QSignalMapper>
 #include <QStackedWidget>
 
-#include <aeventmanager/AEvent.h>
+#include <AMainView.h>
+#include <AMainViewTmpWidget.h>
+#include <QDoubleSync.h>
+
+#include <aeventmanager/AParticleFilter.h>
+#include <aeventmanager/APtFilter.h>
 
 #include "AGeometryDefines.h"
+
+class AEvent;
 
 class AGEOMETRY_EXPORT AGeoPlugin : public QObject, public APlugin
 {
@@ -27,17 +34,31 @@ public:
   
   QWidget* findWidget(QString name);
   QMenu* addTrackComboMenu(QString text);
-  void addMainViewWidget(QWidget* widget,QString title);
+  int  addMainViewWidget(QWidget* widget,QString title="");
+  AMainViewTmpWidget* addMainViewTmpWidget(QWidget* widget);
+  void addToDetectorMenu(QString partName,QAction *action);
+
+  APtFilter* ptFilter();
+  AParticleFilter *particleFilter();
 
  public slots:
   void handleNewEventLoaded(AEvent*);
+  void displayMessage(QString text,QString header="",QPixmap img=QPixmap());
+  void switchToMainView(int idx);
+
+  void loadEvent(QString);
+  void loadEvent(AEvent*);
+
+  void unloadEvent();
 
  signals:
   void eventLoaded(AEvent*);
 
  private:
   QMainWindow* geoWin;
-  QStackedWidget* mainView;
+  AMainView* mainView;
+  class AGeometry *geo;
+  class ALayerGUI *layerGUI;
   QMenu* menuMain_View;
 
   QMenu comboMenu;

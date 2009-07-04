@@ -63,17 +63,17 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 class AGEOMETRY_EXPORT AGeometry : public QIrrWidget
 {
 public:
-	// 3D Camera Modes
+	// 3D Cameras
   static const int FPS=0;
   static const int Sphere=3;
   static const int Lock=4;
 
-  // Viewport Modes
+	// Viewports
   static const int Cam3D=-1;
   static const int Front=1;
   static const int Side=2;
 
-	// Crop Modes
+	// Crop modes
   static const int NoneMode=0;
   static const int WedgeMode=1;
   static const int MosesMode=2;
@@ -187,17 +187,18 @@ protected:
   
   
 private:
-  //Tracks and the event variables
+  // Tracks and the event variables //
   AFilteredEvent* _event;
   QList<ATrack3DNode*> selectedTracks;
   QList<ATrack3DNode*> allTracks;
   QList<AJet3DNode*> allJets;
   
-  //GUI stuff
+  // GUI stuff //
   QMenu *_comboMenu;
   QMap<QString,QMenu*>  _detectorMenu;
   gui::IGUIButton* multiSelectButton;
   
+  // Flags //
   const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
   const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
@@ -213,6 +214,8 @@ private:
   scene::ISceneNode* TRT_Reference;
   scene::ISceneNode* SCT_Reference;
   scene::ISceneNode* Pixels_Reference;
+
+  scene::ISceneNode* detector3d_node; //Used for 3D view
   scene::ISceneNode* background_node_f; //Used for flat view
   scene::ISceneNode* background_node_s; //Used for flat view
   scene::ISceneNode* CameraBB;
@@ -223,6 +226,7 @@ private:
   f32 moduleAngleFromCam;
   core::vector3df cameraLoc; //camera position for Moses Mode, initialized to zero
   core::vector3df DCamPos;
+  float modelScale; //model scale
   
   //Cropping modes
   int _cropMode;

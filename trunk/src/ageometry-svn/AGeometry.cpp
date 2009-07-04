@@ -48,14 +48,17 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/ATrackCombination.h>
 
 AGeometry::AGeometry(QWidget* parent)
-        : QIrrWidget(parent), isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  background_node_f ( NULL ), background_node_s ( NULL ), active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), _event(0),fpsControl(0),sphereControl(0),frontControl(0),sideControl(0)
+        : QIrrWidget(parent),
+  isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
+  detector3d_node( NULL ), background_node_f ( NULL ), background_node_s ( NULL ),
+  active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), 
+  _event(0),
+  fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
+  modelScale(0.4f)
 
 {
     setCursor(Qt::ArrowCursor);
 
-    background_node_f = NULL;
-    background_node_s = NULL;
     Pit_Reference = NULL;
 
     firstShow=true;
@@ -211,7 +214,7 @@ void AGeometry::load()
   cameras[2]->setName("SideCam");
   cameras[2]->setInputReceiverEnabled ( false );
   cameras[2]->setFarValue ( 100000.0f );
-  cameras[2]->setPosition ( core::vector3df ( 30400.0,0,0 ) );
+  cameras[2]->setPosition ( core::vector3df ( 30400.0f,0,0 ) );
   cameras[2]->setFOV ( 0.005f );
   cameras[2]->setTarget ( core::vector3df ( 0,0,0 ) );
   scene::CSceneNodeAnimatorCameraFOV *sideAnimator=new scene::CSceneNodeAnimatorCameraFOV();
@@ -309,10 +312,10 @@ void AGeometry::load()
   CameraBB->setID ( 0 );
   CameraBB->setName ("Moses Mode Box");
   CameraBB->setVisible(false);
-  createFlatGeometry();
   
   //Create the geometry
   createAtlasGeometry();
+  createFlatGeometry();
   
   _rootTracksNode=getSceneManager()->addEmptySceneNode();
 
@@ -823,6 +826,11 @@ void AGeometry::switchVisibility ( int modType )
 	    Calorimeters_Reference->setVisible(_calorimetersVisibility.value());
 	  break;
         }
+
+      //TODO: Uncomment after demo, have to do performance tests
+      //if(active_viewport!=AGeometry::Cam3D)
+      //renderViewport(AGeometry::Cam3D);
+
       makeDirty();
     }
 }
@@ -884,38 +892,33 @@ QBoolSync *AGeometry::pitVisibility()
 
 void AGeometry::createFlatGeometry()
 {
-	float mscale = 0.4f; //model scale
-
-    ///* Background images for the viewports
-
-    //Irr->GetDevice()->getFileSystem()->addZipFileArchive("media/Background_Front.pk3");
-    scene::IAnimatedMesh* bgf = getSceneManager()->getMesh ( "Background_Front.X" );
-
-    background_node_f = getSceneManager()->addAnimatedMeshSceneNode ( bgf, 0, -1, core::vector3df ( 0,0,-240 ), core::vector3df ( 0,90,0 ) );
-    background_node_f->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
-    background_node_f->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
-    background_node_f->setScale ( core::vector3df ( mscale,mscale,mscale ) );
-    background_node_f->setMaterialFlag ( video::EMF_LIGHTING, false );
-    background_node_f->setMaterialType ( video::EMT_LIGHTMAP_ADD );
-    background_node_f->setID ( 5 );
-    background_node_f->setName("Background_Front.X");
-    background_node_f->setVisible ( false );
-
-
-    scene::IAnimatedMesh* bgs = getSceneManager()->getMesh ( "Background_Side.X" );
-
-    background_node_s = getSceneManager()->addAnimatedMeshSceneNode ( bgs, 0, -1, core::vector3df ( 400,0,0 ), core::vector3df ( 0,90,90 ) );
-    background_node_s->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
-    background_node_s->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
-    background_node_s->setScale ( core::vector3df ( mscale,mscale,mscale ) );
-    background_node_s->setMaterialFlag ( video::EMF_LIGHTING, false );
-    background_node_s->setMaterialType ( video::EMT_LIGHTMAP_ADD );
-    background_node_s->setID ( 5 );
-    background_node_s->setName("Background_Side.X");
-    background_node_s->setVisible ( false );
-
-    renderViewport(AGeometry::Front);
-    renderViewport(AGeometry::Side);
+  /* Load front view */
+  scene::IAnimatedMesh* bgf = getSceneManager()->getMesh ( "Background_Front.X" );
+  background_node_f = getSceneManager()->addAnimatedMeshSceneNode ( bgf, 0, -1, core::vector3df ( 0,0,-240 ), core::vector3df ( 0,90,0 ) );
+  background_node_f->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
+  background_node_f->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
+  background_node_f->setScale ( core::vector3df ( modelScale,modelScale,modelScale ) );
+  background_node_f->setMaterialFlag ( video::EMF_LIGHTING, false );
+  background_node_f->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+  background_node_f->setID ( 5 );
+  background_node_f->setName("Background_Front.X");
+  background_node_f->setVisible ( false );
+  
+  /* Load side view */
+  scene::IAnimatedMesh* bgs = getSceneManager()->getMesh ( "Background_Side.X" );
+  background_node_s = getSceneManager()->addAnimatedMeshSceneNode ( bgs, 0, -1, core::vector3df ( 400,0,0 ), core::vector3df ( 0,90,90 ) );
+  background_node_s->getMaterial ( 0 ).DiffuseColor.set ( 255,222,222,222 );
+  background_node_s->getMaterial ( 0 ).EmissiveColor.set ( 0,111,111,111 );
+  background_node_s->setScale ( core::vector3df ( modelScale,modelScale,modelScale ) );
+  background_node_s->setMaterialFlag ( video::EMF_LIGHTING, false );
+  background_node_s->setMaterialType ( video::EMT_LIGHTMAP_ADD );
+  background_node_s->setID ( 5 );
+  background_node_s->setName("Background_Side.X");
+  background_node_s->setVisible ( false );
+  
+  /* Render viewports */
+  renderViewport(AGeometry::Front);
+  renderViewport(AGeometry::Side);
 }
 
 void AGeometry::createAtlasGeometry()
@@ -924,7 +927,8 @@ void AGeometry::createAtlasGeometry()
 
   if ( generateDetectorGeometry )
     {
-
+      
+      /* Load the ATLAS Detector and get references */
       ref.allModules=&this->allModules;
       //getSceneManager()->loadScene ( "geometry.irr" , &ref );
       Atlas_Reference=getSceneManager()->getSceneNodeFromName( "Atlas_Reference" );
@@ -939,15 +943,26 @@ void AGeometry::createAtlasGeometry()
       SCT_Reference=getSceneManager()->getSceneNodeFromName( "SCT_Reference" );
       Pixels_Reference=getSceneManager()->getSceneNodeFromName( "Pixels_Reference" );
       
-      if(Atlas_Reference)
-	Atlas_Reference->setVisible(true);
-
-      ref.allModules=0;
+      /* Load the Pit */
       if ( !isCrappyComputer )
-	  {
-            getSceneManager()->loadScene ( "ATLAS_Pit.lvl" , &ref );
-            Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
-	  }
+	{
+	  ref.allModules=0;
+	  getSceneManager()->loadScene ( "ATLAS_Pit.lvl" , &ref );
+	  Pit_Reference=getSceneManager()->getSceneNodeFromName( "Pit_Reference" );
+	}
+
+      /* Add all of the parts to a central parent node */
+      detector3d_node=getSceneManager()->addEmptySceneNode();
+      if(Pit_Reference)
+	{
+	  Pit_Reference->setParent(detector3d_node);
+	  Pit_Reference->setScale(vector3df(modelScale,modelScale,modelScale));
+	}
+      if(Atlas_Reference)
+	{
+	  Atlas_Reference->setVisible(true);
+	  Atlas_Reference->setParent(detector3d_node);
+	}
     }
 }
 
@@ -1501,14 +1516,9 @@ void AGeometry::setupView(int view)
         break;
     }
 
-    background_node_f->setVisible (f);
-    background_node_s->setVisible (s);
-
-    if ( getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" ) )
-      getSceneManager()->getSceneNodeFromName ( "Atlas_Reference" )->setVisible ( fps && _detectorVisibility.value() );
-
-    if ( Pit_Reference )
-      Pit_Reference->setVisible ( fps && _pitVisibility.value() );
+    if(background_node_f) background_node_f->setVisible (f);
+    if(background_node_s) background_node_s->setVisible (s);
+    if(detector3d_node)   detector3d_node->setVisible (fps);
 
     if(view==Cam3D)
       {

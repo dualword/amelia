@@ -1339,7 +1339,7 @@ void AGeometry::clearEvent()
   ISceneManager* mngr=getSceneManager();
   for(int i=0;i<allTracks.size();i++)
     {
-      mngr->addToDeletionQueue(allTracks[i]);
+      allTracks[i]->remove();
       allTracks[i]->deleteLater();
     }
   allTracks.clear();

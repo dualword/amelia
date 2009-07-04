@@ -504,53 +504,53 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 void AGeometry::renderViewport(int view)
 {
   if(view==active_viewport) return; //Time saving hack. Never render the visible viewport, since it is not in the two smaller viewports.
-    int camId;
-    if (view==Cam3D) camId=active_cam;
-    else camId=view;
-
-    irr::video::SColor color (255,0,0,0);
-
-    if (rt==0) //Try to create an render texture if one does not exist...
+  int camId;
+  if (view==Cam3D) camId=active_cam;
+  else camId=view;
+  
+  irr::video::SColor color (255,0,0,0);
+  
+  if (rt==0) //Try to create an render texture if one does not exist...
     {
-        if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
+      if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
         {
-            rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<u32>(256,256));
-	    rt->grab();
+	  rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<u32>(256,256));
+	  rt->grab();
         }
-
-        if (rt==0)
+      
+      if (rt==0)
         {
-            emit viewportUpdated(view,QImage());
-            return;
+	  emit viewportUpdated(view,QImage());
+	  return;
         }
     }
+  
+  //Render screenshot
+  QImage image;
+  
+  
+  //New View
+  ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
+  originalCamera->grab();
+  getSceneManager()->setActiveCamera ( cameras[ camId ] );
+  setupView(view);
+  
+  getVideoDriver()->setRenderTarget(rt, true, true, color);
+  getSceneManager()->drawAll();
+  
+  setupView(active_viewport);
+  getVideoDriver()->setRenderTarget(0);
+  getSceneManager()->setActiveCamera (originalCamera);
+  originalCamera->drop();
+  
+  uchar* tmpdata=(uchar*)rt->lock (true);
+  
+  dimension2d<u32> size=rt->getSize();
+  
+  image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
+  rt->unlock();
 
-    //Render screenshot
-    QImage image;
-
-
-    //New View
-    ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
-    originalCamera->grab();
-    getSceneManager()->setActiveCamera ( cameras[ camId ] );
-    setupView(view);
-
-    getVideoDriver()->setRenderTarget(rt, true, true, color);
-    getSceneManager()->drawAll();
-
-    setupView(active_viewport);
-    getVideoDriver()->setRenderTarget(0);
-    getSceneManager()->setActiveCamera (originalCamera);
-    originalCamera->drop();
-
-    uchar* tmpdata=(uchar*)rt->lock (true);
-
-    dimension2d<u32> size=rt->getSize();
-
-    image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
-    rt->unlock();
-
-    emit viewportUpdated(view,image);
+  emit viewportUpdated(view,image);
 }
 
 void AGeometry::dynamicCameraSpeed(core::vector3df camPos)  //Modifying camera speed based on proximity to detector...
@@ -1342,7 +1342,7 @@ void AGeometry::clearEvent()
   ISceneManager* mngr=getSceneManager();
   for(int i=0;i<allTracks.size();i++)
     {
-      mngr->addToDeletionQueue(allTracks[i]);
+      allTracks[i]->remove();
       allTracks[i]->deleteLater();
     }
   allTracks.clear();

@@ -126,6 +126,9 @@ void ASlidyManager::toggleWidget(int id)
 
 void ASlidyManager::showWidgetTimed(int id)
 {
+  //Do I need to start a timer?
+  // - if the widget is visible, and is timed (showing the widget will cause the timer to stop, so just start it again)
+  // - If a different widget is visible (or no widget is visible)
   bool startTimer=((_visibleId==id && timer.isActive())
 		   || _visibleId!=id);
   showWidget(id);
@@ -135,22 +138,31 @@ void ASlidyManager::showWidgetTimed(int id)
 
 void ASlidyManager::showWidget(int id)
 {
+  // Make sure the widget is being painted
   if(!_flaps[id]->isVisible()) _flaps[id]->show();
   
+  // If already visible, then don't do anything.
   if(_visibleId==id) return;
-  
+
+  // Make sure nothing is running
+  endCurrentAnimation();
+
+  // Show this widget!
   showingAnimator.setWidget(_flaps[id]);
 
+  // Determine if we need to hide a widget
   if(_visibleId!=-1)
-    {
-      hidingAnimator.setWidget(_flaps[_visibleId]);
-    }
+    hidingAnimator.setWidget(_flaps[_visibleId]);
   else
     hidingAnimator.setWidget(0);
   
+  // This showing widget must be on top
   _flaps[id]->raise();
   
+  // It's show time!
   mainTimeline.start();
+
+  // Update statuses
   _lastVisibleId=_visibleId;
   _visibleId=id;
 
@@ -165,12 +177,20 @@ void ASlidyManager::hideWidget()
 
 void ASlidyManager::hideWidget(int id)
 {
+  // Check that the widget to hide is visible...
   if(_visibleId!=id) return;
 
+  // Make sure nothing is running
+  endCurrentAnimation();
+
+  // Set widgets t oanimate
   showingAnimator.setWidget(0);
   hidingAnimator.setWidget(_flaps[id]);
   
+  // Start!
   mainTimeline.start();
+
+  // Update statuses
   _lastVisibleId=_visibleId;
   _visibleId=-1;
   timer.stop();
@@ -246,4 +266,13 @@ void ASlidyManager::prepareHideAnimation()
 {
   hidingAnimator.setPosAt(0,topCorner);
   hidingAnimator.setPosAt(1,topCorner+moveIn);
+}
+
+void ASlidyManager::endCurrentAnimation()
+{
+  // If the animation is running, just quickly finish the animation and stop it
+  if(mainTimeline.state()==QTimeLine::Running)
+    {
+      mainTimeline.setCurrentTime(mainTimeline.duration());
+    }
 }

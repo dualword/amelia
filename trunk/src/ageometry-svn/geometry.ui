@@ -1255,6 +1255,9 @@ color: rgb(255, 255, 0);
    </property>
   </action>
   <action name="actionNextEvent">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="media/geoskin.qrc">
      <normaloff>:/media/higgs_next.png</normaloff>:/media/higgs_next.png</iconset>

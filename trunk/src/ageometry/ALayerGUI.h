@@ -107,6 +107,8 @@ public slots:
     void handleEventLoaded();
     void handleEventUnloaded();
 
+    void handlePackageActivated();
+
     //Slots for event manager
     void handleEventTagChange(bool status);
     
@@ -132,11 +134,15 @@ public slots:
     QTableView *tableSelectedTracks;
     QTableView *tableCombinedTracks;
     QTableView *tableInterestingTracks;
+    QTableView *detailedSelectedTracksTable;
+    QTableView *detailedCombinedTracksTable;
     QWidget *eventWidget;
     AMainView *AGeometryFrame;
     QMenu *menuTagCurrentEvent;
+    QAction *actionNextEvent;
     QAction *actionTagHiggsBoson;
     QAction *actionTagBlackHole;
+    QAction *actionTable;
     QGraphicsView *selectedEventInfoView;
     QPushButton *buttonCombineTracks;
     QPushButton *buttonDeleteTracks;
@@ -169,6 +175,8 @@ public slots:
     AFilteredEvent* ModelEvent;
 
     friend class AGeoPlugin;
+
+    void setEventSpecificActionsEnabled(bool status);
 };
 
 

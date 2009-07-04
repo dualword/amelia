@@ -68,6 +68,8 @@ class LIBAMELIA_EXPORT ASlidyManager : public QObject
   
   void prepareShowAnimation();
   void prepareHideAnimation();
+
+  void endCurrentAnimation();
   
   Q_OBJECT
 };

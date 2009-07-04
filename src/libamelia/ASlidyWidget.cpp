@@ -35,6 +35,5 @@ ASlidyWidget::ASlidyWidget(ASlidyManager *mngr,const QString title, QWidget *par
 
 void ASlidyWidget::addWidget(QWidget *wdg)
 {
-  resize(wdg->size());
   layout()->addWidget(wdg);
 }

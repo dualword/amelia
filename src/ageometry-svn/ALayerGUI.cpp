@@ -236,8 +236,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	    mngr, SLOT(setActiveEvent()));
     
     //Setup slide widget
-    ASlidyManager *slide=new ASlidyManager(this);
+    ASlidyManager *slide=new ASlidyManager(this,250);
     slide->setObjectName("AGeoControl");
+    slide->setPosition(125);
     slide->addWidget(eventInfoView,"Event Info",true);
     slide->addWidget(packageList,"Packages",true);
     slide->addWidget(detectorVisibility,"Detector Visibility",true);

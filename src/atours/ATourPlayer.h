@@ -57,6 +57,7 @@ private:
 
   AGeometry *geo;
   AGeoPlugin *geoplugin;
+  ABase *baseplugin;
 
   ASlidyManager *controls;
   QWidget *playerControls;

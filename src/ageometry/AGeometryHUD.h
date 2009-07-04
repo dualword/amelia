@@ -5,10 +5,10 @@
 
 class AGeometryHUD : public QObject
 {
- public:
+public:
   AGeometryHUD(AGeometry *geo);
-
- public slots:
+			      
+public slots:
   void setupElements();
   void setText(QString text);
   void clearText();
@@ -16,7 +16,10 @@ class AGeometryHUD : public QObject
   void handleNewCamera(int camid);
   void handleCameraControl(bool grabbed);
   
- private:
+protected:
+  bool eventFilter(QObject *obj,QEvent *event);
+  
+private:
   AGeometry *geo;
   IGUIEnvironment *gui;
 

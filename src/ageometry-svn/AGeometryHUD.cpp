@@ -18,12 +18,11 @@ void AGeometryHUD::setupElements()
   gui=geo->getGUIEnvironment();
   
   core::dimension2d<u32> size=geo->getVideoDriver()->getScreenSize();
-  
-  core::rect<f32> textRect(0.2f,0.9f,0.8f,1.0f);
+
+  core::rect<s32> textRect(100,size.Height-50,size.Width-100,size.Height);
   
   textNode=gui->addStaticText(L"",
-			      core::rect<s32>(0,0,0,0));
-  textNode->setRelativePositionProportional(textRect);
+			      textRect);
   textNode->setOverrideColor(SColor(255,255,255,255));
   textNode->setTextAlignment(EGUIA_CENTER,EGUIA_SCALE);
   textNode->setEnabled(false);
@@ -31,6 +30,7 @@ void AGeometryHUD::setupElements()
 
 void AGeometryHUD::setText(QString text)
 { 
+  textNode->setVisible(true);
   textNode->setText(text.toStdWString().c_str());
   geo->makeDirty();
 }
@@ -39,6 +39,7 @@ void AGeometryHUD::clearText()
 { 
   if(textNode)
     {
+      textNode->setVisible(false);
       textNode->setText(L"");
       geo->makeDirty();
     }
@@ -60,3 +61,22 @@ void AGeometryHUD::handleCameraControl(bool grabbed)
     setText("Press SPACE or double click to engage camera");
 }
 
+
+ bool AGeometryHUD::eventFilter(QObject *obj,QEvent *event)
+ { 	 
+   if(obj!=geo) return false; 	 
+   
+   if(event->type()==QEvent::Resize) 	 
+     { 	 
+       QResizeEvent *resizeEvent=(QResizeEvent*)(event); 	 
+       QSize size=resizeEvent->size(); 	 
+       core::rect<s32> textRect(100,size.height()-50,size.width()-100,size.height()); 	 
+       if(textNode) 	 
+	 { 	 
+	   textNode->setRelativePosition(textRect); 	 
+	   geo->makeDirty();
+	 } 	 
+     } 	 
+   
+   return false; 	 
+ }

@@ -16,11 +16,14 @@
 class LIBAMELIA_EXPORT ASlidyManager : public QObject
 {
  public:
-  ASlidyManager(QWidget *parent,Qt::Alignment align=Qt::AlignLeft);
+  ASlidyManager(QWidget *parent,int maxSize=100,Qt::Alignment align=Qt::AlignLeft);
 
   int visibleId();
 
-  void setMaxSize(int maxSize);
+  void setWidth(int width);
+  void setHeight(int height);
+  void setPosition(int pos);
+
   int addWidget(QWidget *wdg,QString title, bool controlable);
   
  public slots:
@@ -48,7 +51,10 @@ class LIBAMELIA_EXPORT ASlidyManager : public QObject
   
   int _visibleId;
   int _lastVisibleId;
-  int _maxSize;
+
+  int _position;
+  int _width;
+  int _height;
   
   QPoint topCorner;
   QPoint moveIn;
@@ -58,6 +64,7 @@ class LIBAMELIA_EXPORT ASlidyManager : public QObject
 
   void recalculatePositions();
   void recalculateAlignment();
+  void recalculateSize();
   
   void prepareShowAnimation();
   void prepareHideAnimation();

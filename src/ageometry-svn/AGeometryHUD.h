@@ -5,21 +5,24 @@
 
 class AGeometryHUD : public QObject
 {
- public:
+public:
   AGeometryHUD(AGeometry *geo);
-
- public slots:
+			      
+public slots:
   void setupElements();
   void setText(QString text);
   void clearText();
-
+  
   void handleNewCamera(int camid);
   void handleCameraControl(bool grabbed);
   
- private:
+protected:
+  bool eventFilter(QObject *obj,QEvent *event);
+  
+private:
   AGeometry *geo;
   IGUIEnvironment *gui;
-
+  
   gui::IGUIStaticText *textNode;
 
   Q_OBJECT

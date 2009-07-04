@@ -17,11 +17,13 @@ ATourPlayer::ATourPlayer()
 void ATourPlayer::setupElements()
 {
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");  
-  ABase *baseplugin=(ABase*)AMELIA::global->plugin("ABase");  
+  
+  baseplugin=(ABase*)AMELIA::global->plugin("ABase");  
   geo=(AGeometry*)geoplugin->findWidget("Geometry");
   
-  controls=new ASlidyManager(baseplugin,Qt::AlignTop);
-  controls->setMaxSize(50);
+  controls=new ASlidyManager(baseplugin,50,Qt::AlignTop);
+  controls->setWidth(baseplugin->width()-200);
+  controls->setPosition(100);
 
   playerControls=new QWidget();
   playerControls->setObjectName("TourControls");
@@ -87,19 +89,6 @@ void ATourPlayer::setupElements()
   
   controls->addWidget(playerControls,"",false);
   controls->addWidget(blocksControls,"",false);
-  
-  /*QObject::connect (&tourManager, SIGNAL(tour_camera(AGeometry::CameraMode)),
-		    geo, SLOT(setViewport(AGeometry::CameraMode)));
-  QObject::connect (&tourManager, SIGNAL(tour_loadfile(QString)),
-		    geoplugin, SLOT(loadEvent(QString)));
-  QObject::connect (&tourManager, SIGNAL(tour_stopped()),
-		    this, SLOT(endTour()));
-		    QObject::connect (&tourManager, SIGNAL(tour_button(char *)),
-  this, SLOT(pressButton(char *)));*/
-  //QObject::connect (tourManager, SIGNAL(tour_ptchange(int)), geo->XmlEvt, SLOT(PtCutoff(int)));
-
-  //QCoreApplication::installEventFilter (this);
-
 }
 
 QTimeLine::State ATourPlayer::state()
@@ -225,8 +214,19 @@ void ATourPlayer::tourFinished()
 
 bool ATourPlayer::eventFilter(QObject *obj, QEvent *event)
 {
-  if(timeLine.state()!=QTimeLine::Running)
+  // If the click is on one of the controls, don't filter
+  if(obj==playerControls || hasParent(obj,playerControls)) return false;
+
+
+  // Resize the player controls if the base plugin is resized
+  if(obj==baseplugin)
     {
+      if(controls && event->type()==QEvent::Resize)
+	controls->setWidth(baseplugin->width()-200);
+    }
+  
+  if(timeLine.state()!=QTimeLine::Running)
+    {  // If not running, hide the tour controls on a click outside of the controls
       if(obj!=playerControls && !hasParent(obj,playerControls) && controls && controls->visibleId()!=-1)
 	{
 	  switch(event->type())
@@ -247,32 +247,33 @@ bool ATourPlayer::eventFilter(QObject *obj, QEvent *event)
 	}
       return QObject::eventFilter(obj,event);
     }
-  if(obj==playerControls || hasParent(obj,playerControls)) return false;
-
-  switch(event->type())
-    {
-    case QEvent::FocusIn:
-    case QEvent::FocusOut:
-    case QEvent::GraphicsSceneHoverEnter:
-    case QEvent::GraphicsSceneHoverLeave:
-    case QEvent::GraphicsSceneHoverMove:	
-    case QEvent::GraphicsSceneMouseDoubleClick:
-    case QEvent::GraphicsSceneMouseMove:
-    case QEvent::GraphicsSceneMousePress:
-    case QEvent::GraphicsSceneMouseRelease:
-    case QEvent::HoverEnter:
-    case QEvent::HoverLeave:
-    case QEvent::HoverMove:
-    case QEvent::KeyPress:
-    case QEvent::KeyRelease:
-    case QEvent::MouseButtonDblClick:
-    case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease:
-    case QEvent::MouseMove:
-    case QEvent::MouseTrackingChange:
-      return true;
-    default:
-      return QObject::eventFilter(obj,event);
+  else
+    { //We are running, so block all filters!
+      switch(event->type())
+	{
+	case QEvent::FocusIn:
+	case QEvent::FocusOut:
+	case QEvent::GraphicsSceneHoverEnter:
+	case QEvent::GraphicsSceneHoverLeave:
+	case QEvent::GraphicsSceneHoverMove:	
+	case QEvent::GraphicsSceneMouseDoubleClick:
+	case QEvent::GraphicsSceneMouseMove:
+	case QEvent::GraphicsSceneMousePress:
+	case QEvent::GraphicsSceneMouseRelease:
+	case QEvent::HoverEnter:
+	case QEvent::HoverLeave:
+	case QEvent::HoverMove:
+	case QEvent::KeyPress:
+	case QEvent::KeyRelease:
+	case QEvent::MouseButtonDblClick:
+	case QEvent::MouseButtonPress:
+	case QEvent::MouseButtonRelease:
+	case QEvent::MouseMove:
+	case QEvent::MouseTrackingChange:
+	  return true;
+	default:
+	  return QObject::eventFilter(obj,event);
+	}
     }
 }
 

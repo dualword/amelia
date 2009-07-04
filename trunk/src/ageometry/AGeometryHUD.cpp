@@ -17,13 +17,12 @@ void AGeometryHUD::setupElements()
 {
   gui=geo->getGUIEnvironment();
   
-  core::dimension2d<s32> size=geo->getVideoDriver()->getScreenSize();
-  
-  core::rect<f32> textRect(0.2f,0.9f,0.8f,1.0f);
+  core::dimension2d<u32> size=geo->getVideoDriver()->getScreenSize();
+
+  core::rect<s32> textRect(100,size.Height-50,size.Width-100,size.Height);
   
   textNode=gui->addStaticText(L"",
-			      core::rect<s32>(0,0,0,0));
-  textNode->setRelativePositionProportional(textRect);
+			      textRect);
   textNode->setOverrideColor(SColor(255,255,255,255));
   textNode->setTextAlignment(EGUIA_CENTER,EGUIA_SCALE);
   textNode->setEnabled(false);
@@ -31,6 +30,7 @@ void AGeometryHUD::setupElements()
 
 void AGeometryHUD::setText(QString text)
 { 
+  textNode->setVisible(true);
   textNode->setText(text.toStdWString().c_str());
   geo->makeDirty();
 }
@@ -39,6 +39,7 @@ void AGeometryHUD::clearText()
 { 
   if(textNode)
     {
+      textNode->setVisible(false);
       textNode->setText(L"");
       geo->makeDirty();
     }

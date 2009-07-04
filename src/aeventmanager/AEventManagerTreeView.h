@@ -19,12 +19,14 @@ class AEVENTMANAGER_EXPORT AEventManagerTreeView : public QTreeView
   
  signals:
   void eventClicked(AEvent*);
+  void packageActivated(AEventPackage*);
   
  protected:
   void contextMenuEvent(QContextMenuEvent *event);
 
  private:
   QModelIndex lastSelectedIndex;
+
   Q_OBJECT
 };
 

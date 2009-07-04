@@ -80,11 +80,13 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     buttonCombineTracks = findChild<QPushButton*>("combineTracks");
     QGraphicsView *trackInfoView=findChild<QGraphicsView *>("trackInfo");
     QGraphicsView *eventInfoView=findChild<QGraphicsView *>("eventInfo");
-    QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
-    QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
+    detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
+    detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
     QAction *actionSnapshot=window()->findChild<QAction *>("actionSnapshot");
+    actionNextEvent=window()->findChild<QAction *>("actionNextEvent");
+    actionTable=window()->findChild<QAction *>("actionTable");
     actionNone=window()->findChild<QAction *>("actionNone");
     actionWedge_Mode=window()->findChild<QAction *>("actionWedge_Mode");
     actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
@@ -230,6 +232,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     
     connect(packageList, SIGNAL(eventClicked ( AEvent* )),
 	    this, SLOT(loadEvent( AEvent* )));
+    connect(packageList, SIGNAL(packageActivated ( AEventPackage* )),
+	    this, SLOT(handlePackageActivated( )));
     connect(this, SIGNAL(eventLoaded(AEvent*)),
 	    mngr, SLOT(setActiveEvent(AEvent*)));
     connect(this,SIGNAL(eventUnloaded()),
@@ -260,6 +264,13 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       {
         connect(buttonDeleteTracks,SIGNAL(clicked()),
                 tracksModel,SLOT(deleteSelectedTracks()));
+      }
+
+    // Setup the next event buttons
+    if (actionNextEvent)
+      {
+        connect(actionNextEvent,SIGNAL(triggered()),
+                packageList,SLOT(clickNextEvent()));
       }
     if (nextEventButton)
       {
@@ -561,22 +572,8 @@ void ALayerGUI::unloadEvent()
 
 void ALayerGUI::handleEventLoaded()
 {
-  QWidget* tabEvent = findChild<QWidget*>("tab_event");
-
   //Enable what needs to be enabled!
-  QTableView *detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
-  QTableView *detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
-  QAction *actionTable=window()->findChild<QAction *>("actionTable");
-
-  if (tabEvent) tabEvent->setEnabled(true);
-  if (detailedSelectedTracksTable) detailedSelectedTracksTable->setEnabled(true);
-  if (detailedCombinedTracksTable) detailedCombinedTracksTable->setEnabled(true);
-  if (buttonDeleteTracks) buttonDeleteTracks->setEnabled(true);
-  if (buttonCombineTracks) buttonCombineTracks->setEnabled(true);
-  if (actionTable) actionTable->setEnabled(true);
-  if (menuTagCurrentEvent) menuTagCurrentEvent->setEnabled(true);
-  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(CompleteEvent->tags().contains("higgs"));
-  if (actionTagBlackHole) actionTagBlackHole->setChecked(CompleteEvent->tags().contains("blackhole"));
+  setEventSpecificActionsEnabled(true);
 
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);
@@ -591,8 +588,27 @@ void ALayerGUI::handleEventUnloaded()
 {
   menuTagCurrentEvent->setEnabled(false);
 
+  setEventSpecificActionsEnabled(false);
+
   if (eventWidget->isVisible())
     hide(eventWidget);
+}
+
+void ALayerGUI::handlePackageActivated()
+{
+  if (actionNextEvent) actionNextEvent->setEnabled(true);
+}
+
+void ALayerGUI::setEventSpecificActionsEnabled(bool status)
+{
+  if (detailedSelectedTracksTable) detailedSelectedTracksTable->setEnabled(status);
+  if (detailedCombinedTracksTable) detailedCombinedTracksTable->setEnabled(status);
+  if (buttonDeleteTracks) buttonDeleteTracks->setEnabled(status);
+  if (buttonCombineTracks) buttonCombineTracks->setEnabled(status);
+  if (actionTable) actionTable->setEnabled(status);
+  if (menuTagCurrentEvent) menuTagCurrentEvent->setEnabled(status);
+  if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(status && CompleteEvent->tags().contains("higgs"));
+  if (actionTagBlackHole) actionTagBlackHole->setChecked(status && CompleteEvent->tags().contains("blackhole"));
 }
 
 void ALayerGUI::eventSettings()

@@ -38,6 +38,8 @@ void AEventManagerTreeView::activate(const QModelIndex& index)
 	  else
 	    collapse(idx);
         }
+
+      emit packageActivated(pkg);
     }
   else if(e)
     {
@@ -50,17 +52,22 @@ void AEventManagerTreeView::clickNextEvent()
   AEventManagerScene *model=(AEventManagerScene*)this->model();
   
   AEvent* e=model->activeEvent();
+  AEventPackage* pkg=model->activePackage();
 
-  if(!e->package()) return;
+  if(!pkg) return;
   
-  if (e->package()->eventCount()<=1) return;
+  if (pkg->eventCount()==0) return;
 
-  int id=e->package()->indexOf(e)+1;
-  if (id>=e->package()->eventCount())
+  int id=(e)?(pkg->indexOf(e)+1):0;
+  if (id>=pkg->eventCount())
     id=0;
       
+  AEvent *nextEvent=pkg->event(id);
   
-  emit eventClicked(e->package()->event(id));
+  // Prevent the same event from being clicked
+  // ei: there is only one event in a package
+  if(nextEvent!=e)
+    emit eventClicked(nextEvent);
 }
 
 void AEventManagerTreeView::contextMenuEvent(QContextMenuEvent *event)

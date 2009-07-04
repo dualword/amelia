@@ -459,8 +459,7 @@ void ABase::keyPressEvent(QKeyEvent *event)
         changeToMonitor(_currentGroup+"/"+keys[idx]);
     }
 
-    //What are we gonna do with menu's on Mac OS X?
-    if (event->key()==Qt::Key_F)
+    if (event->key()==Qt::Key_F && (event->modifiers() & Qt::ControlModifier))
     {
         setWindowState(windowState() ^ Qt::WindowFullScreen);
     }

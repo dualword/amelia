@@ -1452,19 +1452,17 @@ void AGeometry::setCamera(int to,bool animate)
     switch (to)
     {
     case AGeometry::FPS:
-      actSphere->setChecked(false);
       actFPS->setChecked(true);
       setCropMode(MosesMode);
       break;
     case AGeometry::Sphere:
-      actFPS->setChecked(false);
       actSphere->setChecked(true);
       setCropMode(WedgeMode);
       cameras[AGeometry::Sphere]->setInputReceiverEnabled(true); //Sphere always wants the input receiver enabled
       break;
     case AGeometry::Lock:
-      actFPS->setChecked(false);
-      actSphere->setChecked(false);
+      //actFPS->setChecked(false);
+      //actSphere->setChecked(false);
       break;
     }
     cameras[AGeometry::FPS]->setInputReceiverEnabled(false);

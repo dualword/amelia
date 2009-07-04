@@ -299,6 +299,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 		this,SLOT(enableElements()));
 	
 	//Setup camera controls and toggles
+	cameraModes=new QActionGroup(this);
+	cameraModes->addAction(actionFPS);
+	cameraModes->addAction(actionSphere);
 	geo->actFPS = actionFPS;
 	geo->actSphere = actionSphere;
 

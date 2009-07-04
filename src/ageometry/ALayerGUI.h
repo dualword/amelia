@@ -137,6 +137,9 @@ public slots:
     QMenu *menuTagCurrentEvent;
     QAction *actionTagHiggsBoson;
     QAction *actionTagBlackHole;
+    QGraphicsView *selectedEventInfoView;
+    QPushButton *buttonCombineTracks;
+    QPushButton *buttonDeleteTracks;
     
     //Cropping controls
     QActionGroup *croppingModes;
@@ -144,11 +147,9 @@ public slots:
     QAction *actionWedge_Mode;
     QAction *actionMoses_Mode;
     QSignalMapper croppingMapper;
-
-    QGraphicsView *selectedEventInfoView;
-    QPushButton *buttonCombineTracks;
-    QPushButton *buttonDeleteTracks;
-
+    
+    // Random stuff
+    QActionGroup *cameraModes;
     ASnapshotTool snapshotTool;
 
     QMap<QString,QPoint> widgetPositions;

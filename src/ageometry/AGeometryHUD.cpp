@@ -17,7 +17,7 @@ void AGeometryHUD::setupElements()
 {
   gui=geo->getGUIEnvironment();
   
-  core::dimension2d<u32> size=geo->getVideoDriver()->getScreenSize();
+  core::dimension2d<s32> size=geo->getVideoDriver()->getScreenSize();
 
   core::rect<s32> textRect(100,size.Height-50,size.Width-100,size.Height);
   
@@ -61,3 +61,21 @@ void AGeometryHUD::handleCameraControl(bool grabbed)
     setText("Press SPACE or double click to engage camera");
 }
 
+ bool AGeometryHUD::eventFilter(QObject *obj,QEvent *event)
+ { 	 
+   if(obj!=geo) return false; 	 
+   
+   if(event->type()==QEvent::Resize) 	 
+     { 	 
+       QResizeEvent *resizeEvent=(QResizeEvent*)(event); 	 
+       QSize size=resizeEvent->size(); 	 
+       core::rect<s32> textRect(100,size.height()-50,size.width()-100,size.height()); 	 
+       if(textNode) 	 
+	 { 	 
+	   textNode->setRelativePosition(textRect); 	 
+	   geo->makeDirty();
+	 } 	 
+     } 	 
+   
+   return false; 	 
+ }

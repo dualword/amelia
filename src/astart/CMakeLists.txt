@@ -40,5 +40,9 @@ IF(PHONON_FOUND)
     ${PHONON_LIBS}
     amelia
     ABase)
+
+  INSTALL(TARGETS AStart
+    LIBRARY DESTINATION lib/amelia/plugins)
+
 ENDIF(PHONON_FOUND)
   

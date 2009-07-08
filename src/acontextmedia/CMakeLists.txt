@@ -45,4 +45,15 @@ IF(PHONON_FOUND)
     ${PHONON_LIBS}
     AGeometry
     amelia)
+
+  INSTALL(TARGETS AContextMedia
+    LIBRARY DESTINATION lib/amelia/plugins)
+  
+  INSTALL_FILES(media EMC_Reference.mov)
+  INSTALL_FILES(media Muons_Reference.mov)
+  INSTALL_FILES(media Pixels_Reference.mov)
+  INSTALL_FILES(media SCT_Reference.mov)
+  INSTALL_FILES(media TC_Reference.mov)
+  INSTALL_FILES(media TRT_Reference.mov)
+  
 ENDIF(PHONON_FOUND)

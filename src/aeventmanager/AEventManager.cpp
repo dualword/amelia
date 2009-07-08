@@ -51,7 +51,7 @@ AEventPackage* packageLoadingThread(AEventPackage *pkg)
 AEventManager::AEventManager( QObject *parent )
         : QObject(parent)
 {
-  QDir::addSearchPath("event","media/events");
+  QDir::addSearchPath("event","events");
   QDir::addSearchPath("event",EVENTS_PREFIX);
 
   loadedFutureWatcher.setPendingResultsLimit(1);

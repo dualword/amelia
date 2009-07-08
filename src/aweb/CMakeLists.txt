@@ -36,3 +36,6 @@ TARGET_LINK_LIBRARIES(AWeb
   ${QT_LIBRARIES} 
   amelia
   ABase)
+
+INSTALL(TARGETS AWeb
+  LIBRARY DESTINATION lib/amelia/plugins)

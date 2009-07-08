@@ -53,7 +53,7 @@ AGeometry::AGeometry(QWidget* parent)
   detector3d_node( NULL ), background_node_f ( NULL ), background_node_s ( NULL ),
   active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), 
   _event(0),
-  fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
+ fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
   modelScale(0.4f)
 
 {
@@ -173,9 +173,8 @@ void AGeometry::load()
   time.start();
   
   //First load stuff originally loaded by ABase...
-  //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
-  getFileSystem()->addFolderFileArchive ( "./media/" );
-  getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
+  getFileSystem()->addFileArchive ( "media/",true,true,EFAT_FOLDER);
+  getFileSystem()->addFileArchive ( MEDIA_PREFIX ,true,true,EFAT_FOLDER);
 
   //These first three lines are part of an offset test for the Irrlicht ray generator
   cube = getSceneManager()->addCubeSceneNode();
@@ -184,7 +183,7 @@ void AGeometry::load()
   cube->setPosition ( core::vector3df ( 400,1500,400 ) );
   cube->setVisible(offsetTest);
   
-  getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
+  getFileSystem()->addFileArchive ( "AtlasGeometry.aml" ,true,true,EFAT_ZIP);
 
   cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
   
@@ -279,7 +278,7 @@ void AGeometry::load()
 
   
   //Prepare spinning logo
-  getFileSystem()->addZipFileArchive ( "logo.aml" );
+  getFileSystem()->addFileArchive ( "logo.aml" ,EFAT_ZIP);
   
   ICameraSceneNode *_logoCamera=getSceneManager()->addCameraSceneNode(0,
 								      vector3df(1200,500,-1200),

@@ -40,3 +40,6 @@ TARGET_LINK_LIBRARIES(ALabNoteBook
   AEventManager
   AGeometry
   amelia)
+
+INSTALL(TARGETS ALabNoteBook
+  LIBRARY DESTINATION lib/amelia/plugins)

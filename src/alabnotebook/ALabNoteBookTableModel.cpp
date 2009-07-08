@@ -49,11 +49,14 @@ QVariant ALabNoteBookTableModel::data( const QModelIndex& index, int role ) cons
 									      
 void ALabNoteBookTableModel::setLabNoteBookData(ALabNoteBookData *data)
 { 
-  disconnect(_data,SIGNAL(updated()),
-	     this,SLOT(refresh()));
+  if(_data)
+    disconnect(_data,SIGNAL(updated()),
+	       this,SLOT(refresh()));
   _data=data;
-  connect(_data,SIGNAL(updated()),
-	  this,SLOT(refresh()));
+  if(_data)
+    connect(_data,SIGNAL(updated()),
+	    this,SLOT(refresh()));
+  
   refresh();
 }
 

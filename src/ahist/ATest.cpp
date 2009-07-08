@@ -35,7 +35,7 @@ void ATest::loadEvent(AEvent* event)
   if(keys.indexOf(event)==-1)
     {
       int size=event->Tracks.size();
-      AComboHistogram* hist=new AComboHistogram(event->filename,this);
+      AComboHistogram* hist=new AComboHistogram(event->name(),this);
       TH1F *h=hist->histogram();
       h->GetXaxis()->SetTitle("pT (GeV)");
 
@@ -45,7 +45,7 @@ void ATest::loadEvent(AEvent* event)
 	  hist->addData(pt*1000);
 	}
       
-      tabs->addTab(hist,event->filename);
+      tabs->addTab(hist,event->name());
 
       histograms[event]=hist;
       current=hist;

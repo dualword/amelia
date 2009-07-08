@@ -97,8 +97,8 @@ void ATours::prepareTours()
   connect(&tourMapper,SIGNAL(mapped(int)),
 	  this,SLOT(startTour(int)));
 
-  if (QFile::exists("media/tours"))
-    tourManager.listTours ("media/tours");
+  if (QFile::exists("tours"))
+    tourManager.listTours ("tours");
   else
     tourManager.listTours (TOURS_PREFIX);
   

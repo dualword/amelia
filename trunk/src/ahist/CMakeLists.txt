@@ -66,6 +66,10 @@ MESSAGE(STATUS ${ROOT_LIBS})
       Gui
       amelia
       ABase)
+    
+    INSTALL(TARGETS AHist
+      LIBRARY DESTINATION lib/amelia/plugins)
+    
     ENDIF(NOT ROOTWITHQT)
 ENDIF(NOT ROOTCONFIG)
 

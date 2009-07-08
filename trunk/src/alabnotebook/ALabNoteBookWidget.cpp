@@ -41,11 +41,19 @@ void ALabNoteBookWidget::setupElements()
 
 void ALabNoteBookWidget::handleNewEventLoaded(AEvent* event)
 {
-  _data=event->getAnalysisData<ALabNoteBookData>("ALabNoteBook");
+  if(event)
+    {
+      _data=event->getAnalysisData<ALabNoteBookData>("ALabNoteBook");
+      setEnabled(true);
+    }
+  else
+    {
+      _data=0;
+      setEnabled(false);
+    }
+  
   _tableModel->setLabNoteBookData(_data);
   handleNoteSelected(QModelIndex());
-  
-  setEnabled(true);
 }
 
 void ALabNoteBookWidget::createNewNote()

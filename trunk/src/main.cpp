@@ -1,7 +1,8 @@
 #include <QApplication>
 #include <QDir>
 #include "AMELIA.h"
-#include <QDebug>
+
+#include "config.h"
 
 int main(int argc, char* argv[])
 {
@@ -11,6 +12,7 @@ int main(int argc, char* argv[])
   AMELIA amelia;
   
   amelia.addSearchPath("plugins");
+  amelia.addSearchPath(PLUGIN_PREFIX);
 
   // VC++ likes to place the binaries into Debug/Release folders
   // Stolen from Qt's Echo Plugin example

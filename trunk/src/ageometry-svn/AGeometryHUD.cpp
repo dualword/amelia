@@ -61,7 +61,6 @@ void AGeometryHUD::handleCameraControl(bool grabbed)
     setText("Press SPACE or double click to engage camera");
 }
 
-
  bool AGeometryHUD::eventFilter(QObject *obj,QEvent *event)
  { 	 
    if(obj!=geo) return false; 	 

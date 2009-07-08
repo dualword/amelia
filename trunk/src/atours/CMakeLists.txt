@@ -93,4 +93,10 @@ TARGET_LINK_LIBRARIES(ATours
   Irrlicht
   )
 
+INSTALL(TARGETS ATours
+  LIBRARY DESTINATION lib/amelia/plugins)
+
+INSTALL_FILES(tours test.xml)
+INSTALL_FILES(events special-higgs.xml)
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

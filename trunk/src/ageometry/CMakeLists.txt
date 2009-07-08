@@ -112,23 +112,9 @@ TARGET_LINK_LIBRARIES(AGeometry
   AEventManager
   )
   
+INSTALL(TARGETS AGeometry
+  LIBRARY DESTINATION lib/amelia/plugins)
 
-
-#INSTALL(TARGETS ageometry 
-#  RUNTIME DESTINATION bin)
-#INSTALL(FILES  media/AtlasGeometry.aml media/pack01.gui media/menu.aml
-#  DESTINATION share/ageometry/media)
-#INSTALL(FILES media/tours/karol.1.xml media/tours/michael.1.xml media/tours/test.xml
-#  DESTINATION share/ageometry/tours)
-#INSTALL(FILES media/events/special-higgs.xml
-#  DESTINATION share/ageometry/events)
-
-#INSTALL(FILES workspace/special/special-higgs.xml 
-#  workspace/special/.metainfo
-#  DESTINATION share/ageometry/workspace/special)
-
-#INSTALL(FILES ageometry.desktop
-#  DESTINATION share/applications)
-
-
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+INSTALL_FILES(media AtlasGeometry.aml )
+INSTALL_FILES(media pack01.gui )
+INSTALL_FILES(media logo.aml )

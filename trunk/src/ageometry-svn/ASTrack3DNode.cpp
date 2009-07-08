@@ -273,7 +273,7 @@ std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
 
 {
     std::vector<core::vector3df> StartEnd ( 2 );
-    float c = 180/3.1415926f;
+    float c = 180.f/3.1415926f;
     float sc = 0.001f;
     float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
 
@@ -451,7 +451,7 @@ void ASTrack3DNode::createCurveVector()
 {
     float pi = 3.1415926f;
     float phiTrans = -(((ASTrack*)getTrack())->phi) + pi;
-    float C = 1000/0.6f;
+    float C = 1000.f/0.6f;
     float theta = 2*atan ( exp ( - ( ((ASTrack*)getTrack())->eta ) ) );
     float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
     float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex

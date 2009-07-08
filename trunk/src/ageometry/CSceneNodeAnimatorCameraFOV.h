@@ -16,7 +16,7 @@ namespace irr
     public:
 
       //! constructor
-      CSceneNodeAnimatorCameraFOV(f32 fovSpeed=0.000001);
+      CSceneNodeAnimatorCameraFOV(f32 fovSpeed=0.000001f);
 
       //! destructor
       virtual ~CSceneNodeAnimatorCameraFOV();

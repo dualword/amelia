@@ -68,7 +68,7 @@ MESSAGE(STATUS ${ROOT_LIBS})
       ABase)
     
     INSTALL(TARGETS AHist
-      LIBRARY DESTINATION lib/amelia/plugins)
+      DESTINATION lib/amelia/plugins)
     
     ENDIF(NOT ROOTWITHQT)
 ENDIF(NOT ROOTCONFIG)

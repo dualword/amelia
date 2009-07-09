@@ -67,6 +67,6 @@ TARGET_LINK_LIBRARIES(AEventManager
   amelia)
 
 INSTALL(TARGETS AEventManager
-  LIBRARY DESTINATION lib/amelia/plugins)
+  DESTINATION lib/amelia/plugins)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)

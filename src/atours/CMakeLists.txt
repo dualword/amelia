@@ -94,7 +94,7 @@ TARGET_LINK_LIBRARIES(ATours
   )
 
 INSTALL(TARGETS ATours
-  LIBRARY DESTINATION lib/amelia/plugins)
+	DESTINATION lib/amelia/plugins)
 
 INSTALL_FILES(tours test.xml)
 INSTALL_FILES(events special-higgs.xml)

@@ -113,7 +113,7 @@ TARGET_LINK_LIBRARIES(AGeometry
   )
   
 INSTALL(TARGETS AGeometry
-  LIBRARY DESTINATION lib/amelia/plugins)
+  DESTINATION lib/amelia/plugins)
 
 INSTALL_FILES(media AtlasGeometry.aml )
 INSTALL_FILES(media pack01.gui )

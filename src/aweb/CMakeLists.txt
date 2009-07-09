@@ -38,4 +38,4 @@ TARGET_LINK_LIBRARIES(AWeb
   ABase)
 
 INSTALL(TARGETS AWeb
-  LIBRARY DESTINATION lib/amelia/plugins)
+  DESTINATION lib/amelia/plugins)

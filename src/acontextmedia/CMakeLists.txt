@@ -47,7 +47,7 @@ IF(PHONON_FOUND)
     amelia)
 
   INSTALL(TARGETS AContextMedia
-    LIBRARY DESTINATION lib/amelia/plugins)
+    DESTINATION lib/amelia/plugins)
   
   INSTALL_FILES(media EMC_Reference.mov)
   INSTALL_FILES(media Muons_Reference.mov)

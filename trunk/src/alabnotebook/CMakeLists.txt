@@ -42,4 +42,4 @@ TARGET_LINK_LIBRARIES(ALabNoteBook
   amelia)
 
 INSTALL(TARGETS ALabNoteBook
-  LIBRARY DESTINATION lib/amelia/plugins)
+  DESTINATION lib/amelia/plugins)

@@ -32,4 +32,4 @@ TARGET_LINK_LIBRARIES(ABase
   amelia)
 
 INSTALL(TARGETS ABase
-  LIBRARY DESTINATION lib/amelia/plugins)
+  DESTINATION lib/amelia/plugins)

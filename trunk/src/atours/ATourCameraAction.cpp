@@ -57,24 +57,32 @@ void ATourCameraAction::prepare()
 {
   ATourAction::prepare();
 
-  geo->setViewport(AGeometry::Cam3D);
+  // Set the viewport to 3D
+  if(geo->viewport()!=AGeometry::Cam3D)
+    geo->setViewport(AGeometry::Cam3D);
 
+  // Store the current target/position, because this is the starting point
   position=geo->cameraPosition();
-  target=geo->cameraTarget();
-  geo->setCamera(AGeometry::Lock,false);
-  geo->setCameraPosition(position);
-  geo->setCameraTarget(target);
+  target=geo->cameraTarget();    
+
+  // Switch to FPS mode.
+  // This is better, since we'll probably end up not
+  // facing the center
+  if(geo->camera()!=AGeometry::FPS)
+    {
+      geo->setCamera(AGeometry::FPS,false);
+      geo->setCameraPosition(position);
+      geo->setCameraTarget(target);
+    }
+  
+  geo->lockCamera();
 }
 
 void ATourCameraAction::cleanup()
 {
   ATourAction::cleanup();
 
-  APoint3D oldPos=geo->cameraPosition();
-  APoint3D oldTar=geo->cameraTarget();  
-  geo->setCamera(AGeometry::FPS,false);
-  geo->setCameraPosition(oldPos);
-  geo->setCameraTarget(oldTar);
+  geo->unlockCamera();
 }
 
 APoint3D ATourCameraAction::interpolate(APoint3D start,APoint3D end,double time)

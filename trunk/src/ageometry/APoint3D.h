@@ -4,6 +4,7 @@
 #include <irrlicht.h>
 
 #include "AGeometryDefines.h"
+
 class AGEOMETRY_EXPORT APoint3D
 {
  public:

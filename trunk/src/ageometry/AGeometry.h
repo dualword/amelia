@@ -66,7 +66,6 @@ public:
 	// 3D Cameras
   static const int FPS=0;
   static const int Sphere=3;
-  static const int Lock=4;
 
 	// Viewports
   static const int Cam3D=-1;
@@ -106,6 +105,8 @@ public:
   
   APoint3D cameraPosition();
   APoint3D cameraTarget();
+  float cameraFOV();
+  float cameraFarValue();
 
   ATrack3DNode* getTrackNodeByID ( int ID );
   bool isTrackSelected(int ID);
@@ -140,7 +141,10 @@ public slots:
   void setViewport(int to); //Switches the main screen to the specified camera
   void setCamera(int to,bool animate=true); //Switches the 3D camera
   void setCropMode(int to); //Switches to a new cropping mode...
-  
+
+  void lockCamera();
+  void unlockCamera();
+
   void setEvent(AFilteredEvent*); // Sets the current event
   void clearEvent();    
   void updateTracks();
@@ -149,6 +153,8 @@ public slots:
   
   void setCameraPosition(APoint3D pos);
   void setCameraTarget(APoint3D tar);
+  void setCameraFOV(float fov);
+  void setCameraFarValue(float farvalue);
   
   void renderViewport(int view);
   
@@ -187,8 +193,12 @@ protected:
   
   
 private:
+  // Hidden Constants //x
+  static const int Lock=4;
+
   // Tracks and the event variables //
   AFilteredEvent* _event;
+  ISceneNode* _rootTracksNode;
   QList<ATrack3DNode*> selectedTracks;
   QList<ATrack3DNode*> allTracks;
   QList<AJet3DNode*> allJets;

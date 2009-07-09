@@ -19,6 +19,7 @@ AFOVControl::AFOVControl(ICameraSceneNode *camera,
   CSceneNodeAnimatorCameraFOV *anim=(CSceneNodeAnimatorCameraFOV*)*anims;
 
   _fov->setMax(anim->maxFOV()*10000);
+  _fov->setMin(anim->minFOV()*10000);
 
   _fov->setSmallStep(1);
   _fov->setLargeStep(100);

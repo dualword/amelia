@@ -144,6 +144,8 @@ void ATourPlayer::playBlock(int idx)
   
     
   currentBlock=currentTour->block(idx);
+  currentBlock->prepare();
+
   connect(&timeLine,SIGNAL(frameChanged(int)),
 	  currentBlock,SLOT(updateFrame(int)));
 
@@ -156,8 +158,6 @@ void ATourPlayer::playBlock(int idx)
   timeLine.setDirection(QTimeLine::Forward);
   timeLine.setCurrentTime(0);
   timeLine.start();
-
-  currentBlock->prepare();
 
   emit tour_started();
 }

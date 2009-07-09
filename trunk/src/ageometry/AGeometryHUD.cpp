@@ -17,7 +17,7 @@ void AGeometryHUD::setupElements()
 {
   gui=geo->getGUIEnvironment();
   
-  core::dimension2d<s32> size=geo->getVideoDriver()->getScreenSize();
+  core::dimension2d<u32> size=geo->getVideoDriver()->getScreenSize();
 
   core::rect<s32> textRect(100,size.Height-50,size.Width-100,size.Height);
   

@@ -441,7 +441,8 @@ float ASTrack3DNode::getChargedMaxAngle ()
 
 
     }
-
+	
+	//TODO: Return a sensible value
 	return 0;
 }
 

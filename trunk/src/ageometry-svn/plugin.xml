@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<plugin>
-  <dependencies>
-    <plugin name="ABase" />
-    <plugin name="AEventManager" />
-  </dependencies>
-</plugin>

@@ -12,7 +12,7 @@ public slots:
   void setupElements();
   void setText(QString text);
   void clearText();
-
+  
   void handleNewCamera(int camid);
   void handleCameraControl(bool grabbed);
   
@@ -22,7 +22,7 @@ protected:
 private:
   AGeometry *geo;
   IGUIEnvironment *gui;
-
+  
   gui::IGUIStaticText *textNode;
 
   Q_OBJECT

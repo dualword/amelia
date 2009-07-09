@@ -30,15 +30,9 @@ void ASnapshotTool::snapshot()
   
   // Switch to the locked camera, without any controls 
   // if we are in 3D mode.
-  if(_geotarget && _geotarget->viewport()==AGeometry::Cam3D)
+  if(_geotarget)
     {
-      APoint3D currentPos=_geotarget->cameraPosition();
-      APoint3D currentTar=_geotarget->cameraTarget();
-      currentCam=_geotarget->camera();
-
-      _geotarget->setCamera(AGeometry::Lock,false);
-      _geotarget->setCameraPosition(currentPos);
-      _geotarget->setCameraTarget(currentTar);
+      _geotarget->lockCamera();
       _geotarget->forceUpdate();
     }
 
@@ -56,9 +50,8 @@ void ASnapshotTool::finish()
     lastSnapshot.save(fileName);
 
   // Restore the camera, if in 3D
-  if(_geotarget && _geotarget->viewport()==AGeometry::Cam3D)
-    {
-      _geotarget->setCamera(currentCam,false);
-    }
+  if(_geotarget)
+    _geotarget->unlockCamera();
+
   _target->setEnabled(true);
 }

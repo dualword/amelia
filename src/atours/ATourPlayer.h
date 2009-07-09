@@ -42,9 +42,6 @@ public slots:
   void tourFinished();
 
 signals:
-  void setCameraPosition(APoint3D pos);
-  void setCameraTarget(APoint3D pos);
-
   void tour_started();
   void tour_stopped();
 

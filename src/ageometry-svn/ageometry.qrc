@@ -1,5 +1,0 @@
-<RCC>
-  <qresource prefix="ageometry">
-    <file>plugin.xml</file>
-  </qresource>
-</RCC>

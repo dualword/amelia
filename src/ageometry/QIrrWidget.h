@@ -103,6 +103,9 @@ public:
   static EKEY_CODE Qt2Irr_KeyCode(int keycode);
   static int Irr2Qt_KeyCode(EKEY_CODE keycode);
   
+  static u32 Qt2Irr_ButtonStates(Qt::MouseButtons buttons);
+  static Qt::MouseButtons Irr2Qt_ButtonStates(u32 buttons);
+					      
 public slots:
   void toggleDisabled();
   void makeDirty();

@@ -53,7 +53,7 @@ AGeometry::AGeometry(QWidget* parent)
   detector3d_node( NULL ), background_node_f ( NULL ), background_node_s ( NULL ),
   active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), 
   _event(0),
-  fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
+ fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
   modelScale(0.4f)
 
 {
@@ -173,9 +173,8 @@ void AGeometry::load()
   time.start();
   
   //First load stuff originally loaded by ABase...
-  //getFileSystem()->addFolderFileArchive ( getFileSystem()->getWorkingDirectory() );
-  getFileSystem()->addFolderFileArchive ( "./media/" );
-  getFileSystem()->addFolderFileArchive ( MEDIA_PREFIX );
+  getFileSystem()->addFileArchive ( "media/",true,true,EFAT_FOLDER);
+  getFileSystem()->addFileArchive ( MEDIA_PREFIX ,true,true,EFAT_FOLDER);
 
   //These first three lines are part of an offset test for the Irrlicht ray generator
   cube = getSceneManager()->addCubeSceneNode();
@@ -184,7 +183,7 @@ void AGeometry::load()
   cube->setPosition ( core::vector3df ( 400,1500,400 ) );
   cube->setVisible(offsetTest);
   
-  getFileSystem()->addZipFileArchive ( "AtlasGeometry.aml" );
+  getFileSystem()->addFileArchive ( "AtlasGeometry.aml" ,true,true,EFAT_ZIP);
 
   cameraSwitcher=new CSceneNodeAnimatorCameraSwitch(getSceneManager());
   
@@ -279,7 +278,7 @@ void AGeometry::load()
 
   
   //Prepare spinning logo
-  getFileSystem()->addZipFileArchive ( "logo.aml" );
+  getFileSystem()->addFileArchive ( "logo.aml" ,EFAT_ZIP);
   
   ICameraSceneNode *_logoCamera=getSceneManager()->addCameraSceneNode(0,
 								      vector3df(1200,500,-1200),
@@ -317,6 +316,8 @@ void AGeometry::load()
   createAtlasGeometry();
   createFlatGeometry();
   
+  _rootTracksNode=getSceneManager()->addEmptySceneNode();
+
   forceUpdate(); //Make sure the timer is correct!
   
   qDebug() << "Loaded AGeometry (" << time.elapsed() << " ms)";
@@ -448,7 +449,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 	}
       
       // Find the selected scene node
-      ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16 );
+      ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16, false, _rootTracksNode );
       ITriangleSelector* selector;
       vector3df target;
       triangle3df triangle;
@@ -474,8 +475,9 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 	    {
 	      AJet3DNode* jet =  (AJet3DNode*)allTracks[i];
 	      selector = jet->Pyramid->getTriangleSelector();
-	      
-	      if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ) )
+
+	      const ISceneNode *outNode; //TODO: Take advantage of this somehow..
+	      if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ,outNode))
 		{
 		  selectedNode = jet;
 		  break;
@@ -501,53 +503,53 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
 void AGeometry::renderViewport(int view)
 {
   if(view==active_viewport) return; //Time saving hack. Never render the visible viewport, since it is not in the two smaller viewports.
-    int camId;
-    if (view==Cam3D) camId=active_cam;
-    else camId=view;
-
-    irr::video::SColor color (255,0,0,0);
-
-    if (rt==0) //Try to create an render texture if one does not exist...
+  int camId;
+  if (view==Cam3D) camId=active_cam;
+  else camId=view;
+  
+  irr::video::SColor color (255,0,0,0);
+  
+  if (rt==0) //Try to create an render texture if one does not exist...
     {
-        if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
+      if (getVideoDriver()->queryFeature(video::EVDF_RENDER_TO_TARGET))
         {
-            rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<s32>(256,256));
-	    rt->grab();
+	  rt = getVideoDriver()->addRenderTargetTexture(core::dimension2d<u32>(256,256));
+	  rt->grab();
         }
-
-        if (rt==0)
+      
+      if (rt==0)
         {
-            emit viewportUpdated(view,QImage());
-            return;
+	  emit viewportUpdated(view,QImage());
+	  return;
         }
     }
+  
+  //Render screenshot
+  QImage image;
+  
+  
+  //New View
+  ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
+  originalCamera->grab();
+  getSceneManager()->setActiveCamera ( cameras[ camId ] );
+  setupView(view);
+  
+  getVideoDriver()->setRenderTarget(rt, true, true, color);
+  getSceneManager()->drawAll();
+  
+  setupView(active_viewport);
+  getVideoDriver()->setRenderTarget(0);
+  getSceneManager()->setActiveCamera (originalCamera);
+  originalCamera->drop();
+  
+  uchar* tmpdata=(uchar*)rt->lock (true);
+  
+  dimension2d<u32> size=rt->getSize();
+  
+  image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
+  rt->unlock();
 
-    //Render screenshot
-    QImage image;
-
-
-    //New View
-    ICameraSceneNode *originalCamera=getSceneManager()->getActiveCamera();
-    originalCamera->grab();
-    getSceneManager()->setActiveCamera ( cameras[ camId ] );
-    setupView(view);
-
-    getVideoDriver()->setRenderTarget(rt, true, true, color);
-    getSceneManager()->drawAll();
-
-    setupView(active_viewport);
-    getVideoDriver()->setRenderTarget(0);
-    getSceneManager()->setActiveCamera (originalCamera);
-    originalCamera->drop();
-
-    uchar* tmpdata=(uchar*)rt->lock (true);
-
-    dimension2d<s32> size=rt->getSize();
-
-    image=QImage(tmpdata,size.Width,size.Height,QIrrWidget::Irr2Qt_ColorFormat(rt->getColorFormat()));
-    rt->unlock();
-
-    emit viewportUpdated(view,image);
+  emit viewportUpdated(view,image);
 }
 
 void AGeometry::dynamicCameraSpeed(core::vector3df camPos)  //Modifying camera speed based on proximity to detector...
@@ -1389,20 +1391,20 @@ ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
   if(track->type()==ATrack::eJet)
     {
       AJet* jet=(AJet*)track;
-      node=new AJet3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,jet);
+      node=new AJet3DNode(_rootTracksNode,getSceneManager(),0,jet);
       allJets.push_back((AJet3DNode*)node);
     }
   
   if(track->type()==ATrack::eSTrack)
     {
       ASTrack* str=(ASTrack*)track;
-      node=new ASTrack3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,str);
+      node=new ASTrack3DNode(_rootTracksNode,getSceneManager(),0,str);
     }
   
   if(track->type()==ATrack::eMissingEt)
     {
       AMisET* miset=(AMisET*)track;
-      node=new AMisET3DNode(getSceneManager()->getRootSceneNode(),getSceneManager(),0,miset);
+      node=new AMisET3DNode(_rootTracksNode,getSceneManager(),0,miset);
     }
   
   if(node)
@@ -1417,27 +1419,64 @@ ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
   return node;
 }
 
+void AGeometry::lockCamera()
+{
+  int camId;
+  if (active_viewport==AGeometry::Cam3D) camId=active_cam;
+  else camId=active_viewport;
+
+  cameras[Lock]->setPosition(cameras[camId]->getPosition());
+  cameras[Lock]->setTarget(cameras[camId]->getTarget());
+  cameras[Lock]->setFOV(cameras[camId]->getFOV());
+  cameras[Lock]->setFarValue(cameras[camId]->getFarValue());
+
+  getSceneManager()->setActiveCamera(cameras[Lock]);
+}
+
+void AGeometry::unlockCamera()
+{
+  int camId;
+  if (active_viewport==AGeometry::Cam3D) camId=active_cam;
+  else camId=active_viewport;
+
+  cameras[camId]->setPosition(cameras[Lock]->getPosition());
+  if(camId!=Sphere) cameras[camId]->setTarget(cameras[Lock]->getTarget());
+  cameras[camId]->setFOV(cameras[Lock]->getFOV());
+  cameras[camId]->setFarValue(cameras[Lock]->getFarValue());
+
+  getSceneManager()->setActiveCamera(cameras[camId]);
+
+  vector3df tar=cameras[camId]->getTarget();
+}
+
 //Switch the current camera, viewport clicked
 void AGeometry::setViewport(int to)
 {
     if (to==active_viewport) return; //Already using it
     
+    // Determine if the camera is locked, if so unlock to store the current state
+    bool locked=getSceneManager()->getActiveCamera()==cameras[Lock];
+    if(locked) unlockCamera();
+    
+    // Setup ids
     int camId;
     if (to==AGeometry::Cam3D) camId=active_cam;
     else camId=to;
-
     int from=active_viewport;
-
+    
+    // Switch to the new camera and view
     getSceneManager()->setActiveCamera (cameras[camId]);
-
     if(to==AGeometry::Side || to==AGeometry::Front)
 	cameras[to]->setInputReceiverEnabled(true);
-
     setupView(to);
 
+    // Notify of the new state
     emit viewportSwitched(from,to);
     active_viewport=to;
     renderViewport(from);
+
+    // Relock the camera if needed
+    if(locked) lockCamera();
 
     qDebug() << "Active viewport switched from " << from << " to " << to;
 }
@@ -1445,6 +1484,10 @@ void AGeometry::setViewport(int to)
 void AGeometry::setCamera(int to,bool animate)
 {
     if (to==active_cam) return; //Already using it
+
+    // Determine if the camera is locked, if so unlock to store the current state
+    bool locked=getSceneManager()->getActiveCamera()==cameras[Lock];
+    if(locked) unlockCamera();
 
     switch (to)
     {
@@ -1457,21 +1500,27 @@ void AGeometry::setCamera(int to,bool animate)
       setCropMode(WedgeMode);
       cameras[AGeometry::Sphere]->setInputReceiverEnabled(true); //Sphere always wants the input receiver enabled
       break;
-    case AGeometry::Lock:
-      //actFPS->setChecked(false);
-      //actSphere->setChecked(false);
-      break;
     }
     cameras[AGeometry::FPS]->setInputReceiverEnabled(false);
     setCursor(Qt::ArrowCursor);
-
-    if (active_viewport==AGeometry::Cam3D)
-      if(animate)
-        cameraSwitcher->setTargetCamera(cameras[to]);
-      else
-	getSceneManager()->setActiveCamera(cameras[to]);
-
     active_cam=to;
+    
+    // Keep the camera locked
+    if(locked)
+      {
+	to=Lock;
+	if(locked) lockCamera();
+      }
+    
+    // Determine the correct way to switch the camera
+    if (active_viewport==AGeometry::Cam3D)
+      {
+	if(animate)
+	  cameraSwitcher->setTargetCamera(cameras[to]);
+	else
+	  getSceneManager()->setActiveCamera(cameras[to]);
+      }
+
     renderViewport(AGeometry::Cam3D);
 }
 
@@ -1528,23 +1577,44 @@ void AGeometry::setupView(int view)
 void AGeometry::setCameraPosition(APoint3D pos)
 {
   vector3df irrpos(pos.x(),pos.y(),pos.z());
-  cameras[active_cam]->setPosition(irrpos);
+  getSceneManager()->getActiveCamera()->setPosition(irrpos);
 }
 
 void AGeometry::setCameraTarget(APoint3D pos)
 {
   vector3df irrpos(pos.x(),pos.y(),pos.z());
-  cameras[active_cam]->setTarget(irrpos);
+  getSceneManager()->getActiveCamera()->setTarget(irrpos);
 }
+
+void AGeometry::setCameraFOV(float fov)
+{
+  getSceneManager()->getActiveCamera()->setFOV(fov);
+}
+
+void AGeometry::setCameraFarValue(float farvalue)
+{
+  getSceneManager()->getActiveCamera()->setFarValue(farvalue);
+}
+
 
 APoint3D AGeometry::cameraPosition()
 {
-  return APoint3D(cameras[active_cam]->getPosition());
+  return APoint3D(getSceneManager()->getActiveCamera()->getPosition());
 }
 
 APoint3D AGeometry::cameraTarget()
 {
-  return APoint3D(cameras[active_cam]->getTarget());
+  return APoint3D(getSceneManager()->getActiveCamera()->getTarget());
+}
+
+float AGeometry::cameraFOV()
+{
+  return getSceneManager()->getActiveCamera()->getFOV();
+}
+
+float AGeometry::cameraFarValue()
+{
+  return getSceneManager()->getActiveCamera()->getFarValue();
 }
 
 void AGeometry::setComboMenu(QMenu *comboMenu)

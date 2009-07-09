@@ -653,6 +653,32 @@ int QIrrWidget::Irr2Qt_KeyCode(EKEY_CODE keycode)
   return 0;
 }
 
+u32 QIrrWidget::Qt2Irr_ButtonStates(Qt::MouseButtons buttons)
+{
+  u32 result=0;
+  if(buttons & Qt::LeftButton)
+    result |= EMBSM_LEFT;
+  if(buttons & Qt::MidButton)
+    result |= EMBSM_MIDDLE;
+  if(buttons & Qt::RightButton)
+    result |= EMBSM_RIGHT;
+
+  return result;
+}
+static Qt::MouseButtons Irr2Qt_ButtonStates(u32 buttons)
+{
+  Qt::MouseButtons result=Qt::NoButton;
+  if(buttons & EMBSM_LEFT)
+    result |= Qt::LeftButton;
+  if(buttons & EMBSM_MIDDLE)
+    result |= Qt::MidButton;
+  if(buttons & EMBSM_RIGHT)
+    result |= Qt::RightButton;
+
+  return result;
+}
+
+
 void QIrrWidget::timerEvent(QTimerEvent *event)
 {
   if(!isEnabled()) return;
@@ -765,6 +791,7 @@ void QIrrWidget::mouseMoveEvent(QMouseEvent *event)
   e.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
 
   if(postEventFromUser(e))
     event->accept();
@@ -794,6 +821,7 @@ void QIrrWidget::mousePressEvent(QMouseEvent *event)
   
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   
   lastPressPos=event->pos();
   if(postEventFromUser(e))
@@ -824,6 +852,7 @@ void QIrrWidget::mouseReleaseEvent(QMouseEvent *event)
 
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   
   if(postEventFromUser(e))
     event->accept();
@@ -842,6 +871,7 @@ void QIrrWidget::wheelEvent(QWheelEvent *event)
   e.MouseInput.Event = irr::EMIE_MOUSE_WHEEL;
   e.MouseInput.X = event->x();
   e.MouseInput.Y = event->y();
+  e.MouseInput.ButtonStates=Qt2Irr_ButtonStates(event->buttons());
   e.MouseInput.Wheel = event->delta()/qAbs(event->delta()); //Irrlicht uses values and 1 to -1. So let's just do that.
   if(postEventFromUser(e))
     event->accept();
@@ -858,7 +888,7 @@ bool QIrrWidget::postEventFromUser(const SEvent& event)
       bool absorbedGUI=getGUIEnvironment()->postEventFromUser(event);
       if(absorbedGUI) //Some widgets might be repainted after they are clicked (ei: buttons)
 	makeDirty();
-      
+
       absorbed|=absorbedGUI;
     }
 
@@ -938,7 +968,7 @@ void QIrrWinWidgetPrivate::resizeEvent( QResizeEvent* event )
 {
   if ( parent->driver != 0 )
     {
-      irr::core::dimension2d<int> size;
+      irr::core::dimension2d<unsigned int> size;
       size.Width = event->size().width();
       size.Height = event->size().height();
 
@@ -1031,7 +1061,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
 void QIrrUnixWidgetPrivate::resizeGL(int width,int height)
 {
-  irr::core::dimension2d<int> size;
+  irr::core::dimension2d<unsigned int> size;
   size.Width = width;
   size.Height = height;
 

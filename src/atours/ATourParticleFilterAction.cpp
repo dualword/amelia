@@ -41,10 +41,8 @@ void ATourParticleFilterAction::loadFromXML(QDomElement actionElement)
     setWidgetOfInterest("checkBox_Jets");
   else if(particle=="photons")
     setWidgetOfInterest("checkBox_Photons");
-  else if(particle=="neutralhadrons")
+  else if(particle=="hadrons")
     setWidgetOfInterest("checkBox_NeutralHadrons");
-  else if(particle=="chargedhadrons")
-    setWidgetOfInterest("checkBox_ChargedHadrons");
   else if(particle=="met")
     setWidgetOfInterest("checkBox_MissingEt");
 }
@@ -59,10 +57,8 @@ void ATourParticleFilterAction::act()
     filter->setShowJets(state);
   else if(particle=="photons")
     filter->setShowPhotons(state);
-  else if(particle=="neutralhadrons")
-    filter->setShowNeutralHadrons(state);
-  else if(particle=="chargedhadrons")
-    filter->setShowChargedHadrons(state);
+  else if(particle=="hadrons")
+    filter->setShowHadrons(state);
   else if(particle=="met")
     filter->setShowMissingEt(state);
 }
@@ -77,10 +73,8 @@ void ATourParticleFilterAction::prepare()
     state=filter->showJets();
   else if(particle=="photons")
     state=filter->showPhotons();
-  else if(particle=="neutralhadrons")
-    state=filter->showNeutralHadrons();
-  else if(particle=="chargedhadrons")
-    state=filter->showChargedHadrons();
+  else if(particle=="hadrons")
+    state=filter->showHadrons();
   else if(particle=="met")
     state=filter->showMissingEt();
 }

@@ -13,11 +13,9 @@ class AEVENTMANAGER_EXPORT APtFilter : public ATrackFilter
 	
  signals:
   void minPtChanged(double);
-  void minPtMeVChanged(double);
 			
  public slots:
   void setMinPt(double);
-  void setMinPtMeV(double);
 
  private:
   int _minPt;  

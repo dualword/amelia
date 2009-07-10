@@ -15,12 +15,6 @@ void APtFilter::setMinPt(double _minPt)
 
   emit filterUpdated();
   emit minPtChanged(_minPt);
-  emit minPtMeVChanged(_minPt*1000);
-}
-
-void APtFilter::setMinPtMeV(double _minPt)
-{
-  setMinPt(_minPt/1000.);
 }
 
 bool APtFilter::checkTrack(ATrack* track)

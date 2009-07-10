@@ -23,7 +23,7 @@
 
     <action type="ATourLoadEventAction" time="16000" file="event:special-higgs.xml" />
 
-    <action type="ATourPtCutAction" time="20000" duration="5000" value="10000" />
+    <action type="ATourPtCutAction" time="20000" duration="5000" value="10" />
 
     <action type="ATourMessageAction" time="21000" duration="9000">
       <message>
@@ -40,8 +40,7 @@
     <action type="ATourParticleFilterAction" time="30000" particle="electrons" state="off"/>
     <action type="ATourParticleFilterAction" time="33000" particle="jets" state="off"/>
     <action type="ATourParticleFilterAction" time="36000" particle="photons" state="off"/>
-    <action type="ATourParticleFilterAction" time="39000" particle="neutralhadrons" state="off"/>
-    <action type="ATourParticleFilterAction" time="42000" particle="chargedhadrons" state="off"/>
+    <action type="ATourParticleFilterAction" time="39000" particle="hadrons" state="off"/>
     <action type="ATourParticleFilterAction" time="45000" particle="met" state="off"/>
 
     <action type="ATourSelectTrackAction" time="48000" id="17" multi="true"/>

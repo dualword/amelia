@@ -37,12 +37,12 @@ void ATourPtCutAction::update(double done)
       usevalue=valueIni+delta*done;
     }
 
-  ptFilter->setMinPtMeV(usevalue);
+  ptFilter->setMinPt(usevalue);
 }
 
 void ATourPtCutAction::prepare()
 {
   ATourAction::prepare();
 
-  value=ptFilter->minPt()*1000;
+  value=ptFilter->minPt();
 }

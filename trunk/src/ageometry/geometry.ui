@@ -70,6 +70,12 @@ QTabBar::tab:!selected
 #toolBar
 {
 	border-image:  url(:/media/toolbar.png) 5px 5px 0px 5px;
+	margin-bottom: 0px;   
+}
+
+#toolBar_2
+{
+	border-image:  url(:/media/toolbar.png) 5px 5px 0px 5px;
 	margin-bottom: 0px;    
 }
 
@@ -1097,14 +1103,32 @@ color: rgb(255, 255, 0);
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
    <property name="windowTitle">
-    <string>Camera Toolbar</string>
+    <string>Navigation Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string/>
+   </property>
+   <property name="statusTip">
+    <string>-----------------------------------</string>
    </property>
    <property name="movable">
     <bool>false</bool>
    </property>
    <property name="allowedAreas">
-    <set>Qt::TopToolBarArea</set>
+    <set>Qt::LeftToolBarArea</set>
    </property>
    <property name="iconSize">
     <size>
@@ -1113,7 +1137,7 @@ color: rgb(255, 255, 0);
     </size>
    </property>
    <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonIconOnly</enum>
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
    <property name="floatable">
     <bool>false</bool>
@@ -1129,6 +1153,42 @@ color: rgb(255, 255, 0);
    <addaction name="actionSphere"/>
    <addaction name="separator"/>
    <addaction name="actionSnapshot"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_2">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <property name="toolTip">
+    <string/>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::RightToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
    <addaction name="separator"/>
    <addaction name="actionLoad"/>
    <addaction name="actionNextEvent"/>
@@ -1177,7 +1237,10 @@ color: rgb(255, 255, 0);
      <normaloff>:/media/higgs.png</normaloff>:/media/higgs.png</iconset>
    </property>
    <property name="text">
-    <string>Load...</string>
+    <string/>
+   </property>
+   <property name="iconText">
+    <string/>
    </property>
    <property name="toolTip">
     <string>Load an event...</string>
@@ -1192,13 +1255,13 @@ color: rgb(255, 255, 0);
      <normaloff>:/media/table.png</normaloff>:/media/table.png</iconset>
    </property>
    <property name="text">
-    <string>Toggle Table Visibility</string>
+    <string/>
    </property>
    <property name="iconText">
-    <string>Toggle Table</string>
+    <string/>
    </property>
    <property name="toolTip">
-    <string>Toggle Table Visibility (T)</string>
+    <string>Particle Table &lt;=&gt; Event View (T)</string>
    </property>
    <property name="shortcut">
     <string>T</string>
@@ -1213,7 +1276,7 @@ color: rgb(255, 255, 0);
      <normaloff>:/media/higgs_next.png</normaloff>:/media/higgs_next.png</iconset>
    </property>
    <property name="text">
-    <string>Next Event</string>
+    <string/>
    </property>
    <property name="toolTip">
     <string>Next Event (E)</string>
@@ -1231,7 +1294,7 @@ color: rgb(255, 255, 0);
      <normaloff>:/media/sphere_cam.png</normaloff>:/media/sphere_cam.png</iconset>
    </property>
    <property name="text">
-    <string>Camera Mode: Sphere</string>
+    <string>Orbit</string>
    </property>
    <property name="shortcut">
     <string>S</string>
@@ -1252,10 +1315,14 @@ color: rgb(255, 255, 0);
      <normaloff>:/media/free_cam.png</normaloff>:/media/free_cam.png</iconset>
    </property>
    <property name="text">
-    <string> Camera Mode: FPS</string>
+    <string>Free \nFlight</string>
+   </property>
+   <property name="iconText">
+    <string>Free 
+Flight</string>
    </property>
    <property name="toolTip">
-    <string>Camera Mode: FPS</string>
+    <string>Free Flight</string>
    </property>
    <property name="shortcut">
     <string>F</string>

@@ -116,7 +116,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
     
     QCheckBox *checkBox_Electrons=findChild<QCheckBox *>("checkBox_Electrons");
-    QCheckBox *checkBox_ChargedHadrons=findChild<QCheckBox *>("checkBox_ChargedHadrons");
     QCheckBox *checkBox_NeutralHadrons=findChild<QCheckBox *>("checkBox_NeutralHadrons");
     QCheckBox *checkBox_Muons=findChild<QCheckBox *>("checkBox_Muons");
     QCheckBox *checkBox_Photons=findChild<QCheckBox *>("checkBox_Photons");
@@ -279,10 +278,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     
     // Setup pt cutoff
-    ptFilterSync.setValue(1000);
+    ptFilterSync.setValue(1);
     connect(&ptFilterSync,SIGNAL(valueChanged(double)),
-	    ptFilter,SLOT(setMinPtMeV(double)));
-    connect(ptFilter,SIGNAL(minPtMeVChanged(double)),
+	    ptFilter,SLOT(setMinPt(double)));
+    connect(ptFilter,SIGNAL(minPtChanged(double)),
 	    &ptFilterSync,SLOT(setValue(double)));
     ptFilterSync.syncSlider(PtCutoff_Slider);
     ptFilterSync.syncSpinBox(spinBox_Pt);
@@ -415,23 +414,14 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	connect(particleFilter,SIGNAL(showJetsChanged(bool)),
 		jetSync,SLOT(setValue(bool)));
       }
-    if(checkBox_ChargedHadrons)
-      {
-	QBoolSync *chargedHadronsSync=new QBoolSync(checkBox_ChargedHadrons->isChecked());
-	chargedHadronsSync->syncButton(checkBox_ChargedHadrons);
-	connect(chargedHadronsSync,SIGNAL(valueChanged(bool)),
-		particleFilter,SLOT(setShowChargedHadrons(bool)));
-	connect(particleFilter,SIGNAL(showChargedHadronsChanged(bool)),
-		chargedHadronsSync,SLOT(setValue(bool)));
-      }
     if(checkBox_NeutralHadrons)
       {
-	QBoolSync *neutralHadronsSync=new QBoolSync(checkBox_NeutralHadrons->isChecked());
-	neutralHadronsSync->syncButton(checkBox_NeutralHadrons);
-	connect(neutralHadronsSync,SIGNAL(valueChanged(bool)),
-		particleFilter,SLOT(setShowNeutralHadrons(bool)));
-	connect(particleFilter,SIGNAL(showNeutralHadronsChanged(bool)),
-		neutralHadronsSync,SLOT(setValue(bool)));
+	QBoolSync *hadronsSync=new QBoolSync(checkBox_NeutralHadrons->isChecked());
+	hadronsSync->syncButton(checkBox_NeutralHadrons);
+	connect(hadronsSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowHadrons(bool)));
+	connect(particleFilter,SIGNAL(showHadronsChanged(bool)),
+		hadronsSync,SLOT(setValue(bool)));
       }
     if(checkBox_MissingEt)
       {

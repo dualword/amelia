@@ -5,8 +5,7 @@ AParticleFilter::AParticleFilter(ATrackFilter *next)
 {
   _showElectrons=true;
   _showMuons=true;
-  _showChargedHadrons=true;
-  _showNeutralHadrons=true;
+  _showHadrons=true;
   _showPhotons=true;
   _showJets=true;
   _showMissingEt=true;
@@ -26,18 +25,11 @@ void AParticleFilter::setShowMuons(bool toggle)
   emit showMuonsChanged(toggle);
 }
 
-void AParticleFilter::setShowChargedHadrons(bool toggle)
+void AParticleFilter::setShowHadrons(bool toggle)
 {
-  _showChargedHadrons=toggle;
+  _showHadrons=toggle;
   emit filterUpdated();
-  emit showChargedHadronsChanged(toggle);
-}
-
-void AParticleFilter::setShowNeutralHadrons(bool toggle)
-{
-  _showNeutralHadrons=toggle;
-  emit filterUpdated();
-  emit showNeutralHadronsChanged(toggle);
+  emit showHadronsChanged(toggle);
 }
 
 void AParticleFilter::setShowPhotons(bool toggle)
@@ -71,14 +63,9 @@ bool AParticleFilter::showMuons()
   return _showMuons;
 }
 
-bool AParticleFilter::showChargedHadrons()
-{
-  return _showChargedHadrons;
-}
-
-bool AParticleFilter::showNeutralHadrons() 
+bool AParticleFilter::showHadrons() 
 { 
-  return _showNeutralHadrons;
+  return _showHadrons;
 }
 
 bool AParticleFilter::showPhotons() 
@@ -103,8 +90,7 @@ bool AParticleFilter::checkTrack(ATrack *track)
       ASTrack* strack=(ASTrack*)track;
       if(!_showElectrons && strack->isElectron()) return false;
       if(!_showMuons && strack->isMuon()) return false;
-      if(!_showChargedHadrons && strack->isChargedHadron()) return false;
-      if(!_showNeutralHadrons && strack->isNeutralHadron()) return false;
+      if(!_showHadrons && (strack->isChargedHadron() || strack->isNeutralHadron() ) ) return false;
       if(!_showPhotons && strack->isPhoton()) return false;
     }
 

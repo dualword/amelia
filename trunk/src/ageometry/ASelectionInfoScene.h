@@ -72,9 +72,6 @@ class ASelectionInfoScene : public QGraphicsScene
   void hideMessage();
   void refresh();
   
- signals:
-  void combineButtonEnabled(bool);
-  
  private:
   ATrack* selectedTrack;
   ATrackCombination *combo;

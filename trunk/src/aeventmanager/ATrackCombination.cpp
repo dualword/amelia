@@ -4,13 +4,15 @@
 
 unsigned int ATrackCombination::_IDS=0;
 
-ATrackCombination::ATrackCombination():ATrack("",ATrack::eCombination)
+ATrackCombination::ATrackCombination()
+ : ATrack("",ATrack::eCombination)
 {
   _IDS++;
   setTrackID(_IDS);
 }
 
-ATrackCombination::ATrackCombination(const ATrackCombination& o):ATrack(o)
+ATrackCombination::ATrackCombination(const ATrackCombination& o)
+ : ATrack(o)
 {
   this->tracks=o.tracks;
   recalculate();
@@ -20,8 +22,11 @@ ATrackCombination::~ATrackCombination() { }
 
 void ATrackCombination::addTrack(ATrack* tr)
 {
-  tracks.append(tr);
-  recalculate();
+  if(!tracks.contains(tr))
+    {
+      tracks.append(tr);
+      recalculate();
+    }
 }
 
 bool ATrackCombination::deleteTrack(ATrack* tr)
@@ -36,11 +41,18 @@ bool ATrackCombination::deleteTrack(ATrack* tr)
   return false;
 }
 
+QString ATrackCombination::name()
+{
+  return name(true);
+}
+
 QString ATrackCombination::name(bool generateDefault)
 {
   QString _name=ATrack::name();
   if(!_name.isEmpty() || !generateDefault) return _name;
-  
+
+  if(tracks.size()==0) return "Empty Combination";
+
   //In case of empty name, generate one:
   // track1|track2|track3
   _name=QString::number(tracks[0]->trackID());

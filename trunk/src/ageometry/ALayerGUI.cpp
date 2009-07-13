@@ -69,8 +69,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     qDebug() << "Setting up elements";
 
     //Find all required widgets...
-    tableSelectedTracks = findChild<QTableView*>("selectedTracksTable");
-    tableCombinedTracks = findChild<QTableView*>("combinedTracksTable");
+    tableSelectedTracks = findChild<QTreeView*>("selectedTracksTable");
     tableInterestingTracks = findChild<QTableView*>("interestingTracksTable");
     geo=findChild<AGeometry*>("Geometry");
     AViewport* LeftViewport=findChild<AViewport*>("LeftViewport");
@@ -80,8 +79,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     buttonCombineTracks = findChild<QPushButton*>("combineTracks");
     QGraphicsView *trackInfoView=findChild<QGraphicsView *>("trackInfo");
     QGraphicsView *eventInfoView=findChild<QGraphicsView *>("eventInfo");
-    detailedSelectedTracksTable=findChild<QTableView *>("detailedSelectedTracksTable");
-    detailedCombinedTracksTable=findChild<QTableView *>("detailedCombinedTracksTable");
+    detailedSelectedTracksTable=findChild<QTreeView *>("detailedSelectedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
     QAction *actionSphere=window()->findChild<QAction *>("actionSphere");
     QAction *actionSnapshot=window()->findChild<QAction *>("actionSnapshot");
@@ -125,26 +123,16 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
 
-    tracksModel=new ATrackTableModel(this);
+    tracksModel=new ATrackTreeModel(this);
     connect(this,SIGNAL(eventLoaded(AEvent*)),
 	    tracksModel,SLOT(handleNewEventLoaded(AEvent*)));	    
 
     interestingTracksModel=new AInterestingTrackTableModel(this);
 
-    comboModel=new AComboTableModel(tableCombinedTracks);
-    connect(this,SIGNAL(eventLoaded(AEvent*)),
-	    comboModel,SLOT(handleNewEventLoaded(AEvent*)));
-    connect(tracksModel,SIGNAL(tracksCombined(ATrackCombination*)),
-	    comboModel,SLOT(addCombination(ATrackCombination*)));
-    connect(this,SIGNAL(eventUnloaded()),
-            tracksModel,SLOT(clear()));
-    connect(this,SIGNAL(eventUnloaded()),
-            comboModel,SLOT(clear()));
-
     //Setup Tables
     if (tableSelectedTracks)
       {
-	tracksModel->addTable(tableSelectedTracks);
+	tracksModel->addView(tableSelectedTracks);
 
 	tableSelectedTracks->setColumnWidth ( 0, 60 );
         tableSelectedTracks->setColumnWidth ( 1, 60 );
@@ -157,6 +145,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         connect(buttonCombineTracks,SIGNAL(clicked()), //The combine button...
                 tracksModel,SLOT(combineSelectedTracks()));
       }
+    if (detailedSelectedTracksTable)
+        tracksModel->addView(detailedSelectedTracksTable);
 
     if (tableInterestingTracks)
     {
@@ -173,27 +163,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         connect(this,SIGNAL(eventLoaded(AEvent*)),
 		interestingTracksModel,SLOT(setEvent(AEvent*)));
     }
-
-    if (tableCombinedTracks)
-    {
-        comboModel->addTable(tableCombinedTracks);
-
-        //TODO: Can't we set this in designer?
-        tableCombinedTracks->setColumnWidth ( 0, 90 );
-        tableCombinedTracks->setColumnWidth ( 1, 50 );
-        tableCombinedTracks->setColumnWidth ( 2, 70 );
-	
-        connect(comboModel,SIGNAL(entrySelected(int,bool)),
-                geo,SLOT(selectTrackByID(int,bool)));
-        connect(comboModel,SIGNAL(entryDeselected(int)),
-                geo,SLOT(deselectTrackByID(int)));
-    }
-
-    if (detailedCombinedTracksTable)
-        comboModel->addTable(detailedCombinedTracksTable);
-    if (detailedSelectedTracksTable)
-        tracksModel->addTable(detailedSelectedTracksTable);
-
 
     // Setup trackview
     if (trackInfoView)
@@ -213,7 +182,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(hideMessage()));
 
 
-        connect(trackInfo,SIGNAL(combineButtonEnabled(bool)),
+        connect(tracksModel,SIGNAL(combineButtonEnabled(bool)),
 		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
 
@@ -591,8 +560,8 @@ void ALayerGUI::handlePackageActivated()
 
 void ALayerGUI::setEventSpecificActionsEnabled(bool status)
 {
+  if (tableSelectedTracks) tableSelectedTracks->setEnabled(status);
   if (detailedSelectedTracksTable) detailedSelectedTracksTable->setEnabled(status);
-  if (detailedCombinedTracksTable) detailedCombinedTracksTable->setEnabled(status);
   if (buttonDeleteTracks) buttonDeleteTracks->setEnabled(status);
   if (buttonCombineTracks) buttonCombineTracks->setEnabled(status);
   if (actionTable) actionTable->setEnabled(status);

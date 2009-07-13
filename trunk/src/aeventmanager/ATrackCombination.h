@@ -20,8 +20,9 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   void addTrack(ATrack*);
   bool deleteTrack(ATrack*);
 
-  QString name(bool generateDefault=true);
-
+  QString name();
+  QString name(bool generateDefault);
+  
   int size();
 
   float getInvariantMass();

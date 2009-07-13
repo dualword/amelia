@@ -2,7 +2,7 @@
 
 #include <QInputDialog>
 #include "AGeometry.h"
-#include "ATrackTableModel.h"
+#include "ATrackTreeModel.h"
 
 ASelectionInfoScene::ASelectionInfoScene(QObject* parent):QGraphicsScene(parent)
 {
@@ -84,7 +84,7 @@ void ASelectionInfoScene::handleAddTrack()
     {
       ATrack *strack=(*combo)[i];
       if (strack->selectionID()==0)
-	strack->setSelectionID(++ATrackTableModel::selectionID);
+	strack->setSelectionID(++ATrackTreeModel::selectionID);
       
       if (tracks.indexOf(strack)<0) //Dupe Check
 	{
@@ -97,9 +97,9 @@ void ASelectionInfoScene::handleAddTrack()
 
 void ASelectionInfoScene::handleCombTracks()
 {
-  QList<ATrack *> tracks=analysisData->getCollection("combined_tracks");
+  QList<ATrack *> tracks=analysisData->getCollection("bookmarked_tracks");
   tracks.append(new ATrackCombination(*combo));
-  analysisData->setCollection("combined_tracks",tracks);
+  analysisData->setCollection("bookmarked_tracks",tracks);
 }
 
 void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
@@ -262,17 +262,20 @@ void ASelectionInfoScene::refresh()
     {
 
       // Show the combo button if more than one track is selected..
-      QList<ATrack*> combines=analysisData->getCollection("combined_tracks");
+      QList<ATrack*> combines=analysisData->getCollection("bookmarked_tracks");
       QString combName="Unknown Combination";
       combTrack->setVisible(true);
-      emit combineButtonEnabled(true);
+
       for(int i=0;i<combines.size();i++)
-	if((*combo)==(*((ATrackCombination*)combines[i])))
-	  {
-	    combTrack->setVisible(false);
-	    combName=combines[i]->name();
-	    break;
-	  }
+	{
+	  ATrackCombination *combination=qobject_cast<ATrackCombination*>(combines[i]);
+	  if(combination && (*combo)==(*combination))
+	    {
+	      combTrack->setVisible(false);
+	      combName=combines[i]->name();
+	      break;
+	    }
+	}
       
       header->setPlainText("MULTIPLE TRACKS SELECTED");
 
@@ -299,7 +302,4 @@ void ASelectionInfoScene::refresh()
 	  addTrack->setVisible (true );
         }
     }
-
-  emit combineButtonEnabled(combTrack->isVisible());
-
 }

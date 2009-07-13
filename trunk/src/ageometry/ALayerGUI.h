@@ -57,9 +57,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AGeometryHUD.h"
 #include "AEventInfoScene.h"
 #include "ASelectionInfoScene.h"
-#include "ATrackTableModel.h"
+#include "ATrackTreeModel.h"
 #include "AInterestingTrackTableModel.h"
-#include "AComboTableModel.h"
 #include "AMainView.h"
 #include "AAdvancedEventSettings.h"
 #include "ASnapshotTool.h"
@@ -126,16 +125,14 @@ public slots:
     ASelectionInfoScene *trackInfo;
 
     // Pointers to commonly used widgets
+    ATrackTreeModel *tracksModel;
+    AInterestingTrackTableModel *interestingTracksModel;
+
     AGeometry* geo;
     AGeometryHUD* hud;
-    ATrackTableModel *tracksModel;
-    AInterestingTrackTableModel *interestingTracksModel;
-    AComboTableModel *comboModel;
-    QTableView *tableSelectedTracks;
-    QTableView *tableCombinedTracks;
     QTableView *tableInterestingTracks;
-    QTableView *detailedSelectedTracksTable;
-    QTableView *detailedCombinedTracksTable;
+    QTreeView *detailedSelectedTracksTable;
+    QTreeView *tableSelectedTracks;
     QWidget *eventWidget;
     AMainView *AGeometryFrame;
     QMenu *menuTagCurrentEvent;

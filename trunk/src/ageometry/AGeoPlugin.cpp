@@ -116,6 +116,7 @@ void AGeoPlugin::load()
   geo=geoWin->findChild<AGeometry*>("Geometry");
 
   //Setup the menu for track combinations
+  //TODO: Restore
   /*QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
     QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
     model->setMenu(&comboMenu);*/

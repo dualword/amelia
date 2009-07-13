@@ -45,7 +45,7 @@ AStartPlugin::AStartPlugin( QObject *parent )
 { 
   player = new Phonon::VideoPlayer(Phonon::VideoCategory);
   connect(player, SIGNAL(finished()), this, SLOT(goBack()));
-  player->load(Phonon::MediaSource(":/astart/Preview.mov"));
+  player->load(Phonon::MediaSource("videos/Intro.avi"));
 
   skipAction=new QAction("Skip Intro",this);
   

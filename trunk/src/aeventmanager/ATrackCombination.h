@@ -20,22 +20,22 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   void addTrack(ATrack*);
   bool deleteTrack(ATrack*);
 
+  QString trackIDString();
   QString name();
   QString name(bool generateDefault);
   
   int size();
 
   float getInvariantMass();
-  float InvMass;
 
   ATrack* operator[](unsigned int idx);
   ATrack* getTrack(unsigned int idx);
 
   bool operator==(ATrackCombination& other);
  private:
-  static unsigned int _IDS;
-
   QList<ATrack*> tracks;
+
+  float InvMass;
 
   void recalculate();
 

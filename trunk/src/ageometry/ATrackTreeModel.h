@@ -25,9 +25,16 @@ public:
   QModelIndex parent(const QModelIndex &index) const;
   int rowCount(const QModelIndex& root) const;
   int columnCount(const QModelIndex& root) const;
+  bool setData(const QModelIndex&, const QVariant&, int);
   QVariant data(const QModelIndex &index, int role=Qt::DisplayRole ) const;
   QVariant headerData (int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
+  Qt::ItemFlags flags(const QModelIndex&) const;
   void sort(int column, Qt::SortOrder order);
+
+  Qt::DropActions supportedDropActions() const;
+  bool dropMimeData(const QMimeData *data,Qt::DropAction action,int row,int column,const QModelIndex &parent);
+  QStringList mimeTypes() const;
+  QMimeData* mimeData(const QModelIndexList &indexes) const;
 
   void addView(QAbstractItemView* view);
 

@@ -37,7 +37,7 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
   int charge();
   void setCharge(int);
 
-  QString name();
+  virtual QString name();
   void setName(QString);
 
   float Pt();

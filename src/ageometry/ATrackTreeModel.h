@@ -1,7 +1,7 @@
 #ifndef ATRACKTABLEMODEL_H_
 #define ATRACKTABLEMODEL_H_
 
-#include <QAbstractTableModel>
+#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QModelIndex>
 #include <QList>
@@ -11,21 +11,25 @@
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCollection.h>
 
-class ATrackTableModel : public QAbstractTableModel {
-  Q_OBJECT
+#include "QAbstractTreeItem.h"
+
+class ATrackTreeModel : public QAbstractItemModel 
+{
 public:
   static unsigned int selectionID; //Used for assigning reference ID's to tracks
 
-  ATrackTableModel(QWidget* parent=0);
-  ~ATrackTableModel();
-
+  ATrackTreeModel(QWidget* parent=0);
+  ~ATrackTreeModel();
+  
+  QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
+  QModelIndex parent(const QModelIndex &index) const;
   int rowCount(const QModelIndex& root) const;
   int columnCount(const QModelIndex& root) const;
   QVariant data(const QModelIndex &index, int role=Qt::DisplayRole ) const;
   QVariant headerData (int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
   void sort(int column, Qt::SortOrder order);
 
-  void addTable(QAbstractItemView* table);
+  void addView(QAbstractItemView* view);
 
 public slots:
   void handleNewEventLoaded(AEvent*);
@@ -34,22 +38,38 @@ public slots:
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void combineSelectedTracks();
 
+  void handleRemoval(QString name,int start,int end);
+
   void clear();
   void refresh();
 
- signals:
+signals:
   void entrySelected(int trackID,bool shift);
   void entryDeselected(int trackID);
 
-  void tracksCombined(ATrackCombination* combo);
+  void combineButtonEnabled(bool);
 
 private:
   ATrackCollection *analysisData;
 
   QItemSelectionModel *selection;
 
+  QList<QAbstractTreeItem*> treeItems;
+
   QList<ATrack*> tracks() const;
   void setTracks(QList<ATrack*>);
+
+  void performSelection(ATrack *track,bool multi);
+  void performDeselection(ATrack *track);
+
+  void clearInternalTree();
+  void clearInternalTree(QAbstractTreeItem *parent);
+  void createInternalTree();
+  void createInternalTree(ATrack *track,QAbstractTreeItem *parent,int row);
+
+  QAbstractTreeItem* findTreeItem(QObject *data,QAbstractTreeItem* parentItem,int parentRow) const;
+
+  Q_OBJECT
 };
 
 #endif

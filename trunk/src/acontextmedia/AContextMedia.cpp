@@ -114,7 +114,7 @@ void AContextMedia::playVideo(const QString& partName)
   AMainViewTmpWidget *tmp=geo->addMainViewTmpWidget(playerWdg);
   connect(player, SIGNAL(finished()), tmp, SLOT(close()));
 
-  player->load(Phonon::MediaSource("media/"+partName+".mov"));
+  player->load(Phonon::MediaSource("videos/"+partName+".avi"));
 }
 
 Q_EXPORT_PLUGIN2(AContextMedia, AContextMedia)

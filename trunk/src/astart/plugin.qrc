@@ -1,6 +1,5 @@
 <RCC>
   <qresource prefix="astart">
-    <file>plugin.xml</file>
-    <file>Preview.mov</file>
+    <file>plugin.xml</file>    
   </qresource>
 </RCC>

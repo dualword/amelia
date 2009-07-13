@@ -139,7 +139,7 @@ int ATrackTreeModel::rowCount(const QModelIndex& root) const
 
 int ATrackTreeModel::columnCount(const QModelIndex& root) const
 {
-  return 1;
+  return 3;
 }
 
 QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
@@ -158,29 +158,48 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
         {
         case 0:
 	  {
-	    return track->name();
+	    if(track->type()==ATrack::eCombination)
+	      return track->name();
+	    else
+	      return QString::number(track->trackID());
 	  }
-	  /*case 1:
-	  if (tracks().at(index.row())->type() == ATrack::eSTrack)
+        case 1:
+	  {
+	    if(track->type()==ATrack::eCombination)
+	      return "Combo";
+	    else
+	      return track->name();
+	  }
+	case 2:
+	  if (track->type() == ATrack::eSTrack)
             {
 	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
-	      return QString::number(STrack->Pt());
+	      return "Pt: "+QString::number(STrack->Pt());
             }
-	  else if (tracks().at(index.row())->type() == ATrack::eJet)
+	  else if (track->type() == ATrack::eJet)
             {
-	      AJet* Jet = static_cast<AJet*>(tracks().at(index.row()));
-	      return QString::number(Jet->et);
+	      AJet* Jet = static_cast<AJet*>(track);
+	      return "Et: "+QString::number(Jet->et);
+            }
+	  else if(track->type() == ATrack::eCombination)
+	    {
+	      ATrackCombination* combo = static_cast<ATrackCombination*>(track);
+	      return "IM: "+QString::number(combo->getInvariantMass());
+	    }
+	  else if (track->type() == ATrack::eMissingEt)
+            {
+	      AMisET* met = static_cast<AMisET*>(track);
+	      return "Et: "+QString::number(met->et);
             }
 	  else return QString("N/A");
-        case 2:
-	  if (tracks().at(index.row())->type() == ATrack::eSTrack)
-            {
-	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
-	      return QString::number(STrack->Mlv);
-            }
-	    else return QString("N/A");*/
         }
     }
+  else if(role == Qt::ForegroundRole)
+    {
+      if(track->type()==ATrack::eCombination)
+	return Qt::blue;
+    }
+
   return QVariant();
 }
 
@@ -194,11 +213,11 @@ QVariant ATrackTreeModel::headerData (int section, Qt::Orientation orientation, 
       switch (section)
         {
         case 0:
+	  return "ID";
+ 	case 1:
 	  return "Name";
-        case 1:
-	  return "pT";
-	  /*case 2:
-            return "M(lv)";*/
+        case 2:
+	  return "Et/Pt/IM (GeV)";
 	}
     }
   

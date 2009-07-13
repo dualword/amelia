@@ -38,8 +38,6 @@ public slots:
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void combineSelectedTracks();
 
-  void handleRemoval(QString name,int start,int end);
-
   void clear();
   void refresh();
 

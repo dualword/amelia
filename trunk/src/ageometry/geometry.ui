@@ -870,8 +870,14 @@ color: rgb(255, 255, 0);
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
          </property>
+         <property name="indentation">
+          <number>10</number>
+         </property>
          <property name="sortingEnabled">
           <bool>true</bool>
+         </property>
+         <property name="headerHidden">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

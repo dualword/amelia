@@ -2,13 +2,10 @@
 
 #include <math.h>
 
-unsigned int ATrackCombination::_IDS=0;
-
 ATrackCombination::ATrackCombination()
  : ATrack("",ATrack::eCombination)
 {
-  _IDS++;
-  setTrackID(_IDS);
+  setTrackID(0);
 }
 
 ATrackCombination::ATrackCombination(const ATrackCombination& o)
@@ -41,6 +38,28 @@ bool ATrackCombination::deleteTrack(ATrack* tr)
   return false;
 }
 
+QString ATrackCombination::trackIDString()
+{
+  QString name;
+  if(tracks.size()==0) return "";
+
+  //In case of empty name, generate one:
+  // track1|track2|track3
+  if(tracks[0]->type()==ATrack::eCombination)
+    name+="("+qobject_cast<ATrackCombination*>(tracks[0])->trackIDString()+")";
+  else
+    name+=QString::number(tracks[0]->trackID());
+  for(int i=1;i<tracks.size();i++)
+    {
+      if(tracks[i]->type()==ATrack::eCombination)
+	name+="-("+qobject_cast<ATrackCombination*>(tracks[i])->trackIDString()+")";
+      else
+	name+="|"+QString::number(tracks[i]->trackID());
+    }
+  
+  return name;
+}
+
 QString ATrackCombination::name()
 {
   return name(true);
@@ -51,15 +70,7 @@ QString ATrackCombination::name(bool generateDefault)
   QString _name=ATrack::name();
   if(!_name.isEmpty() || !generateDefault) return _name;
 
-  if(tracks.size()==0) return "Empty Combination";
-
-  //In case of empty name, generate one:
-  // track1|track2|track3
-  _name=QString::number(tracks[0]->trackID());
-  for(int i=1;i<tracks.size();i++)
-    _name+="|"+QString::number(tracks[i]->trackID());
-
-  return _name;
+  return trackIDString();
 }
 
 int ATrackCombination::size()

@@ -256,8 +256,17 @@ QLabel
             <property name="enabled">
              <bool>false</bool>
             </property>
+            <property name="dragEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::InternalMove</enum>
+            </property>
             <property name="selectionMode">
              <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="animated">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -861,6 +870,12 @@ color: rgb(255, 255, 0);
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::InternalMove</enum>
+         </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>
          </property>
@@ -874,6 +889,9 @@ color: rgb(255, 255, 0);
           <number>10</number>
          </property>
          <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="animated">
           <bool>true</bool>
          </property>
          <property name="headerHidden">

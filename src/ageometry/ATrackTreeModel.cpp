@@ -4,6 +4,8 @@
 #include <QInputDialog>
 #include <QDebug>
 
+#include <QBetterMimeData.h>
+
 #include "QAbstractTreeItem.h"
 
 unsigned int ATrackTreeModel::selectionID=0;
@@ -151,6 +153,7 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
  // Get the track data...
   QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
   ATrack *track=qobject_cast<ATrack*>(item->data());
+  ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
   
   if (role == Qt::DisplayRole)
     {
@@ -159,21 +162,26 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
         case 0:
 	  {
 	    if(track->type()==ATrack::eCombination)
-	      return track->name();
+	      return combo->trackIDString();
 	    else
 	      return QString::number(track->trackID());
 	  }
         case 1:
 	  {
 	    if(track->type()==ATrack::eCombination)
-	      return "Combo";
+	      {
+		if(combo->name(false).isEmpty())
+		  return "Combo";
+		else
+		  return combo->name();
+	      }
 	    else
 	      return track->name();
 	  }
 	case 2:
 	  if (track->type() == ATrack::eSTrack)
             {
-	      ASTrack* STrack = static_cast<ASTrack*>(tracks().at(index.row()));
+	      ASTrack* STrack = static_cast<ASTrack*>(track);
 	      return "Pt: "+QString::number(STrack->Pt());
             }
 	  else if (track->type() == ATrack::eJet)
@@ -229,6 +237,94 @@ QVariant ATrackTreeModel::headerData (int section, Qt::Orientation orientation, 
       //selectionID());
     }
   return QVariant();
+}
+
+Qt::ItemFlags ATrackTreeModel::flags(const QModelIndex& index) const
+{
+  if(!index.isValid()) return QAbstractItemModel::flags(index);
+
+  // All items can be dragged, selected
+  Qt::ItemFlags flags = Qt::ItemIsEnabled;
+  flags|=Qt::ItemIsSelectable;
+  flags|=Qt::ItemIsDragEnabled;
+
+  // Only combinations can be dropped on and edited
+  QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
+  ATrack *track=qobject_cast<ATrack*>(item->data());
+  if(track->type()==ATrack::eCombination)
+    {
+      flags|=Qt::ItemIsDropEnabled;
+      flags|=Qt::ItemIsEditable;
+    } 
+  
+  return flags;
+}
+
+bool ATrackTreeModel::setData(const QModelIndex& index,const QVariant& value,int role)
+{
+  if(!index.isValid()) return false;
+  
+  if(role==Qt::EditRole)
+    {
+      QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
+      ATrack *track=qobject_cast<ATrack*>(item->data());
+      
+      QString newName=value.toString();
+      if(newName.isEmpty()) return false; //No empties allowed
+      
+      track->setName(newName);
+      emit dataChanged(index,index);
+      return true;
+    }
+  return QAbstractItemModel::setData(index,value,role);
+}
+
+Qt::DropActions ATrackTreeModel::supportedDropActions() const
+{
+  return Qt::CopyAction | Qt::MoveAction;
+}
+
+bool ATrackTreeModel::dropMimeData(const QMimeData *data,Qt::DropAction action,int row,int column,const QModelIndex &parent)
+{
+  QAbstractTreeItem *item=(QAbstractTreeItem*)parent.internalPointer();
+  ATrackCombination *combo=qobject_cast<ATrackCombination*>(item->data());
+  if(!combo) return false;
+  
+  const QBetterMimeData *data1=qobject_cast<const QBetterMimeData*>(data);
+  if(!data1) return false;
+
+  ATrack *track=qobject_cast<ATrack*>(data1->data("amelia/x-track"));
+  combo->addTrack(track);
+
+  refresh();
+
+  return true;
+}
+
+
+QStringList ATrackTreeModel::mimeTypes() const
+{
+  QStringList mimeTypes;
+  mimeTypes << "amelia/x-track";
+  return mimeTypes;
+}
+
+QMimeData* ATrackTreeModel::mimeData(const QModelIndexList &indexes) const
+{
+  QBetterMimeData *mimeData=new QBetterMimeData();
+
+  foreach(QModelIndex index,indexes)
+    {
+      if(!index.isValid() || index.column()!=0) continue;
+      QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
+      ATrack *track=qobject_cast<ATrack*>(item->data());
+
+      if(track)
+	{
+	  mimeData->setData("amelia/x-track",track);
+	}
+    }
+  return mimeData;
 }
 
 void ATrackTreeModel::sort(int column, Qt::SortOrder order)

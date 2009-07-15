@@ -78,28 +78,19 @@ void ASelectionInfoScene::init()
 
 void ASelectionInfoScene::handleAddTrack()
 {
-  QList<ATrack *> tracks=analysisData->getCollection("bookmarked_tracks");
-
   for (int i=0;i<combo->size();i++)
     {
       ATrack *strack=(*combo)[i];
       if (strack->selectionID()==0)
 	strack->setSelectionID(++ATrackTreeModel::selectionID);
       
-      if (tracks.indexOf(strack)<0) //Dupe Check
-	{
-	  qDebug() << "Adding track for " << strack->name();
-	  tracks.append(strack);
-	}
+      analysisData->addTrack(strack);
     }
-  analysisData->setCollection("bookmarked_tracks",tracks);
 }
 
 void ASelectionInfoScene::handleCombTracks()
 {
-  QList<ATrack *> tracks=analysisData->getCollection("bookmarked_tracks");
-  tracks.append(new ATrackCombination(*combo));
-  analysisData->setCollection("bookmarked_tracks",tracks);
+  analysisData->addTrack(new ATrackCombination(*combo));
 }
 
 void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
@@ -262,17 +253,16 @@ void ASelectionInfoScene::refresh()
     {
 
       // Show the combo button if more than one track is selected..
-      QList<ATrack*> combines=analysisData->getCollection("bookmarked_tracks");
       QString combName="Unknown Combination";
       combTrack->setVisible(true);
 
-      for(int i=0;i<combines.size();i++)
+      for(int i=0;i<analysisData->size();i++)
 	{
-	  ATrackCombination *combination=qobject_cast<ATrackCombination*>(combines[i]);
+	  ATrackCombination *combination=qobject_cast<ATrackCombination*>(analysisData->getTrack(i));
 	  if(combination && (*combo)==(*combination))
 	    {
 	      combTrack->setVisible(false);
-	      combName=combines[i]->name();
+	      combName=analysisData->getTrack(i)->name();
 	      break;
 	    }
 	}
@@ -293,11 +283,10 @@ void ASelectionInfoScene::refresh()
     }
   
   // Show the add button if at least one of the tracks are not in the list already...
-  QList<ATrack*> tracks=analysisData->getCollection("bookmarked_tracks");
   addTrack->setVisible(false);
   for (int i=0;i<combo->size();i++)
     {
-      if ( !tracks.contains((*combo)[i]) )
+      if ( !analysisData->containsTrack((*combo)[i]) )
         {
 	  addTrack->setVisible (true );
         }

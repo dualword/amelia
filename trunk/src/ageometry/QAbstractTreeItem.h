@@ -6,22 +6,22 @@
 class QAbstractTreeItem : public QObject
 {
  public:
-  QAbstractTreeItem(QObject *data=0,QAbstractTreeItem *parentItem=0, int pRow=0);
+  QAbstractTreeItem(QObject *data=0,int row=0,QAbstractTreeItem *parentItem=0);
 
   QObject* data();
   void setData(QObject *data);
 
+  int row();
+  void setRow(int row);
+
   QAbstractTreeItem* parentItem();
   void setParentItem(QAbstractTreeItem *parent);
-
-  int parentRow();
-  void setParentRow(int pRow);
 
 
  private:
   QObject *_data; //Data being held
   QAbstractTreeItem *_parentItem; //The parent of this item
-  int _parentRow; //The row of the parent
+  int _row; //The row of the parent
 
   Q_OBJECT
 };

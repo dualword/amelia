@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="media" >
+    <file>branch-closed.png</file>
+    <file>branch-end.png</file>
+    <file>branch-more.png</file>
+    <file>branch-open.png</file>
+    <file>vline.png</file>
     <file>initial.png</file>
     <file>icons/higgs.png</file>
     <file>icons/blackhole.png</file>
@@ -20,10 +25,8 @@
     <file>higgs_next.png</file>
     <file>table.png</file>
     <file>AMELIA_logo.png</file>
-
     <file>side_slide.png</file>
     <file>top_slide.png</file>
-
     <file>skin.qss</file>
   </qresource>
 </RCC>

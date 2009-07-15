@@ -1,7 +1,7 @@
 #include "QAbstractTreeItem.h"
 
-QAbstractTreeItem::QAbstractTreeItem(QObject *data,QAbstractTreeItem *parentItem, int pRow)
-  : QObject(0),_data(data),_parentItem(parentItem),_parentRow(pRow)
+QAbstractTreeItem::QAbstractTreeItem(QObject *data,int row,QAbstractTreeItem *parentItem)
+  : QObject(0),_data(data),_parentItem(parentItem),_row(row)
 { }
 
 QObject* QAbstractTreeItem::data()
@@ -24,13 +24,13 @@ void QAbstractTreeItem::setParentItem(QAbstractTreeItem *parentItem)
   _parentItem=parentItem;
 }
 
-int QAbstractTreeItem::parentRow()
+int QAbstractTreeItem::row()
 {
-  return _parentRow;
+  return _row;
 }
 
-void QAbstractTreeItem::setParentRow(int parentRow)
+void QAbstractTreeItem::setRow(int row)
 {
-  _parentRow=parentRow;
+  _row=row;
 }
 

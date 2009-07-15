@@ -45,6 +45,9 @@ public slots:
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
   void combineSelectedTracks();
 
+  void handleTrackRemoved(int);
+  void handleTrackInserted(int);
+
   void clear();
   void refresh();
 
@@ -61,18 +64,15 @@ private:
 
   QList<QAbstractTreeItem*> treeItems;
 
-  QList<ATrack*> tracks() const;
-  void setTracks(QList<ATrack*>);
-
   void performSelection(ATrack *track,bool multi);
   void performDeselection(ATrack *track);
 
   void clearInternalTree();
   void clearInternalTree(QAbstractTreeItem *parent);
   void createInternalTree();
-  void createInternalTree(ATrack *track,QAbstractTreeItem *parent,int row);
+  void createInternalTree(ATrack *track,QAbstractTreeItem *parent);
 
-  QAbstractTreeItem* findTreeItem(QObject *data,QAbstractTreeItem* parentItem,int parentRow) const;
+  QAbstractTreeItem* findTreeItem(QObject *data,int row,QAbstractTreeItem* parentItem) const;
 
   Q_OBJECT
 };

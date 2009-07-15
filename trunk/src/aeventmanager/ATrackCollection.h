@@ -16,15 +16,21 @@ class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
   Q_INVOKABLE ATrackCollection(QString modulename);
   ~ATrackCollection();
 
-  QList<QString> listCollections();
-  QList<ATrack*> getCollection(QString);
-  void setCollection(QString,QList<ATrack*>);
+  int size();
+  void addTrack(ATrack*);
+  ATrack* getTrack(int idx);
+  void removeTrack(int idx);
+  bool containsTrack(ATrack*);
 
   void writeToFile(QTextStream& in);
   void loadFromXML(QDomElement ele, class AEvent* e);
 
+ signals:
+  void trackRemoved(int idx);
+  void trackInserted(int idx);
+
  private:
-  QMap<QString,QList<ATrack*> > _collections;
+  QList<ATrack*> _tracks;
 
   QList<ATrack*> readTracksFromXmlElement(AEvent*, const QDomElement& ele);
   void writeTrackToXmlFile(QTextStream& in,ATrack* track);

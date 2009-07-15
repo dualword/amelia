@@ -111,6 +111,30 @@ border: 55
 }
 
 
+
+ QTreeView::branch:has-siblings:!adjoins-item {
+     border-image: url(:/media/vline.png) 0;
+ }
+
+ QTreeView::branch:has-siblings:adjoins-item {
+     border-image: url(:/media/branch-more.png) 0;
+ }
+
+ QTreeView::branch:!has-children:!has-siblings:adjoins-item {
+     border-image: url(:/media/branch-end.png) 0;
+ }
+
+ QTreeView::branch:has-children:!has-siblings:closed,
+ QTreeView::branch:closed:has-children:has-siblings {
+         border-image: none;
+         image: url(:/media/branch-closed.png);
+ }
+
+ QTreeView::branch:open:has-children:!has-siblings,
+ QTreeView::branch:open:has-children:has-siblings  {
+         border-image: none;
+         image: url(:/media/branch-open.png);
+ }
 </string>
   </property>
   <property name="iconSize">
@@ -856,7 +880,8 @@ color: rgb(255, 255, 0);
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">color: rgb(0, 0, 55);</string>
+          <string notr="true">color: rgb(0, 0, 55);
+</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
@@ -875,6 +900,9 @@ color: rgb(255, 255, 0);
          </property>
          <property name="dragDropMode">
           <enum>QAbstractItemView::InternalMove</enum>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
          </property>
          <property name="selectionMode">
           <enum>QAbstractItemView::ExtendedSelection</enum>

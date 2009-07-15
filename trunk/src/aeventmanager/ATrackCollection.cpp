@@ -5,54 +5,55 @@
 #include "ATrackCombination.h"
 #include "AEvent.h"
 
-ATrackCollection::ATrackCollection(QString modulename):AEventAnalysisData(modulename)
+ATrackCollection::ATrackCollection(QString modulename)
+ : AEventAnalysisData(modulename)
 { }
 
 ATrackCollection::~ATrackCollection()
 { }
 
-QList<QString> ATrackCollection::listCollections()
+int ATrackCollection::size()
 {
-  return _collections.keys();
+  return _tracks.size();
 }
 
-QList<ATrack*> ATrackCollection::getCollection(QString name)
+void ATrackCollection::addTrack(ATrack *track)
 {
-  if(!_collections.contains(name))
+  if(!containsTrack(track))
     {
-      _collections[name]=QList<ATrack*>();
+      _tracks.push_back(track);
+      emit trackInserted(_tracks.size()-1);
+      emit updated();
     }
-  
-  return _collections[name];
 }
 
-void ATrackCollection::setCollection(QString name,QList<ATrack*> collection)
+ATrack* ATrackCollection::getTrack(int idx)
 {
-  _collections[name]=collection;
-  emit updated();  
+  return _tracks[idx];
+}
+
+void ATrackCollection::removeTrack(int idx)
+{
+  _tracks.removeAt(idx);
+  emit trackRemoved(idx);
+  emit updated();
+}
+
+bool ATrackCollection::containsTrack(ATrack *track)
+{
+  return _tracks.contains(track);
 }
 
 void ATrackCollection::writeToFile(QTextStream& in)
 {
   beginWriteToFile(in);
   
-  QListIterator<QString> collectionIter(_collections.keys());
-  //Loop over collections
-  while (collectionIter.hasNext())
+  QListIterator<ATrack*> tracksIter(_tracks);
+  //Loop over tracks..
+  while(tracksIter.hasNext())
     {
-      QString collectionName=collectionIter.next();
-      in << "<collection name=\"" << collectionName << "\">"<<endl;
-      
-      QList<ATrack*> tracks=getCollection(collectionName);
-      QListIterator<ATrack*> tracksIter(tracks);
-      //Loop over tracks..
-      while(tracksIter.hasNext())
-	{
-	  ATrack* track=tracksIter.next();
-	  writeTrackToXmlFile(in,track);
-	}
-      
-      in << "</collection>"<<endl;
+      ATrack* track=tracksIter.next();
+      writeTrackToXmlFile(in,track);
     }
   
   endWriteToFile(in);
@@ -61,24 +62,8 @@ void ATrackCollection::writeToFile(QTextStream& in)
 void ATrackCollection::loadFromXML(QDomElement analysisElement,AEvent* event)
 {
   event->LoadEvent();
-  QDomNodeList collectionNodes=analysisElement.elementsByTagName("collection");
-  for(int k=0;k<collectionNodes.size();k++)
-    { //START load collections
-      QDomElement collectionElement=collectionNodes.at(k).toElement();
-      QString collectionName=collectionElement.attribute("name");
-      if(moduleName().isEmpty())
-	{
-	  qDebug() << "ERROR: Empty collection name in module \""<< moduleName() <<"\"!";
-	  continue;
-	}
-      
-      qDebug() << "Found collection node " << collectionName;
-      
-      QList<ATrack*> collection=readTracksFromXmlElement(event,collectionElement);
-      
-      
-      setCollection(collectionName,collection);
-    } //END load collections
+  
+  _tracks=readTracksFromXmlElement(event,analysisElement);
 }
 
 QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const QDomElement& ele)

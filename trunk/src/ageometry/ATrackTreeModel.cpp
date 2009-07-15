@@ -31,8 +31,13 @@ void ATrackTreeModel::handleNewEventLoaded(AEvent *event)
   // Unload the data loaded before, if any.
   if(analysisData)
     {
-      disconnect(analysisData,SIGNAL(updated()),
-		 this,SLOT(refresh()));
+      //disconnect(analysisData,SIGNAL(updated()),
+      //this,SLOT(refresh()));
+      disconnect(analysisData,SIGNAL(trackInserted(int)),
+		 this,SLOT(handleTrackInserted(int)));
+      disconnect(analysisData,SIGNAL(trackRemoved(int)),
+		 this,SLOT(handleTrackRemoved(int)));
+
       analysisData=new ATrackCollection("AGeometry");
 
       clearInternalTree();
@@ -43,23 +48,19 @@ void ATrackTreeModel::handleNewEventLoaded(AEvent *event)
     {
       analysisData=event->getAnalysisData<ATrackCollection>("AGeometry");
       
-      connect(analysisData,SIGNAL(updated()),
-	      this,SLOT(refresh()));
+      //connect(analysisData,SIGNAL(updated()),
+      //this,SLOT(refresh()));
+      connect(analysisData,SIGNAL(trackInserted(int)),
+	      this,SLOT(handleTrackInserted(int)),
+	      Qt::DirectConnection);
+      connect(analysisData,SIGNAL(trackRemoved(int)),
+	      this,SLOT(handleTrackRemoved(int)),
+	      Qt::DirectConnection);
       
       // Create the internal tree to store child->parent relationships
       createInternalTree();
     }
   refresh();
-}
-
-void ATrackTreeModel::setTracks(QList<ATrack *> tracks)
-{
-  analysisData->setCollection("bookmarked_tracks",tracks);
-}
-
-QList<ATrack*> ATrackTreeModel::tracks() const
-{
-  return analysisData->getCollection("bookmarked_tracks");
 }
 
 void ATrackTreeModel::addView(QAbstractItemView* view)
@@ -79,15 +80,13 @@ QModelIndex ATrackTreeModel::index(int row, int column, const QModelIndex& paren
 
   if(!parent.isValid())
     {  // Invalid parent (top level track), so we store 0 as the parent combination
-      item=findTreeItem(tracks().at(row),0,0);
+      item=findTreeItem(analysisData->getTrack(row),row,0);
     }
   else
     { 
       // Determine the parent's tree item
       void *ptr=parent.internalPointer(); // Holds pointer to the parent
       QAbstractTreeItem *pItem=(QAbstractTreeItem*)ptr;
-      // Determine the row of the parent combination by looking at parent intex's data
-      int pRow=parent.row();
       
       //Determine the data to store in this item
       ATrack *data=0;
@@ -96,9 +95,9 @@ QModelIndex ATrackTreeModel::index(int row, int column, const QModelIndex& paren
       if(combo) // Parent is (and always should be) a track combination!
 	data=combo->getTrack(row);
       else
-	  return QModelIndex();
+	return QModelIndex();
 	 
-      item=findTreeItem(data,pItem,pRow);
+      item=findTreeItem(data,row,pItem);
     }
 
   return createIndex(row,column,item);
@@ -120,19 +119,18 @@ QModelIndex ATrackTreeModel::parent(const QModelIndex &index) const
 
   // 2) Otherwise return an index containing the parent's parent as data
   // The column is always 0 in a tree...
-  return createIndex(pItem->parentRow(),0,pItem->parentItem());
+  return createIndex(pItem->parentItem()->row(),0,pItem->parentItem());
 }
 
 int ATrackTreeModel::rowCount(const QModelIndex& root) const
 {
   if(!root.isValid())
     { // Invalid root, means it wants the number of top level items
-      return tracks().size();
+      return analysisData->size();
     }
   
   QAbstractTreeItem *item=(QAbstractTreeItem*)root.internalPointer();
   ATrackCombination *combo=qobject_cast<ATrackCombination*>(item->data());
-  
   if(combo)
     return combo->size();
   else
@@ -141,7 +139,7 @@ int ATrackTreeModel::rowCount(const QModelIndex& root) const
 
 int ATrackTreeModel::columnCount(const QModelIndex& root) const
 {
-  return 3;
+  return 2;
 }
 
 QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
@@ -159,26 +157,26 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
     {
       switch (index.column())
         {
-        case 0:
+	  /*case 0:
 	  {
 	    if(track->type()==ATrack::eCombination)
 	      return combo->trackIDString();
 	    else
 	      return QString::number(track->trackID());
-	  }
-        case 1:
+	      }*/
+        case 0:
 	  {
 	    if(track->type()==ATrack::eCombination)
 	      {
 		if(combo->name(false).isEmpty())
-		  return "Combo";
+		  return "Combo\nID: "+combo->trackIDString();
 		else
-		  return combo->name();
+		  return combo->name()+"\nID: "+combo->trackIDString();
 	      }
 	    else
-	      return track->name();
+	      return track->name()+"\nID: "+QString::number(track->trackID());
 	  }
-	case 2:
+	case 1:
 	  if (track->type() == ATrack::eSTrack)
             {
 	      ASTrack* STrack = static_cast<ASTrack*>(track);
@@ -207,6 +205,11 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
       if(track->type()==ATrack::eCombination)
 	return Qt::blue;
     }
+  else if(role == Qt::BackgroundRole)
+    {
+      if(track->type()==ATrack::eCombination)
+	return QColor(255,255,220);
+    }
 
   return QVariant();
 }
@@ -220,19 +223,16 @@ QVariant ATrackTreeModel::headerData (int section, Qt::Orientation orientation, 
     {
       switch (section)
         {
-        case 0:
-	  return "ID";
- 	case 1:
+ 	case 0:
 	  return "Name";
-        case 2:
+        case 1:
 	  return "Et/Pt/IM (GeV)";
 	}
     }
   
   if (orientation == Qt::Vertical)
     {
-      QList<ATrack *> tracks=this->tracks();
-      return QString::number(tracks[section]->trackID());
+      return QString::number(analysisData->getTrack(section)->trackID());
       //TODO Renable selection ID
       //selectionID());
     }
@@ -254,7 +254,7 @@ Qt::ItemFlags ATrackTreeModel::flags(const QModelIndex& index) const
   if(track->type()==ATrack::eCombination)
     {
       flags|=Qt::ItemIsDropEnabled;
-      flags|=Qt::ItemIsEditable;
+      if(index.column()==0) flags|=Qt::ItemIsEditable;
     } 
   
   return flags;
@@ -373,13 +373,12 @@ void ATrackTreeModel::deleteSelectedTracks()
   //Get rows. Since all colums should be selected, might as well select column 0.
   QModelIndexList rows=selection->selectedRows(0);
   //Go through each row...
-  QList<ATrack *> tracks=this->tracks();
   for (int i=rows.size()-1;i>=0;i--)
     {
       QModelIndex index=rows[i];
       if(!index.parent().isValid())
 	{ // Top level item
-	  tracks.removeAt(index.row());
+	  analysisData->removeTrack(index.row());
 	}
       else
 	{ // Inside a combination
@@ -387,10 +386,9 @@ void ATrackTreeModel::deleteSelectedTracks()
 	  ATrackCombination *combo=qobject_cast<ATrackCombination*>(item->parentItem()->data());
 	  ATrack *track=qobject_cast<ATrack*>(item->data());
 	  combo->deleteTrack(track);
+	  refresh();
 	}
-
     }
-  setTracks(tracks);
 }
 
 void ATrackTreeModel::combineSelectedTracks()
@@ -407,9 +405,7 @@ void ATrackTreeModel::combineSelectedTracks()
       combo->addTrack(track);
     }
   
-  QList<ATrack *> tracks=this->tracks();
-  tracks.append(combo);
-  setTracks(tracks);
+  analysisData->addTrack(combo);
 }
 
 void ATrackTreeModel::handleSelectionChanged(const QItemSelection& selected,const QItemSelection& deselected)
@@ -477,6 +473,27 @@ void ATrackTreeModel::performDeselection(ATrack *track)
     }
 }
 
+void ATrackTreeModel::handleTrackRemoved(int idx)
+{
+  clearInternalTree(treeItems[idx]);
+  emit beginRemoveRows(QModelIndex(),idx,idx);
+  emit endRemoveRows();
+}
+
+void ATrackTreeModel::handleTrackInserted(int idx)
+{
+  emit beginInsertRows(QModelIndex(),idx,idx);
+  ATrack *track=analysisData->getTrack(idx);
+  QAbstractTreeItem *item=new QAbstractTreeItem(track,idx,0);
+  treeItems.insert(idx,item);
+  for(int i=idx+1;i<treeItems.size() && treeItems[i]->parentItem()==0;i++)
+    {
+      treeItems[i]->setRow(i);
+    }
+  createInternalTree(track,item);
+  emit endInsertRows();
+}
+
 void ATrackTreeModel::refresh()
 {
   clearInternalTree();
@@ -490,7 +507,7 @@ void ATrackTreeModel::clear()
   refresh();
 }
 
-QAbstractTreeItem* ATrackTreeModel::findTreeItem(QObject *data,QAbstractTreeItem* parentItem,int parentRow) const
+QAbstractTreeItem* ATrackTreeModel::findTreeItem(QObject *data,int row,QAbstractTreeItem* parentItem) const
 {
   QAbstractTreeItem *item=0;
 
@@ -501,8 +518,8 @@ QAbstractTreeItem* ATrackTreeModel::findTreeItem(QObject *data,QAbstractTreeItem
     {
       QAbstractTreeItem *test=(*iter);
       if(test->data()==data &&
-	 test->parentItem() == parentItem &&
-	 test->parentRow() == parentRow)
+	 test->row() == row &&
+	 test->parentItem() == parentItem)
 	{
 	  item=test;
 	  break;
@@ -511,7 +528,8 @@ QAbstractTreeItem* ATrackTreeModel::findTreeItem(QObject *data,QAbstractTreeItem
 
   if(!item)
     {
-      item=new QAbstractTreeItem(data,parentItem,parentRow);
+      qDebug() << "Non existent " << data << " " << parentItem;
+      item=new QAbstractTreeItem(data,row,parentItem);
     }
 
   return item;
@@ -531,22 +549,50 @@ void ATrackTreeModel::clearInternalTree()
   treeItems.clear();
 }
 
+void ATrackTreeModel::clearInternalTree(QAbstractTreeItem *item)
+{
+  // Remove an item from the internal tree by looping over
+  // all of the items, and modifying each as required.
+  // - Remove the item, when found.
+  // - Is a child of an item
+  // - Is a sibling of the item, but comes after. The row will have to be shifted up.
+  for(int i=0;i<treeItems.size();i++)
+    {
+      QAbstractTreeItem *test=treeItems[i];
+      if(test==item)
+	{ // Found it
+	  treeItems.removeAt(i);
+	  test->setData(0);
+	  test->deleteLater();
+	  i--; // The list is one shorter, so we have to go over this index again
+	}
+      else if(test->parentItem()==item)
+	{ // Remove child
+	  clearInternalTree(test);
+	  i=0; // Don't know how many items the recursive function removed, so just start again..
+	}
+      else if(item->parentItem()==test->parentItem() && item->row() < test->row())
+	{ // Same parent, but one row after. So shift down
+	  test->setRow(test->row()-1);
+	}
+    }
+}
+
 void ATrackTreeModel::createInternalTree()
 {
   // For each toplevel track, add it to the list
   // and perform recursive add.
-  QList<ATrack*> tracks=this->tracks();
-  for(int i=0;i<tracks.size();i++)
+  for(int i=0;i<analysisData->size();i++)
     {
-      ATrack *track=tracks[i];
-      QAbstractTreeItem *item=new QAbstractTreeItem(track,0,0);
-      treeItems.push_back(item);
+      ATrack *track=analysisData->getTrack(i);
+      QAbstractTreeItem *item=new QAbstractTreeItem(track,i,0);
+      treeItems.insert(i,item);
 
-      createInternalTree(track,item,i); // Recursive add
+      createInternalTree(track,item); // Recursive add
     }
 }
 
-void ATrackTreeModel::createInternalTree(ATrack *track,QAbstractTreeItem *parent,int row)
+void ATrackTreeModel::createInternalTree(ATrack *track,QAbstractTreeItem *parent)
 {
   // Loop through the combination's tracks and add them to the list
   if(track->type()==ATrack::eCombination)
@@ -555,10 +601,10 @@ void ATrackTreeModel::createInternalTree(ATrack *track,QAbstractTreeItem *parent
       for(int i=0;i<combo->size();i++)
 	{
 	  ATrack *childTrack=combo->getTrack(i);
-	  QAbstractTreeItem *item=new QAbstractTreeItem(childTrack,parent,row);
+	  QAbstractTreeItem *item=new QAbstractTreeItem(childTrack,i,parent);
 	  treeItems.push_back(item);
       
-	  createInternalTree(childTrack,item,i);
+	  createInternalTree(childTrack,item);
 	}
     }
 }

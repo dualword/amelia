@@ -2,10 +2,12 @@
 
 unsigned int ATrack::highestTrackID=0;
 
-ATrack::ATrack():_type(ATrack::eUndefined),_interesting(true)
+ATrack::ATrack()
+ :_type(ATrack::eUndefined),_interesting(true)
 {}
 
-ATrack::ATrack(QString name,ATrack::eType type):_name(name),_type(type),_interesting(true)
+ATrack::ATrack(QString name,ATrack::eType type)
+  :_type(type),_name(name),_interesting(true)
 { }
 
 ATrack::ATrack(const ATrack& o)
@@ -52,7 +54,6 @@ void ATrack::setSelectionID(unsigned int selectionID)
 {
   _selectionID=selectionID;
 }
-
 
 int ATrack::charge()
 {

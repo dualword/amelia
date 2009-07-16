@@ -3,7 +3,7 @@
 #include <QApplication>
 
 QIrrWidgetRefresher::QIrrWidgetRefresher(QIrrWidget *p)
-  :p(p),allModules(0)
+  : allModules(0),p(p)
 {
   time.start();
 

@@ -6,7 +6,7 @@
 #include <QResizeEvent>
 
 QFaderWidget::QFaderWidget(QWidget *parent)
-  :QWidget(parent),opacity(1),timeLine(1000)
+  :QWidget(parent),timeLine(1000),opacity(1)
 {
   recalculateSize();
   connect(&timeLine,SIGNAL(valueChanged(qreal)),

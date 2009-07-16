@@ -83,8 +83,6 @@ SET(ageometry_H
   ASnapshotTool.h
   ACameraControl.h
 
-  QAbstractTableModelWithContextMenu.h
-  QTableViewWithContextMenu.h
   QAbstractTreeItem.h
   )
 

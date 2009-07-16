@@ -73,6 +73,8 @@ namespace irr
 	    case KEY_UP:
 	      KeyControl[1]=PressedDown;
 	      return true;
+	    default:
+	      break;
 	    }
 	}	
       
@@ -85,7 +87,6 @@ namespace irr
 	      return true;
 	      break;
 	    default:
-	      return false;
 	      break;
 	    }
 	}

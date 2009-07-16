@@ -318,8 +318,6 @@ void AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
   
   AFCALShower* s;
   
-  int i=0;
-  
   QList<float> dx;
   QList<float> dy;
   QList<float> energy;
@@ -391,8 +389,6 @@ void AXmlEvent::GetEventFromFile ( QString filename )
   
   numShowers = LArshowers.size() + FCALshowers.size() + HECshowers.size() + TILEshowers.size();
 
-  bool inCaloETMis = false;
-  bool inETMis = false;
   QList<float> v;
   
   QDomNodeList CaloETMis=doc.elementsByTagName("CaloETMis");

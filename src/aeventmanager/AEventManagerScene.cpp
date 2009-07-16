@@ -10,7 +10,7 @@
 using namespace std;
 
 AEventManagerScene::AEventManagerScene(AEventManager* _manager,QString module)
-  :manager(_manager),_module(module),_activePackage(0),_activeEvent(0)
+  :QAbstractItemModel(_manager),manager(_manager),_activePackage(0),_activeEvent(0),_module(module)
 {
   connect(_manager,SIGNAL(packageLoaded(const QString&)),
 	  this,SLOT(handlePackageUpdate(const QString&)));
@@ -91,7 +91,6 @@ QVariant AEventManagerScene::data(const QModelIndex& index, int role) const
   if (!index.isValid())
     return QVariant();
   
-  int id=index.internalId();
   AEventPackage* pkg=getPackage(index);
   AEvent *e=getEvent(index);
 

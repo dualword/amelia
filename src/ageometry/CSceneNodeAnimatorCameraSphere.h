@@ -37,8 +37,8 @@ namespace irr
       virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0) { return 0; };
 
     private:
-      f32 zoomSpeed;
       f32 moveSpeed;
+      f32 zoomSpeed;
       f32 queueZoom;
       f32 maxZoom;
       

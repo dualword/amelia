@@ -33,8 +33,8 @@ public slots:
   void clear();
 
  signals:
-  void entrySelected(int trackID,bool shift);
-  void entryDeselected(int trackID);
+  void entrySelected(unsigned int trackID,bool shift);
+  void entryDeselected(unsigned int trackID);
 
 private:
   QList<ATrack*> tracks;

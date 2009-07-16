@@ -113,7 +113,7 @@ int ATrackTreeModel::rowCount(const QModelIndex& root) const
 
 int ATrackTreeModel::columnCount(const QModelIndex& root) const
 {
-  return 2;
+  return 5;
 }
 
 QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
@@ -131,13 +131,6 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
     {
       switch (index.column())
         {
-	  /*case 0:
-	  {
-	    if(track->type()==ATrack::eCombination)
-	      return combo->trackIDString();
-	    else
-	      return QString::number(track->trackID());
-	      }*/
         case 0:
 	  {
 	    if(track->type()==ATrack::eCombination)
@@ -151,27 +144,67 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
 	      return track->name()+"\nID: "+QString::number(track->trackID());
 	  }
 	case 1:
-	  if (track->type() == ATrack::eSTrack)
-            {
-	      ASTrack* STrack = static_cast<ASTrack*>(track);
-	      return "Pt: "+QString::number(STrack->Pt());
-            }
-	  else if (track->type() == ATrack::eJet)
-            {
-	      AJet* Jet = static_cast<AJet*>(track);
-	      return "Et: "+QString::number(Jet->et);
-            }
-	  else if(track->type() == ATrack::eCombination)
-	    {
-	      ATrackCombination* combo = static_cast<ATrackCombination*>(track);
-	      return "IM: "+QString::number(combo->getInvariantMass());
-	    }
-	  else if (track->type() == ATrack::eMissingEt)
-            {
-	      AMisET* met = static_cast<AMisET*>(track);
-	      return "Et: "+QString::number(met->et);
-            }
-	  else return QString("N/A");
+	  {
+	    if (track->type() == ATrack::eSTrack)
+	      {
+		ASTrack* STrack = static_cast<ASTrack*>(track);
+		return "Pt: "+QString::number(STrack->Pt());
+	      }
+	    else if (track->type() == ATrack::eJet)
+	      {
+		AJet* Jet = static_cast<AJet*>(track);
+		return "Et: "+QString::number(Jet->et);
+	      }
+	    else if(track->type() == ATrack::eCombination)
+	      {
+		ATrackCombination* combo = static_cast<ATrackCombination*>(track);
+		return "IM: "+QString::number(combo->getInvariantMass());
+	      }
+	    else if (track->type() == ATrack::eMissingEt)
+	      {
+		AMisET* met = static_cast<AMisET*>(track);
+		return "Et: "+QString::number(met->et);
+	      }
+	    else return QString("N/A");
+	  }
+	case 2:
+	  {
+	    if(track->type()==ATrack::eCombination)
+	      return combo->trackIDString();
+	    else
+	      return QString::number(track->trackID());
+	  }
+        case 3:
+	  {
+	    if(track->type()==ATrack::eCombination && combo->name(false).isEmpty())
+	      return "Combo";
+	    else
+	      return track->name();
+	  }
+	case 4:
+	  {
+	    if (track->type() == ATrack::eSTrack)
+	      {
+		ASTrack* STrack = static_cast<ASTrack*>(track);
+		return QString::number(STrack->Pt());
+	      }
+	    else if (track->type() == ATrack::eJet)
+	      {
+		AJet* Jet = static_cast<AJet*>(track);
+		return QString::number(Jet->et);
+	      }
+	    else if(track->type() == ATrack::eCombination)
+	      {
+		ATrackCombination* combo = static_cast<ATrackCombination*>(track);
+		return QString::number(combo->getInvariantMass());
+	      }
+	    else if (track->type() == ATrack::eMissingEt)
+	      {
+		AMisET* met = static_cast<AMisET*>(track);
+		return QString::number(met->et);
+	      }
+	    else return QString("N/A");
+	  }
         }
     }
   else if(role == Qt::ForegroundRole)
@@ -201,6 +234,12 @@ QVariant ATrackTreeModel::headerData (int section, Qt::Orientation orientation, 
 	  return "Name";
         case 1:
 	  return "Et/Pt/IM (GeV)";
+	case 2:
+	  return "ID";
+	case 3:
+	  return "Name";
+	case 4:
+	  return "Et/Pt/IM (GeV)";
 	}
     }
   
@@ -228,7 +267,7 @@ Qt::ItemFlags ATrackTreeModel::flags(const QModelIndex& index) const
   if(track->type()==ATrack::eCombination)
     {
       flags|=Qt::ItemIsDropEnabled;
-      if(index.column()==0) flags|=Qt::ItemIsEditable;
+      if(index.column()==0 || index.column()==3) flags|=Qt::ItemIsEditable;
     } 
   
   return flags;

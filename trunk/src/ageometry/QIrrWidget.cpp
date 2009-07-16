@@ -163,16 +163,17 @@ public:
   }
   
 private:
-  bool IsVisible;
   QIrrWidget *parent;
+  bool IsVisible;
 };
 #endif
 
 
 QIrrWidget::QIrrWidget( QWidget *parent )
-  : QWidget(parent),driver(0),smgr(0),gui(0),timer(0),
-    _dirty(false),disabledRenderTexture(0),
-    _ready(false),_loading(false),timerId(-1)
+  : QWidget(parent),
+    timerId(-1),_ready(false),_loading(false),
+    driver(0),smgr(0),gui(0),timer(0),
+    _dirty(false),disabledRenderTexture(0)
 {
   // Default to Open GL
 #ifdef Q_WS_WIN
@@ -355,8 +356,6 @@ void QIrrWidget::execute()
 
 void QIrrWidget::updateLastCamera()
 {
-  ICameraSceneNode *activeCam=smgr->getActiveCamera();
-
   lastActiveCamera=smgr->getActiveCamera();
   lastCameraPosition=lastActiveCamera->getPosition();
   lastCameraTarget=lastActiveCamera->getTarget();
@@ -415,22 +414,26 @@ QImage QIrrWidget::createImageWithOverlay(const QImage& baseImage, const QImage&
 
 QImage::Format QIrrWidget::Irr2Qt_ColorFormat(irr::video::ECOLOR_FORMAT format)
 {
-    switch (format)
+  switch (format)
     {
     case ECF_A1R5G5B5:
-        return QImage::Format_RGB555;
-        break;
+      return QImage::Format_RGB555;
+      break;
     case ECF_R5G6B5:
-        return QImage::Format_RGB16;
-        break;
+      return QImage::Format_RGB16;
+      break;
     case ECF_R8G8B8:
-        return QImage::Format_RGB888;
-        break;
+      return QImage::Format_RGB888;
+      break;
     case ECF_A8R8G8B8:
-        return QImage::Format_ARGB32;
-        break;
+      return QImage::Format_ARGB32;
+      break;
+    case ECF_UNKNOWN:
+    default:
+      return QImage::Format_Invalid;
+      break;
     }
-    return QImage::Format_Invalid;
+
 }
 
 EKEY_CODE QIrrWidget::Qt2Irr_KeyCode(int keycode)
@@ -665,7 +668,8 @@ u32 QIrrWidget::Qt2Irr_ButtonStates(Qt::MouseButtons buttons)
 
   return result;
 }
-static Qt::MouseButtons Irr2Qt_ButtonStates(u32 buttons)
+
+Qt::MouseButtons QIrrWidget::Irr2Qt_ButtonStates(u32 buttons)
 {
   Qt::MouseButtons result=Qt::NoButton;
   if(buttons & EMBSM_LEFT)

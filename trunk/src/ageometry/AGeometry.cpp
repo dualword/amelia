@@ -48,20 +48,18 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/ATrackCombination.h>
 
 AGeometry::AGeometry(QWidget* parent)
-        : QIrrWidget(parent),
-  isCrappyComputer ( false ),  generateDetectorGeometry ( true ), generateCameraStats ( false ), displayFPS ( true ), offsetTest ( false ),
-  detector3d_node( NULL ), background_node_f ( NULL ), background_node_s ( NULL ),
-  active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), 
+  : QIrrWidget(parent),
+  isCrappyComputer(false),generateDetectorGeometry(true),generateCameraStats(false),
+  allowTrackSelection(false),firstShow(true),offsetTest(false),
   _event(0),
- fpsControl(0),sphereControl(0),frontControl(0),sideControl(0),
-  modelScale(0.4f)
-
+  detector3d_node( NULL ), background_node_f ( NULL ), background_node_s ( NULL ),
+  modelScale(0.4f),
+  active_viewport ( AGeometry::Cam3D ) , active_cam (AGeometry::Lock), 
+  fpsControl(0),sphereControl(0),sideControl(0),frontControl(0)
 {
     setCursor(Qt::ArrowCursor);
 
     Pit_Reference = NULL;
-
-    firstShow=true;
 
     // Dynamic FPS camera initial parameters
     cameraZone = 3;
@@ -102,8 +100,6 @@ AGeometry::AGeometry(QWidget* parent)
     detectorMode = false;
     eventAnalysisMode = true;
     multiMediaMode = false;
-
-    allowTrackSelection = false;
 
     selectedTrackBox = NULL;
 
@@ -965,7 +961,7 @@ void AGeometry::createAtlasGeometry()
     }
 }
 
-void AGeometry::selectTrackByID (int ID, bool multi)
+void AGeometry::selectTrackByID(unsigned int ID, bool multi)
 {
   if (!multi) //If we are not doing multiselection, the deselect anything selected
     {
@@ -992,7 +988,7 @@ void AGeometry::selectTrackByID (int ID, bool multi)
     }
 }
 
-void AGeometry::deselectTrackByID (int ID)
+void AGeometry::deselectTrackByID(unsigned int ID)
 {
   ATrack* tr;
   for (int i=0;i<selectedTracks.size();i++)
@@ -1008,7 +1004,7 @@ void AGeometry::deselectTrackByID (int ID)
     }
 }
 
-ATrack3DNode* AGeometry::getTrackNodeByID( int ID )
+ATrack3DNode* AGeometry::getTrackNodeByID(unsigned int ID)
 {
   if(!_event) return 0;
 
@@ -1030,7 +1026,7 @@ ATrack3DNode* AGeometry::getTrackNodeByID( int ID )
     return 0;
 }
 
-bool AGeometry::isTrackSelected(int ID)
+bool AGeometry::isTrackSelected(unsigned int ID)
 {
   ATrack* tr;
   for (int i=0;i<selectedTracks.size();i++)
@@ -1338,7 +1334,7 @@ void AGeometry::clearEvent()
 	     this,SLOT(makeDirty()));
   
   clearTrackSelection();
-  ISceneManager* mngr=getSceneManager();
+
   for(int i=0;i<allTracks.size();i++)
     {
       allTracks[i]->remove();

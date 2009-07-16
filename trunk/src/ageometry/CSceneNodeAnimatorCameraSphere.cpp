@@ -12,8 +12,8 @@ namespace irr
     
     //! constructor
     CSceneNodeAnimatorCameraSphere::CSceneNodeAnimatorCameraSphere(f32 _moveSpeed,f32 _zoomSpeed,f32 _maxZoom)
-      : moveSpeed(_moveSpeed),zoomSpeed(_zoomSpeed),queueZoom(0.0f),toggleMouse(false),maxZoom(_maxZoom),
-	MaxVerticalAngle(88.0f)
+      : moveSpeed(_moveSpeed),zoomSpeed(_zoomSpeed),queueZoom(0.0f),maxZoom(_maxZoom),
+	MaxVerticalAngle(88.0f),toggleMouse(false)
     {
 #ifdef _DEBUG
       setDebugName("CSceneNodeAnimatorCameraSphere");
@@ -120,6 +120,8 @@ namespace irr
 	    case KEY_LEFT:
 	      KeyControl[3]=PressedDown;
 	      return true;
+	    default:
+	      break;
 	    }
 	}	
       
@@ -150,7 +152,6 @@ namespace irr
 	      return false;
 	      break;
 	    default:
-	      return false;
 	      break;
 	    }
 	}

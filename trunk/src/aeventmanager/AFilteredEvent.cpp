@@ -1,7 +1,7 @@
 #include "AFilteredEvent.h"
 
 AFilteredEvent::AFilteredEvent(AEvent *event,ATrackFilter *headFilter)
-  :_filters(headFilter),_completeEvent(event)
+  :AEvent(),_completeEvent(event),_filters(headFilter)
 {
   ATrackFilter *filter=headFilter;
   while(filter)

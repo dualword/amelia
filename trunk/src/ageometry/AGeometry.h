@@ -108,8 +108,8 @@ public:
   float cameraFOV();
   float cameraFarValue();
 
-  ATrack3DNode* getTrackNodeByID ( int ID );
-  bool isTrackSelected(int ID);
+  ATrack3DNode* getTrackNodeByID(unsigned int ID );
+  bool isTrackSelected(unsigned int ID);
   
   scene::ISceneNode* cube;
   
@@ -122,9 +122,6 @@ public:
   int LAr_switch;
   int SCT_switch;
   int Pix_switch;
-  
-  bool generateCameraStats;
-  bool displayFPS;
   
   
   //Switches for the different modes
@@ -158,8 +155,8 @@ public slots:
   
   void renderViewport(int view);
   
-  void selectTrackByID ( int ID ,bool multitrack=false);
-  void deselectTrackByID ( int ID );
+  void selectTrackByID(unsigned int ID ,bool multitrack=false);
+  void deselectTrackByID(unsigned int ID );
   void clearTrackSelection();
   
   //Functions to grab and release control of the camera
@@ -193,8 +190,17 @@ protected:
   
   
 private:
-  // Hidden Constants //x
+  // Hidden Constants //
   static const int Lock=4;
+  
+  // Flags //
+  const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
+  const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
+  const bool generateCameraStats; //enables camera statistics
+  // State values //
+  bool allowTrackSelection; //Whether to allow track selection
+  bool firstShow;
+  bool offsetTest;
 
   // Tracks and the event variables //
   AFilteredEvent* _event;
@@ -207,10 +213,6 @@ private:
   QMenu *_comboMenu;
   QMap<QString,QMenu*>  _detectorMenu;
   gui::IGUIButton* multiSelectButton;
-  
-  // Flags //
-  const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
-  const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
 
   // Important parts of the detector //
   scene::ISceneNode* Pit_Reference;
@@ -260,7 +262,6 @@ private:
   
   ATrack3DNode* trackSelection ( core::position2di pos );
   QString detectorSelection( core::position2di pos );
-  bool offsetTest;
 
   //Camera stuff
   ICameraSceneNode *cameras[5];
@@ -269,11 +270,7 @@ private:
   AFPSControl *fpsControl;
   ASphereControl *sphereControl;
   AFOVControl *sideControl,*frontControl;
-  
-  //State values
-  bool allowTrackSelection; //Whether to allow track selection
-  bool firstShow;
-  
+    
   video::ITexture *rt;
 
   scene::ISceneNode *_logoNode;

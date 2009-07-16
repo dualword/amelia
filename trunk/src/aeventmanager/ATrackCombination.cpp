@@ -4,7 +4,7 @@
 #include <QDebug>
 
 ATrackCombination::ATrackCombination()
- : ATrack("",ATrack::eCombination)
+  : ATrack("",ATrack::eCombination)
 {
   setTrackID(0);
 }

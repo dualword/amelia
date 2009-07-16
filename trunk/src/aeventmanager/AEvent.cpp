@@ -43,6 +43,9 @@ void AEvent::addTrack(ATrack* track)
     case ATrack::eShower:
       addTrack((AShower*)track);
       break;
+    default:
+      qDebug() << "Adding unsupported track...";
+      break;
     }
 }
 

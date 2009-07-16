@@ -70,8 +70,8 @@ void AJet3DNode::createJetPyramids()
 {
   float pi = 3.1415926f;
   float c = 180/pi;
-  float theta = 2*atan ( exp ( -(((AJet*)getTrack())->eta )) );
   float eta = ((AJet*)getTrack())->eta;
+  float theta = 2*atan( exp ( -eta ) );
   float et = ((AJet*)getTrack())->et;
   float e = fabs(et/sin(theta));
   

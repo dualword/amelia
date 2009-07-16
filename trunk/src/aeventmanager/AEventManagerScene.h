@@ -48,10 +48,10 @@ class AEVENTMANAGER_EXPORT AEventManagerScene : public QAbstractItemModel
  private:
   AEventManager *manager;
 
-  QVariant *root;
-
   AEventPackage* _activePackage;
   AEvent* _activeEvent;
+
+  QVariant *root;
 
   QString _module;
 };

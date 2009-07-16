@@ -35,8 +35,8 @@ private:
   QList<AEvent *> events;
   
   QString _name;
-  bool _loaded;
   QString _location;
+  bool _loaded;
   
   void loadMetaInfo();
   void loadLogBook();

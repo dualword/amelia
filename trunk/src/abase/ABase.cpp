@@ -43,7 +43,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QApplication>
 
 ABase::ABase( QWidget *parent )
-        : QMainWindow(parent),_fakeCentralWidget(0),buttonTimeLine(1000)
+        : QMainWindow(parent),buttonTimeLine(1000),_fakeCentralWidget(0)
 {
     //Set to the initial size.
     const QRect screenSize=QApplication::desktop()->screenGeometry(this);

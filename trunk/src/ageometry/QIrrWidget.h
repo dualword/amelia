@@ -51,10 +51,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QFuture>
 #include <QFutureWatcher>
 
-#ifdef Q_WS_WIN
-#include <windows.h>
-#endif //Q_WS_WIN
-
 #include <irrlicht.h>
 #include <ITimer.h>
 #include <stdlib.h>
@@ -63,8 +59,6 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <vector>
 #include <math.h>
 #include <sstream>
-
-
 using namespace irr;
 using namespace irr::scene;
 using namespace irr::video;
@@ -73,7 +67,11 @@ using namespace io;
 using namespace std;
 using namespace gui;
 
+#ifdef Q_WS_WIN
+#include <windows.h>
 #pragma comment(lib, "irrlicht.lib")
+#endif //Q_WS_WIN
+
 
 #include "AGeometryDefines.h"
 

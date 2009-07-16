@@ -6,7 +6,7 @@
 #include <QLayout>
 
 AMonitor::AMonitor(QString _name,QString _description,QWidget *w,QGraphicsItem* parent)
-  :name(_name),description(_description),QGraphicsProxyWidget(parent)
+  :QGraphicsProxyWidget(parent),name(_name),description(_description)
 { 
   setWidget(w);
   

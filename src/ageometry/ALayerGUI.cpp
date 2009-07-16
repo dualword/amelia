@@ -39,6 +39,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QMenuBar>
 #include <QToolBar>
 #include <QCheckBox>
+#include <QSortFilterProxyModel>
 #include <QDebug>
 
 #include "ALayerGUI.h"
@@ -138,12 +139,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         tableSelectedTracks->setColumnWidth ( 1, 60 );
         tableSelectedTracks->setColumnWidth ( 2, 70 );
 
-        connect(tracksModel,SIGNAL(entrySelected(int,bool)),
-                geo,SLOT(selectTrackByID(int,bool)));
-        connect(tracksModel,SIGNAL(entryDeselected(int)),
-                geo,SLOT(deselectTrackByID(int)));
-        connect(buttonCombineTracks,SIGNAL(clicked()), //The combine button...
-                tracksModel,SLOT(combineSelectedTracks()));
+	connect(tableSelectedTracks->selectionModel(),SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+		this,SLOT(handleTreeSelectionChanged(const QItemSelection&,const QItemSelection&)));
+    
+
       }
     if (detailedSelectedTracksTable)
         tracksModel->addView(detailedSelectedTracksTable);
@@ -180,10 +179,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 trackInfo,SLOT(removeTrackInfo(ATrack*)));
         connect(geo,SIGNAL(emptySelection()),
                 trackInfo,SLOT(hideMessage()));
-
-
-        connect(tracksModel,SIGNAL(combineButtonEnabled(bool)),
-		buttonCombineTracks,SLOT(setEnabled(bool)));
     }
 
     eventInfoView=new QGraphicsView();
@@ -231,8 +226,14 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     if (buttonDeleteTracks)
       {
         connect(buttonDeleteTracks,SIGNAL(clicked()),
-                tracksModel,SLOT(deleteSelectedTracks()));
+                this,SLOT(deleteSelectedTreeTracks()));
       }
+    if(buttonCombineTracks)
+      {
+        connect(buttonCombineTracks,SIGNAL(clicked()), //The combine button...
+                this,SLOT(combineSelectedTreeTracks()));
+      }
+
 
     // Setup the next event buttons
     if (actionNextEvent)
@@ -563,7 +564,7 @@ void ALayerGUI::setEventSpecificActionsEnabled(bool status)
   if (tableSelectedTracks) tableSelectedTracks->setEnabled(status);
   if (detailedSelectedTracksTable) detailedSelectedTracksTable->setEnabled(status);
   if (buttonDeleteTracks) buttonDeleteTracks->setEnabled(status);
-  if (buttonCombineTracks) buttonCombineTracks->setEnabled(status);
+  if (buttonCombineTracks && !status) buttonCombineTracks->setEnabled(status);
   if (actionTable) actionTable->setEnabled(status);
   if (menuTagCurrentEvent) menuTagCurrentEvent->setEnabled(status);
   if (actionTagHiggsBoson) actionTagHiggsBoson->setChecked(status && CompleteEvent->tags().contains("higgs"));
@@ -644,6 +645,133 @@ void ALayerGUI::handleEventTagChange(bool status)
 
   if (status)
     geo->event()->tag(tag,status);
+}
+
+void ALayerGUI::combineSelectedTreeTracks()
+{
+  ATrackCombination *combo=new ATrackCombination(); //hold the stuff
+  QItemSelectionModel *selection=tableSelectedTracks->selectionModel();
+  QSortFilterProxyModel *sortModel=qobject_cast<QSortFilterProxyModel*>(tableSelectedTracks->model());
+
+  //Get rows. Since all colums should be selected, might as well select column 0.
+  QModelIndexList rows=selection->selectedRows();
+  //Go through each row...
+  for (int i=0;i<rows.size();i++)
+    {
+      // Make sure to get the index to the correct model, and not the sort proxy
+      QModelIndex index;
+      if(sortModel)
+	index=sortModel->mapToSource(rows[i]);
+      else
+	index=rows[i];
+      
+      QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
+      ATrack *track=qobject_cast<ATrack*>(item->data());
+      combo->addTrack(track);
+    }
+  
+  ATrackCollection *analysisData=CompleteEvent->getAnalysisData<ATrackCollection>("AGeometry");
+  analysisData->addTrack(combo);
+}
+
+void ALayerGUI::deleteSelectedTreeTracks()
+{
+  QItemSelectionModel *selection=tableSelectedTracks->selectionModel();
+  QSortFilterProxyModel *sortModel=qobject_cast<QSortFilterProxyModel*>(tableSelectedTracks->model());
+
+  //Get rows. Since all colums should be selected, might as well select column 0.
+  QModelIndexList rows=selection->selectedRows(0);
+  //Go through each row...
+  for(int i=rows.size()-1;i>=0;i--)
+    {
+      QModelIndex index;
+      // Make sure to get the index to the correct model, and not the sort proxy
+      if(sortModel)
+	index=sortModel->mapToSource(rows[i]);
+      else
+	index=rows[i];
+
+      tracksModel->removeRow(index.row(),index.parent());
+    }
+}
+
+void ALayerGUI::handleTreeSelectionChanged(const QItemSelection& proxyselected,const QItemSelection& proxydeselected)
+{
+  QSortFilterProxyModel *sortModel=qobject_cast<QSortFilterProxyModel*>(tableSelectedTracks->model());
+  QItemSelection selected;
+  QItemSelection deselected;
+  if(sortModel)
+    {
+      selected=sortModel->mapSelectionToSource(proxyselected);
+      deselected=sortModel->mapSelectionToSource(proxydeselected);
+    }
+  else
+    {
+      selected=proxyselected;
+      deselected=proxydeselected;
+    }
+
+  // PERFORM DESELECTION
+  //Deselection should be performed first, because in the case of singletrack selection, everything will be deselected anyways. Even though in theory
+  //there shouldn't be any problems, might as well do this to keep safe.
+  QModelIndexList idxs=deselected.indexes();
+  for (int i=0;i<idxs.size();i++)
+    {
+      QAbstractTreeItem *item=(QAbstractTreeItem*)idxs[i].internalPointer();
+      ATrack *track=qobject_cast<ATrack*>(item->data());
+      performTreeTrackDeselection(track);
+    }
+  
+  // PERFORM SELECTION
+  idxs=selected.indexes();
+  
+  bool multi = ((QApplication::keyboardModifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) > 0);
+  for (int i=0;i<idxs.size();i++)
+    {
+      QAbstractTreeItem *item=(QAbstractTreeItem*)idxs[i].internalPointer();
+      ATrack *track=qobject_cast<ATrack*>(item->data());
+      performTreeTrackSelection(track,multi);
+    }
+
+  // The combine button should be enabled, because there are tracks selected
+  buttonCombineTracks->setEnabled(tableSelectedTracks->selectionModel()->selectedRows().size()>1);
+}
+
+void ALayerGUI::performTreeTrackSelection(ATrack *track,bool multi)
+{
+  // Perform a recursive selection if this is a combination..
+  if(track->type()==ATrack::eCombination)
+    {
+      multi=true; // Set multi to true, because we want to select all track in a combination...
+      ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
+      for(int i=0;i<combo->size();i++)
+	{
+	  performTreeTrackSelection(combo->getTrack(i),multi);
+	}
+    }
+  else
+    {
+      int id=track->trackID();
+      geo->selectTrackByID(id,multi);
+    }
+}
+
+void ALayerGUI::performTreeTrackDeselection(ATrack *track)
+{
+  // Perform a recursive deselection if this is a combination..
+  if(track->type()==ATrack::eCombination)
+    {
+      ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
+      for(int i=0;i<combo->size();i++)
+	{
+	  performTreeTrackDeselection(combo->getTrack(i));
+	}
+    }
+  else
+    {
+      int id=track->trackID();
+      geo->deselectTrackByID(id);
+    }
 }
 
 void ALayerGUI::about()

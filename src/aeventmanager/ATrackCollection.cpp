@@ -22,6 +22,9 @@ void ATrackCollection::addTrack(ATrack *track)
   if(!containsTrack(track))
     {
       _tracks.push_back(track);
+      connect(track,SIGNAL(updated()),
+	      this,SLOT(handleTrackUpdated()),
+	      Qt::DirectConnection);
       emit trackInserted(_tracks.size()-1);
       emit updated();
     }
@@ -34,6 +37,8 @@ ATrack* ATrackCollection::getTrack(int idx)
 
 void ATrackCollection::removeTrack(int idx)
 {
+  disconnect(_tracks.at(idx),SIGNAL(updated()),
+	     this,SLOT(handleTrackUpdated()));
   _tracks.removeAt(idx);
   emit trackRemoved(idx);
   emit updated();
@@ -63,7 +68,11 @@ void ATrackCollection::loadFromXML(QDomElement analysisElement,AEvent* event)
 {
   event->LoadEvent();
   
-  _tracks=readTracksFromXmlElement(event,analysisElement);
+  QList<ATrack*> tracks=readTracksFromXmlElement(event,analysisElement);
+  for(int i=0;i<tracks.size();i++)
+    {
+      addTrack(tracks[i]);
+    }
 }
 
 QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const QDomElement& ele)
@@ -85,7 +94,7 @@ QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const Q
 	    }
 	  tracks.append(track);
 	}
-      if(node.tagName()=="combination")
+      else if(node.tagName()=="combination")
 	{
 	  QString name=node.attribute("name","Unknown Combination");
 	  ATrackCombination *combo=new ATrackCombination();
@@ -123,6 +132,9 @@ void ATrackCollection::writeTrackToXmlFile(QTextStream& in,ATrack* track)
       in << "<track"
 	 << " id=\"" << track->trackID() << "\"/>"<<endl;
     }
-  
+}
 
+void ATrackCollection::handleTrackUpdated()
+{
+  emit updated();
 }

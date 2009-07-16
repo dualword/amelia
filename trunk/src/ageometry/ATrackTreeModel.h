@@ -29,50 +29,31 @@ public:
   QVariant data(const QModelIndex &index, int role=Qt::DisplayRole ) const;
   QVariant headerData (int section, Qt::Orientation orientation, int role=Qt::DisplayRole ) const;
   Qt::ItemFlags flags(const QModelIndex&) const;
-  void sort(int column, Qt::SortOrder order);
+  bool removeRows(int row, int count,const QModelIndex& parent=QModelIndex());
 
   Qt::DropActions supportedDropActions() const;
   bool dropMimeData(const QMimeData *data,Qt::DropAction action,int row,int column,const QModelIndex &parent);
   QStringList mimeTypes() const;
   QMimeData* mimeData(const QModelIndexList &indexes) const;
 
-  void addView(QAbstractItemView* view);
+  void addView(QAbstractItemView *view);
 
 public slots:
   void handleNewEventLoaded(AEvent*);
 
-  void deleteSelectedTracks();
-  void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-  void combineSelectedTracks();
-
-  void handleTrackRemoved(int);
-  void handleTrackInserted(int);
-
   void clear();
   void refresh();
-
-signals:
-  void entrySelected(int trackID,bool shift);
-  void entryDeselected(int trackID);
-
-  void combineButtonEnabled(bool);
 
 private:
   ATrackCollection *analysisData;
 
-  QItemSelectionModel *selection;
-
-  QList<QAbstractTreeItem*> treeItems;
-
-  void performSelection(ATrack *track,bool multi);
-  void performDeselection(ATrack *track);
+  QAbstractTreeItem *topItem;
 
   void clearInternalTree();
-  void clearInternalTree(QAbstractTreeItem *parent);
-  void createInternalTree();
+  QAbstractTreeItem* createInternalTree();
   void createInternalTree(ATrack *track,QAbstractTreeItem *parent);
 
-  QAbstractTreeItem* findTreeItem(QObject *data,int row,QAbstractTreeItem* parentItem) const;
+  void synchronizeItems(QAbstractTreeItem *newItem,QAbstractTreeItem *oldItem,QModelIndex index);
 
   Q_OBJECT
 };

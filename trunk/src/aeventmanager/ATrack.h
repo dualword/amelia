@@ -46,6 +46,9 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
   virtual bool isInteresting();
   void setInteresting(bool);
 
+ signals:
+  void updated();
+
  private:
   eType _type;
 

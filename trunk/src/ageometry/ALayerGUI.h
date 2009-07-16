@@ -76,104 +76,112 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 class ALayerGUI : public QFrame
 {
-    Q_OBJECT
 public:
-    ALayerGUI(QWidget* parent=0);
-    virtual ~ALayerGUI();
-    void setupElements(AEventManager*);
-
- signals:
-    // Emitted when an event has finished loading from the JiveXML file
-    void eventLoaded(AEvent*);
-    void eventChanged(AEvent*);
-    void eventUnloaded();
-
+  ALayerGUI(QWidget* parent=0);
+  virtual ~ALayerGUI();
+  void setupElements(AEventManager*);
+  
+signals:
+  // Emitted when an event has finished loading from the JiveXML file
+  void eventLoaded(AEvent*);
+  void eventChanged(AEvent*);
+  void eventUnloaded();
+		      
 public slots:
-    void actionSwitchView();
-    void enableElements();
-
-    //Slots for event handling
-    void handleCropModeChange(int mode);
-    void showLoadEventDialog();
-    void eventSettings();
-
-    void loadEvent(QString);
-    void loadEvent(AEvent*);
-
-    void unloadEvent();
-
-    //Loaded event, sets up visibility of tables and other funfun stuff
-    void handleEventLoaded();
-    void handleEventUnloaded();
-
-    void handlePackageActivated();
-
-    //Slots for event manager
-    void handleEventTagChange(bool status);
+  void actionSwitchView();
+  void enableElements();
+  
+  //Slots for event handling
+  void handleCropModeChange(int mode);
+  void showLoadEventDialog();
+  void eventSettings();
+  
+  void loadEvent(QString);
+  void loadEvent(AEvent*);
+  
+  void unloadEvent();
+  
+  //Loaded event, sets up visibility of tables and other funfun stuff
+  void handleEventLoaded();
+  void handleEventUnloaded();
+  
+  void handlePackageActivated();
+  
+  //Slots for event manager
+  void handleEventTagChange(bool status);
+  
+  // Slots for event actions
+  void deleteSelectedTreeTracks();
+  void combineSelectedTreeTracks();
+  void handleTreeSelectionChanged(const QItemSelection&, const QItemSelection&);
+  void performTreeTrackSelection(ATrack*, bool);
+  void performTreeTrackDeselection(ATrack*);
     
-    void about();
-
- protected:
-    void show(QWidget *);
-    void hide(QWidget *);
-
- private:
-    QSignalMapper smartShowMapper;
-    QSignalMapper smartHideMapper;
-    QSignalMapper flapMapper;
-    AEventInfoScene *eventInfo;
-    ASelectionInfoScene *trackInfo;
-
-    // Pointers to commonly used widgets
-    ATrackTreeModel *tracksModel;
-    AInterestingTrackTableModel *interestingTracksModel;
-
-    AGeometry* geo;
-    AGeometryHUD* hud;
-    QTableView *tableInterestingTracks;
-    QTreeView *detailedSelectedTracksTable;
-    QTreeView *tableSelectedTracks;
-    QWidget *eventWidget;
-    AMainView *AGeometryFrame;
-    QMenu *menuTagCurrentEvent;
-    QAction *actionNextEvent;
-    QAction *actionTagHiggsBoson;
-    QAction *actionTagBlackHole;
-    QAction *actionTable;
-    QGraphicsView *selectedEventInfoView;
-    QPushButton *buttonCombineTracks;
-    QPushButton *buttonDeleteTracks;
-    
-    //Cropping controls
-    QActionGroup *croppingModes;
-    QAction *actionNone;
-    QAction *actionWedge_Mode;
-    QAction *actionMoses_Mode;
-    QSignalMapper croppingMapper;
-    
-    // Random stuff
-    QActionGroup *cameraModes;
-    ASnapshotTool snapshotTool;
-
-    QMap<QString,QPoint> widgetPositions;
-    QSignalMapper *signalMapper;
-
-    //Event manager stuff
-    AEventManagerScene *mngr;
-    AEventManagerTreeView *packageList;
-
-    // Filters
-    QDoubleSync ptFilterSync;
-    APtFilter *ptFilter;
-    AModelFilter *modelFilter;
-    AParticleFilter *particleFilter;
-    AEvent* CompleteEvent;
-    AFilteredEvent* FilteredEvent;
-    AFilteredEvent* ModelEvent;
-
-    friend class AGeoPlugin;
-
-    void setEventSpecificActionsEnabled(bool status);
+  void about();
+  
+protected:
+  void show(QWidget *);
+  void hide(QWidget *);
+  
+private:
+  QSignalMapper smartShowMapper;
+  QSignalMapper smartHideMapper;
+  QSignalMapper flapMapper;
+  AEventInfoScene *eventInfo;
+  ASelectionInfoScene *trackInfo;
+  
+  // Pointers to commonly used widgets
+  ATrackTreeModel *tracksModel;
+  AInterestingTrackTableModel *interestingTracksModel;
+  
+  AGeometry* geo;
+  AGeometryHUD* hud;
+  QTableView *tableInterestingTracks;
+  QTreeView *detailedSelectedTracksTable;
+  QTreeView *tableSelectedTracks;
+  QWidget *eventWidget;
+  AMainView *AGeometryFrame;
+  QMenu *menuTagCurrentEvent;
+  QAction *actionNextEvent;
+  QAction *actionTagHiggsBoson;
+  QAction *actionTagBlackHole;
+  QAction *actionTable;
+  QGraphicsView *selectedEventInfoView;
+  QPushButton *buttonCombineTracks;
+  QPushButton *buttonDeleteTracks;
+  
+  //Cropping controls
+  QActionGroup *croppingModes;
+  QAction *actionNone;
+  QAction *actionWedge_Mode;
+  QAction *actionMoses_Mode;
+  QSignalMapper croppingMapper;
+  
+  // Random stuff
+  QActionGroup *cameraModes;
+  ASnapshotTool snapshotTool;
+  
+  QMap<QString,QPoint> widgetPositions;
+  QSignalMapper *signalMapper;
+  
+  //Event manager stuff
+  AEventManagerScene *mngr;
+  AEventManagerTreeView *packageList;
+  
+  // Filters
+  QDoubleSync ptFilterSync;
+  APtFilter *ptFilter;
+  AModelFilter *modelFilter;
+  AParticleFilter *particleFilter;
+  AEvent* CompleteEvent;
+  AFilteredEvent* FilteredEvent;
+  AFilteredEvent* ModelEvent;
+  
+  friend class AGeoPlugin;
+  
+  void setEventSpecificActionsEnabled(bool status);
+  
+  Q_OBJECT
 };
 
 

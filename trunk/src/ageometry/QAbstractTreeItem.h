@@ -17,11 +17,17 @@ class QAbstractTreeItem : public QObject
   QAbstractTreeItem* parentItem();
   void setParentItem(QAbstractTreeItem *parent);
 
+  void addChildItem(QAbstractTreeItem *item);
+  QAbstractTreeItem* getChildItem(int idx);
+  void removeChildItem(int idx);
+  int numChildItems();
 
  private:
   QObject *_data; //Data being held
-  QAbstractTreeItem *_parentItem; //The parent of this item
   int _row; //The row of the parent
+
+  QAbstractTreeItem *_parentItem; //The parent of this item
+  QList<QAbstractTreeItem*> childItems;
 
   Q_OBJECT
 };

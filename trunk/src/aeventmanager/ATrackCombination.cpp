@@ -1,6 +1,7 @@
 #include "ATrackCombination.h"
 
 #include <math.h>
+#include <QDebug>
 
 ATrackCombination::ATrackCombination()
  : ATrack("",ATrack::eCombination)
@@ -23,6 +24,10 @@ void ATrackCombination::addTrack(ATrack* tr)
     {
       tracks.append(tr);
       recalculate();
+      connect(tr,SIGNAL(updated()),
+	      this,SLOT(handleTrackUpdated()));
+
+      emit updated();
     }
 }
 
@@ -31,8 +36,12 @@ bool ATrackCombination::deleteTrack(ATrack* tr)
   int idx=tracks.indexOf(tr);
   if (idx>=0) //Found it
     {
+      disconnect(tracks.at(idx),SIGNAL(updated()),
+		 this,SLOT(handleTrackUpdated()));
       tracks.removeAt(idx);
       recalculate();
+
+      emit updated();
       return true;
     }
   return false;
@@ -164,4 +173,9 @@ float ATrackCombination::calculateInvariantMass()
 float ATrackCombination::getInvariantMass()
 {
   return InvMass;
+}
+
+void ATrackCombination::handleTrackUpdated()
+{
+  emit updated();
 }

@@ -32,6 +32,10 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   ATrack* getTrack(unsigned int idx);
 
   bool operator==(ATrackCombination& other);
+
+ public slots:
+  void handleTrackUpdated();
+
  private:
   QList<ATrack*> tracks;
 

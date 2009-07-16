@@ -25,6 +25,9 @@ class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
   void writeToFile(QTextStream& in);
   void loadFromXML(QDomElement ele, class AEvent* e);
 
+ public slots:
+  void handleTrackUpdated();
+
  signals:
   void trackRemoved(int idx);
   void trackInserted(int idx);

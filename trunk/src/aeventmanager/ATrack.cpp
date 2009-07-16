@@ -28,6 +28,7 @@ QString ATrack::name()
 void ATrack::setName(QString name)
 {
   _name=name;
+  emit updated();
 }
 
 ATrack::eType ATrack::type()

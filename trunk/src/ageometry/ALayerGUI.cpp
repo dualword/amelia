@@ -137,7 +137,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 
 	tableSelectedTracks->setColumnWidth ( 0, 60 );
         tableSelectedTracks->setColumnWidth ( 1, 60 );
-        tableSelectedTracks->setColumnWidth ( 2, 70 );
+
+	tableSelectedTracks->hideColumn(2);
+	tableSelectedTracks->hideColumn(3);
+	tableSelectedTracks->hideColumn(4);
 
 	connect(tableSelectedTracks->selectionModel(),SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
 		this,SLOT(handleTreeSelectionChanged(const QItemSelection&,const QItemSelection&)));
@@ -145,7 +148,12 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 
       }
     if (detailedSelectedTracksTable)
+      {
         tracksModel->addView(detailedSelectedTracksTable);
+
+	detailedSelectedTracksTable->hideColumn(0);
+	detailedSelectedTracksTable->hideColumn(1);
+      }
 
     if (tableInterestingTracks)
     {
@@ -155,10 +163,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
         tableInterestingTracks->setColumnWidth ( 1, 60 );
         tableInterestingTracks->setColumnWidth ( 2, 70 );
 
-        connect(interestingTracksModel,SIGNAL(entrySelected(int,bool)),
-                geo,SLOT(selectTrackByID(int,bool)));
-        connect(interestingTracksModel,SIGNAL(entryDeselected(int)),
-                geo,SLOT(deselectTrackByID(int)));
+        connect(interestingTracksModel,SIGNAL(entrySelected(unsigned int,bool)),
+                geo,SLOT(selectTrackByID(unsigned int,bool)));
+        connect(interestingTracksModel,SIGNAL(entryDeselected(unsigned int)),
+                geo,SLOT(deselectTrackByID(unsigned int)));
         connect(this,SIGNAL(eventLoaded(AEvent*)),
 		interestingTracksModel,SLOT(setEvent(AEvent*)));
     }

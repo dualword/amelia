@@ -5,14 +5,23 @@
 
 unsigned int AInterestingTrackTableModel::selectionID=0;
 
-AInterestingTrackTableModel::AInterestingTrackTableModel(QWidget* parent):QAbstractTableModel(parent)
+AInterestingTrackTableModel::AInterestingTrackTableModel(QWidget* parent)
+ : QAbstractTableModel(parent),FilteredEvent(0)
 {
-  tracks=QList<ATrack*>();
-  
   //Use this for selecting tracks by clicking on the table
   selection=new QItemSelectionModel(this);//parent->selectionModel();
   connect(selection,SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
 	  this,SLOT(handleSelectionChanged(const QItemSelection&,const QItemSelection&)));
+
+  // Interesting filter chain..
+  particleFilter=new AParticleFilter();
+  particleFilter->setShowElectrons(true);
+  particleFilter->setShowMuons(true);
+  particleFilter->setShowPhotons(true);
+  particleFilter->setShowMissingEt(true);
+  particleFilter->setShowJets(true);
+  particleFilter->setShowHadrons(false);
+  ptFilter=new APtFilter(2,particleFilter);
 }
 
 AInterestingTrackTableModel::~AInterestingTrackTableModel()
@@ -66,11 +75,11 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	  case 2:
             if (track->type() == ATrack::eJet)
 	      {
-                return QString::number(static_cast<AJet*>(track)->eta);
+                return QString::number(static_cast<AJet*>(track)->theta());
 	      }
             else if (track->type() == ATrack::eSTrack)
 	      {
-                return QString::number(static_cast<ASTrack*>(track)->eta);
+                return QString::number(static_cast<ASTrack*>(track)->theta());
 	      }
             else
 	      {
@@ -120,7 +129,7 @@ QVariant AInterestingTrackTableModel::headerData (int section, Qt::Orientation o
         case 1:
 	  return "pT";
         case 2:
-	  return QChar (0x3B7); //eta
+	  return QChar (0x3b8); //theta
         case 3:
 	  return QChar (0x3C6); //phi
         case 4:
@@ -218,6 +227,18 @@ void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& s
     }
 }
 
+void AInterestingTrackTableModel::reload()
+{
+  clear();
+
+  if(!FilteredEvent) return;
+
+  for(int i=0;i<FilteredEvent->Tracks.size();i++)
+    {
+      addTrack(FilteredEvent->Tracks[i]);
+    }
+}
+
 void AInterestingTrackTableModel::clear()
 {
   if (tracks.size()==0) return;
@@ -228,12 +249,20 @@ void AInterestingTrackTableModel::clear()
 
 void AInterestingTrackTableModel::setEvent(AEvent* event)
 {
-  clear();
+  if(FilteredEvent)
+    disconnect(FilteredEvent,SIGNAL(filtersUpdated()),
+	       this,SLOT(reload()));
+  
   if(event)
     {
-      QList<ATrack*> tracks=event->getInterestingTracks();
-      
-      for(int i=0;i<tracks.size();i++)
-	addTrack(tracks[i]);
+      FilteredEvent=new AFilteredEvent(event,ptFilter);
+      connect(FilteredEvent,SIGNAL(filtersUpdated()),
+	      this,SLOT(reload()));
+      reload();
+    }
+  else
+    {
+      FilteredEvent=0;
+      clear();
     }
 }

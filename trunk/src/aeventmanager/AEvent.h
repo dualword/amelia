@@ -89,8 +89,6 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QList<QString> listAnalysisData();
   QList<AEventAnalysisData*> allAnalysisData();
   
-  QList<ATrack*> getInterestingTracks();
-
  signals:
   void modified();
   

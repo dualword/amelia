@@ -149,58 +149,6 @@ QList<AEventAnalysisData*> AEvent::allAnalysisData()
   return _analysisData.values();
 }
 
-QList<ATrack*> AEvent::getInterestingTracks()
-{
-  QList<ATrack*> list;
-  
-  int ptMinimum = 2;
-  for(int i=0;i<Tracks.size();i++)
-    {
-      
-      ATrack* t = Tracks[i];
-      if ( (t->type() == ATrack::eJet))
-      {
-      list.push_back(t);
-      }
-      
-      
-      if ( (t->type() == ATrack::eMissingEt))
-        {
-	  list.push_back(t);
-        }
-      
-      if ( t->type() == ATrack::eSTrack )
-        {
-	  //cout << "\nAbout to evaluate a STrack";
-	  ASTrack* goo = static_cast<ASTrack*>(t);
-	  //ASTrack* goo = go->getThisSTrack();
-	  //if (goo->pt >= 1) cout << "\nEvaluating a STrack. It's a " << goo->name << " of pt " << goo->pt << " with code "<< goo->code;
-	  if ( goo->Pt() >= ptMinimum )
-            {
-	      if ( goo->isElectron() ) //electrons
-                {
-		  qDebug() << "getInterestingTracks() got an electron";
-		  list.push_back(t);
-                }
-	      
-	      if ( goo->isMuon() ) //muons
-                {
-		  qDebug() << "getInterestingTracks() got a muon";
-		  list.push_back(t);
-                }
-	      
-	      if ( goo->isPhoton() ) //photons
-                {
-		  qDebug() << "getInterestingTracks() got a photon";
-		  list.push_back(t);
-                }
-            }
-        }//eSTrack
-    }
-
-  return list;
-}
-
 AEventPackage* AEvent::package()
 {
   return _package;

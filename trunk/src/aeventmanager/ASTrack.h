@@ -27,10 +27,13 @@ public:
   bool isMuon();
   bool isPhoton();
   bool isNeutrino();
-  bool isNeutralHadron();
   bool isChargedHadron();
+  bool isNeutralHadron();
+  bool isHadron();
 
   float getTl();
+
+  float theta();
 
   bool isInteresting();
 

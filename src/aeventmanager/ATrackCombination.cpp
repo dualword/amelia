@@ -1,5 +1,9 @@
 #include "ATrackCombination.h"
 
+#include "ASTrack.h"
+#include "AJet.h"
+#include "AMisET.h"
+
 #include <math.h>
 #include <QDebug>
 
@@ -114,60 +118,73 @@ ATrack* ATrackCombination::operator[](unsigned int idx)
 
 void ATrackCombination::recalculate()
 {
-  int q=0;
+  /* Reset variables */
+  setCharge(0);
+  Px=0;
+  Py=0;
+  Pz=0;
+  E=0;
+
+  /* Calculate variables by looping over all of the tracks */
   for (int i=0;i<tracks.size();i++)
     {
-      q+=tracks[i]->charge();
+      recalculate(tracks[i]);
     }
-  setCharge(q);
+  
+  /* M^2 = E^2 - P^2 */
+  InvMass = sqrt(E*E - (Px*Px + Py*Py + Pz*Pz));
 
-  calculateInvariantMass();
+  /* Might as well save Pt (because we can) */
+  setPt(sqrt(Px*Px + Py*Py));
 }
 
-float ATrackCombination::calculateInvariantMass()
+void ATrackCombination::recalculate(ATrack *trk)
 {
-  float px_sum = 0;
-  float py_sum = 0;
-  float pz_sum = 0;
-  float P_sum = 0;
-  for (int i = 0; i < tracks.size(); i++)
-    {
-      if (tracks[i]->type() == ATrack::eSTrack)
-        {
-	  ASTrack* track = static_cast<ASTrack*>(tracks[i]);
-	  
-	  float px = fabs(track->Pt()) * cos(track->phi);
-	  float py = fabs(track->Pt()) * sin(track->phi);
-	  float pz = fabs(tracks[i]->Pt()) * track->getTl();
-	  float P = sqrt( (px*px)+(py*py)+(pz*pz));
-	  
-	  
-	  px_sum += px;
-	  py_sum += py;
-	  pz_sum += pz;
-	  P_sum += P;
-        }
+  // The momentum variables for the current track (notice the lower case)
+  float px=0;
+  float py=0;
+  float pz=0;
+
+  if(trk->type() == ATrack::eSTrack)
+    { // Tracks contain momentum stored as PtPhiEta
+      ASTrack* track = static_cast<ASTrack*>(trk);
       
-      if (tracks[i]->type() == ATrack::eJet)
-        {
-	  AJet* track = static_cast<AJet*>(tracks[i]);
-	  
-	  float px = fabs(track->Pt()) * cos(track->phi);
-	  float py = fabs(track->Pt()) * sin(track->phi);
-	  float pz = fabs(tracks[i]->Pt()) * track->getTl();
-	  float P = sqrt( (px*px)+(py*py)+(pz*pz));
-	  
-	  
-	  px_sum += px;
-	  py_sum += py;
-	  pz_sum += pz;
-	  P_sum += P;
-        }
+      px = fabs(track->Pt()) * cos(track->phi);
+      py = fabs(track->Pt()) * sin(track->phi);
+      pz = fabs(track->Pt()) * track->getTl();
+      setCharge(charge() + track->charge()); // Tracks can be charged
+    }
+  else if (trk->type() == ATrack::eJet)
+    { // Jets contain momentum stored as PtPhiEta
+      AJet* jet = static_cast<AJet*>(trk);
+      
+      px = fabs(jet->Pt()) * cos(jet->phi);
+      py = fabs(jet->Pt()) * sin(jet->phi);
+      pz = fabs(jet->Pt()) * jet->getTl();
+    }
+  else if (trk->type() == ATrack::eMissingEt)
+    { // Missing Energy is stored as EtxEty and no Z component
+      AMisET* met = static_cast<AMisET*>(trk);
+      
+      px = met->etx;
+      py = met->ety;
+      pz = 0;
+    }
+  else if (trk->type() == ATrack::eCombination)
+    { // Track combination does not have any variables, we have to loop over its children
+      ATrackCombination* combo = static_cast<ATrackCombination*>(trk);
+      
+      for(int i=0;i<combo->size();i++)
+	{
+	  recalculate(combo->getTrack(i));
+	}
     }
   
-  InvMass = sqrt(P_sum*P_sum - (px_sum*px_sum + py_sum*py_sum + pz_sum*pz_sum));
-  return InvMass;
-  
+  // We assume that all tracks are massless (E = P)
+  E  += sqrt( (px*px)+(py*py)+(pz*pz));
+  Px += px;
+  Py += py;
+  Pz += pz;	  
 }
 
 float ATrackCombination::getInvariantMass()
@@ -177,5 +194,6 @@ float ATrackCombination::getInvariantMass()
 
 void ATrackCombination::handleTrackUpdated()
 {
+  recalculate();
   emit updated();
 }

@@ -167,8 +167,6 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
                 geo,SLOT(selectTrackByID(unsigned int,bool)));
         connect(interestingTracksModel,SIGNAL(entryDeselected(unsigned int)),
                 geo,SLOT(deselectTrackByID(unsigned int)));
-        connect(this,SIGNAL(eventLoaded(AEvent*)),
-		interestingTracksModel,SLOT(setEvent(AEvent*)));
     }
 
     // Setup trackview
@@ -543,6 +541,7 @@ void ALayerGUI::handleEventLoaded()
   //Enable what needs to be enabled!
   setEventSpecificActionsEnabled(true);
 
+  if (interestingTracksModel) interestingTracksModel->setEvent(ModelEvent);
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);
 

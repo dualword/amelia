@@ -27,6 +27,7 @@ public:
   void setJetType(QString type);
 
   float getTl();
+  float theta();
 };
 
 #endif //AJET_H_

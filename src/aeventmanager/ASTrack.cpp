@@ -80,6 +80,11 @@ bool ASTrack::isChargedHadron()
 	  code == 4122 || code == -4122);
 }
 
+bool ASTrack::isHadron()
+{
+  return isNeutralHadron() || isChargedHadron();
+}
+
 void ASTrack::setCode(int _code)
 {
   for ( unsigned int j = 0; j < 52; j++ )
@@ -110,6 +115,11 @@ int ASTrack::getIndex()
 float ASTrack::getTl()
 {
   return tL = 0.5 * ( exp (eta) - exp (-eta));
+}
+
+float ASTrack::theta()
+{
+  return 2*atan ( exp ( -eta ) );
 }
 
 bool ASTrack::isInteresting()

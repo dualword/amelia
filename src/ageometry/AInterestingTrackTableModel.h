@@ -9,6 +9,10 @@
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCombination.h>
 
+#include <aeventmanager/AFilteredEvent.h>
+#include <aeventmanager/APtFilter.h>
+#include <aeventmanager/AParticleFilter.h>
+
 class AInterestingTrackTableModel : public QAbstractTableModel {
   Q_OBJECT
 public:
@@ -31,6 +35,7 @@ public slots:
 
   void setEvent(AEvent* event);
   void clear();
+  void reload();
 
  signals:
   void entrySelected(unsigned int trackID,bool shift);
@@ -40,6 +45,10 @@ private:
   QList<ATrack*> tracks;
 
   QItemSelectionModel *selection;
+
+  AFilteredEvent *FilteredEvent;
+  APtFilter *ptFilter;
+  AParticleFilter *particleFilter;
 };
 
 #endif

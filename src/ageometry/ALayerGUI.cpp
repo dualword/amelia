@@ -135,8 +135,8 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       {
 	tracksModel->addView(tableSelectedTracks);
 
-	tableSelectedTracks->setColumnWidth ( 0, 60 );
-        tableSelectedTracks->setColumnWidth ( 1, 60 );
+	tableSelectedTracks->setColumnWidth ( 0, 110 );
+        tableSelectedTracks->setColumnWidth ( 1,  50 );
 
 	tableSelectedTracks->hideColumn(2);
 	tableSelectedTracks->hideColumn(3);

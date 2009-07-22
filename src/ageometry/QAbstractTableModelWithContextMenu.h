@@ -15,8 +15,10 @@ public:
   
   QVariant data(const QModelIndex&, int role=Qt::DisplayRole ) const;
   
- private:
+private:
   QMenu *_menu;
+  
+  Q_OBJECT
 };
 
 #endif // QABSTRACTTABLEMODELWITHCONTEXTMENU_H

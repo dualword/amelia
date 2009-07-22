@@ -62,6 +62,8 @@ SET(ageometry_SRCS
   ASnapshotTool.cpp
 
   QAbstractTableModelWithContextMenu.cpp
+  QAbstractItemModelWithContextMenu.cpp
+  QTreeViewWithContextMenu.cpp
   QTableViewWithContextMenu.cpp
   QAbstractTreeItem.cpp
   )
@@ -83,6 +85,8 @@ SET(ageometry_H
   ASnapshotTool.h
   ACameraControl.h
 
+  QAbstractTableModelWithContextMenu.h
+  QAbstractItemModelWithContextMenu.h
   QAbstractTreeItem.h
   )
 

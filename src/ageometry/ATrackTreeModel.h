@@ -1,7 +1,6 @@
 #ifndef ATRACKTABLEMODEL_H_
 #define ATRACKTABLEMODEL_H_
 
-#include <QAbstractItemModel>
 #include <QAbstractItemView>
 #include <QModelIndex>
 #include <QList>
@@ -11,9 +10,10 @@
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCollection.h>
 
+#include "QAbstractItemModelWithContextMenu.h"
 #include "QAbstractTreeItem.h"
 
-class ATrackTreeModel : public QAbstractItemModel 
+class ATrackTreeModel : public QAbstractItemModelWithContextMenu
 {
 public:
   static unsigned int selectionID; //Used for assigning reference ID's to tracks

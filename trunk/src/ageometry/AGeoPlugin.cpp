@@ -41,6 +41,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AEventManager.h>
 #include <aeventmanager/AEvent.h>
 
+#include "QTreeViewWithContextMenu.h"
 #include "ASelectionInfoScene.h"
 #include "AGeometry.h"
 #include "ALayerGUI.h"
@@ -116,10 +117,7 @@ void AGeoPlugin::load()
   geo=geoWin->findChild<AGeometry*>("Geometry");
 
   //Setup the menu for track combinations
-  //TODO: Restore
-  /*QTableView *combinedTracksTable= geoWin->findChild<QTableView*>("combinedTracksTable");
-    QAbstractTableModelWithContextMenu *model=(QAbstractTableModelWithContextMenu*)combinedTracksTable->model();
-    model->setMenu(&comboMenu);*/
+  layerGUI->tracksModel->setMenu(&comboMenu);
 
   AGeometry *Geometry= geoWin->findChild<AGeometry*>("Geometry");
   Geometry->setComboMenu(&comboMenu);

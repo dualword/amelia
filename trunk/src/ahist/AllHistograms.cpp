@@ -59,8 +59,9 @@ void AllHistograms::newHistorgamDlg()
       QAction *fromAct=(QAction*)fromObj;
       QVariant data=fromAct->data();
       QObject* ptr=data.value<QObject*>();
-      ATrackCombination *combo=(ATrackCombination*)ptr;
-      hist->addData(combo->getInvariantMass());
+      ATrackCombination *combo=qobject_cast<ATrackCombination*>(ptr);
+      if(combo)
+	hist->addData(combo->getInvariantMass());
     }
 
 }

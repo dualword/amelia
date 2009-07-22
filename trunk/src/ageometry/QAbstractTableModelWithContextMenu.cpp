@@ -2,7 +2,8 @@
 
 int QAbstractTableModelWithContextMenu::MenuDataRole=31;
 
-QAbstractTableModelWithContextMenu::QAbstractTableModelWithContextMenu(QObject *parent):QAbstractTableModel(parent)
+QAbstractTableModelWithContextMenu::QAbstractTableModelWithContextMenu(QObject *parent)
+ : QAbstractTableModel(parent)
 {
     _menu=new QMenu();
 }

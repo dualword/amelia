@@ -75,11 +75,11 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	  case 2:
             if (track->type() == ATrack::eJet)
 	      {
-                return QString::number(static_cast<AJet*>(track)->theta());
+                return QString::number(static_cast<AJet*>(track)->theta()*180/3.14);
 	      }
             else if (track->type() == ATrack::eSTrack)
 	      {
-                return QString::number(static_cast<ASTrack*>(track)->theta());
+                return QString::number(static_cast<ASTrack*>(track)->theta()*180/3.14);
 	      }
             else
 	      {

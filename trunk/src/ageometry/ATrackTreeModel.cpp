@@ -12,7 +12,7 @@
 unsigned int ATrackTreeModel::selectionID=0;
 
 ATrackTreeModel::ATrackTreeModel(QWidget* parent)
-  :QAbstractItemModel(parent),topItem(0)
+  :QAbstractItemModelWithContextMenu(parent),topItem(0)
 {
   analysisData=new ATrackCollection("AGeometry");
 }
@@ -217,8 +217,12 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
       if(track->type()==ATrack::eCombination)
 	return QColor(255,255,220);
     }
+  else if(role == QAbstractItemModelWithContextMenu::MenuDataRole)
+    {
+      return QVariant::fromValue<QObject *>(track);
+    }
 
-  return QVariant();
+  return QAbstractItemModelWithContextMenu::data(index,role);
 }
 
 QVariant ATrackTreeModel::headerData (int section, Qt::Orientation orientation, int role) const

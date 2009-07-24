@@ -59,7 +59,7 @@ void AViewport::handleViewportUpdate(int cam,QImage newshot)
       highlightRect.moveTo(4,4);
       QImage highlight(QSize(160,111),QImage::Format_ARGB32);
       QPainter painterH(&highlight);
-      painterN.fillRect(QRect(0,0,160,111),Qt::black);
+      painterH.fillRect(QRect(0,0,160,111),Qt::black);
       painterH.drawImage(QRect(4,4,152,103), newshot);
       painterH.setCompositionMode(QPainter::CompositionMode_SourceOver);
       painterH.drawImage(highlightRect, highlightSkin);

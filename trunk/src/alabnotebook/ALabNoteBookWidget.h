@@ -6,6 +6,7 @@
 #include <QListView>
 #include <QPlainTextEdit>
 #include <QLabel>
+#include <QWebView>
 
 #include <aeventmanager/AEvent.h>
 
@@ -24,6 +25,14 @@ public slots:
   void createNewNote();
   void handleNoteSelected(const QModelIndex& index);
   void handleNoteEdited();
+
+  /* Edit action slots */
+  void insertImage();
+
+  void adjustButtons();
+
+  void execCommand(const QString &cmd, const QString &arg);
+  void execCommand(const QString &cmd);
   
 private:
   ALabNoteBookTableModel* _tableModel;
@@ -31,9 +40,16 @@ private:
   ALabNoteBookEntry* _activeEntry;
   
   QPushButton* _newEntryButton;
+
+  QPushButton* _insertImageButton;
+  QPushButton* _boldButton;
+  QPushButton* _italicButton;
+  QPushButton* _underlineButton;
+
   QListView* _notesListTable;
-  QPlainTextEdit *_noteTextEdit;
+  QWebView *_noteTextEdit;
   QLabel *_createTimeLabel;
+
   Q_OBJECT
 };
 

@@ -1,5 +1,20 @@
 #include "ALabNoteBookWidget.h"
 #include <QDebug>
+#include <QWebFrame>
+#include <QFileDialog>
+#include <QFile>
+#include <QAction>
+
+/* Macros borrowed from Qt's HTML editor example */
+#define FOLLOW_ENABLE(a1, a2) a1->setEnabled(_noteTextEdit->pageAction(a2)->isEnabled())
+#define FOLLOW_CHECK(a1, a2) a1->setChecked(_noteTextEdit->pageAction(a2)->isChecked())
+
+#define FORWARD_BUTTON(action1, action2)  \
+  connect(action1, SIGNAL(clicked()),				   \
+	  _noteTextEdit->pageAction(action2), SLOT(trigger()));	   \
+  connect(_noteTextEdit->pageAction(action2), SIGNAL(changed()),   \
+	  this,SLOT(adjustButtons()));
+
 
 ALabNoteBookWidget::ALabNoteBookWidget(QWidget* parent):QWidget(parent)
 { 
@@ -16,8 +31,9 @@ void ALabNoteBookWidget::setupElements()
 
   _newEntryButton=findChild<QPushButton*>("newEntryButton");
   _notesListTable=findChild<QListView*>("notesListTable");
-  _noteTextEdit=findChild<QPlainTextEdit*>("noteTextEdit");
+  _noteTextEdit=findChild<QWebView*>("noteTextEdit");
   _createTimeLabel=findChild<QLabel*>("createTimeLabel");
+
 
   if(_notesListTable)
     {
@@ -31,11 +47,37 @@ void ALabNoteBookWidget::setupElements()
       connect(_newEntryButton,SIGNAL(clicked()),
 	      this,SLOT(createNewNote()));
     }
-  
+
   if(_noteTextEdit)
     {
-      connect(_noteTextEdit,SIGNAL(textChanged()),
+      connect(_noteTextEdit->page(),SIGNAL(contentsChanged()),
 	      this,SLOT(handleNoteEdited()));
+    }
+
+  /* Prepare the actions */
+  _insertImageButton=findChild<QPushButton*>("insertImageButton");
+  _boldButton=findChild<QPushButton*>("boldButton");
+  _italicButton=findChild<QPushButton*>("italicButton");
+  _underlineButton=findChild<QPushButton*>("underlineButton");
+
+  if(_insertImageButton)
+    {
+      connect(_insertImageButton,SIGNAL(clicked()),
+	      this,SLOT(insertImage()));
+    }
+
+
+  if(_boldButton)
+    {
+      FORWARD_BUTTON(_boldButton, QWebPage::ToggleBold);
+    }
+  if(_italicButton)
+    {
+      FORWARD_BUTTON(_italicButton, QWebPage::ToggleItalic);
+    }
+  if(_underlineButton)
+    {
+      FORWARD_BUTTON(_underlineButton, QWebPage::ToggleUnderline);
     }
 }
 
@@ -83,7 +125,8 @@ void ALabNoteBookWidget::handleNoteSelected(const QModelIndex& index)
     }
 
   _tableModel->setActiveEntry(_activeEntry);
-  _noteTextEdit->setPlainText(text);
+  _noteTextEdit->setHtml(text);
+  _noteTextEdit->page()->setContentEditable(true);
   _createTimeLabel->setText(timeText);
 }
 
@@ -91,6 +134,57 @@ void ALabNoteBookWidget::handleNoteEdited()
 {
   if(_activeEntry)
     {
-      _activeEntry->setText(_noteTextEdit->toPlainText());
+      _activeEntry->setText(_noteTextEdit->page()->mainFrame()->toHtml());
     }
+}
+
+void ALabNoteBookWidget::insertImage()
+{
+  QString filters;
+  filters += tr("Common Graphics (*.png *.jpg *.jpeg *.gif);;");
+  filters += tr("Portable Network Graphics (PNG) (*.png);;");
+  filters += tr("JPEG (*.jpg *.jpeg);;");
+  filters += tr("Graphics Interchange Format (*.gif);;");
+  filters += tr("All Files (*)");
+  
+  QString fn = QFileDialog::getOpenFileName(this, tr("Open image..."),
+					    QString(), filters);
+  if (fn.isEmpty())
+    return;
+  if (!QFile::exists(fn))
+    return;
+  
+  QUrl url = QUrl::fromLocalFile(fn);
+  execCommand("insertImage", url.toString());
+}
+
+void ALabNoteBookWidget::adjustButtons()
+{
+  FOLLOW_CHECK(_boldButton,QWebPage::ToggleBold);
+  FOLLOW_CHECK(_italicButton,QWebPage::ToggleItalic);
+  FOLLOW_CHECK(_underlineButton,QWebPage::ToggleUnderline);
+}
+
+void ALabNoteBookWidget::execCommand(const QString &cmd, const QString &arg)
+{
+  // How execCommand works:
+  // http://msdn.microsoft.com/en-us/library/ms536419(VS.85).aspx
+  // Available Commands
+  // http://msdn.microsoft.com/en-us/library/ms533049(VS.85).aspx
+  
+  QString js = QString("document.execCommand(\"%1\", false, \"%2\")").arg(cmd).arg(arg);
+  QWebFrame *frame = _noteTextEdit->page()->mainFrame();
+  frame->evaluateJavaScript(js);
+}
+
+void ALabNoteBookWidget::execCommand(const QString &cmd)
+{
+  // How execCommand works:
+  // http://msdn.microsoft.com/en-us/library/ms536419(VS.85).aspx
+  // Available Commands
+  // http://msdn.microsoft.com/en-us/library/ms533049(VS.85).aspx
+
+  QString js = QString("document.execCommand(\"%1\", false,null").arg(cmd);
+  QWebFrame *frame = _noteTextEdit->page()->mainFrame();
+  frame->evaluateJavaScript(js);
 }

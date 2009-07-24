@@ -51,7 +51,11 @@ void ALabNoteBookData::writeToFile(QTextStream& in)
       in << "<entry"
 	 << " time=\"" << entry->time().toString("yyyyMMddHHmmss") << "\""
 	 << ">" <<endl;
-      in << entry->text();
+      in << "<![CDATA[" << endl;
+      // Replace some entities, so the user won't be able to corrupt a 
+      // file by putting in ]]>. The <![CDATA[ ]]> will take care of the rest.
+      in << entry->text().replace("&","&amp;").replace("<","&lt;").replace(">","&gt;");
+      in << "]]>" << endl;
       in << "</entry>"<<endl;
     }
 
@@ -64,7 +68,7 @@ void ALabNoteBookData::loadFromXML(QDomElement element,AEvent* event)
   for(int k=0;k<entryNodes.size();k++)
     {
       QDomElement entryElement=entryNodes.at(k).toElement();
-      QString text=entryElement.text().trimmed();
+      QString text=entryElement.text().trimmed().replace("&lt;","<").replace("&gt;",">").replace("&amp;","&");
       QString timeString=entryElement.attribute("time");
       
       ALabNoteBookEntry *entry=new ALabNoteBookEntry();

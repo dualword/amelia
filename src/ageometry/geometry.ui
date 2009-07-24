@@ -276,7 +276,7 @@ QLabel
            </widget>
           </item>
           <item>
-           <widget class="QTreeView" name="detailedSelectedTracksTable">
+           <widget class="QTreeViewWithContextMenu" name="detailedSelectedTracksTable">
             <property name="enabled">
              <bool>false</bool>
             </property>

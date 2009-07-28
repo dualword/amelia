@@ -131,8 +131,13 @@ void ATrackCombination::recalculate()
       recalculate(tracks[i]);
     }
   
+  double Psq=Px*Px + Py*Py + Pz*Pz;
+
   /* M^2 = E^2 - P^2 */
-  InvMass = sqrt(E*E - (Px*Px + Py*Py + Pz*Pz));
+  if(E*E < Psq) //Check for massless particles with a rounding error
+    InvMass = 0;
+  else
+    InvMass = sqrt(E*E - Psq);
 
   /* Might as well save Pt (because we can) */
   setPt(sqrt(Px*Px + Py*Py));

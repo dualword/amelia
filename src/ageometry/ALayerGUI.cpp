@@ -91,7 +91,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     actionMoses_Mode=window()->findChild<QAction *>("actionMoses_Mode");
     QPushButton *nextEventButton = findChild<QPushButton*>("nextEventButton");
     QSlider *PtCutoff_Slider=findChild<QSlider*>("PtCutoff_Slider");
-    QSpinBox *spinBox_Pt=findChild<QSpinBox*>("spinBox_Pt");
+    QDoubleSpinBox *spinBox_Pt=findChild<QDoubleSpinBox*>("spinBox_Pt");
     actionTagHiggsBoson=window()->findChild<QAction *>("actionTagHiggsBoson");
     actionTagBlackHole=window()->findChild<QAction *>("actionTagBlackHole");
     QPushButton *button_detectorVisibility=findChild<QPushButton *>("button_detectorVisibility");

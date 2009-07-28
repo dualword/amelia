@@ -52,30 +52,29 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 class AEventInfoScene : public QGraphicsScene
 {
-    Q_OBJECT
-
 public:
-    enum infoType {infoTrack=0, infoEvent=1};
-    AEventInfoScene(QObject* parent=0);
-    ~AEventInfoScene();
-
+  AEventInfoScene(QObject* parent=0);
+  ~AEventInfoScene();
+		    
 public slots:
-    void setEvent(AFilteredEvent* e);
-
-    void updateEventInfo();
-    
+  void setEvent(AFilteredEvent* e);
+  
+  void updateEventInfo();
+  
 private:
-    void init();
+  void init();
+  
+  QGraphicsTextItem *header;
+  
+  QGraphicsTextItem* dataComplete;
+  QGraphicsTextItem* dataLabels;
+  QGraphicsTextItem* dataDisplayed;
+  
+  QGraphicsTextItem* labelDisplayed;
+  QGraphicsTextItem* labelTotal;
+  
+  AFilteredEvent* _event;
 
-    QGraphicsTextItem *header;
-
-    QGraphicsTextItem* dataComplete;
-    QGraphicsTextItem* dataLabels;
-    QGraphicsTextItem* dataDisplayed;
-
-    QGraphicsTextItem* labelDisplayed;
-    QGraphicsTextItem* labelTotal;
-
-    AFilteredEvent* _event;
+  Q_OBJECT
 };
 #endif

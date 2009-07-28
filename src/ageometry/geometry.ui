@@ -524,7 +524,7 @@ color: rgb(255, 255, 0);
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>300</width>
+                  <width>200</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -549,13 +549,13 @@ color: rgb(255, 255, 0);
                </widget>
               </item>
               <item>
-               <widget class="QSpinBox" name="spinBox_Pt">
+               <widget class="QDoubleSpinBox" name="spinBox_Pt">
                 <property name="enabled">
                  <bool>true</bool>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
+                  <width>80</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -566,12 +566,15 @@ color: rgb(255, 255, 0);
                  <set>Qt::AlignCenter</set>
                 </property>
                 <property name="suffix">
-                 <string notr="true">GeV</string>
+                 <string> GeV</string>
                 </property>
                 <property name="maximum">
                  <number>40</number>
                 </property>
                 <property name="value">
+                 <number>1</number>
+                </property>
+                <property name="decimals">
                  <number>1</number>
                 </property>
                </widget>
@@ -1603,38 +1606,6 @@ Flight</string>
     <hint type="destinationlabel">
      <x>511</x>
      <y>396</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PtCutoff_Slider</sender>
-   <signal>sliderMoved(int)</signal>
-   <receiver>spinBox_Pt</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>547</x>
-     <y>571</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>616</x>
-     <y>569</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>spinBox_Pt</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>PtCutoff_Slider</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>612</x>
-     <y>575</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>477</x>
-     <y>571</y>
     </hint>
    </hints>
   </connection>

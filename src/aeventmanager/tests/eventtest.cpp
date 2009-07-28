@@ -29,7 +29,7 @@ int main(int argc,char* argv[])
   printf("Electrons: %d\n",event.numElectrons);
   printf("Showers: %d\n",event.numShowers);
 
-  QApplication app(argc,argv);
+  /*QApplication app(argc,argv);
   
   QGraphicsScene scene;
   QGraphicsView view(&scene);
@@ -47,5 +47,6 @@ int main(int argc,char* argv[])
       hist.addPoint(filtered.STracks[i]->Pt()*1000);
     }
   
-  return app.exec();
+    return app.exec();*/
+  return 0;
 }

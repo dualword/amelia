@@ -12,7 +12,7 @@ namespace irr
     
     //! constructor
     CSceneNodeAnimatorCameraFOV::CSceneNodeAnimatorCameraFOV(f32 _fovSpeed)
-      : fovSpeed(_fovSpeed),queueFOV(0),_maxFOV(1.3f),_minFOV(0.0001f)
+      : fovSpeed(_fovSpeed),queueFOV(0),_maxFOV(1.3f),_minFOV(0.001f)
     {
 #ifdef _DEBUG
       setDebugName("CSceneNodeAnimatorCameraFOV");

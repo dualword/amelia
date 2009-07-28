@@ -25,7 +25,7 @@ int main(int argc,char* argv[])
 	  time.start();
 	  event->LoadEvent();
 	  int elapsed=time.elapsed();
-	  qDebug() << "Loaded event " << event->filename;
+	  qDebug() << "Loaded event " << event->uid();
 	  qDebug() << "\tNumber of tracks:\t" << event->Tracks.size() << " tracks";
 	  qDebug() << "\tTotal time: \t\t" << elapsed << "ms";
 	  qDebug() << "\tPer-track time: \t" << elapsed/event->Tracks.size() << "ms";

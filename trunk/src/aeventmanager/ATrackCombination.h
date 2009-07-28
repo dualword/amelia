@@ -39,10 +39,11 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
  private:
   QList<ATrack*> tracks;
 
-  int Px;
-  int Py;
-  int Pz;
-  int E;
+  double Px;
+  double Py;
+  double Pz;
+  double E;
+  
   float InvMass;
 
   void recalculate();

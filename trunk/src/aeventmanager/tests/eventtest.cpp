@@ -2,13 +2,12 @@
 #include <aeventmanager/AFilteredEvent.h>
 #include <aeventmanager/APtFilter.h>
 
-#include <QApplication>
-#include <QGraphicsView>
-#include <QGraphicsScene>
+#include <aeventmanager/ATrackCombination.h>
+#include <aeventmanager/ASTrack.h>
+
 #include <QDebug>
 
-#include "AShittyHistogram.h"
-
+#include <math.h>
 
 int main(int argc,char* argv[])
 {
@@ -29,24 +28,31 @@ int main(int argc,char* argv[])
   printf("Electrons: %d\n",event.numElectrons);
   printf("Showers: %d\n",event.numShowers);
 
-  /*QApplication app(argc,argv);
-  
-  QGraphicsScene scene;
-  QGraphicsView view(&scene);
-  view.resize(300,300);
-
-  view.show();
-
-  AShittyHistogram hist(1);
-  scene.addItem(&hist);
-
-  AFilteredEvent filtered(&event,new APtFilter(1));
-  for(int i=0;i<filtered.STracks.size();i++)
+  for(int i=0;i<event.STracks.size()-1;i++)
     {
-      //if(filtered->STracks[i]->isElectron())
-      hist.addPoint(filtered.STracks[i]->Pt()*1000);
+      ASTrack *t1=event.STracks[i];
+      if(!t1->isPhoton()) continue;
+
+      double p1x=fabs(t1->Pt()) * cos(t1->phi);
+      double p1y=fabs(t1->Pt()) * sin(t1->phi);
+      double p1z=fabs(t1->Pt()) * t1->getTl();
+
+      for(int j=i+1;j<event.STracks.size();j++)
+	{
+	  ASTrack *t2=event.STracks[j];
+	  if(!t2->isPhoton()) continue;
+
+	  double p2x=fabs(t2->Pt()) * cos(t2->phi);
+	  double p2y=fabs(t2->Pt()) * sin(t2->phi);
+	  double p2z=fabs(t2->Pt()) * t2->getTl();
+
+	  qDebug() << "=============================";
+	  ATrackCombination combo;
+	  combo.addTrack(t1);
+	  combo.addTrack(t2);
+	  qDebug() << combo.getInvariantMass();
+	}
     }
-  
-    return app.exec();*/
+
   return 0;
 }

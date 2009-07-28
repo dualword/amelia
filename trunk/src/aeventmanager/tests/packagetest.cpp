@@ -47,15 +47,9 @@ int main(int argc,char* argv[])
 	  AEvent *event=package->event(j);
 	  event->LoadEvent();
 	  hist.addPoint(event->numElectrons);
-	  qDebug() << "Event " << event->location << " has " << event->numElectrons << " electrons";
+	  qDebug() << "Event " << event->uid() << " has " << event->numElectrons << " electrons";
 	}
     }
-  
-  //for(int i=0;i<event.STracks.size();i++)
-  //{
-  //if(event.STracks[i]->isElectron())
-  //hist.addPoint(event.STracks[i]->pt*1000);
-  //}
-  
+    
   return app.exec();
 }

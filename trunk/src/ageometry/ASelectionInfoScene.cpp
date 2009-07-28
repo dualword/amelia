@@ -222,7 +222,7 @@ void ASelectionInfoScene::refresh()
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
 	  name->setHtml("<b>Type:</b> Jet");
-	  pt->setHtml("<b>Pt:</b> "+QString::number(Jet->et));
+	  pt->setHtml("<b>Et:</b> "+QString::number(Jet->et));
 	  
 	  header->setVisible(true);
 	  name->setVisible(true);

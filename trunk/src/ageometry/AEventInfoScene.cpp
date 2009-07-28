@@ -63,12 +63,11 @@ void AEventInfoScene::updateEventInfo()
       labelTotal->setHtml("<b>Total</b>");
       labelDisplayed->setHtml("<b>Visible</b>");
       
-      dataLabels->setHtml("<html>\n <b>Tracks:<br/>Neutral Hadrons: <br/>Charged Hadrons:<br/>Photons: <br/>Muons:<br/>Electrons:<br/>Jets:<br/></b></html>");
+      dataLabels->setHtml("<html>\n <b>Tracks:<br/>Hadrons:<br/>Photons: <br/>Muons:<br/>Electrons:<br/>Jets:<br/></b></html>");
       
       dataComplete->setHtml("<html>\n"
 			    +QString::number(complete->numTracks)+"<br/>"
-			    +QString::number(complete->numNeutralHadrons)+"<br/>"
-			    +QString::number(complete->numChargedHadrons)+"<br/>"
+			    +QString::number(complete->numNeutralHadrons+complete->numChargedHadrons)+"<br/>"
 			    +QString::number(complete->numPhotons)+"<br/>"
 			    +QString::number(complete->numMuons)+"<br/>"
 			    +QString::number(complete->numElectrons)+"<br/>"
@@ -77,8 +76,7 @@ void AEventInfoScene::updateEventInfo()
       
       dataDisplayed->setHtml("<html>\n"
 			     +QString::number(_event->numTracks)+"<br/>"
-			     +QString::number(_event->numNeutralHadrons)+"<br/>"
-			     +QString::number(_event->numChargedHadrons)+"<br/>"
+			     +QString::number(_event->numNeutralHadrons+_event->numChargedHadrons)+"<br/>"
 			     +QString::number(_event->numPhotons)+"<br/>"
 			     +QString::number(_event->numMuons)+"<br/>"
 			     +QString::number(_event->numElectrons)+"<br/>"

@@ -3,6 +3,9 @@
 
 #include <QString>
 #include <QObject>
+#include <irrlicht.h>
+#include <vector>
+
 
 #include "AEventManagerDefines.h"
 
@@ -14,6 +17,7 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
   {
     eUndefined,
     eSTrack,
+    eRTrack,
     eJet,
     eShower,
     eFCALShower,
@@ -21,7 +25,7 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
     eCombination
   };
   static unsigned int highestTrackID;
-  
+
   ATrack();
   ATrack(QString name,ATrack::eType);
   ATrack(const ATrack&);
@@ -30,7 +34,7 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
 
   unsigned int trackID();
   void setTrackID(unsigned int);
-  
+
   unsigned int selectionID();
   void setSelectionID(unsigned int);
 

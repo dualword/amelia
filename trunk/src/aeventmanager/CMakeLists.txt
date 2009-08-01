@@ -20,6 +20,7 @@ SET(aeventmanager_SRCS
 
   ATrack.cpp
   ASTrack.cpp
+  ARTrack.cpp
   AJet.cpp
   AMisET.cpp
   AShower.cpp
@@ -29,7 +30,7 @@ SET(aeventmanager_SRCS
   AXmlEvent.cpp
   AEvent.cpp
   AFilteredEvent.cpp
-  
+
   ATrackFilter.cpp
   APtFilter.cpp
   AModelFilter.cpp
@@ -63,7 +64,7 @@ QT4_WRAP_CPP(aeventmanager_SRCS ${aeventmanager_H})
 ADD_LIBRARY(AEventManager SHARED ${aeventmanager_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 TARGET_LINK_LIBRARIES(AEventManager
-  ${QT_LIBRARIES} 
+  ${QT_LIBRARIES}
   amelia)
 
 INSTALL(TARGETS AEventManager

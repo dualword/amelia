@@ -9,6 +9,7 @@
 #include "ATrack.h"
 #include "AShower.h"
 #include "ASTrack.h"
+#include "ARTrack.h"
 #include "AJet.h"
 #include "AMisET.h"
 #include "AFCALShower.h"
@@ -25,17 +26,18 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
  public:
   AEvent();
   ~AEvent() {};
-  
+
   //Data
   int runNumber;
   int eventNumber;
-  
+
   QList<ATrack*> Tracks; // Tracks pointers are stored here
-  
+
   QList<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
+  QList<ARTrack*> RTracks; // Pointers to reconstructed tracks within "EventTracks" are stored here
   QList<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
   QList<AMisET*> MisET;  // Pointers to Jets within "EventTracks" are stored here
-  
+
   int numTracks;
   int numChargedHadrons;
   int numPhotons;
@@ -45,29 +47,29 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int numElectrons;
   int numShowers;
   int numJets;
-  
+
   QList<AShower*> LArshowers;
   QList<AFCALShower*> FCALshowers;
   QList<AShower*> HECshowers;
   QList<AShower*> TILEshowers;
   float ETMis;
   float CaloETMis;
-  
+
   virtual void LoadEvent();
-  
+
   void setName(QString);
   QString name();
-  
+
   QString uid();
-  
+
   void tag(QString tag,bool state);
   QSet<QString> tags();
-  
+
   AEventPackage *package();
   virtual void setPackage(AEventPackage *package);
-  
+
   ATrack* getTrackById(unsigned int id);
-  
+
   template <class T>
     T* getAnalysisData(QString module)
   {
@@ -78,25 +80,26 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 	if(ret!=0)
 	  return ret;
       }
-    
+
     //Nothing found, create new one
     T* ret=new T(module);
     addAnalysisData(module,ret);
     return ret;
   }
-  
+
   void addAnalysisData(QString module,AEventAnalysisData* data);
   QList<QString> listAnalysisData();
   QList<AEventAnalysisData*> allAnalysisData();
-  
+
  signals:
   void modified();
-  
+
  protected:
   int highestTrackID;
 
   void addTrack(ATrack* track);
   void addTrack(ASTrack* track);
+  void addTrack(ARTrack* track);
   void addTrack(AJet* track);
   void addTrack(AMisET* track);
   void addTrack(AShower* track);

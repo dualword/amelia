@@ -43,6 +43,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QFileInfo>
 
 #include "AEvent.h"
+#include <irrlicht.h>
+#include <vector>
+
 
 
 class AEVENTMANAGER_EXPORT AXmlEvent : public AEvent
@@ -78,6 +81,7 @@ class AEVENTMANAGER_EXPORT AXmlEvent : public AEvent
   QList<int> getDataInt ( QDomNode xml );
   QList<float> getDataFloat ( QDomNode xml );
   void GetSTracksFromDOM ( QDomDocument doc);
+  void GetRTracksFromDOM ( QDomDocument doc);
   void GetJetsFromDOM ( QDomDocument doc);
   void GetMisETFromDOM ( QDomDocument doc);
   void GetShowersFromDOM ( QDomDocument doc, QString calo );

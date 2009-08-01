@@ -34,6 +34,9 @@ void AEvent::addTrack(ATrack* track)
     case ATrack::eSTrack:
       addTrack((ASTrack*)track);
       break;
+    case ATrack::eRTrack:
+      addTrack((ARTrack*)track);
+      break;
     case ATrack::eJet:
       addTrack((AJet*)track);
       break;
@@ -94,7 +97,7 @@ void AEvent::addTrack(AShower* shower)
     HECshowers.push_back(shower);
   else if(shower->calometer=="TILE")
     TILEshowers.push_back(shower);
-	
+
 }
 
 void AEvent::addTrack(AFCALShower* shower)
@@ -135,7 +138,7 @@ void AEvent::addAnalysisData(QString modulename,AEventAnalysisData* data)
   if(_package)
     connect(data,SIGNAL(updated()),
 	    _package,SLOT(save()));
-  
+
   _analysisData.insert(modulename,data);
 }
 

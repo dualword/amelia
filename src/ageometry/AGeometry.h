@@ -53,6 +53,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "APoint3D.h"
 
 #include "ASTrack3DNode.h"
+#include "ARTrack3DNode.h"
 #include "AJet3DNode.h"
 #include "AMisET3DNode.h"
 
@@ -76,20 +77,20 @@ public:
   static const int NoneMode=0;
   static const int WedgeMode=1;
   static const int MosesMode=2;
-  
+
   AGeometry(QWidget* parent=0);
   virtual ~AGeometry();
-  
+
   void execute(); // The cycle function which will be called on every frame
   void load();
-  
+
   AFilteredEvent* event();
   int viewport();
   int camera();
-  
+
   void setComboMenu(QMenu*);
   void addToDetectorMenu(QString,QAction*);
-  
+
   QBoolSync* detectorVisibility();
   QBoolSync* pixelsVisibility();
   QBoolSync* sctVisibility();
@@ -99,10 +100,10 @@ public:
   QBoolSync* muonSpecVisibility();
   QBoolSync* magnetsVisibility();
   QBoolSync* pitVisibility();
-  
+
   QBoolSync* calorimetersVisibility();
   QBoolSync* trackerVisibility();
-  
+
   APoint3D cameraPosition();
   APoint3D cameraTarget();
   float cameraFOV();
@@ -110,9 +111,9 @@ public:
 
   ATrack3DNode* getTrackNodeByID(unsigned int ID );
   bool isTrackSelected(unsigned int ID);
-  
+
   scene::ISceneNode* cube;
-  
+
   // Control variables for the dynamic hiding of parts of ATLAS
   bool isTC_on;
   bool isLAr_on;
@@ -122,18 +123,18 @@ public:
   int LAr_switch;
   int SCT_switch;
   int Pix_switch;
-  
-  
+
+
   //Switches for the different modes
   bool detectorMode;
   bool eventAnalysisMode;
   bool multiMediaMode;
-  
-  scene::ISceneNode* selectedTrackBox;  
+
+  scene::ISceneNode* selectedTrackBox;
 
   QAction *actFPS;
   QAction *actSphere;
-		    
+
 public slots:
   void setViewport(int to); //Switches the main screen to the specified camera
   void setCamera(int to,bool animate=true); //Switches the 3D camera
@@ -143,56 +144,56 @@ public slots:
   void unlockCamera();
 
   void setEvent(AFilteredEvent*); // Sets the current event
-  void clearEvent();    
+  void clearEvent();
   void updateTracks();
-  
+
   void switchVisibility(int modType); //Switches the visibility of the different components of the detector
-  
+
   void setCameraPosition(APoint3D pos);
   void setCameraTarget(APoint3D tar);
   void setCameraFOV(float fov);
   void setCameraFarValue(float farvalue);
-  
+
   void renderViewport(int view);
-  
+
   void selectTrackByID(unsigned int ID ,bool multitrack=false);
   void deselectTrackByID(unsigned int ID );
   void clearTrackSelection();
-  
+
   //Functions to grab and release control of the camera
   void grabControl();
   void releaseControl();
-  
+
 signals:
   void cameraControlSwitched(bool grabbed);
   void viewportSwitched(int from,int to);
   void viewportUpdated(int cam,QImage newshot);
   void cropModeSwitched(int newCropMode);
-  
+
   void trackSelected(ATrack*);
   void trackDeselected(ATrack*);
-  
+
   void detectorPartSelected(const QString&);
   void emptySelection();
-  
+
 protected:
   void resizeEvent( QResizeEvent* event );
   void mouseClickEvent( QMouseEvent *event );
   void mouseDoubleClickEvent(QMouseEvent *event);
   void keyPressEvent( QKeyEvent* event );
   void contextMenuEvent( QContextMenuEvent *event );
-  
+
   void setupView(int);
-  
+
   core::vector3df pos;
   core::vector3df rot;
   core::vector3df scale;
-  
-  
+
+
 private:
   // Hidden Constants //
   static const int Lock=4;
-  
+
   // Flags //
   const bool isCrappyComputer;  //removes pit .obj and textures, to speed up rendering
   const bool generateDetectorGeometry;//enables or disables detector geometry for testing purposes
@@ -208,7 +209,7 @@ private:
   QList<ATrack3DNode*> selectedTracks;
   QList<ATrack3DNode*> allTracks;
   QList<AJet3DNode*> allJets;
-  
+
   // GUI stuff //
   QMenu *_comboMenu;
   QMap<QString,QMenu*>  _detectorMenu;
@@ -239,18 +240,18 @@ private:
   core::vector3df cameraLoc; //camera position for Moses Mode, initialized to zero
   core::vector3df DCamPos;
   float modelScale; //model scale
-  
+
   //Cropping modes
   int _cropMode;
   vector<scene::ISceneNode*> allModules;
-  
-  
+
+
   // Dynamic FPS camera initial parameters
   unsigned int cameraZone;
   float camChangeDist1;
   float camChangeDist2;
   float BBscale;
-  
+
   void dynamicCameraSpeed(core::vector3df camPos);  //Modifying camera speed based on proximity to detector
   void dynamicHidingOfModules(core::vector3df camPos);
   void executeMosesMode(core::vector3df camPos);
@@ -259,7 +260,7 @@ private:
   float angleBetween ( scene::ISceneNode* module, core::vector3df cam );
   void createAtlasGeometry();
   void createFlatGeometry();
-  
+
   ATrack3DNode* trackSelection ( core::position2di pos );
   QString detectorSelection( core::position2di pos );
 
@@ -270,19 +271,19 @@ private:
   AFPSControl *fpsControl;
   ASphereControl *sphereControl;
   AFOVControl *sideControl,*frontControl;
-    
+
   video::ITexture *rt;
 
   scene::ISceneNode *_logoNode;
   scene::ISceneNodeAnimator *_logoAnim;
   scene::ILightSceneNode *_logoLight;
-  
+
   //Visibility stuff
   QSignalMapper visibilityMapper;
   QBoolSync _detectorVisibility;
   QBoolSync _calorimetersVisibility;
   QBoolSync _trackerVisibility;
-  
+
   QBoolSync _pixelsVisibility;
   QBoolSync _sctVisibility;
   QBoolSync _trtVisibility;
@@ -291,9 +292,9 @@ private:
   QBoolSync _muonSpecVisibility;
   QBoolSync _magnetsVisibility;
   QBoolSync _pitVisibility;
-  
+
   ATrack3DNode* createTrackNode(ATrack* track);
-  
+
   Q_OBJECT
 };
 

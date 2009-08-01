@@ -38,6 +38,7 @@ SET(ageometry_SRCS
   AGeometry.cpp 
   ATrack3DNode.cpp 
   ASTrack3DNode.cpp 
+  ARTrack3DNode.cpp 
   AJet3DNode.cpp 
   AMisET3DNode.cpp 
   ALayerGUI.cpp 
@@ -73,6 +74,9 @@ SET(ageometry_H
   AGeometry.h 
   ATrack3DNode.h
   ASTrack3DNode.h
+  ARTrack3DNode.h 
+  AJet3DNode.h 
+  AMisET3DNode.h
   AGeometryHUD.h
   ALayerGUI.h 
   AViewport.h 

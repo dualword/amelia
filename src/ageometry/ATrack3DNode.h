@@ -40,6 +40,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include <aeventmanager/ATrack.h>
 #include <aeventmanager/ASTrack.h>
+#include <aeventmanager/ARTrack.h>
 #include <aeventmanager/AMisET.h>
 #include <aeventmanager/AJet.h>
 
@@ -57,12 +58,12 @@ using namespace std;
 
 class ATrack3DNode : public QObject, public scene::ISceneNode
 {
-public:  
+public:
   enum Style { Basic, Selected, Selectable, Disabled };
-  
+
   ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,ATrack* track=0);
   virtual ~ATrack3DNode();
-  
+
   core::aabbox3d<f32> Box;
   ATrack* trackPointer;
   Style _trackStyle;
@@ -70,16 +71,16 @@ public:
   virtual ATrack* getTrack();
   virtual void setTrackStyle(Style style);
   Style trackStyle();
-  
+
   virtual void select();
   virtual void deselect();
 
 signals:
   void lookChanged();
-  
+
 protected:
   video::SMaterial Material;
-  
+
   void setTrack(ATrack* track);
 
   Q_OBJECT

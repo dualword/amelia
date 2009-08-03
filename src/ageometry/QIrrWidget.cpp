@@ -59,14 +59,16 @@ class CTimer : public ITimer
 
 #ifdef Q_WS_MAC
   class CIrrDeviceMacOSX;
+#elif defined(Q_WS_X11)
+  class CIrrDeviceLinux;
 #endif
   
 namespace video
 {	
 #ifdef Q_WS_MAC
-	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& param, irr::io::IFileSystem* io, CIrrDeviceMacOSX *device);
-#else
-	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io);
+	IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& param, irr::io::IFileSystem *io, CIrrDeviceMacOSX *device);
+#elif defined(Q_WS_X11)
+  IVideoDriver* createOpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem *io,CIrrDeviceLinux *device);
 #endif
 }
   
@@ -1046,11 +1048,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
 
   parent->fs = io::createFileSystem();
   
-#ifdef Q_WS_MAC
   parent->driver=createOpenGLDriver(params,parent->fs,0);
-#else
-  parent->driver=createOpenGLDriver(params,parent->fs);
-#endif
   
   parent->gui=createGUIEnvironment(parent->fs,parent->driver,0);
 

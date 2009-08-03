@@ -37,6 +37,7 @@ SET(ageometry_SRCS
   QIrrWidgetRefresher.cpp 
   AGeometry.cpp 
   ATrack3DNode.cpp 
+  AHelix3DNode.cpp 
   ASTrack3DNode.cpp 
   ARTrack3DNode.cpp 
   AJet3DNode.cpp 
@@ -73,6 +74,7 @@ SET(ageometry_H
   QIrrWidget.h 
   AGeometry.h 
   ATrack3DNode.h
+  AHelix3DNode.h
   ASTrack3DNode.h
   ARTrack3DNode.h 
   AJet3DNode.h 

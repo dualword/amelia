@@ -124,3 +124,33 @@ bool ARTrack::isInteresting()
 {
     return (isElectron() || isMuon() || isPhoton());
 }
+
+void ARTrack::setRTrackType(rType type)
+{
+//  ARTrackType=type;
+}
+
+void ARTrack::setRTrackType(QString type)
+{
+
+	// This is currently empty until we research a complete list of types
+ /* rType rtype;
+  if (type == QString(""))
+    {
+      rtype = ARTrack::
+    }
+  if (type == QString(""))
+    {
+      rtype = ARTrack::
+    }
+  if (type == QString(""))
+    {
+      rtype = ARTrack::
+    }
+  if (type == QString(""))
+    {
+      rtype = ARTrack::
+    }
+
+  setRTrackType(rtype);*/
+}

@@ -58,350 +58,108 @@ const video::SColor colorlist[52] =
   };
 
 ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ASTrack* track)
-  : ATrack3DNode ( parent, smgr, id ,track),_blinkTimer(-1),_blinkCount(0)
+  : AHelix3DNode ( parent, smgr, id ,track)
 {
-  boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr,1.5);
-    this->setName ( "ASTrack3DNode" );
+  this->setName ( "ASTrack3DNode" );
 
-    calculateDimmedColors();
- 
-    if ( track->charge() == 0 )
-      {
-	std::vector<core::vector3df> StartEndNeutral = getNeutralPath();
-        start = StartEndNeutral.front();
-        end = StartEndNeutral.back();
-        curvePoints.push_back ( start );
-        curvePoints.push_back ( end );
-      }
-    else
-      {
-        maxAngle = getChargedMaxAngle();
-        createCurveVector();
-      }
-
-    std::vector<core::vector3df>::const_iterator iter=curvePoints.begin();
-    std::vector<core::vector3df>::const_iterator iterE=curvePoints.end();
-    for(;iter!=iterE;iter++)
-      {
-	Box.addInternalPoint(*iter);
-      }
-
-
-    boxMode=false;
-    setTrackStyle(Basic);
+  vividColor=colorlist[((ASTrack*)getTrack())->getIndex()];  
+  
+  if ( track->charge() == 0 )
+    {
+      createNeutralVector(10);
+    }
+  else
+    {
+      maxAngle = getChargedMaxAngle();
+      createCurveVector();
+    }
+  
+  std::vector<core::vector3df>::const_iterator iter=curvePoints.begin();
+  std::vector<core::vector3df>::const_iterator iterE=curvePoints.end();
+  for(;iter!=iterE;iter++)
+    {
+      Box.addInternalPoint(*iter);
+    }
+  
+  setTrackStyle(Basic);
 }
 
 
 ASTrack3DNode::~ASTrack3DNode()
-{
-    boxSizeAnim->drop();
-}
+{ }
 
 void ASTrack3DNode::setTrack ( ASTrack* track )
 {
   ATrack3DNode::setTrack(track);
 }
 
-int ASTrack3DNode::getTrackNumber()
-{
-    return this->trackNumber;
-}
-
-void ASTrack3DNode::setTrackStyle ( Style style )
-{
-  ATrack3DNode::setTrackStyle(style);
-
-  switch(style)
-    {
-    default:
-    case Basic:
-      //simple line track, no boxes
-      if ( boxMode )
-	{
-	  for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-	    {
-	      (*it)->remove();
-	    }
-	    boxSegments.clear();
-	}
-      isLineVisible = true;
-      boxMode = false;
-      color = this->vividColor;
-      addAnimator(boxSizeAnim);
-      emit lookChanged();
-      break;
-      
-    case Selectable:
-      //simple line visible in vivid color, boxes present for selection but invisible
-      if ( !boxMode )
-	{
-	  createBoxes();
-	}
-      isLineVisible = true;
-      boxMode = true;
-      color = this->vividColor;
-      removeAnimator(boxSizeAnim);
-      setScale(vector3df(1,1,1));
-      updateAbsolutePosition();
-      for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-	{
-	  ( *it )->setVisible ( true );
-	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "transparent.png" ) );
-	  ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
-	  ( *it )->setDebugDataVisible ( EDS_OFF );
-	  boxSizeAnim->animateNode((*it),0);
-	}
-      break;
-  
-      /*case Selected:
-      //simple line visible, bounding boxes visible
-      if ( !boxMode ) 
-	{
-	  createBoxes();
-	}
-      this->isLineVisible = true;
-      this->boxMode = true;
-      this->color = this->vividColor;
-      for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-	{
-	  ( *it )->setVisible ( true );
-	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "transparent.png" ) );
-	  ( *it )->setMaterialType ( video::EMT_TRANSPARENT_ALPHA_CHANNEL );
-	  ( *it )->setDebugDataVisible ( EDS_BBOX );
-	}*/
-    case Selected:
-      //simple line invisible, boxes visible with original color
-      if ( !boxMode )
-	{
-	  createBoxes();
-	}
-      boxMode = true;
-      removeAnimator(boxSizeAnim);
-      setScale(vector3df(1,1,1));
-      updateAbsolutePosition();
-      for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-	{
-	  ( *it )->setVisible ( true );
-	  ( *it )->setDebugDataVisible ( EDS_OFF );
-	  ( *it )->setMaterialType ( video::EMT_SOLID );
-	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
-	  //(*it)->getMaterial(0).EmissiveColor.set(this->color);
-	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-	  m->EmissiveColor = vividColor ;
-	}
-      if(!getTrack()->isInteresting())
-	{
-	  isLineVisible = true;
-	  if(_blinkTimer==-1)
-	    {
-	      _blinkCount=0;
-	      _blinkTimer=startTimer(100);
-	    }
-	} 
-      else
-	{
-	  isLineVisible = false;
-	}
-      emit lookChanged();
-      break;
-    case Disabled:
-      //simple line invisible, boxes visible in grey
-      if ( !boxMode )
-	{
-	  createBoxes();
-	}
-      isLineVisible = false;
-      boxMode = true;
-      for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-	{
-	  ( *it )->setVisible ( true );
-	  ( *it )->setDebugDataVisible ( EDS_OFF );
-	  ( *it )->setMaterialType ( video::EMT_SOLID );
-	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
-	  video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-	  m->EmissiveColor = video::SColor ( 0,122,122,122 );
-	}
-      emit lookChanged();
-      break;
-  
-  //simple line invisible, boxes invisible if present
-      /*if ( style == 5 )
-    {
-      isLineVisible = false;
-      if ( boxMode )
-	{
-	  for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-	    {
-	      ( *it )->setVisible ( false );
-	    }
-	}
-      
-	}*/
-    }
-}
-
-void ASTrack3DNode::select()
-{
-  setTrackStyle(Selected);
-}
-
-void ASTrack3DNode::deselect()
-{
-  setTrackStyle(Basic);
-}
-
-void ASTrack3DNode::calculateDimmedColors()
-{
-  
-  //this->dimmedColor = this->vividColor.getInterpolated(video::SColor(0,0,0,0), 0.5);
-  vividColor=colorlist[((ASTrack*)getTrack())->getIndex()];
-  dimmedColor = vividColor;
-  /*this->dimmedColor.setRed(this->vividColor.getRed()*0.75);
-    this->dimmedColor.setGreen(this->color.getGreen()*0.75);
-    this->dimmedColor.setBlue(this->color.getBlue()*0.75);
-    this->dimmedColor.setAlpha(this->color.getAlpha()*0.75);*/
-}
-
 /*********************************************************
-
 ****************NEUTRAL PARTICLE**************************
-
-//********************************************************/
-
-
-std::vector<core::vector3df> ASTrack3DNode::getNeutralPath()
-
+*********************************************************/
+void ASTrack3DNode::createNeutralVector(int nsegments)
 {
-    std::vector<core::vector3df> StartEnd ( 2 );
-    float c = 180.f/3.1415926f;
-    float sc = 0.001f;
-    float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
+  // Clear previous setting
+  this->curvePoints.clear();
 
-    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc;
-    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc;
-    float Z0 = ((ASTrack*)getTrack())->zVertex*sc;
-    float Xdir = sin ( ((ASTrack*)getTrack())->phi );
-    float Ydir = cos ( ((ASTrack*)getTrack())->phi );
-    float Zdir = 1/tan ( theta );
-    //float Length_dir = sqrt(Xdir*Xdir + Ydir*Ydir + Zdir*Zdir);
+  // Some constants
+  float c = 180.f/3.1415926f;
+  float sc = 0.001f;
 
-    float Length_multiply = 0;
-    while ( ( ( ( Xdir*Length_multiply+X0 ) * ( Xdir*Length_multiply+X0 ) + ( Ydir*Length_multiply+Y0 ) * ( Ydir*Length_multiply+Y0 ) ) <=Radius*Radius ) )
+  // Start here
+  float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc;
+  float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc;
+  float Z0 = ((ASTrack*)getTrack())->zVertex*sc;
+
+  // Go in this direction
+  float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
+  float Xdir = sin ( ((ASTrack*)getTrack())->phi );
+  float Ydir = cos ( ((ASTrack*)getTrack())->phi );
+  float Zdir = 1/tan ( theta );
+
+  // Find the maxumum length of the track such that it does not exit the radius of the inner detector.
+  // This is done by slowly increasing the length, until it gets bigger..
+  // (Can't we just calculate the length by trigonometry (radius = projection of length onto phi plane + initial position in x/y)
+  float Length_multiply = 0;
+  while ( ( ( ( Xdir*Length_multiply+X0 ) * ( Xdir*Length_multiply+X0 ) + ( Ydir*Length_multiply+Y0 ) * ( Ydir*Length_multiply+Y0 ) ) <=Radius*Radius ) )
     {
-        Length_multiply +=0.5;
+      Length_multiply +=0.5;
     }
-
-    if ( Length_multiply > Length )
-    {
-        Length_multiply = Length;
-    }
-
-    if ( ( X0*X0+Y0*Y0 ) <=Radius*Radius )
-    {
-        core::vector3df start0 = core::vector3df ( X0,Y0,Z0 );
-        StartEnd.clear();
-        StartEnd.push_back ( start0 );
-        this->start = start0;
-        core::vector3df direction = core::vector3df ( Xdir, Ydir, Zdir );
-        //core::vector3df end0  = start + direction*Length_multiply;
-        core::vector3df end0  = start0 + direction*Length_multiply;
-
-        StartEnd.push_back ( end0 );
-
-        this->end = end0;
-    }
-
-    return StartEnd;
-}
-
-
-void ASTrack3DNode::createBoxes()
-{
-    if ( ((ASTrack*)getTrack())->charge() == 0 )
-      {
-	createBoxesNeutral();
-      }
-    else
-      {
-	createBoxesCharged();
-      }
-}
-
-
-
-void ASTrack3DNode::createBoxesNeutral()
-{
-  core::vector3df vect0 = this->end - this->start;
-  core::vector3df pos0 = ( vect0 ) /2 + this->start;
-  core::vector3df rot = vect0.getHorizontalAngle();
-  core::vector3df zero = core::vector3df ( 0,0,0 );
   
-  scene::IAnimatedMesh* trackCube = SceneManager->getMesh ( "CubeUnit.X" );
-  
-  
-  core::vector3df vect = vect0/10;
-  core::vector3df scale = core::vector3df ( 0.2f,0.2f, vect.getLength() );
-  for (int i = 0; i < 10; i++) // let's reate segments for the neutral tracks, to avoid perspective tappering
+  // Set some limits on the maximum length..
+  if ( Length_multiply > Length )
     {
-      core::vector3df pos = vect*i + ( vect ) /2 + this->start;
-      
-      scene::ISceneNode* nodeBox = 0;
-      nodeBox = SceneManager->addMeshSceneNode ( trackCube );
-      nodeBox->setPosition ( pos );
-      nodeBox->setRotation ( rot );
-      nodeBox->setScale ( scale );
-      //nodeBox = SceneManager->addCubeSceneNode(1.0f, 0, -1, pos, rot, scale );
-      
-      video::SMaterial* m = &nodeBox->getMaterial ( 0 );
-      nodeBox->setMaterialType ( video::EMT_SOLID );
-      nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
-      nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
-      nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
-      nodeBox->setAutomaticCulling ( EAC_OFF );
-      nodeBox->addAnimator(boxSizeAnim);
-      m->EmissiveColor = this->color ;
-      m->DiffuseColor = video::SColor ( 0,0,0,0 );
-      m->AmbientColor = video::SColor ( 0,0,0,0 );
-      m->Shininess = 128 ;
-      
-      nodeBox->getTransformedBoundingBox();
-      nodeBox->setParent ( this );
-      //nodeBox->setDebugDataVisible(true);
-      nodeBox->setID ( 16 );
-      nodeBox->setVisible ( false );
-      this->boxSegments.push_back ( nodeBox );
+      Length_multiply = Length;
     }
-}
-
-
-void ASTrack3DNode::constructNeutral()
-{
-
-    video::SMaterial m;
-    m.EmissiveColor = this->color ;
-    SceneManager->getVideoDriver()->setMaterial ( m );
-
-    SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-    SceneManager->getVideoDriver()->draw3DLine ( this->start, this->end ,this->color);
-
+  
+  if ( ( X0*X0+Y0*Y0 ) <=Radius*Radius ) // Sanity check. Track shouldn't start outside of the radius..
+    {
+      core::vector3df initial = core::vector3df ( X0,Y0,Z0 );
+      
+      core::vector3df direction = core::vector3df ( Xdir, Ydir, Zdir );
+      direction*=Length_multiply/nsegments;
+      
+      // We need to loop over n+1 times, because we want to add in the initial point
+      for(int i=0;i<=nsegments;i++)
+	{
+	  curvePoints.push_back(initial);
+	  initial+=direction;
+	}
+    }
+ 
 }
 
 /*********************************************************
-
 ****************CHARGED PARTICLE**************************
-
-//********************************************************/
+*********************************************************/
 
 float ASTrack3DNode::x_helix ( float w, float X_CH, float R, float phi, float charge )
 {
-    return ( X_CH - charge * R*cos ( phi + charge*w ) );
+  return ( X_CH - charge * R*cos ( phi + charge*w ) );
 }
-
-
 
 float ASTrack3DNode::y_helix ( float w, float Y_CH, float R, float phi, float charge )
 {
-    return ( Y_CH - charge * R*sin ( phi + charge*w ) );
+  return ( Y_CH - charge * R*sin ( phi + charge*w ) );
 }
 
 float ASTrack3DNode::z_helix ( float w, float Z_CH, float theta, float R )
@@ -409,236 +167,89 @@ float ASTrack3DNode::z_helix ( float w, float Z_CH, float theta, float R )
     return ( Z_CH + w*R* ( 1/tan ( theta ) ) );
 }
 
-
 float ASTrack3DNode::getChargedMaxAngle ()
-
 {
-
-
-    float C = 1000.f/0.6f;
-    float sc = 0.001f;
-    float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
-    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The X coordinate of the vertex
-    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The Y coordinate of the vertex
-    //float Z0 = v_z;                       // The Z coordinate of the vertex
-    float R = ((ASTrack*)getTrack())->Pt()*C;
-    float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( ((ASTrack*)getTrack())->phi ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( ((ASTrack*)getTrack())->phi ); //The Y coordinate of the center of the helix
-    float E = exp ( ((ASTrack*)getTrack())->eta );
-    float tL = 0.5 * ( exp ( ((ASTrack*)getTrack())->eta ) - exp ( -((ASTrack*)getTrack())->eta ) ); //dip of track = Pz/pTTrack, constant along the helix
-    //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
-    //float startPhi = phi0+adjPhi;
-    float Z_CH = ((ASTrack*)getTrack())->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
-    float a=0.05/RadDeg;
-
-    for ( int w=0; w<=5000; w++ )
+  float C = 1000.f/0.6f;
+  float sc = 0.001f;
+  float theta = 2*atan ( exp ( -(((ASTrack*)getTrack())->eta) ) );
+  float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The X coordinate of the vertex
+  float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ) *sc; // The Y coordinate of the vertex
+  //float Z0 = v_z;                       // The Z coordinate of the vertex
+  float R = ((ASTrack*)getTrack())->Pt()*C;
+  float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( ((ASTrack*)getTrack())->phi ); //The X coordinate of the center of the helix
+  float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( ((ASTrack*)getTrack())->phi ); //The Y coordinate of the center of the helix
+  float E = exp ( ((ASTrack*)getTrack())->eta );
+  float tL = ((ASTrack*)getTrack())->getTl(); //dip of track = Pz/pTTrack, constant along the helix
+  //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
+  //float startPhi = phi0+adjPhi;
+  float Z_CH = ((ASTrack*)getTrack())->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+  float a=0.05/RadDeg;
+  
+  for ( int w=0; w<=5000; w++ )
     {
       if ( ( x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) *x_helix ( w*a, X_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) + y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) *y_helix ( w*a, Y_CH, R, ((ASTrack*)getTrack())->phi, ((ASTrack*)getTrack())->charge() ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
         {
-            return w*a;
-            break;
+	  return w*a;
+	  break;
         }
-
-
     }
 	
-	//TODO: Return a sensible value
-	return 0;
+  //TODO: Return a sensible value
+  return 0;
 }
-
 
 void ASTrack3DNode::createCurveVector()
 {
-    float pi = 3.1415926f;
-    float phiTrans = -(((ASTrack*)getTrack())->phi) + pi;
-    float C = 1000.f/0.6f;
-    float theta = 2*atan ( exp ( - ( ((ASTrack*)getTrack())->eta ) ) );
-    float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
-    float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex
-    float Z0 = ((ASTrack*)getTrack())->zVertex;                       // The Z coordinate of the vertex
-    float R = ((ASTrack*)getTrack())->Pt()*C;
-    float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( phiTrans ); //The X coordinate of the center of the helix
-    float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
-    float E = exp ( ((ASTrack*)getTrack())->eta );
-    float tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp ( - (((ASTrack*)getTrack())->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
-    //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
-    //float startPhi = phi0+adjPhi;
-    float Z_CH = ((ASTrack*)getTrack())->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
-
-
-    // Output:
-    // tL = dip of track = Pz/pTTrack =0.5 * ( E - 1/E ) : constant along the helix
-    // eta = ln( Pz/pTTrack + SQRT[(Pz/pTTrack)**2 +1 ]
-    // d0 = distance between circle and (0,0) at point of closest approach PCA
-    // Fs = angle between (0,0) and vertex as seen from the circle center [degrees]
-    // Z0 = Z of circle at PCA
-    // F0 = phi0 of track at PCA [degrees]
-    // Pq = charge*pTTrack
-    // For helices starting at PCA: Fs=0. this is the case for reconstructed
-    // helices, which are not yet associated to a secondary vertex or are
-    // drawn to PCA.
-    // calculation:
-    // rC = C*pTTrack                            C = 100./0.6
-    // rC = C*pTTrack
-    // xC = rhoVertex*cos(phiVertex) + rC*sin(phiTrack)
-    // yC = rhoVertex*sin(phiVertex) - rC*cos(phiTrack)
-    // tl = Pz/pTTrack = 0.5 * ( E - 1/E )
-    // d0 = rC - sqrt(xC*xC + yC*yC)
-    // startPhi = pi/2 - phiTrack + atan2(yC,xC)    modify startPhi to: -pi/2 < startPhi < pi/2
-    // z0 = zVertex - rC*startPhi*tl
-    // phi0 = phiTrack + startPhi
-    // pCharge = charge*pTTrack
-    // Change startPhi and phi0 from radians to degrees.
-    // ///
-
-    this->curvePoints.clear();
-    core::vector3df point;
-    float angularStep = ( ( this->maxAngle ) /helixSections );
-
-    for ( int w=0; w<=helixSections; w++ )
-    {
-        point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
-        this->curvePoints.push_back ( point );
-    }
-}
-
-void ASTrack3DNode::constructCharged()
-{
-  video::SMaterial m;
-  core::vector3df previous = this->curvePoints.at ( 0 );
-  vector<core::vector3df>::iterator it;
-  for ( vector<core::vector3df>::iterator it = this->curvePoints.begin() ; it < this->curvePoints.end(); it++ )
-    {
-      m.EmissiveColor = this->color ;
-      SceneManager->getVideoDriver()->setMaterial ( m );
-
-      SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-      SceneManager->getVideoDriver()->draw3DLine ( previous, *it );
-      previous = *it;
-    }
-}
-
-void ASTrack3DNode::createBoxesCharged()
-{
-  core::vector3df previous = this->curvePoints.at ( 0 );
-  vector<core::vector3df>::iterator it;
-  scene::IAnimatedMesh* trackCube = SceneManager->getMesh ( "CubeUnit.X" );
-  for ( vector<core::vector3df>::iterator it = this->curvePoints.begin() ; it < this->curvePoints.end(); it++ )
-    {
-       core::vector3df vect = *it - previous;
-      core::vector3df pos = ( *it - previous ) /2 + previous;
-      core::vector3df rot = vect.getHorizontalAngle();
-      core::vector3df scale = core::vector3df ( 0.2f,0.2f,vect.getLength() );
-      
-      scene::ISceneNode* nodeBox = 0;
-      //nodeBox = SceneManager->addCubeSceneNode(1.0f, 0, -1, pos, rot, scale );
-      
-      nodeBox = SceneManager->addMeshSceneNode ( trackCube );
-      nodeBox->setPosition ( pos );
-      nodeBox->setRotation ( rot );
-      nodeBox->setScale ( scale );
-      video::SMaterial* m = &nodeBox->getMaterial ( 0 );
-      nodeBox->setMaterialType ( video::EMT_SOLID );
-      nodeBox->setMaterialFlag ( video::EMF_GOURAUD_SHADING , false );
-      nodeBox->setMaterialFlag ( video::EMF_LIGHTING , true );
-      nodeBox->setMaterialFlag ( video::EMF_BACK_FACE_CULLING, false );
-      nodeBox->setAutomaticCulling ( EAC_OFF );
-      nodeBox->addAnimator(boxSizeAnim);
-      m->EmissiveColor = this->color ;
-      m->DiffuseColor = video::SColor ( 0,0,0,0 );
-      m->AmbientColor = video::SColor ( 0,0,0,0 );
-      m->Shininess = 128 ;
-      
-      nodeBox->setParent ( this );
-      nodeBox->getTransformedBoundingBox();
-      //nodeBox->setDebugDataVisible(true);
-      nodeBox->setID ( 16 );
-      nodeBox->setVisible ( false );
-      this->boxSegments.push_back ( nodeBox );
-      
-      
-      previous = *it;
-    }
-}
-
-void ASTrack3DNode::setBoxesVisibility ( bool boxVisibility )
-{
-    for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-    {
-        ( *it )->setVisible ( boxVisibility );
-    }
-}
-
-void ASTrack3DNode::setBoxesSelected ( bool boxesSelected )
-{
-    for ( vector<scene::ISceneNode*>::iterator it = this->boxSegments.begin() ; it < this->boxSegments.end(); it++ )
-    {
-        video::SMaterial* m = & ( *it )->getMaterial ( 0 );
-
-        boxesSelected ? m->EmissiveColor = video::SColor ( 0,122,122,122 ) : m->EmissiveColor = this->color ;
-
-    }
-}
-
-
-void ASTrack3DNode::Helix()
-{
-
-  if ( ((ASTrack*)getTrack())->charge() == 0 )
-    {
-      constructNeutral();
-    }
-  else
-    {
-      constructCharged();
-    }
-  tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp (-(((ASTrack*)getTrack())->eta)));
-}
-
-
-void ASTrack3DNode::OnRegisterSceneNode()
-{
-  if ( IsVisible )
-    SceneManager->registerNodeForRendering ( this );
+  float pi = 3.1415926f;
+  float phiTrans = -(((ASTrack*)getTrack())->phi) + pi;
+  float C = 1000.f/0.6f;
+  float theta = 2*atan ( exp ( - ( ((ASTrack*)getTrack())->eta ) ) );
+  float X0 = ((ASTrack*)getTrack())->rhoVertex * cos ( ((ASTrack*)getTrack())->phiVertex ); // The X coordinate of the vertex
+  float Y0 = ((ASTrack*)getTrack())->rhoVertex * sin ( ((ASTrack*)getTrack())->phiVertex ); // The Y coordinate of the vertex
+  float Z0 = ((ASTrack*)getTrack())->zVertex;                       // The Z coordinate of the vertex
+  float R = ((ASTrack*)getTrack())->Pt()*C;
+  float X_CH = X0 + ((ASTrack*)getTrack())->charge() * R*cos ( phiTrans ); //The X coordinate of the center of the helix
+  float Y_CH = Y0 + ((ASTrack*)getTrack())->charge() * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
+  float E = exp ( ((ASTrack*)getTrack())->eta );
+  float tL = 0.5 * ( exp (((ASTrack*)getTrack())->eta) - exp ( - (((ASTrack*)getTrack())->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
+  //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
+  //float startPhi = phi0+adjPhi;
+  float Z_CH = ((ASTrack*)getTrack())->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
   
   
-  ISceneNode::OnRegisterSceneNode();
-}
-
-void ASTrack3DNode::render()
-{
-  if ( this->isLineVisible )
-    {
-      Helix();
-    }
-}
-
-
-const core::aabbox3d<f32>& ASTrack3DNode::getBoundingBox() const
-{
-  return Box;
-}
-
-
-
-video::SMaterial& ASTrack3DNode::getMaterial ( s32 i )
-{
-  return Material;
-}
-
-void ASTrack3DNode::timerEvent(QTimerEvent *event)
-{
-  for ( vector<scene::ISceneNode*>::iterator it = boxSegments.begin() ; it < boxSegments.end(); it++ )
-    {
-      ( *it )->setVisible ( !( *it )->isVisible() );
-    }
-  _blinkCount++;
-  if(_blinkCount>10)
-    {
-      killTimer(_blinkTimer);
-      _blinkTimer=-1;
-      deselect();
-    }
+  // Output:
+  // tL = dip of track = Pz/pTTrack =0.5 * ( E - 1/E ) : constant along the helix
+  // eta = ln( Pz/pTTrack + SQRT[(Pz/pTTrack)**2 +1 ]
+  // d0 = distance between circle and (0,0) at point of closest approach PCA
+  // Fs = angle between (0,0) and vertex as seen from the circle center [degrees]
+  // Z0 = Z of circle at PCA
+  // F0 = phi0 of track at PCA [degrees]
+  // Pq = charge*pTTrack
+  // For helices starting at PCA: Fs=0. this is the case for reconstructed
+  // helices, which are not yet associated to a secondary vertex or are
+  // drawn to PCA.
+  // calculation:
+  // rC = C*pTTrack                            C = 100./0.6
+  // rC = C*pTTrack
+  // xC = rhoVertex*cos(phiVertex) + rC*sin(phiTrack)
+  // yC = rhoVertex*sin(phiVertex) - rC*cos(phiTrack)
+  // tl = Pz/pTTrack = 0.5 * ( E - 1/E )
+  // d0 = rC - sqrt(xC*xC + yC*yC)
+  // startPhi = pi/2 - phiTrack + atan2(yC,xC)    modify startPhi to: -pi/2 < startPhi < pi/2
+  // z0 = zVertex - rC*startPhi*tl
+  // phi0 = phiTrack + startPhi
+  // pCharge = charge*pTTrack
+  // Change startPhi and phi0 from radians to degrees.
+  // ///
   
-  emit lookChanged();
+  this->curvePoints.clear();
+  core::vector3df point;
+  float angularStep = ( ( this->maxAngle ) /helixSections );
+  
+  for ( int w=0; w<=helixSections; w++ )
+    {
+      point = scaleEvent*core::vector3df ( x_helix ( w*angularStep, X_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , y_helix ( w*angularStep, Y_CH, R, phiTrans, ((ASTrack*)getTrack())->charge() ) , z_helix ( w*angularStep, Z_CH, theta, R ) );
+      this->curvePoints.push_back ( point );
+    }
 }
+

@@ -73,6 +73,12 @@ void AEvent::addTrack(ASTrack* track)
 
 }
 
+void AEvent::addTrack(ARTrack* track)
+{
+  //Let's leave it empty for the time being...
+
+}
+
 void AEvent::addTrack(AJet* jet)
 {
   Jets.push_back(jet);

@@ -458,7 +458,7 @@ ATrack3DNode* AGeometry::trackSelection ( core::position2di pos )
             if (!allTracks[i]->isVisible()) continue;
             ATrack *track=allTracks[i]->getTrack();
 
-            if ( selectedSceneNode && ( track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt ) ) //tracks
+            if ( selectedSceneNode && ( track->type() == ATrack::eSTrack || track->type() == ATrack::eRTrack || track->type() == ATrack::eMissingEt ) ) //tracks
             {
                 if ( selectedSceneNode->getParent() == allTracks[i] )
                 {
@@ -1391,20 +1391,17 @@ ATrack3DNode* AGeometry::createTrackNode(ATrack* track)
         node=new AJet3DNode(_rootTracksNode,getSceneManager(),0,jet);
         allJets.push_back((AJet3DNode*)node);
     }
-
-    if (track->type()==ATrack::eSTrack)
+    else if (track->type()==ATrack::eSTrack)
     {
         ASTrack* str=(ASTrack*)track;
         node=new ASTrack3DNode(_rootTracksNode,getSceneManager(),0,str);
     }
-
-    if (track->type()==ATrack::eRTrack)
+    else if (track->type()==ATrack::eRTrack)
     {
         ARTrack* rtr=(ARTrack*)track;
         node=new ARTrack3DNode(_rootTracksNode,getSceneManager(),0,rtr);
     }
-
-    if (track->type()==ATrack::eMissingEt)
+    else if (track->type()==ATrack::eMissingEt)
     {
         AMisET* miset=(AMisET*)track;
         node=new AMisET3DNode(_rootTracksNode,getSceneManager(),0,miset);

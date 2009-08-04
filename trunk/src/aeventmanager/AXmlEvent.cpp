@@ -41,6 +41,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QRegExp>
 #include <QStringList>
 #include <QString>
+#include <QDir>
 
 #include <string>
 #include <vector>
@@ -81,53 +82,57 @@ QList<int> AXmlEvent::getDataInt ( QDomNode xml )
     int sbi;
 
     QDomText textNode=xml.firstChild().toText();
-    std::string dstr = textNode.data().trimmed().toLocal8Bit().data();
+    std::string dstr = textNode.data().toLocal8Bit().data();
 
     for ( unsigned int i=0; i < dstr.size(); i++ )
     {
-        if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
+        if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) && ( dstr[i] != '\r' ) )
         {
             add = dstr[i];
             sb = sb + add;
         }
-
         else
         {
-            sbi = atoi ( sb.c_str() );
-            v.push_back ( sbi );
-            sb = "";
+	  if(sb!="")
+	    {
+	      sbi = atoi ( sb.c_str() );
+	      v.push_back ( sbi );
+	    }
+	  sb="";
         }
     }
 
     return v;
 }
 
-QList<float> AXmlEvent::getDataFloat ( QDomNode xml )
-{
-    std::string sb;
-    std::string add;
-    QList<float> v;
-    float sbf;
-
-    QDomText textNode=xml.firstChild().toText();
-    std::string dstr = textNode.data().toLocal8Bit().data();
-
-    for ( unsigned int i=0; i < dstr.size(); i++ )
+QList<float> AXmlEvent::getDataFloat ( QDomNode xml ){
+  std::string sb;
+  std::string add;
+  QList<float> v;
+  float sbf;
+  
+  QDomText textNode=xml.firstChild().toText();
+  std::string dstr = textNode.data().toLocal8Bit().data();
+  
+  for ( unsigned int i=0; i < dstr.size(); i++ )
     {
-        if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) )
+      if ( ( dstr[i] != ' ' ) && ( dstr[i] != '\n' ) && ( dstr[i] != '\r' ) )
         {
-            add = dstr[i];
-            sb = sb + add;
+	  add = dstr[i];
+	  sb = sb + add;
         }
-
-        else
+      
+      else
         {
-            sbf = atof ( sb.c_str() );
-            v.push_back ( sbf );
-            sb = "";
+	  if(sb!="")
+	    {
+	      sbf = atof ( sb.c_str() );
+	      v.push_back ( sbf );
+	    }
+	  sb = "";
         }
     }
-
+  
     return v;
 }
 
@@ -290,7 +295,7 @@ void AXmlEvent::GetRTracksFromDOM ( QDomDocument dom )
 
 
     //Get the list of different types of "tracks"
-    QDomNodeList RTracks=dom.elementsByTagName("Tracks");
+    QDomNodeList RTracks=dom.elementsByTagName("Track");
 
     //Load the cool tracks!
     for (unsigned int i=0;i<RTracks.length();i++)
@@ -318,31 +323,30 @@ void AXmlEvent::GetRTracksFromDOM ( QDomDocument dom )
         for ( int j = 0; j < rtr_barcode.size(); j++ )
         {
 
-            ARTrack* t = new ARTrack();
-
-            if ( j<rtr_barcode.size() ) t->barcode = rtr_barcode[j];
-            if ( j<rtr_chi2.size() ) t->chi2 = rtr_chi2[j];
-            if ( j<rtr_id.size() ) t->setTrackID(rtr_id[j]);
-            if ( j<rtr_cotTheta.size() ) t->cotTheta = rtr_cotTheta[j];
-            if ( j<rtr_d0.size() ) t->d0 = rtr_d0[j];
-            if ( j<rtr_pt.size() ) t->setPt(rtr_pt[j]);
-            if ( j<rtr_z0.size() ) t->z0 = rtr_z0[j];
-
-            // Now for the polyline part
-            if ( j<rtr_numPolyline.size() )
+	  ARTrack* t = new ARTrack();
+	  
+	  if ( j<rtr_barcode.size() ) t->barcode = rtr_barcode[j];
+	  if ( j<rtr_chi2.size() ) t->chi2 = rtr_chi2[j];
+	  if ( j<rtr_id.size() ) t->setTrackID(rtr_id[j]);
+	  if ( j<rtr_cotTheta.size() ) t->cotTheta = rtr_cotTheta[j];
+	  if ( j<rtr_d0.size() ) t->d0 = rtr_d0[j];
+	  if ( j<rtr_pt.size() ) t->setPt(rtr_pt[j]);
+	  if ( j<rtr_z0.size() ) t->z0 = rtr_z0[j];
+	  
+	  // Now for the polyline part
+	  if ( j<rtr_numPolyline.size() )
             {
-                int polySections = rtr_numPolyline[j];
-                for ( int p = bookmarkPolyline; j < bookmarkPolyline + polySections; j++ )
+	      int polySections = rtr_numPolyline[j];
+	      for ( int p = bookmarkPolyline; p < bookmarkPolyline + polySections; p++ )
                 {
-                    irr::core::vector3df polyPoint = irr::core::vector3df (rtr_polylineX[p], rtr_polylineY[p], rtr_polylineZ[p]  );
-                    t->polyLine.push_back ( polyPoint );
-                }
-                bookmarkPolyline += polySections;
+		  irr::core::vector3df polyPoint = irr::core::vector3df (rtr_polylineX[p], rtr_polylineY[p], rtr_polylineZ[p]  );
+		  t->polyLine.push_back ( polyPoint );
+		}
+	      bookmarkPolyline += polySections;
             }
 
-            t->setRTrackType(attr.value());
-            addTrack(t);
-
+	  t->setRTrackType(attr.value());
+	  addTrack(t);
         }
     }
 }
@@ -433,7 +437,7 @@ void AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
     }
 
 }
-#include <QDir>
+
 void AXmlEvent::GetEventFromFile ( QString filename )
 {
     qDebug() << "Event from file " << filename;

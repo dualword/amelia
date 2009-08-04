@@ -57,9 +57,9 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 ALayerGUI::ALayerGUI(QWidget* parent)
         : QFrame(parent)
 {
-    modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final);
-    particleFilter=new AParticleFilter();
-    ptFilter=new APtFilter(1,particleFilter);
+  modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final,ATrack::eSTrack);
+  particleFilter=new AParticleFilter();
+  ptFilter=new APtFilter(1,particleFilter);
 }
 
 ALayerGUI::~ALayerGUI()

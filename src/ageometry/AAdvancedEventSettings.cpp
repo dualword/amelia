@@ -1,5 +1,5 @@
 #include "AAdvancedEventSettings.h"
-
+#include <QDebug>
 #include <QComboBox>
 
 AAdvancedEventSettings::AAdvancedEventSettings(QWidget* parent)
@@ -22,6 +22,11 @@ void AAdvancedEventSettings::setModelFilter(AModelFilter *modelFilter)
   QString misEtModel=modelFilter->misEtTypeString();
   index=misEtBox->findText(misEtModel);
   misEtBox->setCurrentIndex(index);
+
+  QComboBox *trackBox=findChild<QComboBox *>("TrackComboBox");
+  QString trackModel=modelFilter->trackTypeString();
+  index=trackBox->findText(trackModel);
+  trackBox->setCurrentIndex(index);
 }
 
 void AAdvancedEventSettings::accept()
@@ -33,6 +38,10 @@ void AAdvancedEventSettings::accept()
   QComboBox *misEtBox=findChild<QComboBox *>("MisEtComboBox");
   QString misEtModel=misEtBox->currentText();
   _modelFilter->setMisEtType(misEtModel);
+
+  QComboBox *trackBox=findChild<QComboBox *>("TrackComboBox");
+  QString trackModel=trackBox->currentText();
+  _modelFilter->setTrackType(trackModel);
 }
 
 

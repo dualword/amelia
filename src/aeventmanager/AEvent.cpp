@@ -75,8 +75,22 @@ void AEvent::addTrack(ASTrack* track)
 
 void AEvent::addTrack(ARTrack* track)
 {
-  //Let's leave it empty for the time being...
+  if(track->isElectron())
+      numElectrons++;
+  else if(track->isMuon())
+    numMuons++;
+  else if(track->isPhoton())
+    numPhotons++;
+  else if(track->isNeutrino())
+    numNeutrinos++;
+  else if(track->isNeutralHadron())
+    numNeutralHadrons++;
+  else if(track->isChargedHadron())
+    numChargedHadrons++;
 
+  RTracks.push_back(track);
+  numTracks++;
+  Tracks.push_back(track);  
 }
 
 void AEvent::addTrack(AJet* jet)

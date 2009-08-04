@@ -150,7 +150,7 @@ void ATrackCombination::recalculate(ATrack *trk)
   float py=0;
   float pz=0;
 
-  if(trk->type() == ATrack::eSTrack)
+  if(trk->type() == ATrack::eSTrack || trk->type() == ATrack::eRTrack)
     { // Tracks contain momentum stored as PtPhiEta
       ASTrack* track = static_cast<ASTrack*>(trk);
       

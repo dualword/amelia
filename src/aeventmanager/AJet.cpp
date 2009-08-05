@@ -7,32 +7,14 @@ AJet::AJet():ATrack("Jet",ATrack::eJet)
   setCharge(0);
 }
 
-void AJet::setJetType(jType type)
+void AJet::setJetType(QString jtype)
 {
-  JetType=type;
+  _jetType=jtype;
 }
 
-void AJet::setJetType(QString type)
+QString AJet::jetType()
 {
-  jType jtype;
-  if (type == QString("Kt4H1TopoJets"))
-    {
-      jtype = AJet::jKt4H1TopoJets;
-    }
-  if (type == QString("Cone4H1TopoJets"))
-    {
-      jtype = AJet::jCone4H1TopoJets;
-    }
-  if (type == QString("Kt4H1TowerJets"))
-    {
-      jtype = AJet::jKt4H1TowerJets;
-    }
-  if (type == QString("Cone4H1TowerJets"))
-    {
-      jtype = AJet::jCone4H1TowerJets;
-    }
-
-  setJetType(jtype);
+  return _jetType;
 }
 
 float AJet::getTl()

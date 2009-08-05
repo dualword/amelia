@@ -68,6 +68,10 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   AEventPackage *package();
   virtual void setPackage(AEventPackage *package);
 
+  QList<QString> availableJetTypes();
+  QList<QString> availableMisETTypes();
+  QList<QString> availableTrackTypes();
+
   ATrack* getTrackById(unsigned int id);
 
   template <class T>
@@ -110,6 +114,9 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
   AEventPackage *_package;
   QSet<QString> _tags;
+  QList<QString> _jetTypes;
+  QList<QString> _misETTypes;
+  QList<QString> _trackTypes;
   QString _name;
 
   Q_OBJECT

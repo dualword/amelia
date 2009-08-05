@@ -337,6 +337,7 @@ void AXmlEvent::GetRTracksFromDOM ( QDomDocument dom )
 	  if ( j<rtr_numPolyline.size() )
             {
 	      int polySections = rtr_numPolyline[j];
+
 	      for ( int p = bookmarkPolyline; p < bookmarkPolyline + polySections; p++ )
                 {
 		  irr::core::vector3df polyPoint = irr::core::vector3df (rtr_polylineX[p], rtr_polylineY[p], rtr_polylineZ[p]  );

@@ -157,12 +157,16 @@ void AHelix3DNode::deselect()
 
 void AHelix3DNode::drawPolyline()
 {
+  if(curvePoints.empty()) return;
+
   video::SMaterial m;
-  for ( vector<core::vector3df>::iterator it = this->curvePoints.begin() ; it < this->curvePoints.end()-1; it++ )
+  for (std::vector<core::vector3df>::iterator it = curvePoints.begin() ; it != curvePoints.end()-1; it++ )
     {
+      core::vector3df start=*it;
+      core::vector3df end=*(it+1);
+
       m.EmissiveColor = this->color ;
       SceneManager->getVideoDriver()->setMaterial ( m );
-
       SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
       SceneManager->getVideoDriver()->draw3DLine ( *it, *(it+1) );
     }

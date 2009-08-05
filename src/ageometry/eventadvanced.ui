@@ -123,16 +123,6 @@
        <property name="modelColumn">
         <number>0</number>
        </property>
-       <item>
-        <property name="text">
-         <string>STrack</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>RTrack</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
@@ -214,31 +204,6 @@
        <property name="modelColumn">
         <number>0</number>
        </property>
-       <item>
-        <property name="text">
-         <string>MET_Final</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MET_RefMuon</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MET_Calib</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MET_RefFinal</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>MET_Truth</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
@@ -320,26 +285,6 @@
        <property name="modelColumn">
         <number>0</number>
        </property>
-       <item>
-        <property name="text">
-         <string>Kt4H1TowerJets</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Kt4H1TopoJets</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Cone4H1TowerJets</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Cone4H1TopoJets</string>
-        </property>
-       </item>
       </widget>
      </item>
      <item>

@@ -57,7 +57,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 ALayerGUI::ALayerGUI(QWidget* parent)
         : QFrame(parent)
 {
-  modelFilter=new AModelFilter(AJet::jKt4H1TopoJets,AMisET::mMET_Final,ATrack::eSTrack);
+  modelFilter=new AModelFilter("Kt4H1TopoJets","MET_Final","ASTrack");
   particleFilter=new AParticleFilter();
   ptFilter=new APtFilter(1,particleFilter);
 }
@@ -540,7 +540,33 @@ void ALayerGUI::handleEventLoaded()
 {
   //Enable what needs to be enabled!
   setEventSpecificActionsEnabled(true);
+  
+  // Update model filters
+  QStringList jetModels=CompleteEvent->availableJetTypes();
+  QString jetModel=modelFilter->jetType();
+  if(!jetModels.contains(jetModel))
+    {
+      jetModel=(jetModels.size()==0) ? QString() : jetModels[0];
+      modelFilter->setJetType(jetModel);
+    }
 
+  QStringList metModels=CompleteEvent->availableMisETTypes();
+  QString metModel=modelFilter->misEtType();
+  if(!metModels.contains(metModel))
+    {
+      metModel=(metModels.size()==0)?"":metModels[0];
+      modelFilter->setMisEtType(metModel);
+    }
+
+  QStringList trackModels=CompleteEvent->availableTrackTypes();
+  QString trackModel=modelFilter->trackType();
+  if(!trackModels.contains(trackModel))
+    {
+      trackModel=(trackModels.size()==0)?"":trackModels[0];
+      modelFilter->setTrackType(trackModel);
+    }
+
+  // Set current event to things
   if (interestingTracksModel) interestingTracksModel->setEvent(ModelEvent);
   if (geo) geo->setEvent(FilteredEvent);
   if (eventInfo) eventInfo->setEvent(FilteredEvent);
@@ -581,8 +607,15 @@ void ALayerGUI::setEventSpecificActionsEnabled(bool status)
 void ALayerGUI::eventSettings()
 {
   Ui::Dialog ui;
-  AAdvancedEventSettings *evSettings=new AAdvancedEventSettings(this);//= loader.load(&file,this);
+  AAdvancedEventSettings *evSettings=new AAdvancedEventSettings(this);
   ui.setupUi(evSettings);
+  if(CompleteEvent)
+    evSettings->setAvailableModels(CompleteEvent->availableJetTypes(),
+				   CompleteEvent->availableMisETTypes(),
+				   CompleteEvent->availableTrackTypes());
+  else
+    evSettings->setAvailableModels(QStringList(),QStringList(),QStringList());
+
   evSettings->setModelFilter(modelFilter);
   
   QDialogButtonBox* buttonBox = evSettings->findChild<QDialogButtonBox*>("buttonBox");

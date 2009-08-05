@@ -7,35 +7,26 @@
 
 class AEVENTMANAGER_EXPORT AModelFilter : public ATrackFilter
 {
-  Q_OBJECT
-    private:
-  AJet::jType _jetType;
-  AMisET::mType _misEtType;
-  ATrack::eType _trackType;
+Q_OBJECT
+
+ private:
+  QString _jetType;
+  QString _misEtType;
+  QString _trackType;
   
  public:
-  AModelFilter(AJet::jType jetType,AMisET::mType misEtType,ATrack::eType _trackType,
+  AModelFilter(QString jetType,QString misEtType,QString trackType,
 	       ATrackFilter *next=0);
-
-  AJet::jType jetType();
-  QString jetTypeString();
-
-  AMisET::mType misEtType();
-  QString misEtTypeString();
-
-  ATrack::eType trackType();
-  QString trackTypeString();
-
+  
+  QString jetType();
+  QString misEtType();
+  QString trackType();
+  
   bool checkTrack(ATrack* track);
-
+				
  public slots:
-  void setJetType(AJet::jType);
   void setJetType(QString);
-
-  void setMisEtType(AMisET::mType);
   void setMisEtType(QString);
-
-  void setTrackType(ATrack::eType);
   void setTrackType(QString);
 };
 

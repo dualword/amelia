@@ -27,6 +27,21 @@ QString AEvent::uid()
   return QString::number(runNumber)+":"+QString::number(eventNumber);
 }
 
+QList<QString> AEvent::availableJetTypes()
+{
+  return _jetTypes;
+}
+
+QList<QString> AEvent::availableMisETTypes()
+{
+  return _misETTypes;
+}
+
+QList<QString> AEvent::availableTrackTypes()
+{
+  return _trackTypes;
+}
+
 void AEvent::addTrack(ATrack* track)
 {
   switch(track->type())
@@ -67,6 +82,9 @@ void AEvent::addTrack(ASTrack* track)
   else if(track->isChargedHadron())
     numChargedHadrons++;
 
+  if(!_trackTypes.contains("STrack"))
+    _trackTypes.push_back("STrack");
+
   STracks.push_back(track);
   numTracks++;
   Tracks.push_back(track);
@@ -88,6 +106,9 @@ void AEvent::addTrack(ARTrack* track)
   else if(track->isChargedHadron())
     numChargedHadrons++;
 
+  if(!_trackTypes.contains("RTrack"))
+    _trackTypes.push_back("RTrack");
+
   RTracks.push_back(track);
   numTracks++;
   Tracks.push_back(track);  
@@ -95,6 +116,10 @@ void AEvent::addTrack(ARTrack* track)
 
 void AEvent::addTrack(AJet* jet)
 {
+  QString jtype=jet->jetType();
+  if(!_jetTypes.contains(jtype))
+    _jetTypes.push_back(jtype);
+  
   Jets.push_back(jet);
   numTracks++;
   numJets++;
@@ -104,6 +129,10 @@ void AEvent::addTrack(AJet* jet)
 
 void AEvent::addTrack(AMisET* miset)
 {
+  QString mtype=miset->misETType();
+  if(!_misETTypes.contains(mtype))
+    _misETTypes.push_back(mtype);
+
   MisET.push_back(miset);
   numTracks++;
   Tracks.push_back(miset);

@@ -13,6 +13,8 @@ public:
     AAdvancedEventSettings(QWidget* parent=0);
     virtual ~AAdvancedEventSettings();
 
+    void setAvailableModels(QStringList jetTypes, QStringList misEtTypes,QStringList trackTypes);
+    
 public slots:
     void setModelFilter(AModelFilter *modelFilter);
 

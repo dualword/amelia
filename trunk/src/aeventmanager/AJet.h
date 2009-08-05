@@ -3,17 +3,10 @@
 
 #include "ATrack.h"
 
-class AEVENTMANAGER_EXPORT AJet : public ATrack //Objects of this class represent jet in the event
+//! Objects of this class represent jet in the event
+class AEVENTMANAGER_EXPORT AJet : public ATrack
 {
 public:
-  enum jType //Jet type
-  {
-    jKt4H1TopoJets,
-    jCone4H1TopoJets,
-    jKt4H1TowerJets,
-    jCone4H1TowerJets
-  };
-
   AJet();
   ~AJet() {}
 
@@ -21,13 +14,15 @@ public:
   float phi;
   float et;
   int numCells;
-  jType JetType;
-
-  void setJetType(jType type);
+  
   void setJetType(QString type);
+  QString jetType();
 
   float getTl();
   float theta();
+
+ private:
+  QString _jetType;
 };
 
 #endif //AJET_H_

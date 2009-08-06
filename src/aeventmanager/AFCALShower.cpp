@@ -1,5 +1,5 @@
 #include "AFCALShower.h"
 
-AFCALShower::AFCALShower():ATrack("FCAL Shower",ATrack::eFCALShower)
+AFCALShower::AFCALShower():AEventObject("FCAL Shower",AEventObject::eFCALShower)
 { }
 

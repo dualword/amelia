@@ -83,9 +83,9 @@ bool AParticleFilter::showMissingEt()
   return _showMissingEt;
 }
 
-bool AParticleFilter::checkTrack(ATrack *track)
+bool AParticleFilter::checkTrack(AEventObject *track)
 {
-  if(track->type()==ATrack::eSTrack)
+  if(track->type()==AEventObject::eSTrack)
     {
       ASTrack* strack=(ASTrack*)track;
       if(!_showElectrons && strack->isElectron()) return false;
@@ -94,8 +94,8 @@ bool AParticleFilter::checkTrack(ATrack *track)
       if(!_showPhotons && strack->isPhoton()) return false;
     }
 
-  if(!_showJets && track->type()==ATrack::eJet) return false;
-  if(!_showMissingEt && track->type()==ATrack::eMissingEt) return false;
+  if(!_showJets && track->type()==AEventObject::eJet) return false;
+  if(!_showMissingEt && track->type()==AEventObject::eMissingEt) return false;
 
   return ATrackFilter::checkTrack(track);
 }

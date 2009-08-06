@@ -8,7 +8,7 @@ ATrackFilter* ATrackFilter::nextFilter()
   return _nextFilter;
 }
 
-bool ATrackFilter::checkTrack(ATrack *track)
+bool ATrackFilter::checkTrack(AEventObject *track)
 {
   if(_nextFilter)
     return _nextFilter->checkTrack(track);

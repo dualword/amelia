@@ -12,7 +12,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
  public:
   AParticleFilter(ATrackFilter *next=0);
   
-  bool checkTrack(ATrack *);
+  bool checkTrack(AEventObject *);
 
   bool showElectrons();
   bool showMuons();

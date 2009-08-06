@@ -1,4 +1,4 @@
 #include "AShower.h"
 
-AShower::AShower():ATrack("Shower",ATrack::eShower)
+AShower::AShower():AEventObject("Shower",AEventObject::eShower)
 { }

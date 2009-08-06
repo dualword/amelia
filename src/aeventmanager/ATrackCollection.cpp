@@ -17,7 +17,7 @@ int ATrackCollection::size()
   return _tracks.size();
 }
 
-void ATrackCollection::addTrack(ATrack *track)
+void ATrackCollection::addTrack(AEventObject *track)
 {
   if(!containsTrack(track))
     {
@@ -30,7 +30,7 @@ void ATrackCollection::addTrack(ATrack *track)
     }
 }
 
-ATrack* ATrackCollection::getTrack(int idx)
+AEventObject* ATrackCollection::getTrack(int idx)
 {
   return _tracks[idx];
 }
@@ -44,7 +44,7 @@ void ATrackCollection::removeTrack(int idx)
   emit updated();
 }
 
-bool ATrackCollection::containsTrack(ATrack *track)
+bool ATrackCollection::containsTrack(AEventObject *track)
 {
   return _tracks.contains(track);
 }
@@ -53,11 +53,11 @@ void ATrackCollection::writeToFile(QTextStream& in)
 {
   beginWriteToFile(in);
   
-  QListIterator<ATrack*> tracksIter(_tracks);
+  QListIterator<AEventObject*> tracksIter(_tracks);
   //Loop over tracks..
   while(tracksIter.hasNext())
     {
-      ATrack* track=tracksIter.next();
+      AEventObject* track=tracksIter.next();
       writeTrackToXmlFile(in,track);
     }
   
@@ -68,16 +68,16 @@ void ATrackCollection::loadFromXML(QDomElement analysisElement,AEvent* event)
 {
   event->LoadEvent();
   
-  QList<ATrack*> tracks=readTracksFromXmlElement(event,analysisElement);
+  QList<AEventObject*> tracks=readTracksFromXmlElement(event,analysisElement);
   for(int i=0;i<tracks.size();i++)
     {
       addTrack(tracks[i]);
     }
 }
 
-QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const QDomElement& ele)
+QList<AEventObject*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const QDomElement& ele)
 {
-  QList<ATrack*> tracks;
+  QList<AEventObject*> tracks;
   QDomNodeList childs=ele.childNodes();
   for(int l=0;l<childs.size();l++)
     {
@@ -86,7 +86,7 @@ QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const Q
 	{
 	  unsigned int id=node.attribute("id","0").toUInt();
 	  qDebug() << "Found track " << id;
-	  ATrack *track=event->getTrackById(id);
+	  AEventObject *track=event->getTrackById(id);
 	  if(track==0)
 	    {
 	      qDebug() << "ERROR: Invalid track " << id;
@@ -101,7 +101,7 @@ QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const Q
 	  combo->setName(name);
 	  qDebug() << "Found combination " << name;
 	  
-	  QList<ATrack*> found=readTracksFromXmlElement(event,node);
+	  QList<AEventObject*> found=readTracksFromXmlElement(event,node);
 	  for(int i=0;i<found.size();i++)
 	    combo->addTrack(found[i]);
 
@@ -113,9 +113,9 @@ QList<ATrack*> ATrackCollection::readTracksFromXmlElement(AEvent* event, const Q
 
 }
 
-void ATrackCollection::writeTrackToXmlFile(QTextStream& in,ATrack* track)
+void ATrackCollection::writeTrackToXmlFile(QTextStream& in,AEventObject* track)
 {
-  if(track->type()==ATrack::eCombination)
+  if(track->type()==AEventObject::eCombination)
     {
       ATrackCombination* combo=(ATrackCombination*)track;
       in << "<combination"

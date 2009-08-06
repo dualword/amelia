@@ -124,7 +124,7 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
   
  // Get the track data...
   QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-  ATrack *track=qobject_cast<ATrack*>(item->data());
+  AEventObject *track=qobject_cast<AEventObject*>(item->data());
   ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
   
   if (role == Qt::DisplayRole)
@@ -133,7 +133,7 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
         {
         case 0:
 	  {
-	    if(track->type()==ATrack::eCombination)
+	    if(track->type()==AEventObject::eCombination)
 	      {
 		if(combo->name(false).isEmpty())
 		  return "Combo\nID: "+combo->trackIDString();
@@ -145,22 +145,22 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
 	  }
 	case 1:
 	  {
-	    if (track->type() == ATrack::eSTrack)
+	    if (track->type() == AEventObject::eSTrack)
 	      {
 		ASTrack* STrack = static_cast<ASTrack*>(track);
 		return "Pt: "+QString::number(STrack->Pt());
 	      }
-	    else if (track->type() == ATrack::eJet)
+	    else if (track->type() == AEventObject::eJet)
 	      {
 		AJet* Jet = static_cast<AJet*>(track);
 		return "Et: "+QString::number(Jet->et);
 	      }
-	    else if(track->type() == ATrack::eCombination)
+	    else if(track->type() == AEventObject::eCombination)
 	      {
 		ATrackCombination* combo = static_cast<ATrackCombination*>(track);
 		return "IM: "+QString::number(combo->getInvariantMass());
 	      }
-	    else if (track->type() == ATrack::eMissingEt)
+	    else if (track->type() == AEventObject::eMissingEt)
 	      {
 		AMisET* met = static_cast<AMisET*>(track);
 		return "Et: "+QString::number(met->et);
@@ -169,36 +169,36 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
 	  }
 	case 2:
 	  {
-	    if(track->type()==ATrack::eCombination)
+	    if(track->type()==AEventObject::eCombination)
 	      return combo->trackIDString();
 	    else
 	      return QString::number(track->trackID());
 	  }
         case 3:
 	  {
-	    if(track->type()==ATrack::eCombination && combo->name(false).isEmpty())
+	    if(track->type()==AEventObject::eCombination && combo->name(false).isEmpty())
 	      return "Combo";
 	    else
 	      return track->name();
 	  }
 	case 4:
 	  {
-	    if (track->type() == ATrack::eSTrack)
+	    if (track->type() == AEventObject::eSTrack)
 	      {
 		ASTrack* STrack = static_cast<ASTrack*>(track);
 		return QString::number(STrack->Pt());
 	      }
-	    else if (track->type() == ATrack::eJet)
+	    else if (track->type() == AEventObject::eJet)
 	      {
 		AJet* Jet = static_cast<AJet*>(track);
 		return QString::number(Jet->et);
 	      }
-	    else if(track->type() == ATrack::eCombination)
+	    else if(track->type() == AEventObject::eCombination)
 	      {
 		ATrackCombination* combo = static_cast<ATrackCombination*>(track);
 		return QString::number(combo->getInvariantMass());
 	      }
-	    else if (track->type() == ATrack::eMissingEt)
+	    else if (track->type() == AEventObject::eMissingEt)
 	      {
 		AMisET* met = static_cast<AMisET*>(track);
 		return QString::number(met->et);
@@ -209,12 +209,12 @@ QVariant ATrackTreeModel::data(const QModelIndex &index, int role) const
     }
   else if(role == Qt::ForegroundRole)
     {
-      if(track->type()==ATrack::eCombination)
+      if(track->type()==AEventObject::eCombination)
 	return Qt::blue;
     }
   else if(role == Qt::BackgroundRole)
     {
-      if(track->type()==ATrack::eCombination)
+      if(track->type()==AEventObject::eCombination)
 	return QColor(255,255,220);
     }
   else if(role == QAbstractItemModelWithContextMenu::MenuDataRole)
@@ -267,8 +267,8 @@ Qt::ItemFlags ATrackTreeModel::flags(const QModelIndex& index) const
 
   // Only combinations can be dropped on and edited
   QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-  ATrack *track=qobject_cast<ATrack*>(item->data());
-  if(track->type()==ATrack::eCombination)
+  AEventObject *track=qobject_cast<AEventObject*>(item->data());
+  if(track->type()==AEventObject::eCombination)
     {
       flags|=Qt::ItemIsDropEnabled;
       if(index.column()==0 || index.column()==3) flags|=Qt::ItemIsEditable;
@@ -284,7 +284,7 @@ bool ATrackTreeModel::setData(const QModelIndex& index,const QVariant& value,int
   if(role==Qt::EditRole)
     {
       QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-      ATrack *track=qobject_cast<ATrack*>(item->data());
+      AEventObject *track=qobject_cast<AEventObject*>(item->data());
       
       QString newName=value.toString();
       if(newName.isEmpty()) return false; //No empties allowed
@@ -310,7 +310,7 @@ bool ATrackTreeModel::dropMimeData(const QMimeData *data,Qt::DropAction action,i
   const QBetterMimeData *data1=qobject_cast<const QBetterMimeData*>(data);
   if(!data1) return false;
 
-  ATrack *track=qobject_cast<ATrack*>(data1->data("amelia/x-track"));
+  AEventObject *track=qobject_cast<AEventObject*>(data1->data("amelia/x-track"));
   combo->addTrack(track);
 
   return true;
@@ -332,7 +332,7 @@ QMimeData* ATrackTreeModel::mimeData(const QModelIndexList &indexes) const
     {
       if(!index.isValid() || index.column()!=0) continue;
       QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-      ATrack *track=qobject_cast<ATrack*>(item->data());
+      AEventObject *track=qobject_cast<AEventObject*>(item->data());
 
       if(track)
 	{
@@ -354,7 +354,7 @@ bool ATrackTreeModel::removeRows (int row, int count , const QModelIndex& parent
 	{ // Inside a combination
 	  QAbstractTreeItem *item=(QAbstractTreeItem*)parent.internalPointer();
 	  ATrackCombination *combo=qobject_cast<ATrackCombination*>(item->data());
-	  ATrack *track=combo->getTrack(row);
+	  AEventObject *track=combo->getTrack(row);
 	  combo->deleteTrack(track);
 	}
     }
@@ -388,7 +388,7 @@ QAbstractTreeItem* ATrackTreeModel::createInternalTree()
   QAbstractTreeItem *topItem=new QAbstractTreeItem(0,0,0);
   for(int i=0;i<analysisData->size();i++)
     {
-      ATrack *track=analysisData->getTrack(i);
+      AEventObject *track=analysisData->getTrack(i);
       QAbstractTreeItem *item=new QAbstractTreeItem(track,i,topItem);
       topItem->addChildItem(item);
 
@@ -397,15 +397,15 @@ QAbstractTreeItem* ATrackTreeModel::createInternalTree()
   return topItem;
 }
 
-void ATrackTreeModel::createInternalTree(ATrack *track,QAbstractTreeItem *parent)
+void ATrackTreeModel::createInternalTree(AEventObject *track,QAbstractTreeItem *parent)
 {
   // Loop through the combination's tracks and add them to the list
-  if(track->type()==ATrack::eCombination)
+  if(track->type()==AEventObject::eCombination)
     {
       ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
       for(int i=0;i<combo->size();i++)
 	{
-	  ATrack *childTrack=combo->getTrack(i);
+	  AEventObject *childTrack=combo->getTrack(i);
 	  QAbstractTreeItem *item=new QAbstractTreeItem(childTrack,i,parent);
 	  parent->addChildItem(item);
       

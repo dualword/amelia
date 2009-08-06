@@ -109,7 +109,7 @@ public:
   float cameraFOV();
   float cameraFarValue();
 
-  ATrack3DNode* getTrackNodeByID(unsigned int ID );
+  AEventObject3DNode* getTrackNodeByID(unsigned int ID );
   bool isTrackSelected(unsigned int ID);
 
   scene::ISceneNode* cube;
@@ -170,8 +170,8 @@ signals:
   void viewportUpdated(int cam,QImage newshot);
   void cropModeSwitched(int newCropMode);
 
-  void trackSelected(ATrack*);
-  void trackDeselected(ATrack*);
+  void selected(AEventObject*);
+  void deselected(AEventObject*);
 
   void detectorPartSelected(const QString&);
   void emptySelection();
@@ -206,8 +206,8 @@ private:
   // Tracks and the event variables //
   AFilteredEvent* _event;
   ISceneNode* _rootTracksNode;
-  QList<ATrack3DNode*> selectedTracks;
-  QList<ATrack3DNode*> allTracks;
+  QList<AEventObject3DNode*> selectedTracks;
+  QList<AEventObject3DNode*> allTracks;
   QList<AJet3DNode*> allJets;
 
   // GUI stuff //
@@ -261,7 +261,7 @@ private:
   void createAtlasGeometry();
   void createFlatGeometry();
 
-  ATrack3DNode* trackSelection ( core::position2di pos );
+  AEventObject3DNode* trackSelection ( core::position2di pos );
   QString detectorSelection( core::position2di pos );
 
   //Camera stuff
@@ -293,7 +293,7 @@ private:
   QBoolSync _magnetsVisibility;
   QBoolSync _pitVisibility;
 
-  ATrack3DNode* createTrackNode(ATrack* track);
+  AEventObject3DNode* createTrackNode(AEventObject* track);
 
   Q_OBJECT
 };

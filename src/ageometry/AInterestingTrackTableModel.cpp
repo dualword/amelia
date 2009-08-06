@@ -56,28 +56,28 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
   
     if (role == Qt::DisplayRole)
       {
-        ATrack* track = tracks.at(index.row());
+        AEventObject* track = tracks.at(index.row());
         switch (index.column())
 	  {
 	  case 0:
             return track->name();
 	  case 1:
-            if (track->type() == ATrack::eJet)
+            if (track->type() == AEventObject::eJet)
 	      {
                 return QString::number((static_cast<AJet*>(track))->et);
 	      }
             else
-	      if (track->type() == ATrack::eSTrack || track->type() == ATrack::eMissingEt)
+	      if (track->type() == AEventObject::eSTrack || track->type() == AEventObject::eMissingEt)
                 {
 		  return QString::number((static_cast<ASTrack*>(track))->Pt());
                 }
 	      else return QString("N/A");
 	  case 2:
-            if (track->type() == ATrack::eJet)
+            if (track->type() == AEventObject::eJet)
 	      {
                 return QString::number(static_cast<AJet*>(track)->theta()*180/3.14);
 	      }
-            else if (track->type() == ATrack::eSTrack)
+            else if (track->type() == AEventObject::eSTrack)
 	      {
                 return QString::number(static_cast<ASTrack*>(track)->theta()*180/3.14);
 	      }
@@ -87,11 +87,11 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	      }
 	    
 	  case 3:
-            if (track->type() == ATrack::eJet)
+            if (track->type() == AEventObject::eJet)
 	      {
                 return QString::number(static_cast<AJet*>(track)->phi);
 	      }
-            else if (track->type() == ATrack::eSTrack)
+            else if (track->type() == AEventObject::eSTrack)
 	      {
                 return QString::number(static_cast<ASTrack*>(track)->phi);
 	      }
@@ -100,7 +100,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
                 return "N/A";
 	      }
 	  case 4:
-            if (track->type() == ATrack::eSTrack)
+            if (track->type() == AEventObject::eSTrack)
 	      {
                 return QString::number(tracks.at(index.row())->trackID());
 	      }
@@ -186,7 +186,7 @@ void AInterestingTrackTableModel::sort(int column, Qt::SortOrder order)
   emit layoutChanged();
 }
 
-void AInterestingTrackTableModel::addTrack(ATrack* strack)
+void AInterestingTrackTableModel::addTrack(AEventObject* strack)
 {
   if (tracks.indexOf(strack)<0) //Dupe Check
     {

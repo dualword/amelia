@@ -1,10 +1,10 @@
 #ifndef AHELIX3DNODE_H_
 #define AHELIX3DNODE_H_
 
-#include "ATrack3DNode.h"
+#include "AEventObject3DNode.h"
 
 ///This class represent and draw a 3D helix of particle tracks.
-class AHelix3DNode : public ATrack3DNode
+class AHelix3DNode : public AEventObject3DNode
 {
 public:
   /// Destructor
@@ -14,14 +14,8 @@ public:
   /*
    * \param style The style you want to set.
    */
-  virtual void setTrackStyle( Style style );
+  virtual void setStyle( Style style );
 
-  /// Select the track
-  void select();
-
-  /// Deselect the track
-  void deselect();
-  
   /* Irrlicht node functions */
   /// Register for rendering
   virtual void OnRegisterSceneNode();
@@ -51,7 +45,7 @@ protected:
   video::SColor dimmedColor;
 
   /* Constructor */
-  AHelix3DNode ( scene::ISceneNode* parent, ISceneManager* base, s32 ID, ATrack* track);
+  AHelix3DNode ( scene::ISceneNode* parent, ISceneManager* base, s32 ID, AEventObject* track);
 
   void timerEvent(QTimerEvent*);
 

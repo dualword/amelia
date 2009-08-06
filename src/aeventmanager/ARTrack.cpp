@@ -31,7 +31,7 @@ const QString ARTrack::namelist[]=
     };
 
 
-ARTrack::ARTrack():ATrack("Reconstructed Track",ATrack::eRTrack)
+ARTrack::ARTrack():AEventObject("Reconstructed Track",AEventObject::eRTrack)
 { }
 
 bool ARTrack::isElectron()

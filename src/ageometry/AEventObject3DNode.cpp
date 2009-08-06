@@ -33,62 +33,45 @@ prepare derivative works, incorporate into other computer software, distribute,
 and sublicense such enhancements or derivative works thereof, in binary and source code form.
 ******************************************************/
 
-#ifndef ATRACK3DNODE_H_
-#define ATRACK3DNODE_H_
+#include "AEventObject3DNode.h"
 
-#include <QObject>
-
-#include <aeventmanager/ATrack.h>
-#include <aeventmanager/ASTrack.h>
-#include <aeventmanager/ARTrack.h>
-#include <aeventmanager/AMisET.h>
-#include <aeventmanager/AJet.h>
-
-#include <irrlicht.h>
-#include <vector>
-#include "CRelativeScaleSceneNodeAnimator.h"
-
-
-using namespace irr;
-using namespace irr::scene;
-using namespace irr::video;
-using namespace irr::core;
-using namespace io;
-using namespace std;
-
-class ATrack3DNode : public QObject, public scene::ISceneNode
+AEventObject3DNode::AEventObject3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,AEventObject *_track )
+  : scene::ISceneNode ( parent, smgr, id),_style(Basic),_pointer(_track)
 {
-public:
-  enum Style { Basic, Selected, Selectable, Disabled };
-
-  ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,ATrack* track=0);
-  virtual ~ATrack3DNode();
-
-  core::aabbox3d<f32> Box;
-  ATrack* trackPointer;
-  Style _trackStyle;
-  int trackID;
-  virtual ATrack* getTrack();
-  virtual void setTrackStyle(Style style);
-  Style trackStyle();
-
-  virtual void select();
-  virtual void deselect();
-
-signals:
-  void lookChanged();
-
-protected:
-  video::SMaterial Material;
-
-  void setTrack(ATrack* track);
-
-  Q_OBJECT
-};
+  this->setName ( "Track3DNode" );
+}
 
 
+AEventObject3DNode::~AEventObject3DNode()
+{ }
 
+void AEventObject3DNode::setTrack( AEventObject* track )
+{
+  _pointer=track;
+}
 
-#endif // ATRACK3DNODE_H_
+void AEventObject3DNode::setStyle(Style style )
+{
+  _style=style;
+}
 
+AEventObject3DNode::Style AEventObject3DNode::style()
+{
+  return _style;
+}
+
+AEventObject* AEventObject3DNode::track()
+{
+  return _pointer;
+}
+
+void AEventObject3DNode::select()
+{ 
+  setStyle(Selected);
+}
+
+void AEventObject3DNode::deselect()
+{ 
+  setStyle(Basic);
+}
 

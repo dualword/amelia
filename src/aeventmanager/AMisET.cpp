@@ -1,6 +1,6 @@
 #include "AMisET.h"
 
-AMisET::AMisET():ATrack("Missing Energy",ATrack::eMissingEt)
+AMisET::AMisET():AEventObject("Missing Energy",AEventObject::eMissingEt)
 { }
 
 AMisET::~AMisET()

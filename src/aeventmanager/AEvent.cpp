@@ -42,23 +42,23 @@ QList<QString> AEvent::availableTrackTypes()
   return _trackTypes;
 }
 
-void AEvent::addTrack(ATrack* track)
+void AEvent::addTrack(AEventObject* track)
 {
   switch(track->type())
     {
-    case ATrack::eSTrack:
+    case AEventObject::eSTrack:
       addTrack((ASTrack*)track);
       break;
-    case ATrack::eRTrack:
+    case AEventObject::eRTrack:
       addTrack((ARTrack*)track);
       break;
-    case ATrack::eJet:
+    case AEventObject::eJet:
       addTrack((AJet*)track);
       break;
-    case ATrack::eMissingEt:
+    case AEventObject::eMissingEt:
       addTrack((AMisET*)track);
       break;
-    case ATrack::eShower:
+    case AEventObject::eShower:
       addTrack((AShower*)track);
       break;
     default:
@@ -169,7 +169,7 @@ QSet<QString> AEvent::tags()
   return _tags;
 }
 
-ATrack* AEvent::getTrackById(unsigned int ID)
+AEventObject* AEvent::getTrackById(unsigned int ID)
 {
   for ( int i=0;i<Tracks.size();i++)
     {

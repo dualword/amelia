@@ -1,10 +1,10 @@
 #ifndef ARTRACK_H_
 #define ARTRACK_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
 //Objects of this class represent reconstructedtracks in the event (Track)
-class AEVENTMANAGER_EXPORT ARTrack : public ATrack
+class AEVENTMANAGER_EXPORT ARTrack : public AEventObject
 {
 public:
   ARTrack();

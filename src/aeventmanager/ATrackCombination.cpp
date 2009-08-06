@@ -8,13 +8,13 @@
 #include <QDebug>
 
 ATrackCombination::ATrackCombination()
-  : ATrack("",ATrack::eCombination)
+  : AEventObject("",AEventObject::eCombination)
 {
   setTrackID(0);
 }
 
 ATrackCombination::ATrackCombination(const ATrackCombination& o)
- : ATrack(o)
+ : AEventObject(o)
 {
   this->tracks=o.tracks;
   recalculate();
@@ -22,7 +22,7 @@ ATrackCombination::ATrackCombination(const ATrackCombination& o)
 
 ATrackCombination::~ATrackCombination() { }
 
-void ATrackCombination::addTrack(ATrack* tr)
+void ATrackCombination::addTrack(AEventObject* tr)
 {
   if(!tracks.contains(tr))
     {
@@ -35,7 +35,7 @@ void ATrackCombination::addTrack(ATrack* tr)
     }
 }
 
-bool ATrackCombination::deleteTrack(ATrack* tr)
+bool ATrackCombination::deleteTrack(AEventObject* tr)
 {
   int idx=tracks.indexOf(tr);
   if (idx>=0) //Found it
@@ -58,13 +58,13 @@ QString ATrackCombination::trackIDString()
 
   //In case of empty name, generate one:
   // track1|track2|track3
-  if(tracks[0]->type()==ATrack::eCombination)
+  if(tracks[0]->type()==AEventObject::eCombination)
     name+="("+qobject_cast<ATrackCombination*>(tracks[0])->trackIDString()+")";
   else
     name+=QString::number(tracks[0]->trackID());
   for(int i=1;i<tracks.size();i++)
     {
-      if(tracks[i]->type()==ATrack::eCombination)
+      if(tracks[i]->type()==AEventObject::eCombination)
 	name+="-("+qobject_cast<ATrackCombination*>(tracks[i])->trackIDString()+")";
       else
 	name+="|"+QString::number(tracks[i]->trackID());
@@ -80,7 +80,7 @@ QString ATrackCombination::name()
 
 QString ATrackCombination::name(bool generateDefault)
 {
-  QString _name=ATrack::name();
+  QString _name=AEventObject::name();
   if(!_name.isEmpty() || !generateDefault) return _name;
 
   return trackIDString();
@@ -91,7 +91,7 @@ int ATrackCombination::size()
   return tracks.size();
 }
 
-ATrack* ATrackCombination::getTrack(unsigned int idx)
+AEventObject* ATrackCombination::getTrack(unsigned int idx)
 {
   return tracks[idx];
 }
@@ -111,7 +111,7 @@ bool ATrackCombination::operator==(ATrackCombination& o)
   return o.size()==size(); 
 }
 
-ATrack* ATrackCombination::operator[](unsigned int idx)
+AEventObject* ATrackCombination::operator[](unsigned int idx)
 {
   return tracks[idx];
 }
@@ -143,14 +143,14 @@ void ATrackCombination::recalculate()
   setPt(sqrt(Px*Px + Py*Py));
 }
 
-void ATrackCombination::recalculate(ATrack *trk)
+void ATrackCombination::recalculate(AEventObject *trk)
 {
   // The momentum variables for the current track (notice the lower case)
   float px=0;
   float py=0;
   float pz=0;
 
-  if(trk->type() == ATrack::eSTrack || trk->type() == ATrack::eRTrack)
+  if(trk->type() == AEventObject::eSTrack || trk->type() == AEventObject::eRTrack)
     { // Tracks contain momentum stored as PtPhiEta
       ASTrack* track = static_cast<ASTrack*>(trk);
       
@@ -159,7 +159,7 @@ void ATrackCombination::recalculate(ATrack *trk)
       pz = fabs(track->Pt()) * track->getTl();
       setCharge(charge() + track->charge()); // Tracks can be charged
     }
-  else if (trk->type() == ATrack::eJet)
+  else if (trk->type() == AEventObject::eJet)
     { // Jets contain momentum stored as PtPhiEta
       AJet* jet = static_cast<AJet*>(trk);
       
@@ -167,7 +167,7 @@ void ATrackCombination::recalculate(ATrack *trk)
       py = fabs(jet->Pt()) * sin(jet->phi);
       pz = fabs(jet->Pt()) * jet->getTl();
     }
-  else if (trk->type() == ATrack::eMissingEt)
+  else if (trk->type() == AEventObject::eMissingEt)
     { // Missing Energy is stored as EtxEty and no Z component
       AMisET* met = static_cast<AMisET*>(trk);
       
@@ -175,7 +175,7 @@ void ATrackCombination::recalculate(ATrack *trk)
       py = met->ety;
       pz = 0;
     }
-  else if (trk->type() == ATrack::eCombination)
+  else if (trk->type() == AEventObject::eCombination)
     { // Track combination does not have any variables, we have to loop over its children
       ATrackCombination* combo = static_cast<ATrackCombination*>(trk);
       

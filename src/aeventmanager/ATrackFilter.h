@@ -1,7 +1,7 @@
 #ifndef ATRACKFILTER_H_
 #define ATRACKFILTER_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
 #include <QObject>
 
@@ -14,7 +14,7 @@ class ATrackFilter : public QObject
 
  public:
   ATrackFilter(ATrackFilter *next=0);
-  virtual bool checkTrack(ATrack* track) =0;
+  virtual bool checkTrack(AEventObject* track) =0;
 
   ATrackFilter* nextFilter();
 

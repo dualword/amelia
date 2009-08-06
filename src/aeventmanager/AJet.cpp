@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-AJet::AJet():ATrack("Jet",ATrack::eJet)
+AJet::AJet():AEventObject("Jet",AEventObject::eJet)
 { 
   setCharge(0);
 }

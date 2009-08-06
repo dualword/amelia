@@ -22,7 +22,7 @@ Q_OBJECT
   QString misEtType();
   QString trackType();
   
-  bool checkTrack(ATrack* track);
+  bool checkTrack(AEventObject* track);
 				
  public slots:
   void setJetType(QString);

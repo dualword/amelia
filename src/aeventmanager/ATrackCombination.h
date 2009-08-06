@@ -5,11 +5,11 @@
 #include <QString>
 #include <QObject>
 
-#include "ATrack.h"
+#include "AEventObject.h"
 #include "ASTrack.h"
 #include "AJet.h"
 
-class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack 
+class AEVENTMANAGER_EXPORT ATrackCombination : public AEventObject 
 {
   
  public:
@@ -17,8 +17,8 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   ATrackCombination(const ATrackCombination&);
   ~ATrackCombination();
   
-  void addTrack(ATrack*);
-  bool deleteTrack(ATrack*);
+  void addTrack(AEventObject*);
+  bool deleteTrack(AEventObject*);
 
   QString trackIDString();
   QString name();
@@ -28,8 +28,8 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
 
   float getInvariantMass();
 
-  ATrack* operator[](unsigned int idx);
-  ATrack* getTrack(unsigned int idx);
+  AEventObject* operator[](unsigned int idx);
+  AEventObject* getTrack(unsigned int idx);
 
   bool operator==(ATrackCombination& other);
 
@@ -37,7 +37,7 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   void handleTrackUpdated();
 
  private:
-  QList<ATrack*> tracks;
+  QList<AEventObject*> tracks;
 
   double Px;
   double Py;
@@ -47,7 +47,7 @@ class AEVENTMANAGER_EXPORT ATrackCombination : public ATrack
   float InvMass;
 
   void recalculate();
-  void recalculate(ATrack *trk);
+  void recalculate(AEventObject *trk);
 
   float calculateInvariantMass();
 

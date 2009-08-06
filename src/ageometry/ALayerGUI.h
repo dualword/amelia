@@ -114,8 +114,8 @@ public slots:
   void deleteSelectedTreeTracks();
   void combineSelectedTreeTracks();
   void handleTreeSelectionChanged(const QItemSelection&, const QItemSelection&);
-  void performTreeTrackSelection(ATrack*, bool);
-  void performTreeTrackDeselection(ATrack*);
+  void performTreeTrackSelection(AEventObject*, bool);
+  void performTreeTrackDeselection(AEventObject*);
     
   void about();
   

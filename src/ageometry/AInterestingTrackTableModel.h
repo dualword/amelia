@@ -30,7 +30,7 @@ public:
   void addTable(QAbstractItemView* table);
 
 public slots:
-  void addTrack(ATrack* strack);
+  void addTrack(AEventObject* strack);
   void handleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
   void setEvent(AEvent* event);
@@ -42,7 +42,7 @@ public slots:
   void entryDeselected(unsigned int trackID);
 
 private:
-  QList<ATrack*> tracks;
+  QList<AEventObject*> tracks;
 
   QItemSelectionModel *selection;
 

@@ -33,41 +33,64 @@ prepare derivative works, incorporate into other computer software, distribute,
 and sublicense such enhancements or derivative works thereof, in binary and source code form.
 ******************************************************/
 
-#include "ATrack3DNode.h"
+#ifndef AEVENTOBJECT3DNODE_H_
+#define AEVENTOBJECT3DNODE_H_
 
-ATrack3DNode::ATrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ATrack *_track )
-  : scene::ISceneNode ( parent, smgr, id),_trackStyle(Basic),trackPointer(_track)
+#include <QObject>
+
+#include <aeventmanager/AEventObject.h>
+#include <aeventmanager/ASTrack.h>
+#include <aeventmanager/ARTrack.h>
+#include <aeventmanager/AMisET.h>
+#include <aeventmanager/AJet.h>
+
+#include <irrlicht.h>
+#include <vector>
+#include "CRelativeScaleSceneNodeAnimator.h"
+
+
+using namespace irr;
+using namespace irr::scene;
+using namespace irr::video;
+using namespace irr::core;
+using namespace io;
+using namespace std;
+
+class AEventObject3DNode : public QObject, public scene::ISceneNode
 {
-  this->setName ( "Track3DNode" );
-}
+public:
+  enum Style { Basic, Selected, Selectable, Disabled };
+
+  AEventObject3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID ,AEventObject* track=0);
+  virtual ~AEventObject3DNode();
+
+  core::aabbox3d<f32> Box;
+
+  void setTrack(AEventObject* track);
+  AEventObject* track();
+
+  virtual void setStyle(Style style);
+  Style style();
+
+  virtual void select();
+  virtual void deselect();
+
+signals:
+  void lookChanged();
+
+protected:
+  video::SMaterial Material;
+
+  Style _style;
+
+  AEventObject* _pointer;
+
+  Q_OBJECT
+};
 
 
-ATrack3DNode::~ATrack3DNode()
-{ }
 
-void ATrack3DNode::setTrack( ATrack* track )
-{
-  trackPointer=track;
-}
 
-void ATrack3DNode::setTrackStyle(Style style )
-{
-  _trackStyle=style;
-}
+#endif // ATRACK3DNODE_H_
 
-ATrack3DNode::Style ATrack3DNode::trackStyle()
-{
-  return _trackStyle;
-}
-
-ATrack* ATrack3DNode::getTrack()
-{
-  return this->trackPointer;
-}
-
-void ATrack3DNode::select()
-{ }
-
-void ATrack3DNode::deselect()
-{ }
 

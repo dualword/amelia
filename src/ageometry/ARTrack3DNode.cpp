@@ -60,7 +60,7 @@ ARTrack3DNode::ARTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  
       Box.addInternalPoint(point);
     }
   
-  setTrackStyle(Basic);
+  setStyle(Basic);
 }
 
 
@@ -69,6 +69,6 @@ ARTrack3DNode::~ARTrack3DNode()
 
 void ARTrack3DNode::setTrack( ARTrack* track )
 {
-  ATrack3DNode::setTrack(track);
+  AHelix3DNode::setTrack(track);
 }
 

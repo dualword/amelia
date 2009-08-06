@@ -1,7 +1,7 @@
 #include "AJet3DNode.h"
 
 AJet3DNode::AJet3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id , AJet *jet)
-  : ATrack3DNode ( parent, smgr, id, jet )
+  : AEventObject3DNode ( parent, smgr, id, jet )
 {
   this->setName ( "AJet3DNode" );
   createJetPyramids();
@@ -18,12 +18,12 @@ int AJet3DNode::getTrackNumber()
 
 void AJet3DNode::setTrack ( AJet* track )
 {
-  ATrack3DNode::setTrack(track);
+  AEventObject3DNode::setTrack(track);
 }
 
-void AJet3DNode::setTrackStyle ( ATrack3DNode::Style style )
+void AJet3DNode::setStyle ( AEventObject3DNode::Style style )
 {
-  ATrack3DNode::setTrackStyle(style);
+  AEventObject3DNode::setStyle(style);
 
   video::SMaterial* m = &Pyramid->getMaterial ( 0 );
   switch(style)
@@ -56,29 +56,21 @@ void AJet3DNode::setTrackStyle ( ATrack3DNode::Style style )
 	  }*/
 }
 
-void AJet3DNode::select()
-{
-  setTrackStyle(Selected);
-}
-
-void AJet3DNode::deselect()
-{
-  setTrackStyle(Basic);
-}
-
 void AJet3DNode::createJetPyramids()
 {
+  AJet *jet=(AJet*)track();
+
   float pi = 3.1415926f;
   float c = 180/pi;
-  float eta = ((AJet*)getTrack())->eta;
+  float eta = jet->eta;
   float theta = 2*atan( exp ( -eta ) );
-  float et = ((AJet*)getTrack())->et;
+  float et = jet->et;
   float e = fabs(et/sin(theta));
   
   core::vector3df zero = core::vector3df ( 0,0,0 );
   //core::vector3df scale = core::vector3df ( 0.5,0.5,1+0.06*log(e));
   core::vector3df scale = core::vector3df ( 0.5,0.5,0.02*e);
-  core::vector3df rot = core::vector3df ( -theta * c, 0, -((AJet*)getTrack())->phi * c ); //
+  core::vector3df rot = core::vector3df ( -theta * c, 0, -jet->phi * c ); //
   
   scene::IAnimatedMesh* pyramid = SceneManager->getMesh ( "jet.X" );
   scene::ISceneNode* nodeBox = 0;
@@ -152,7 +144,8 @@ video::SMaterial& AJet3DNode::getMaterial ( s32 i )
 
 float AJet3DNode::getTl()
 {
-  float tL = 0.5 * ( exp (((AJet*)getTrack())->eta) - exp (-(((AJet*)getTrack())->eta)));
+  AJet *jet=(AJet*)track();
+  float tL = 0.5 * ( exp(jet->eta) - exp(-jet->eta) );
   return tL;
 }
 

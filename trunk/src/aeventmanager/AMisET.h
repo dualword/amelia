@@ -1,11 +1,11 @@
 #ifndef AMISET_H_
 #define AMISET_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 #include "AEventManagerDefines.h"
 
 //!Objects of this class represent Missing Energy
-class AMisET : public ATrack
+class AMisET : public AEventObject
 {
 public:
   AMisET();

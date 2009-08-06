@@ -29,7 +29,7 @@ const QString ASTrack::namelist[]=
   };
 
 
-ASTrack::ASTrack():ATrack("Simulated Track",ATrack::eSTrack)
+ASTrack::ASTrack():AEventObject("Simulated Track",AEventObject::eSTrack)
 { }
 
 bool ASTrack::isElectron()

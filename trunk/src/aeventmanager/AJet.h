@@ -1,10 +1,10 @@
 #ifndef AJET_H_
 #define AJET_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
 //! Objects of this class represent jet in the event
-class AEVENTMANAGER_EXPORT AJet : public ATrack
+class AEVENTMANAGER_EXPORT AJet : public AEventObject
 {
 public:
   AJet();

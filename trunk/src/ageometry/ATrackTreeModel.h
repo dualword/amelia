@@ -5,7 +5,7 @@
 #include <QModelIndex>
 #include <QList>
 
-#include <aeventmanager/ATrack.h>
+#include <aeventmanager/AEventObject.h>
 #include <aeventmanager/ATrackCombination.h>
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCollection.h>
@@ -51,7 +51,7 @@ private:
 
   void clearInternalTree();
   QAbstractTreeItem* createInternalTree();
-  void createInternalTree(ATrack *track,QAbstractTreeItem *parent);
+  void createInternalTree(AEventObject *track,QAbstractTreeItem *parent);
 
   void synchronizeItems(QAbstractTreeItem *newItem,QAbstractTreeItem *oldItem,QModelIndex index);
 

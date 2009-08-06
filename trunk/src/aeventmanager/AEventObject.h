@@ -10,7 +10,7 @@
 #include "AEventManagerDefines.h"
 
 /// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
-class AEVENTMANAGER_EXPORT ATrack : public QObject
+class AEVENTMANAGER_EXPORT AEventObject : public QObject
 {
  public:
   enum eType //element type
@@ -26,9 +26,9 @@ class AEVENTMANAGER_EXPORT ATrack : public QObject
   };
   static unsigned int highestTrackID;
 
-  ATrack();
-  ATrack(QString name,ATrack::eType);
-  ATrack(const ATrack&);
+  AEventObject();
+  AEventObject(QString name,AEventObject::eType);
+  AEventObject(const AEventObject&);
 
   eType type();
 

@@ -6,7 +6,7 @@
 #include <QSet>
 #include <QMultiMap>
 
-#include "ATrack.h"
+#include "AEventObject.h"
 #include "AShower.h"
 #include "ASTrack.h"
 #include "ARTrack.h"
@@ -31,7 +31,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int runNumber;
   int eventNumber;
 
-  QList<ATrack*> Tracks; // Tracks pointers are stored here
+  QList<AEventObject*> Tracks; // Tracks pointers are stored here
 
   QList<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
   QList<ARTrack*> RTracks; // Pointers to reconstructed tracks within "EventTracks" are stored here
@@ -72,7 +72,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QList<QString> availableMisETTypes();
   QList<QString> availableTrackTypes();
 
-  ATrack* getTrackById(unsigned int id);
+  AEventObject* getTrackById(unsigned int id);
 
   template <class T>
     T* getAnalysisData(QString module)
@@ -101,7 +101,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
  protected:
   int highestTrackID;
 
-  void addTrack(ATrack* track);
+  void addTrack(AEventObject* track);
   void addTrack(ASTrack* track);
   void addTrack(ARTrack* track);
   void addTrack(AJet* track);

@@ -9,7 +9,7 @@ class AEVENTMANAGER_EXPORT APtFilter : public ATrackFilter
   APtFilter(double minPt,ATrackFilter* next=0);
   
   double minPt();
-  bool checkTrack(ATrack* track);
+  bool checkTrack(AEventObject* track);
 	
  signals:
   void minPtChanged(double);

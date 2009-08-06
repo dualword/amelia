@@ -8,7 +8,7 @@
 #include <QTextStream>
 #include <QDomElement>
 
-#include "ATrack.h"
+#include "AEventManagerDefines.h"
 
 class AEVENTMANAGER_EXPORT AEventAnalysisData : public QObject
 {

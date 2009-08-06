@@ -39,23 +39,23 @@ QString AModelFilter::trackType()
   return _trackType;
 }
 
-bool AModelFilter::checkTrack(ATrack* track)
+bool AModelFilter::checkTrack(AEventObject* track)
 {
-  if(track->type()==ATrack::eJet &&((AJet*)track)->jetType()!=_jetType)
+  if(track->type()==AEventObject::eJet &&((AJet*)track)->jetType()!=_jetType)
     return false;
 
-  if(track->type()==ATrack::eMissingEt &&((AMisET*)track)->misETType()!=_misEtType)
+  if(track->type()==AEventObject::eMissingEt &&((AMisET*)track)->misETType()!=_misEtType)
     return false;
 
-  if(track->type()==ATrack::eRTrack &&
+  if(track->type()==AEventObject::eRTrack &&
      (((ARTrack*)track)->RTrackType()!="CombinedInDetTracks" && // 14.x+
       ((ARTrack*)track)->RTrackType()!="Tracks")) // 12.x
     {
       return false;
     }
 
-  if((track->type()==ATrack::eSTrack && _trackType!="STrack")
-     || (track->type()==ATrack::eRTrack && _trackType!="RTrack"))
+  if((track->type()==AEventObject::eSTrack && _trackType!="STrack")
+     || (track->type()==AEventObject::eRTrack && _trackType!="RTrack"))
     return false;
   
   return ATrackFilter::checkTrack(track);

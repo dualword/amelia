@@ -1,14 +1,14 @@
 #include "AMisET3DNode.h"
 
 AMisET3DNode::AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id , AMisET* miset)
-  : ATrack3DNode ( parent, smgr, id ,miset)
+  : AEventObject3DNode ( parent, smgr, id ,miset)
 {
   boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr);
   this->setName ( "AMisET3DNode" );
 
   createMisEtBoxes();
 
-  setTrackStyle(Basic);
+  setStyle(Basic);
 }
 
 
@@ -24,12 +24,12 @@ int AMisET3DNode::getTrackNumber()
 
 void AMisET3DNode::setTrack ( AMisET* track )
 {
-  ATrack3DNode::setTrack(track);
+  AEventObject3DNode::setTrack(track);
 }
 
-void AMisET3DNode::setTrackStyle ( Style style )
+void AMisET3DNode::setStyle ( Style style )
 {
-  ATrack3DNode::setTrackStyle(style);
+  AEventObject3DNode::setStyle(style);
   switch(style)
     {
     case Selected:
@@ -88,21 +88,12 @@ void AMisET3DNode::setTrackStyle ( Style style )
     }
 }
 
-void AMisET3DNode::select()
-{
-  setTrackStyle(Selected);
-}
-
-void AMisET3DNode::deselect()
-{
-  setTrackStyle(Basic);
-}
-
-
 void AMisET3DNode::createMisEtBoxes() //for Missing Et
 {
+  AMisET *met=(AMisET*)track();
+
   core::vector3df zero = core::vector3df ( 0,0,0 );  
-  core::vector3df size = core::vector3df ( ((AMisET*)getTrack())->etx, ((AMisET*)getTrack())->ety,0 );
+  core::vector3df size = core::vector3df ( met->etx, met->ety,0 );
   float et=size.getLength();
 
   core::vector3df rot = size.getHorizontalAngle();
@@ -162,15 +153,7 @@ void AMisET3DNode::OnRegisterSceneNode()
 }
 
 void AMisET3DNode::render()
-{
-  // Draw a line where the track is
-  /*video::SMaterial m;
-  m.EmissiveColor = this->color ;
-  SceneManager->getVideoDriver()->setMaterial ( m );
-  
-  SceneManager->getVideoDriver()->setTransform ( video::ETS_WORLD, core::matrix4() );
-  SceneManager->getVideoDriver()->draw3DLine ( this->start, this->end ,this->color);*/
-}
+{ }
 
 
 const core::aabbox3d<f32>& AMisET3DNode::getBoundingBox() const

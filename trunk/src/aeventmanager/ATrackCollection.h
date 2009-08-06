@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QDomElement>
 
-#include "ATrack.h"
+#include "AEventObject.h"
 #include "AEventAnalysisData.h"
 
 class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
@@ -17,10 +17,10 @@ class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
   ~ATrackCollection();
 
   int size();
-  void addTrack(ATrack*);
-  ATrack* getTrack(int idx);
+  void addTrack(AEventObject*);
+  AEventObject* getTrack(int idx);
   void removeTrack(int idx);
-  bool containsTrack(ATrack*);
+  bool containsTrack(AEventObject*);
 
   void writeToFile(QTextStream& in);
   void loadFromXML(QDomElement ele, class AEvent* e);
@@ -33,10 +33,10 @@ class AEVENTMANAGER_EXPORT ATrackCollection : public AEventAnalysisData
   void trackInserted(int idx);
 
  private:
-  QList<ATrack*> _tracks;
+  QList<AEventObject*> _tracks;
 
-  QList<ATrack*> readTracksFromXmlElement(AEvent*, const QDomElement& ele);
-  void writeTrackToXmlFile(QTextStream& in,ATrack* track);
+  QList<AEventObject*> readTracksFromXmlElement(AEvent*, const QDomElement& ele);
+  void writeTrackToXmlFile(QTextStream& in,AEventObject* track);
 
 
   Q_OBJECT

@@ -1,11 +1,11 @@
 #ifndef ASHOWER_H_
 #define ASHOWER_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
 #include <QString>
 
-class AShower : public ATrack
+class AShower : public AEventObject
 {
  public:
   AShower();

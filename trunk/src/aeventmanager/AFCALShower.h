@@ -1,9 +1,9 @@
 #ifndef AFCALSHOWER_H_
 #define AFCALSHOWER_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
-class AEVENTMANAGER_EXPORT AFCALShower : public ATrack
+class AEVENTMANAGER_EXPORT AFCALShower : public AEventObject
 {
  public:
   AFCALShower();

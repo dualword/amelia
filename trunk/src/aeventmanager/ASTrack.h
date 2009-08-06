@@ -1,10 +1,10 @@
 #ifndef ASTRACK_H_
 #define ASTRACK_H_
 
-#include "ATrack.h"
+#include "AEventObject.h"
 
 //Objects of this class represent simulated tracks in the event (STr)
-class AEVENTMANAGER_EXPORT ASTrack : public ATrack
+class AEVENTMANAGER_EXPORT ASTrack : public AEventObject
 {
 public:
   ASTrack();

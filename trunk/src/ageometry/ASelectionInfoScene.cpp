@@ -80,7 +80,7 @@ void ASelectionInfoScene::handleAddTrack()
 {
   for (int i=0;i<combo->size();i++)
     {
-      ATrack *strack=(*combo)[i];
+      AEventObject *strack=(*combo)[i];
       if (strack->selectionID()==0)
 	strack->setSelectionID(++ATrackTreeModel::selectionID);
       
@@ -162,7 +162,7 @@ void ASelectionInfoScene::hideMessage()
     }
 }
 
-void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
+void ASelectionInfoScene::updateInfo ( AEventObject* strack )
 {
   message->setVisible(false);
   
@@ -170,7 +170,7 @@ void ASelectionInfoScene::updateTrackInfo ( ATrack* strack )
   refresh();
 }
 
-void ASelectionInfoScene::removeTrackInfo(ATrack* strack)
+void ASelectionInfoScene::removeInfo(AEventObject* strack)
 {
   if (combo->deleteTrack(strack))
     refresh();
@@ -198,7 +198,7 @@ void ASelectionInfoScene::refresh()
   else if (combo->size()==1)
     //Only 1 thing, we can handle that
     {
-      if ( (*combo)[0]->type() == ATrack::eSTrack ) //track
+      if ( (*combo)[0]->type() == AEventObject::eSTrack ) //track
         {
 	  ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
 	  header->setPlainText("SELECTED TRACK INFO");
@@ -217,7 +217,7 @@ void ASelectionInfoScene::refresh()
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
         }
-      else if ( (*combo)[0]->type() == ATrack::eJet ) //jet
+      else if ( (*combo)[0]->type() == AEventObject::eJet ) //jet
         {
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
@@ -232,7 +232,7 @@ void ASelectionInfoScene::refresh()
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
         }
-      else if ( (*combo)[0]->type() == ATrack::eMissingEt ) //Missing Et
+      else if ( (*combo)[0]->type() == AEventObject::eMissingEt ) //Missing Et
         {
 	  AMisET* ET = static_cast<AMisET*>((*combo)[0]);
 	  header->setPlainText("SELECTED MisEt INFO");

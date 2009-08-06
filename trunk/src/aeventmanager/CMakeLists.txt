@@ -20,7 +20,7 @@ SET(aeventmanager_SRCS
   AEventAnalysisData.cpp
   ATrackCollection.cpp
 
-  ATrack.cpp
+  AEventObject.cpp
   ASTrack.cpp
   ARTrack.cpp
   AJet.cpp
@@ -52,7 +52,7 @@ SET(aeventmanager_H
   AEvent.h
   AFilteredEvent.h
 
-  ATrack.h
+  AEventObject.h
   ATrackCombination.h
 
   ATrackFilter.h

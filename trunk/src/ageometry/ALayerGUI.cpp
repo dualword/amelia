@@ -179,10 +179,10 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 		trackInfo,SLOT(handleNewEventLoaded(AEvent*)));
 
         //Signals...
-        connect(geo,SIGNAL(trackSelected(ATrack*)), //track selection
-                trackInfo,SLOT(updateTrackInfo(ATrack*)));
-        connect(geo,SIGNAL(trackDeselected(ATrack*)), //track selection
-                trackInfo,SLOT(removeTrackInfo(ATrack*)));
+        connect(geo,SIGNAL(selected(AEventObject*)), //track selection
+                trackInfo,SLOT(updateInfo(AEventObject*)));
+        connect(geo,SIGNAL(deselected(AEventObject*)), //track selection
+                trackInfo,SLOT(removeInfo(AEventObject*)));
         connect(geo,SIGNAL(emptySelection()),
                 trackInfo,SLOT(hideMessage()));
     }
@@ -706,7 +706,7 @@ void ALayerGUI::combineSelectedTreeTracks()
 	index=rows[i];
       
       QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-      ATrack *track=qobject_cast<ATrack*>(item->data());
+      AEventObject *track=qobject_cast<AEventObject*>(item->data());
       combo->addTrack(track);
     }
   
@@ -758,7 +758,7 @@ void ALayerGUI::handleTreeSelectionChanged(const QItemSelection& proxyselected,c
   for (int i=0;i<idxs.size();i++)
     {
       QAbstractTreeItem *item=(QAbstractTreeItem*)idxs[i].internalPointer();
-      ATrack *track=qobject_cast<ATrack*>(item->data());
+      AEventObject *track=qobject_cast<AEventObject*>(item->data());
       performTreeTrackDeselection(track);
     }
   
@@ -769,7 +769,7 @@ void ALayerGUI::handleTreeSelectionChanged(const QItemSelection& proxyselected,c
   for (int i=0;i<idxs.size();i++)
     {
       QAbstractTreeItem *item=(QAbstractTreeItem*)idxs[i].internalPointer();
-      ATrack *track=qobject_cast<ATrack*>(item->data());
+      AEventObject *track=qobject_cast<AEventObject*>(item->data());
       performTreeTrackSelection(track,multi);
     }
 
@@ -777,10 +777,10 @@ void ALayerGUI::handleTreeSelectionChanged(const QItemSelection& proxyselected,c
   buttonCombineTracks->setEnabled(tableSelectedTracks->selectionModel()->selectedRows().size()>1);
 }
 
-void ALayerGUI::performTreeTrackSelection(ATrack *track,bool multi)
+void ALayerGUI::performTreeTrackSelection(AEventObject *track,bool multi)
 {
   // Perform a recursive selection if this is a combination..
-  if(track->type()==ATrack::eCombination)
+  if(track->type()==AEventObject::eCombination)
     {
       multi=true; // Set multi to true, because we want to select all track in a combination...
       ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
@@ -796,10 +796,10 @@ void ALayerGUI::performTreeTrackSelection(ATrack *track,bool multi)
     }
 }
 
-void ALayerGUI::performTreeTrackDeselection(ATrack *track)
+void ALayerGUI::performTreeTrackDeselection(AEventObject *track)
 {
   // Perform a recursive deselection if this is a combination..
-  if(track->type()==ATrack::eCombination)
+  if(track->type()==AEventObject::eCombination)
     {
       ATrackCombination *combo=qobject_cast<ATrackCombination*>(track);
       for(int i=0;i<combo->size();i++)

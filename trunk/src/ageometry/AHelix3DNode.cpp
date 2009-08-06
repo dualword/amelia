@@ -36,8 +36,8 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "AHelix3DNode.h"
 #include <QDebug>
 
-AHelix3DNode::AHelix3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,ATrack* track)
-  : ATrack3DNode ( parent, smgr, id ,track),_blinkTimer(-1),_blinkCount(0)
+AHelix3DNode::AHelix3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  s32 id ,AEventObject* track)
+  : AEventObject3DNode ( parent, smgr, id ,track),_blinkTimer(-1),_blinkCount(0)
 {
   boxSizeAnim = new CRelativeScaleSceneNodeAnimator(smgr,1.5);
   this->setName ( "AHelix3DNode" );
@@ -49,9 +49,9 @@ AHelix3DNode::~AHelix3DNode()
   boxSizeAnim->drop();
 }
 
-void AHelix3DNode::setTrackStyle ( Style style )
+void AHelix3DNode::setStyle ( Style style )
 {
-  ATrack3DNode::setTrackStyle(style);
+  AEventObject3DNode::setStyle(style);
 
   switch(style)
     {
@@ -96,7 +96,7 @@ void AHelix3DNode::setTrackStyle ( Style style )
 	  ( *it )->setMaterialTexture ( 0, SceneManager->getVideoDriver()->getTexture ( "" ) );
 	  ( *it )->getMaterial(0).EmissiveColor=this->color;
 	}
-      if(!getTrack()->isInteresting())
+      if(!track()->isInteresting())
 	{ // Uninteresting tracks should have the line visible, and blink
 	  isLineVisible = true;
 	  if(_blinkTimer==-1)
@@ -143,17 +143,6 @@ void AHelix3DNode::setTrackStyle ( Style style )
 	}*/
     }
 }
-
-void AHelix3DNode::select()
-{
-  setTrackStyle(Selected);
-}
-
-void AHelix3DNode::deselect()
-{
-  setTrackStyle(Basic);
-}
-
 
 void AHelix3DNode::drawPolyline()
 {

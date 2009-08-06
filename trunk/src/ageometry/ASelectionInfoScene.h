@@ -47,7 +47,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <QGraphicsTextItem>
 #include <QGraphicsProxyWidget>
 
-#include <aeventmanager/ATrack.h>
+#include <aeventmanager/AEventObject.h>
 #include <aeventmanager/AMisET.h>
 #include <aeventmanager/AJet.h>
 #include <aeventmanager/ASTrack.h>
@@ -62,8 +62,8 @@ class ASelectionInfoScene : public QGraphicsScene
   ~ASelectionInfoScene();
   
  public slots:
-  void updateTrackInfo ( ATrack* strack );
-  void removeTrackInfo ( ATrack* strack );
+  void updateInfo ( AEventObject* object );
+  void removeInfo ( AEventObject* object );
   void handleAddTrack();
   void handleCombTracks();
   void handleNewEventLoaded(AEvent*);
@@ -73,7 +73,7 @@ class ASelectionInfoScene : public QGraphicsScene
   void refresh();
   
  private:
-  ATrack* selectedTrack;
+  AEventObject* selectedTrack;
   ATrackCombination *combo;
   ATrackCollection *analysisData;
   

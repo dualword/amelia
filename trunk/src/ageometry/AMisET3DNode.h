@@ -1,19 +1,16 @@
 #ifndef AMISET3DNODE_H_
 #define AMISET3DNODE_H_
 
-#include "ATrack3DNode.h"
+#include "AEventObject3DNode.h"
 
-class AMisET3DNode : public ATrack3DNode
+class AMisET3DNode : public AEventObject3DNode
 {
 public:
   AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID , AMisET* miset);
   virtual ~AMisET3DNode();
   
-  void select();
-  void deselect();
-  
   virtual int getTrackNumber();
-  virtual void setTrackStyle (Style style );
+  virtual void setStyle (Style style );
   void setTrack(AMisET* track);
   
   void createMisEtBoxes();

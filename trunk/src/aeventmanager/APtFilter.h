@@ -1,15 +1,15 @@
 #ifndef APTFILTER_H_
 #define APTFILTER_H_
 
-#include "ATrackFilter.h"
+#include "AEventObjectFilter.h"
 
-class AEVENTMANAGER_EXPORT APtFilter : public ATrackFilter
+class AEVENTMANAGER_EXPORT APtFilter : public AEventObjectFilter
 {
  public:
-  APtFilter(double minPt,ATrackFilter* next=0);
+  APtFilter(double minPt,AEventObjectFilter* next=0);
   
   double minPt();
-  bool checkTrack(AEventObject* track);
+  bool check(AEventObject* object);
 	
  signals:
   void minPtChanged(double);

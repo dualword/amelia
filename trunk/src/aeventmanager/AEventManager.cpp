@@ -35,7 +35,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "AEventManager.h"
 
-#include "ATrackCollection.h"
+#include "AEventObjectCollection.h"
 #include "config.h"
 
 #include <QDir>
@@ -65,7 +65,7 @@ AEventManager::~AEventManager()
 void AEventManager::load()
 {
   //Register some analysis data structures
-  AEventAnalysisData::addStructure(ATrackCollection::staticMetaObject);
+  AEventAnalysisData::addStructure(AEventObjectCollection::staticMetaObject);
   
   loadWorkspace();
 }

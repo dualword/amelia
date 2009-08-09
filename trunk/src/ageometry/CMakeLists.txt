@@ -8,29 +8,9 @@ ADD_DEFINITIONS(${QT_DEFINITIONS})
 ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_SHARED)
 
-IF(UNIX)
-       MESSAGE(STATUS "System UNIX")
-       FIND_PACKAGE(OpenGL REQUIRED)
-       FIND_PACKAGE(X11)
-       FIND_LIBRARY(XXF86VM_LIBRARY Xxf86vm)
-       SET(SYSTEMSPECIFIC_LIBRARIES
-             ${X11_LIBRARIES}
-             ${XXF86VM_LIBRARY}
-             ${OPENGL_LIBRARIES}
-             jpeg
-             png
-       )
-ENDIF(UNIX)
-
-IF(APPLE)
-	FIND_LIBRARY(IOKIT_LIBRARY IOKit REQUIRED)
-	SET(SYSTEMSPECIFIC_LIBRARIES
-		${SYSTEMSPECIFIC_LIBRARIES}
-		${IOKIT_LIBRARY})
-ENDIF(APPLE)
-
 FIND_PACKAGE (Irrlicht REQUIRED)
 INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
+LINK_DIRECTORIES(${Irrlicht_LIBRARY_DIR})
 
 SET(ageometry_SRCS
   QIrrWidget.cpp 
@@ -42,6 +22,7 @@ SET(ageometry_SRCS
   ARTrack3DNode.cpp 
   AJet3DNode.cpp 
   AMisET3DNode.cpp 
+  ACaloTower3DNode.cpp 
   ALayerGUI.cpp 
   AViewport.cpp 
   AEventInfoScene.cpp 
@@ -79,6 +60,7 @@ SET(ageometry_H
   ARTrack3DNode.h 
   AJet3DNode.h 
   AMisET3DNode.h
+  ACaloTower3DNode.h
   AGeometryHUD.h
   ALayerGUI.h 
   AViewport.h 
@@ -113,8 +95,7 @@ ADD_LIBRARY(AGeometry SHARED ${ageometry_SRCS})
 SET_PROPERTY(TARGET AGeometry PROPERTY LINK_INTERFACE_LIBRARIES "")
 TARGET_LINK_LIBRARIES(AGeometry
   ${QT_LIBRARIES} 
-  ${SYSTEMSPECIFIC_LIBRARIES}   
-  Irrlicht
+  ${Irrlicht_LIBRARY}
   amelia
   ABase
   AEventManager

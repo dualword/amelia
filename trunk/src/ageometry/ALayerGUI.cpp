@@ -58,7 +58,8 @@ ALayerGUI::ALayerGUI(QWidget* parent)
         : QFrame(parent)
 {
   modelFilter=new AModelFilter("Kt4H1TopoJets","MET_Final","ASTrack");
-  particleFilter=new AParticleFilter();
+  calorimeterFilter=new ACalorimeterFilter();
+  particleFilter=new AParticleFilter(calorimeterFilter);
   ptFilter=new APtFilter(1,particleFilter);
 }
 
@@ -78,7 +79,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     menuTagCurrentEvent=window()->findChild<QMenu *>("menuTagCurrentEvent");
     buttonDeleteTracks = findChild<QPushButton*>("deleteTracks");
     buttonCombineTracks = findChild<QPushButton*>("combineTracks");
-    QGraphicsView *trackInfoView=findChild<QGraphicsView *>("trackInfo");
+    QGraphicsView *selectionInfoView=findChild<QGraphicsView *>("selectionInfo");
     QGraphicsView *eventInfoView=findChild<QGraphicsView *>("eventInfo");
     detailedSelectedTracksTable=findChild<QTreeView *>("detailedSelectedTracksTable");
     QAction *actionFPS=window()->findChild<QAction *>("actionFPS");
@@ -115,11 +116,12 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     QCheckBox *checkBox_TRT=detectorVisibility->findChild<QCheckBox *>("checkBox_TRT");
     
     QCheckBox *checkBox_Electrons=findChild<QCheckBox *>("checkBox_Electrons");
-    QCheckBox *checkBox_NeutralHadrons=findChild<QCheckBox *>("checkBox_NeutralHadrons");
+    QCheckBox *checkBox_Hadrons=findChild<QCheckBox *>("checkBox_Hadrons");
     QCheckBox *checkBox_Muons=findChild<QCheckBox *>("checkBox_Muons");
     QCheckBox *checkBox_Photons=findChild<QCheckBox *>("checkBox_Photons");
     QCheckBox *checkBox_Jets=findChild<QCheckBox *>("checkBox_Jets");
     QCheckBox *checkBox_MissingEt=findChild<QCheckBox *>("checkBox_MissingEt");
+    QCheckBox *checkBox_Calorimeters=findChild<QCheckBox *>("checkBox_Calorimeters");
 
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
@@ -170,21 +172,21 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     }
 
     // Setup trackview
-    if (trackInfoView)
+    if (selectionInfoView)
     {
-        trackInfo=new ASelectionInfoScene;
-        trackInfoView->setScene(trackInfo);
-        trackInfoView->ensureVisible(0,0,450,300,10,10);
+        selectionInfo=new ASelectionInfoScene;
+        selectionInfoView->setScene(selectionInfo);
+        selectionInfoView->ensureVisible(0,0,450,300,10,10);
 	connect(this,SIGNAL(eventLoaded(AEvent*)),
-		trackInfo,SLOT(handleNewEventLoaded(AEvent*)));
+		selectionInfo,SLOT(handleNewEventLoaded(AEvent*)));
 
         //Signals...
         connect(geo,SIGNAL(selected(AEventObject*)), //track selection
-                trackInfo,SLOT(updateInfo(AEventObject*)));
+                selectionInfo,SLOT(updateInfo(AEventObject*)));
         connect(geo,SIGNAL(deselected(AEventObject*)), //track selection
-                trackInfo,SLOT(removeInfo(AEventObject*)));
+                selectionInfo,SLOT(removeInfo(AEventObject*)));
         connect(geo,SIGNAL(emptySelection()),
-                trackInfo,SLOT(hideMessage()));
+                selectionInfo,SLOT(hideMessage()));
     }
 
     eventInfoView=new QGraphicsView();
@@ -356,7 +358,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     //Setup particle visiblility toggles
     if(checkBox_Electrons)
       {
-	QBoolSync *electronSync=new QBoolSync(checkBox_Electrons->isChecked());
+	QBoolSync *electronSync=new QBoolSync(particleFilter->showElectrons());
 	electronSync->syncButton(checkBox_Electrons);
 	connect(electronSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowElectrons(bool)));
@@ -365,7 +367,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     if(checkBox_Muons)
       {
-	QBoolSync *muonSync=new QBoolSync(checkBox_Muons->isChecked());
+	QBoolSync *muonSync=new QBoolSync(particleFilter->showMuons());
 	muonSync->syncButton(checkBox_Muons);
 	connect(muonSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowMuons(bool)));
@@ -374,7 +376,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     if(checkBox_Photons)
       {
-	QBoolSync *photonSync=new QBoolSync(checkBox_Photons->isChecked());
+	QBoolSync *photonSync=new QBoolSync(particleFilter->showPhotons());
 	photonSync->syncButton(checkBox_Photons);
 	connect(photonSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowPhotons(bool)));
@@ -383,17 +385,17 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     if(checkBox_Jets)
       {
-	QBoolSync *jetSync=new QBoolSync(checkBox_Jets->isChecked());
+	QBoolSync *jetSync=new QBoolSync(particleFilter->showJets());
 	jetSync->syncButton(checkBox_Jets);
 	connect(jetSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowJets(bool)));
 	connect(particleFilter,SIGNAL(showJetsChanged(bool)),
 		jetSync,SLOT(setValue(bool)));
       }
-    if(checkBox_NeutralHadrons)
+    if(checkBox_Hadrons)
       {
-	QBoolSync *hadronsSync=new QBoolSync(checkBox_NeutralHadrons->isChecked());
-	hadronsSync->syncButton(checkBox_NeutralHadrons);
+	QBoolSync *hadronsSync=new QBoolSync(particleFilter->showHadrons());
+	hadronsSync->syncButton(checkBox_Hadrons);
 	connect(hadronsSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowHadrons(bool)));
 	connect(particleFilter,SIGNAL(showHadronsChanged(bool)),
@@ -401,14 +403,22 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     if(checkBox_MissingEt)
       {
-	QBoolSync *metSync=new QBoolSync(checkBox_MissingEt->isChecked());
+	QBoolSync *metSync=new QBoolSync(particleFilter->showMissingEt());
 	metSync->syncButton(checkBox_MissingEt);
 	connect(metSync,SIGNAL(valueChanged(bool)),
 		particleFilter,SLOT(setShowMissingEt(bool)));
 	connect(particleFilter,SIGNAL(showMissingEtChanged(bool)),
 		metSync,SLOT(setValue(bool)));
       }
-
+    if(checkBox_Calorimeters)
+      {
+	QBoolSync *calorimeterSync=new QBoolSync(particleFilter->showCalorimeters());
+	calorimeterSync->syncButton(checkBox_Calorimeters);
+	connect(calorimeterSync,SIGNAL(valueChanged(bool)),
+		particleFilter,SLOT(setShowCalorimeters(bool)));
+	connect(particleFilter,SIGNAL(showCalorimetersChanged(bool)),
+		calorimeterSync,SLOT(setValue(bool)));
+      }
 
 
     //Setup the smart shower
@@ -706,12 +716,12 @@ void ALayerGUI::combineSelectedTreeTracks()
 	index=rows[i];
       
       QAbstractTreeItem *item=(QAbstractTreeItem*)index.internalPointer();
-      AEventObject *track=qobject_cast<AEventObject*>(item->data());
-      combo->addTrack(track);
+      AEventObject *object=qobject_cast<AEventObject*>(item->data());
+      combo->addTrack(object);
     }
   
-  ATrackCollection *analysisData=CompleteEvent->getAnalysisData<ATrackCollection>("AGeometry");
-  analysisData->addTrack(combo);
+  AEventObjectCollection *analysisData=CompleteEvent->getAnalysisData<AEventObjectCollection>("AGeometry");
+  analysisData->add(combo);
 }
 
 void ALayerGUI::deleteSelectedTreeTracks()
@@ -791,7 +801,7 @@ void ALayerGUI::performTreeTrackSelection(AEventObject *track,bool multi)
     }
   else
     {
-      int id=track->trackID();
+      int id=track->ID();
       geo->selectTrackByID(id,multi);
     }
 }
@@ -809,7 +819,7 @@ void ALayerGUI::performTreeTrackDeselection(AEventObject *track)
     }
   else
     {
-      int id=track->trackID();
+      int id=track->ID();
       geo->deselectTrackByID(id);
     }
 }

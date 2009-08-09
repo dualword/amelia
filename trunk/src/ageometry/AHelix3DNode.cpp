@@ -240,7 +240,6 @@ void AHelix3DNode::render()
     }
 }
 
-
 const core::aabbox3d<f32>& AHelix3DNode::getBoundingBox() const
 {
   return Box;

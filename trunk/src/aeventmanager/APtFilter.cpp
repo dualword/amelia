@@ -1,7 +1,10 @@
 #include "APtFilter.h"
 
-APtFilter::APtFilter(double minPt,ATrackFilter *nextFilter)
-  :ATrackFilter(nextFilter),_minPt(minPt)
+#include "ATrack.h"
+#include "AJet.h"
+
+APtFilter::APtFilter(double minPt,AEventObjectFilter *nextFilter)
+  :AEventObjectFilter(nextFilter),_minPt(minPt)
 {}
 
 double APtFilter::minPt()
@@ -17,10 +20,10 @@ void APtFilter::setMinPt(double _minPt)
   emit minPtChanged(_minPt);
 }
 
-bool APtFilter::checkTrack(AEventObject* track)
+bool APtFilter::check(AEventObject* object)
 {
-  if(track->Pt()<minPt() && track->type()==AEventObject::eSTrack) return false;
-  if(track->Pt()<minPt() && track->type()==AEventObject::eRTrack) return false;
-  if(track->Pt()<minPt() && track->type()==AEventObject::eJet) return false;
-  return ATrackFilter::checkTrack(track);
+  if(object->type()==AEventObject::eTrack && object->pt()<minPt()) return false;
+  if(object->type()==AEventObject::eJet && object->et()<minPt()) return false;
+  if(object->type()==AEventObject::eShower && object->et()<minPt()) return false;
+  return AEventObjectFilter::check(object);
 }

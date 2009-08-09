@@ -62,24 +62,19 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	  case 0:
             return track->name();
 	  case 1:
-            if (track->type() == AEventObject::eJet)
+            if (track->type() == AEventObject::eJet || track->type() == AEventObject::eMissingEt)
 	      {
-                return QString::number((static_cast<AJet*>(track))->et);
+                return QString::number(track->et());
 	      }
-            else
-	      if (track->type() == AEventObject::eSTrack || track->type() == AEventObject::eMissingEt)
-                {
-		  return QString::number((static_cast<ASTrack*>(track))->Pt());
-                }
-	      else return QString("N/A");
+            else if (track->type() == AEventObject::eTrack)
+	      {
+		return QString::number(track->pt());
+	      }
+	    else return QString("N/A");
 	  case 2:
-            if (track->type() == AEventObject::eJet)
+            if (track->type() == AEventObject::eJet || track->type() == AEventObject::eTrack)
 	      {
-                return QString::number(static_cast<AJet*>(track)->theta()*180/3.14);
-	      }
-            else if (track->type() == AEventObject::eSTrack)
-	      {
-                return QString::number(static_cast<ASTrack*>(track)->theta()*180/3.14);
+                return QString::number(track->theta()*180/3.14);
 	      }
             else
 	      {
@@ -87,22 +82,18 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	      }
 	    
 	  case 3:
-            if (track->type() == AEventObject::eJet)
+            if (track->type() == AEventObject::eJet || track->type() == AEventObject::eTrack)
 	      {
-                return QString::number(static_cast<AJet*>(track)->phi);
-	      }
-            else if (track->type() == AEventObject::eSTrack)
-	      {
-                return QString::number(static_cast<ASTrack*>(track)->phi);
+                return QString::number(track->phi());
 	      }
             else
 	      {
                 return "N/A";
 	      }
 	  case 4:
-            if (track->type() == AEventObject::eSTrack)
+            if (track->type() == AEventObject::eTrack)
 	      {
-                return QString::number(tracks.at(index.row())->trackID());
+                return QString::number(tracks.at(index.row())->ID());
 	      }
             else
 	      {
@@ -139,51 +130,9 @@ QVariant AInterestingTrackTableModel::headerData (int section, Qt::Orientation o
   
   if (orientation == Qt::Vertical)
     {
-      return QString::number(tracks[section]->trackID());
-      //TODO Renable selection ID
-      //->selectionID());
+      return QString::number(tracks[section]->ID());
     }
   return QVariant();
-}
-
-void AInterestingTrackTableModel::sort(int column, Qt::SortOrder order)
-{
-  //Do a bubble sort... Switch to something faster later?
-  
-  emit layoutAboutToBeChanged();
-  for (int i=0;i<tracks.size()-1;i++)
-    {
-      for (int j=i;j<tracks.size()-1;j++)
-        {
-	  switch (column)
-            {
-            case 0:
-	      if ( (tracks[j]->trackID()<tracks[j+1]->trackID() && order==Qt::AscendingOrder) ||
-		   (tracks[j]->trackID()>tracks[j+1]->trackID() && order==Qt::DescendingOrder) )
-                {
-		  tracks.swap(i,j+1);
-                }
-	      break;
-            case 1:
-	      if ( (tracks[j]->name()<tracks[j+1]->name() && order==Qt::AscendingOrder) ||
-		   (tracks[j]->name()>tracks[j+1]->name() && order==Qt::DescendingOrder) )
-                {
-		  tracks.swap(i,j+1);
-                }
-	      break;
-            case 2:
-	      if ( (tracks[j]->Pt()<tracks[j+1]->Pt() && order==Qt::AscendingOrder) ||
-		   (tracks[j]->Pt()>tracks[j+1]->Pt() && order==Qt::DescendingOrder) )
-                {
-		  tracks.swap(i,j+1);
-                }
-	      break;
-            default:
-	      break;
-            }
-        }
-    }
-  emit layoutChanged();
 }
 
 void AInterestingTrackTableModel::addTrack(AEventObject* strack)
@@ -206,7 +155,7 @@ void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& s
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID();
+	  int id=tracks[idxs[i].row()]->ID();
 	  emit entryDeselected(id);
         }
     }
@@ -221,7 +170,7 @@ void AInterestingTrackTableModel::handleSelectionChanged(const QItemSelection& s
     {
       if (idxs[i].column()==0) //We are expecting entire row to be selected, so to avoid duplicate indexes we just check the one belonging to the first column
         {
-	  int id=tracks[idxs[i].row()]->trackID();
+	  int id=tracks[idxs[i].row()]->ID();
 	  emit entrySelected(id,multi);
         }
     }

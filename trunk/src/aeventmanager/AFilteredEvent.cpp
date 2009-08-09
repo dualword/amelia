@@ -1,9 +1,9 @@
 #include "AFilteredEvent.h"
 
-AFilteredEvent::AFilteredEvent(AEvent *event,ATrackFilter *headFilter)
+AFilteredEvent::AFilteredEvent(AEvent *event,AEventObjectFilter *headFilter)
   :AEvent(),_completeEvent(event),_filters(headFilter)
 {
-  ATrackFilter *filter=headFilter;
+  AEventObjectFilter *filter=headFilter;
   while(filter)
     {
       connect(filter,SIGNAL(filterUpdated()),
@@ -30,8 +30,8 @@ void AFilteredEvent::updateFilters()
   HECshowers=_completeEvent->HECshowers;
   TILEshowers=_completeEvent->TILEshowers;
 
+  Objects.clear();
   Tracks.clear();
-  STracks.clear();
   Jets.clear();
   MisET.clear();
   numTracks=0;
@@ -45,10 +45,10 @@ void AFilteredEvent::updateFilters()
 
   numShowers = FCALshowers.size() + HECshowers.size() + LArshowers.size() + TILEshowers.size();
 
-  for(int i=0;i<_completeEvent->Tracks.size();i++)
+  for(int i=0;i<_completeEvent->Objects.size();i++)
     {
-      if(_filters->checkTrack(_completeEvent->Tracks[i]))
-	addTrack(_completeEvent->Tracks[i]);
+      if(_filters->check(_completeEvent->Objects[i]))
+	addObject(_completeEvent->Objects[i]);
     }
   
   emit filtersUpdated();

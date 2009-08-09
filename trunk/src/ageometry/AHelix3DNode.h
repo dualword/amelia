@@ -10,8 +10,8 @@ public:
   /// Destructor
   virtual ~AHelix3DNode();
 
-  /// Set the track style
-  /*
+  /*!
+   * \brief Set the track style
    * \param style The style you want to set.
    */
   virtual void setStyle( Style style );

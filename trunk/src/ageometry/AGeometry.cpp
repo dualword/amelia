@@ -43,6 +43,12 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 
 #include "QIrrWidgetRefresher.h"
 
+#include "ASTrack3DNode.h"
+#include "ARTrack3DNode.h"
+#include "AJet3DNode.h"
+#include "AMisET3DNode.h"
+#include "ACaloTower3DNode.h"
+
 #include <QApplication>
 
 #include <aeventmanager/ATrackCombination.h>
@@ -99,7 +105,6 @@ AGeometry::AGeometry(QWidget* parent)
     //Switches for the different modes
     detectorMode = false;
     eventAnalysisMode = true;
-    multiMediaMode = false;
 
     selectedTrackBox = NULL;
 
@@ -313,7 +318,7 @@ void AGeometry::load()
     createAtlasGeometry();
     createFlatGeometry();
 
-    _rootTracksNode=getSceneManager()->addEmptySceneNode();
+    _rootObjectsNode=getSceneManager()->addEmptySceneNode();
 
     forceUpdate(); //Make sure the timer is correct!
 
@@ -422,9 +427,9 @@ QString AGeometry::detectorSelection( core::position2di pos )
     return "";
 }
 
-AEventObject3DNode* AGeometry::trackSelection ( core::position2di pos )
+AEventObject3DNode* AGeometry::objectSelection ( core::position2di pos )
 {
-    qDebug() << "trackSelection";
+  qDebug() << "objectSelection";
     if ( eventAnalysisMode && allowTrackSelection )
     {
         ISceneCollisionManager* colmgr = getSceneManager()->getSceneCollisionManager();
@@ -432,37 +437,37 @@ AEventObject3DNode* AGeometry::trackSelection ( core::position2di pos )
 
         // Put all of the tracks into a selectable state, and store the previous state.
         QMap<AEventObject3DNode*,AEventObject3DNode::Style> oldStyles;
-        for (int i=0;i<allTracks.size();i++)
+        for (int i=0;i<allObjects.size();i++)
         {
-            if (allTracks[i]->isVisible())
+            if (allObjects[i]->isVisible())
             {
-                aabbox3d<f32> box=allTracks[i]->getTransformedBoundingBox();
+                aabbox3d<f32> box=allObjects[i]->getTransformedBoundingBox();
                 if (box.intersectsWithLine(ray))
                 {
-                    oldStyles[allTracks[i]]=allTracks[i]->style();
-                    allTracks[i]->setStyle(AEventObject3DNode::Selectable);
+                    oldStyles[allObjects[i]]=allObjects[i]->style();
+                    allObjects[i]->setStyle(AEventObject3DNode::Selectable);
                 }
             }
         }
 
         // Find the selected scene node
-        ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16, false, _rootTracksNode );
+        ISceneNode *selectedSceneNode = colmgr->getSceneNodeFromRayBB ( ray, 16, false, _rootObjectsNode );
         ITriangleSelector* selector;
         vector3df target;
         triangle3df triangle;
 
         //Find the track that this scene node belongs to
         AEventObject3DNode *selectedNode=0;
-        for ( int i=0; i<allTracks.size(); i++)
+        for ( int i=0; i<allObjects.size(); i++)
         {
-            if (!allTracks[i]->isVisible()) continue;
-            AEventObject *track=allTracks[i]->track();
+            if (!allObjects[i]->isVisible()) continue;
+            AEventObject *track=allObjects[i]->track();
 
-            if ( selectedSceneNode && ( track->type() == AEventObject::eSTrack || track->type() == AEventObject::eRTrack || track->type() == AEventObject::eMissingEt ) ) //tracks
+            if ( selectedSceneNode && ( track->type() == AEventObject::eTrack || track->type() == AEventObject::eMissingEt ) ) //tracks
             {
-                if ( selectedSceneNode->getParent() == allTracks[i] )
+                if ( selectedSceneNode->getParent() == allObjects[i] )
                 {
-                    selectedNode = allTracks[i];
+                    selectedNode = allObjects[i];
 
                     break;
                 }
@@ -470,7 +475,7 @@ AEventObject3DNode* AGeometry::trackSelection ( core::position2di pos )
 
             if ( track->type() == AEventObject::eJet ) //jets
             {
-                AJet3DNode* jet =  (AJet3DNode*)allTracks[i];
+                AJet3DNode* jet =  (AJet3DNode*)allObjects[i];
                 selector = jet->Pyramid->getTriangleSelector();
 
                 const ISceneNode *outNode; //TODO: Take advantage of this somehow..
@@ -966,23 +971,23 @@ void AGeometry::selectTrackByID(unsigned int ID, bool multi)
 {
     if (!multi) //If we are not doing multiselection, the deselect anything selected
     {
-        while (!selectedTracks.isEmpty())
+        while (!selectedObjects.isEmpty())
         {
-            AEventObject3DNode *node=selectedTracks.back();
+            AEventObject3DNode *node=selectedObjects.back();
             node->deselect();
-            selectedTracks.pop_back();
+            selectedObjects.pop_back();
             emit deselected(node->track());
         }
     }
 
     //Loop through all the tracks...
-    for ( int i=0;i<allTracks.size();i++)
+    for ( int i=0;i<allObjects.size();i++)
     {
-        AEventObject* selectedTrack = allTracks[i]->track();
-        if ( selectedTrack->trackID() == ID ) //Found it
+        AEventObject* selectedTrack = allObjects[i]->track();
+        if ( selectedTrack->ID() == ID ) //Found it
         {
-            allTracks[i]->select();
-            selectedTracks.push_back(allTracks[i]);
+            allObjects[i]->select();
+            selectedObjects.push_back(allObjects[i]);
             emit selected(selectedTrack);
             return;
         }
@@ -992,14 +997,14 @@ void AGeometry::selectTrackByID(unsigned int ID, bool multi)
 void AGeometry::deselectTrackByID(unsigned int ID)
 {
     AEventObject* tr;
-    for (int i=0;i<selectedTracks.size();i++)
+    for (int i=0;i<selectedObjects.size();i++)
     {
-        tr=selectedTracks[i]->track();
-        if (tr->trackID() == ID)
+        tr=selectedObjects[i]->track();
+        if (tr->ID() == ID)
         {
-            selectedTracks[i]->deselect();
+            selectedObjects[i]->deselect();
             emit deselected(tr);
-            selectedTracks.removeAt(i);
+            selectedObjects.removeAt(i);
             return;
         }
     }
@@ -1010,30 +1015,30 @@ AEventObject3DNode* AGeometry::getTrackNodeByID(unsigned int ID)
     if (!_event) return 0;
 
     //Loop through all the tracks...
-    for ( int i=0;i<allTracks.size();i++)
+    for ( int i=0;i<allObjects.size();i++)
     {
-        AEventObject* selectedTrack = allTracks[i]->track();
-        if ( selectedTrack->trackID() == ID ) //Found it
+        AEventObject* selectedTrack = allObjects[i]->track();
+        if ( selectedTrack->ID() == ID ) //Found it
         {
-            return allTracks[i];
+            return allObjects[i];
         }
     }
 
-    AEventObject *track=_event->completeEvent()->getTrackById(ID);
+    AEventObject *track=_event->completeEvent()->getObjectById(ID);
 
     if (track)
-        return createTrackNode(track);
+        return createNode(track);
     else
         return 0;
 }
 
-bool AGeometry::isTrackSelected(unsigned int ID)
+bool AGeometry::isSelected(unsigned int ID)
 {
     AEventObject* tr;
-    for (int i=0;i<selectedTracks.size();i++)
+    for (int i=0;i<selectedObjects.size();i++)
     {
-        tr=selectedTracks[i]->track();
-        if (tr->trackID() == ID)
+        tr=selectedObjects[i]->track();
+        if (tr->ID() == ID)
         {
             return true;
         }
@@ -1044,10 +1049,10 @@ bool AGeometry::isTrackSelected(unsigned int ID)
 void AGeometry::clearTrackSelection()
 {
     AEventObject* tr;
-    while (selectedTracks.size()>0)
+    while (selectedObjects.size()>0)
     {
-        tr=selectedTracks[0]->track();
-        deselectTrackByID(tr->trackID());
+        tr=selectedObjects[0]->track();
+        deselectTrackByID(tr->ID());
     }
 }
 
@@ -1130,36 +1135,36 @@ void AGeometry::mouseClickEvent(QMouseEvent *event)
     {
         if (allowTrackSelection)
         { //Start track selection
-            AEventObject3DNode *selectedNode=trackSelection(posMouse);
+            AEventObject3DNode *selectedNode=objectSelection(posMouse);
 
             //If shifty/ctrly no clicky, then we do not have a multi-track selection and so we deselect everything, but the clicked ray
             if (!Shift)
             { // Deselect every selected track
-                while (!selectedTracks.isEmpty())
+                while (!selectedObjects.isEmpty())
                 {
-                    AEventObject3DNode *node=selectedTracks.back();
+                    AEventObject3DNode *node=selectedObjects.back();
                     node->deselect();
-                    selectedTracks.pop_back();
+                    selectedObjects.pop_back();
                     emit deselected(node->track());
                 }
             }
 
             if (selectedNode)
             {
-                int idx=selectedTracks.indexOf(selectedNode);
+                int idx=selectedObjects.indexOf(selectedNode);
                 if (idx==-1) //Make sure the track is not already selected
                 {
                     selectedNode->select();
                     if (selectedNode->track()->isInteresting())
                     {
-                        selectedTracks.push_back(selectedNode);
+                        selectedObjects.push_back(selectedNode);
                         emit selected(selectedNode->track());
                         qDebug() << "Found and selected a track...";
                     }
                 }
                 else //else deselect it
                 {
-                    selectedTracks.removeAt(idx);
+                    selectedObjects.removeAt(idx);
                     selectedNode->deselect();
                     emit deselected(selectedNode->track());
                     qDebug() << "Found and delselected a track...";
@@ -1273,8 +1278,8 @@ void AGeometry::contextMenuEvent( QContextMenuEvent *event )
     {
         //Prepare the combination object holding all the selected tracks
         ATrackCombination *combination=new ATrackCombination();
-        for (int i=0;i<selectedTracks.size();i++)
-            combination->addTrack(selectedTracks[i]->track());
+        for (int i=0;i<selectedObjects.size();i++)
+            combination->addTrack(selectedObjects[i]->track());
 
         //For each item in the combo menu, set it's data to the combined tracks
         QList<QAction *> actions=_comboMenu->findChildren<QAction*>();
@@ -1336,13 +1341,12 @@ void AGeometry::clearEvent()
 
     clearTrackSelection();
 
-    for (int i=0;i<allTracks.size();i++)
+    for (int i=0;i<allObjects.size();i++)
     {
-        allTracks[i]->remove();
-        allTracks[i]->deleteLater();
+        allObjects[i]->remove();
+        allObjects[i]->deleteLater();
     }
-    allTracks.clear();
-    allJets.clear();
+    allObjects.clear();
 
     renderViewport(AGeometry::Front);
     renderViewport(AGeometry::Side);
@@ -1382,39 +1386,46 @@ int AGeometry::camera()
     return active_cam;
 }
 
-AEventObject3DNode* AGeometry::createTrackNode(AEventObject* track)
+AEventObject3DNode* AGeometry::createNode(AEventObject* track)
 {
     AEventObject3DNode *node=0;
     if (track->type()==AEventObject::eJet)
     {
         AJet* jet=(AJet*)track;
-        node=new AJet3DNode(_rootTracksNode,getSceneManager(),0,jet);
-        allJets.push_back((AJet3DNode*)node);
+        node=new AJet3DNode(_rootObjectsNode,getSceneManager(),0,jet);
     }
-    else if (track->type()==AEventObject::eSTrack)
+    else if (track->type()==AEventObject::eTrack)
     {
-        ASTrack* str=(ASTrack*)track;
-        node=new ASTrack3DNode(_rootTracksNode,getSceneManager(),0,str);
-    }
-    else if (track->type()==AEventObject::eRTrack)
-    {
-        ARTrack* rtr=(ARTrack*)track;
-        node=new ARTrack3DNode(_rootTracksNode,getSceneManager(),0,rtr);
+      ATrack *tr=(ATrack*)track;
+      if(tr->trackType()=="STrack")
+	{
+	  ASTrack* str=(ASTrack*)track;
+	  node=new ASTrack3DNode(_rootObjectsNode,getSceneManager(),0,str);
+	}
+      else if(tr->trackType()=="RTrack")
+	{
+	  ARTrack* rtr=(ARTrack*)track;
+	  node=new ARTrack3DNode(_rootObjectsNode,getSceneManager(),0,rtr);
+	}
     }
     else if (track->type()==AEventObject::eMissingEt)
     {
         AMisET* miset=(AMisET*)track;
-        node=new AMisET3DNode(_rootTracksNode,getSceneManager(),0,miset);
+        node=new AMisET3DNode(_rootObjectsNode,getSceneManager(),0,miset);
+    }
+    else if (track->type()==AEventObject::eShower)
+    {
+      AShower* shower=(AShower*)track;
+      node=new ACaloTower3DNode(_rootObjectsNode,getSceneManager(),0,shower);
     }
 
     if (node)
     {
         node->setVisible(false);
-        allTracks.push_back(node);
+        allObjects.push_back(node);
+	connect(node,SIGNAL(lookChanged()),
+		this,SLOT(makeDirty()));
     }
-
-    connect(node,SIGNAL(lookChanged()),
-            this,SLOT(makeDirty()));
 
     return node;
 }
@@ -1637,25 +1648,25 @@ void AGeometry::updateTracks()
 {
     if (!_event) return;
 
-    QSet<AEventObject*> tracks=QSet<AEventObject*>::fromList(_event->Tracks);
+    QSet<AEventObject*> objects=QSet<AEventObject*>::fromList(_event->Objects);
 
     // Toggle the visibility of all the tracks
-    for (int i=0;i<allTracks.size();i++)
+    for (int i=0;i<allObjects.size();i++)
     {
-        if (_event->Tracks.contains(allTracks[i]->track()))
-            allTracks[i]->setVisible(true);
+        if (_event->Objects.contains(allObjects[i]->track()))
+            allObjects[i]->setVisible(true);
         else
-            allTracks[i]->setVisible(false);
+            allObjects[i]->setVisible(false);
 
-        tracks.remove(allTracks[i]->track());
+        objects.remove(allObjects[i]->track());
     }
 
-    QSet<AEventObject*>::const_iterator iter=tracks.begin();
-    QSet<AEventObject*>::const_iterator iterE=tracks.end();
+    QSet<AEventObject*>::const_iterator iter=objects.begin();
+    QSet<AEventObject*>::const_iterator iterE=objects.end();
     for (;iter!=iterE;++iter)
     {
-        AEventObject3DNode *node=createTrackNode(*iter);
-        node->setVisible(true);
+        AEventObject3DNode *node=createNode(*iter);
+        if(node) node->setVisible(true);
     }
 
     renderViewport(AGeometry::Front);

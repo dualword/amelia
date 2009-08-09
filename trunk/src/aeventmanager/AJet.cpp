@@ -2,14 +2,16 @@
 
 #include <math.h>
 
-AJet::AJet():AEventObject("Jet",AEventObject::eJet)
-{ 
-  setCharge(0);
-}
+AJet::AJet()
+  : AEventObject("Jet",AEventObject::eJet),_emFraction(0)
+{ }
 
-void AJet::setJetType(QString jtype)
+AJet::~AJet()
+{}
+
+void AJet::setJetType(QString jetType)
 {
-  _jetType=jtype;
+  _jetType=jetType;
 }
 
 QString AJet::jetType()
@@ -17,12 +19,29 @@ QString AJet::jetType()
   return _jetType;
 }
 
-float AJet::getTl()
+void AJet::setEta(float eta)
 {
-  return 0.5 * ( exp (eta) - exp (-eta));
+  _eta=eta;
+  _theta=2*atan( exp( -_eta ) );
 }
 
-float AJet::theta()
+void AJet::setPhi(float phi)
 {
-  return 2*atan ( exp ( -eta ) );
+  _phi=phi;
+}
+
+void AJet::setEt(float et)
+{
+  _pt=et; // Massless jet, I guess...
+  _et=et;
+}
+
+void AJet::setEMFraction(float emFraction)
+{
+  _emFraction=emFraction;
+}
+
+float AJet::emFraction()
+{
+  return _emFraction;
 }

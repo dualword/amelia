@@ -14,6 +14,7 @@
 #include <AMainViewTmpWidget.h>
 #include <QDoubleSync.h>
 
+#include <aeventmanager/AFilteredEvent.h>
 #include <aeventmanager/AParticleFilter.h>
 #include <aeventmanager/APtFilter.h>
 
@@ -53,6 +54,7 @@ public:
 
  signals:
   void eventLoaded(AEvent*);
+  void eventLoaded(AFilteredEvent*);
 
  private:
   QMainWindow* geoWin;

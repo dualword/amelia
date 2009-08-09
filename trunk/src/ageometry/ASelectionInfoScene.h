@@ -53,7 +53,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/ASTrack.h>
 #include <aeventmanager/AEvent.h>
 #include <aeventmanager/ATrackCombination.h>
-#include <aeventmanager/ATrackCollection.h>
+#include <aeventmanager/AEventObjectCollection.h>
 
 class ASelectionInfoScene : public QGraphicsScene
 {
@@ -75,7 +75,7 @@ class ASelectionInfoScene : public QGraphicsScene
  private:
   AEventObject* selectedTrack;
   ATrackCombination *combo;
-  ATrackCollection *analysisData;
+  AEventObjectCollection *analysisData;
   
   QGraphicsTextItem *header;
   

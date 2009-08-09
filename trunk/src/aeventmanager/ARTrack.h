@@ -1,53 +1,45 @@
 #ifndef ARTRACK_H_
 #define ARTRACK_H_
 
-#include "AEventObject.h"
+#include "ATrack.h"
 
-//Objects of this class represent reconstructedtracks in the event (Track)
-class AEVENTMANAGER_EXPORT ARTrack : public AEventObject
+//! Objects of this class represent reconstructedtracks in the event (Track)
+class AEVENTMANAGER_EXPORT ARTrack : public ATrack
 {
 public:
   ARTrack();
-  ~ARTrack() {}
+  ~ARTrack();
   
   
   //basic parameters
   int barcode;
   float chi2;
-  int id;
-  float cotTheta;
   float d0;
-  float pt;
-  float phi0;
   float z0;
   
-  void setCode(int code);
-  int getIndex();
-  
-  bool isElectron();
-  bool isMuon();
-  bool isPhoton();
-  bool isNeutrino();
-  bool isChargedHadron();
-  bool isNeutralHadron();
-  bool isHadron();
-  
-  
-  bool isInteresting();
-  
-  std::vector<irr::core::vector3df> polyLine;
+  /*!
+   * The reconstructed polyline 
+   * \return The reconstructed polyline for this track
+   */
   std::vector<irr::core::vector3df> getPolyline();
 
-  void setRTrackType(QString type);
+  /*!
+   * \return The reconstruction type
+   */
   QString RTrackType();
+
+  /*!
+   * \param cotTheta
+   */
+  void setCotTheta(float cotTheta);
   
  private:
-  static const int codelist[];
-  static const int chargelist[];
-  static const QString namelist[];
+  std::vector<irr::core::vector3df> polyLine;
   
-  int code;
-
   QString _RTrackType;
+
+  // AEvent should have acess to all objects, because it is reposible for loading them..
+  friend class AEvent;
+  friend class AXmlEvent;
 };
 #endif //ARTRACK_H_

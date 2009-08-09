@@ -1,18 +1,18 @@
 #ifndef APARTICLEFILTER_H_
 #define APARTICLEFILTER_H_
 
-#include "ATrackFilter.h"
+#include "AEventObjectFilter.h"
 
 #include "ASTrack.h"
 
 #include <libamelia/QBoolSync.h>
 
-class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
+class AEVENTMANAGER_EXPORT AParticleFilter : public AEventObjectFilter
 {
  public:
-  AParticleFilter(ATrackFilter *next=0);
+  AParticleFilter(AEventObjectFilter *next=0);
   
-  bool checkTrack(AEventObject *);
+  bool check(AEventObject *);
 
   bool showElectrons();
   bool showMuons();
@@ -20,6 +20,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
   bool showPhotons();
   bool showJets();
   bool showMissingEt();
+  bool showCalorimeters();
 
  public slots:
   void setShowElectrons(bool);
@@ -28,6 +29,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
   void setShowPhotons(bool);
   void setShowJets(bool);
   void setShowMissingEt(bool);
+  void setShowCalorimeters(bool);
 
  signals:
   void showElectronsChanged(bool);
@@ -36,6 +38,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
   void showPhotonsChanged(bool);
   void showJetsChanged(bool);
   void showMissingEtChanged(bool);
+  void showCalorimetersChanged(bool);
   
  private:
   bool _showElectrons;
@@ -44,6 +47,7 @@ class AEVENTMANAGER_EXPORT AParticleFilter : public ATrackFilter
   bool _showPhotons;
   bool _showJets;
   bool _showMissingEt;
+  bool _showCalorimeters;
   
   Q_OBJECT
 };

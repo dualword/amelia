@@ -64,7 +64,6 @@ class AEVENTMANAGER_EXPORT AXmlEvent : public AEvent
   void HideAllTracks();
   void LoadEvent();
 
-  QList<bool> P_checkbox_states;
   void setCurrentJetModel(QString jetType);
   void setCurrentTrackModel(QString trackType);
   void setCurrentMisEtModel(QString metType);

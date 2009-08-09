@@ -62,7 +62,7 @@ ASTrack3DNode::ASTrack3DNode ( scene::ISceneNode* parent, ISceneManager* smgr,  
 {
   this->setName ( "ASTrack3DNode" );
 
-  vividColor=colorlist[strack->getIndex()];  
+  vividColor=colorlist[strack->index()];  
   
   if( strack->charge() == 0 )
     {
@@ -111,9 +111,9 @@ void ASTrack3DNode::createNeutralVector(int nsegments)
   float Z0 = ((ASTrack*)track())->zVertex*sc;
 
   // Go in this direction
-  float theta = 2*atan ( exp ( -(((ASTrack*)track())->eta) ) );
-  float Xdir = sin ( ((ASTrack*)track())->phi );
-  float Ydir = cos ( ((ASTrack*)track())->phi );
+  float theta = 2*atan ( exp ( -(((ASTrack*)track())->eta()) ) );
+  float Xdir = sin ( ((ASTrack*)track())->phi() );
+  float Ydir = cos ( ((ASTrack*)track())->phi() );
   float Zdir = 1/tan ( theta );
 
   // Find the maxumum length of the track such that it does not exit the radius of the inner detector.
@@ -169,25 +169,26 @@ float ASTrack3DNode::z_helix ( float w, float Z_CH, float theta, float R )
 
 float ASTrack3DNode::getChargedMaxAngle ()
 {
+  ASTrack *strack=(ASTrack*)track();
   float C = 1000.f/0.6f;
   float sc = 0.001f;
-  float theta = 2*atan ( exp ( -(((ASTrack*)track())->eta) ) );
-  float X0 = ((ASTrack*)track())->rhoVertex * cos ( ((ASTrack*)track())->phiVertex ) *sc; // The X coordinate of the vertex
-  float Y0 = ((ASTrack*)track())->rhoVertex * sin ( ((ASTrack*)track())->phiVertex ) *sc; // The Y coordinate of the vertex
+  float theta = 2*atan ( exp ( - strack->eta() ));
+  float X0 = strack->rhoVertex * cos ( strack->phiVertex ) *sc; // The X coordinate of the vertex
+  float Y0 = strack->rhoVertex * sin ( strack->phiVertex ) *sc; // The Y coordinate of the vertex
   //float Z0 = v_z;                       // The Z coordinate of the vertex
-  float R = ((ASTrack*)track())->Pt()*C;
-  float X_CH = X0 + ((ASTrack*)track())->charge() * R*cos ( ((ASTrack*)track())->phi ); //The X coordinate of the center of the helix
-  float Y_CH = Y0 + ((ASTrack*)track())->charge() * R*sin ( ((ASTrack*)track())->phi ); //The Y coordinate of the center of the helix
-  float E = exp ( ((ASTrack*)track())->eta );
-  float tL = ((ASTrack*)track())->getTl(); //dip of track = Pz/pTTrack, constant along the helix
+  float R = strack->pt()*C;
+  float X_CH = X0 + strack->charge() * R*cos ( strack->phi() ); //The X coordinate of the center of the helix
+  float Y_CH = Y0 + strack->charge() * R*sin ( strack->phi() ); //The Y coordinate of the center of the helix
+  float E = exp ( strack->eta() );
+  float tL = strack->getTl(); //dip of track = Pz/pTTrack, constant along the helix
   //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
   //float startPhi = phi0+adjPhi;
-  float Z_CH = ((ASTrack*)track())->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
+  float Z_CH = strack->zVertex*sc; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix
   float a=0.05/RadDeg;
   
   for ( int w=0; w<=5000; w++ )
     {
-      if ( ( x_helix ( w*a, X_CH, R, ((ASTrack*)track())->phi, ((ASTrack*)track())->charge() ) *x_helix ( w*a, X_CH, R, ((ASTrack*)track())->phi, ((ASTrack*)track())->charge() ) + y_helix ( w*a, Y_CH, R, ((ASTrack*)track())->phi, ((ASTrack*)track())->charge() ) *y_helix ( w*a, Y_CH, R, ((ASTrack*)track())->phi, ((ASTrack*)track())->charge() ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
+      if ( ( x_helix ( w*a, X_CH, R, strack->phi(), strack->charge() ) *x_helix ( w*a, X_CH, R, strack->phi(), strack->charge() ) + y_helix ( w*a, Y_CH, R, strack->phi(), strack->charge() ) *y_helix ( w*a, Y_CH, R, strack->phi(), strack->charge() ) ) >= Radius*Radius/ ( scaleEvent*scaleEvent ) || ( z_helix ( w*a, Z_CH, theta, R ) *z_helix ( w*a, Z_CH, theta, R ) >=Length*Length ) )
         {
 	  return w*a;
 	  break;
@@ -203,17 +204,17 @@ void ASTrack3DNode::createCurveVector()
   ASTrack *strack=(ASTrack*)track();
 
   float pi = 3.1415926f;
-  float phiTrans = -(strack->phi) + pi;
+  float phiTrans = -(strack->phi()) + pi;
   float C = 1000.f/0.6f;
-  float theta = 2*atan ( exp ( - ( strack->eta ) ) );
+  float theta = 2*atan ( exp ( - ( strack->eta() ) ) );
   float X0 = strack->rhoVertex * cos ( strack->phiVertex ); // The X coordinate of the vertex
   float Y0 = strack->rhoVertex * sin ( strack->phiVertex ); // The Y coordinate of the vertex
   float Z0 = strack->zVertex;                       // The Z coordinate of the vertex
-  float R = strack->Pt()*C;
+  float R = strack->pt()*C;
   float X_CH = X0 + strack->charge() * R*cos ( phiTrans ); //The X coordinate of the center of the helix
   float Y_CH = Y0 + strack->charge() * R*sin ( phiTrans ); //The Y coordinate of the center of the helix
-  float E = exp ( strack->eta );
-  float tL = 0.5 * ( exp (strack->eta) - exp ( - (strack->eta) ) ); //dip of track = Pz/pTTrack, constant along the helix
+  float E = exp ( strack->eta() );
+  float tL = 0.5 * ( exp (strack->eta()) - exp ( - (strack->eta()) ) ); //dip of track = Pz/pTTrack, constant along the helix
   //float startPhi = 90 - phi0*RadDeg + RadDeg*atan(Y_CH/X_CH); //phi0 and the projection angle on the helix are out of phase
   //float startPhi = phi0+adjPhi;
   float Z_CH = strack->zVertex; //- R * startPhi*tL;                     //The Z coordinate of the center of the helix

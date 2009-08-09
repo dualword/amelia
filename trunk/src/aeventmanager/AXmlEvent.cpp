@@ -146,7 +146,7 @@ void AXmlEvent::GetJetsFromDOM ( QDomDocument dom )
     QList<float> phi;
     QList<float> et;
     QList<float> numCells;
-
+    QList<int> cells;
 
     QDomNodeList JetNodes=dom.elementsByTagName("Jet");
 
@@ -162,21 +162,62 @@ void AXmlEvent::GetJetsFromDOM ( QDomDocument dom )
         eta = getDataFloat ( node.elementsByTagName("eta").at(0) );
         phi = getDataFloat ( node.elementsByTagName("phi").at(0) );
         numCells = getDataFloat ( node.elementsByTagName("numCells").at(0) );
+        cells = getDataInt ( node.elementsByTagName("cells").at(0) );
 
-
+	int cell_bookmark=0;
         // Now we should load every node individually, and assign the proper type to them
         for ( int s = 0; s < et.size(); s++ )
         {
             AJet* j = new AJet();
-            j->et = et[s];
-            j->setPt(j->et);
-            if ( s<eta.size() ) j->eta = eta[s];
-            if ( s<phi.size() ) j->phi = phi[s];
+            if ( s<et.size() ) j->setEt(et[s]);
+            if ( s<eta.size() ) j->setEta(eta[s]);
+            if ( s<phi.size() ) j->setPhi(phi[s]);
             if ( s<numCells.size() ) j->numCells = numCells[s];
 
+	    // Calculating EM fraction is a bit slow now and I'm not sure if it works
+	    // so commented out for now...
+	    // Calculate EM fraction;
+	    /*float totalEMEnergy=0;
+	    float totalHadEnergy=0;
+	    int found=0;
+	    for(int c=0;c<j->numCells;c++)
+	      {
+		int cellID=cells[cell_bookmark];
+		if(LArshowers.contains(cellID))
+		  {
+		    found++;
+		    totalEMEnergy+=LArshowers[cellID]->energy();
+		  }
+		else if(TILEshowers.contains(cellID))
+		  {
+		    found++;
+		    totalHadEnergy+=TILEshowers[cellID]->energy();
+		  }
+		else if(HECshowers.contains(cellID))
+		  {
+		    found++;
+		    totalHadEnergy+=HECshowers[cellID]->energy();
+		  }
+		else if(FCALshowers.contains(cellID))
+		    {
+		      found++;
+		      totalEMEnergy+=FCALshowers[cellID]->energy;
+		    }
+
+		cell_bookmark++;
+	      }
+
+	    if(totalHadEnergy==0 && totalEMEnergy==0) totalHadEnergy=1; //Hack to make sure that we don't get a divide by 0 error when calculating EM fraction. If both energies == 0, then set emfrac to 0.
+	    float emfrac=totalEMEnergy/(totalEMEnergy+totalHadEnergy);
+
+	    qDebug() << "FOUND: " << found << " == " << j->numCells;
+	    qDebug() << "DIFF: " << totalEMEnergy+totalHadEnergy << " == " << j->et() * fabs(j->getTl());
+	    qDebug() << emfrac;
+
+	    j->setEMFraction(emfrac);*/
             j->setJetType(attr.value());
-            j->setTrackID(++highestTrackID);
-            addTrack(j);
+            j->_ID=++highestTrackID; // This is not a unique ID? Could be confused with a track..
+            addObject(j);
         }
 
     }
@@ -211,14 +252,13 @@ void AXmlEvent::GetMisETFromDOM ( QDomDocument dom )
         for ( int s = 0; s < et.size(); s++ )
         {
             AMisET* m = new AMisET();
-            m->et = et[s];
-            m->setPt(m->et);
-            if ( s<etx.size() ) m->etx = etx[s];
-            if ( s<ety.size() ) m->ety = ety[s];
+            if ( s<et.size() ) m->setEt(et[s]);
+            if ( s<etx.size() ) m->setEtX(etx[s]);
+            if ( s<ety.size() ) m->setEtY(ety[s]);
 
             m->setMisETType(attr.value());
 
-            addTrack(m);
+            addObject(m);
         }
 
 
@@ -263,15 +303,15 @@ void AXmlEvent::GetSTracksFromDOM ( QDomDocument dom )
             ASTrack* t = new ASTrack();
 
             if ( j<str_code.size() ) t->setCode(str_code[j]);
-            if ( j<str_eta.size() ) t->eta = str_eta[j];
-            if ( j<str_id.size() ) t->setTrackID(str_id[j]);
-            if ( j<str_phi.size() ) t->phi = str_phi[j];
+            if ( j<str_eta.size() ) t->setEta(str_eta[j]);
+            if ( j<str_id.size() ) t->_ID=str_id[j];
+            if ( j<str_phi.size() ) t->setPhi(str_phi[j]);
             if ( j<str_phiVertex.size() ) t->phiVertex = str_phiVertex[j];
             if ( j<str_pt.size() ) t->setPt(str_pt[j]);
             if ( j<str_rhoVertex.size() ) t->rhoVertex = str_rhoVertex[j];
             if ( j<str_zVertex.size() ) t->zVertex = str_zVertex[j];
 
-            addTrack(t);
+            addObject(t);
         }
     }
 }
@@ -327,8 +367,9 @@ void AXmlEvent::GetRTracksFromDOM ( QDomDocument dom )
 	  
 	  if ( j<rtr_barcode.size() ) t->barcode = rtr_barcode[j];
 	  if ( j<rtr_chi2.size() ) t->chi2 = rtr_chi2[j];
-	  if ( j<rtr_id.size() ) t->setTrackID(rtr_id[j]);
-	  if ( j<rtr_cotTheta.size() ) t->cotTheta = rtr_cotTheta[j];
+	  if ( j<rtr_id.size() ) t->_ID=rtr_id[j];
+	  if ( j<rtr_cotTheta.size() ) t->setCotTheta(rtr_cotTheta[j]);
+	  if ( j<rtr_phi0.size() ) t->setPhi(rtr_phi0[j]);
 	  if ( j<rtr_d0.size() ) t->d0 = rtr_d0[j];
 	  if ( j<rtr_pt.size() ) t->setPt(rtr_pt[j]);
 	  if ( j<rtr_z0.size() ) t->z0 = rtr_z0[j];
@@ -346,8 +387,8 @@ void AXmlEvent::GetRTracksFromDOM ( QDomDocument dom )
 	      bookmarkPolyline += polySections;
             }
 
-	  t->setRTrackType(attr.value());
-	  addTrack(t);
+	  t->_RTrackType=attr.value();
+	  addObject(t);
         }
     }
 }
@@ -379,15 +420,16 @@ void AXmlEvent::GetShowersFromDOM ( QDomDocument dom, QString calo )
         for (int j = 0; j < energy.size(); j++ )
         {
             AShower* s=new AShower();
-            s->energy = energy[j];
-            if ( j<eta.size() ) s->eta = eta[j];
-            if ( j<id.size() ) s->setTrackID(id[j]);
-            if ( j<layer.size() ) s->layer = layer[j];
-            if ( j<phi.size() ) s->phi = phi[j];
-            if ( j<sub.size() ) s->sub = sub[j];
-            s->calometer=calo;
+            if ( j<energy.size() ) s->setEnergy(energy[j]);
+            if ( j<eta.size() ) s->setEta(eta[j]);
+            if ( j<id.size() ) s->_ID=id[j];
+            if ( j<layer.size() ) s->setLayer(layer[j]);
+            if ( j<phi.size() ) s->setPhi(phi[j]);
+            if ( j<sub.size() ) s->setSub(sub[j]);
+            
+	    s->setCalorimeter(calo);
 
-            addTrack(s);
+            addObject(s);
         }
     }
 }
@@ -426,14 +468,14 @@ void AXmlEvent::GetFCALShowersFromDOM ( QDomDocument dom )
             s=new AFCALShower();
             if ( j<dx.size() ) s->dx = dx[j];
             if ( j<dy.size() ) s->dy = dy[j];
-            s->energy = energy[j];
-            if ( j<id.size() ) s->setTrackID(id[j]);
+            if ( j<energy.size() ) s->energy = energy[j];
+            if ( j<id.size() ) s->_ID=id[j];
             if ( j<layer.size() ) s->layer = layer[j];
             if ( j<sub.size() ) s->sub = sub[j];
             if ( j<x.size() ) s->x = x[j];
             if ( j<y.size() ) s->y = y[j];
 
-            addTrack(s);
+            addObject(s);
         }
     }
 
@@ -459,14 +501,14 @@ void AXmlEvent::GetEventFromFile ( QString filename )
     runNumber=eventTags.at(0).attributes().namedItem("runNumber").toAttr().value().toInt();
     eventNumber=eventTags.at(0).attributes().namedItem("eventNumber").toAttr().value().toInt();
 
-    GetSTracksFromDOM ( doc );
-    GetRTracksFromDOM ( doc );
-    GetJetsFromDOM (doc );
-    GetMisETFromDOM (doc );
     GetShowersFromDOM ( doc, "LAr" );
     GetShowersFromDOM ( doc, "HEC" );
     GetShowersFromDOM ( doc, "TILE" );
     GetFCALShowersFromDOM ( doc );
+    GetSTracksFromDOM ( doc );
+    GetRTracksFromDOM ( doc );
+    GetJetsFromDOM (doc );
+    GetMisETFromDOM (doc );
 
     numShowers = LArshowers.size() + FCALshowers.size() + HECshowers.size() + TILEshowers.size();
 

@@ -42,35 +42,38 @@ QList<QString> AEvent::availableTrackTypes()
   return _trackTypes;
 }
 
-void AEvent::addTrack(AEventObject* track)
+void AEvent::addObject(AEventObject* object)
 {
-  switch(track->type())
+  switch(object->type())
     {
-    case AEventObject::eSTrack:
-      addTrack((ASTrack*)track);
-      break;
-    case AEventObject::eRTrack:
-      addTrack((ARTrack*)track);
+    case AEventObject::eTrack:
+      addTrack((ATrack*)object);
       break;
     case AEventObject::eJet:
-      addTrack((AJet*)track);
+      addJet((AJet*)object);
       break;
     case AEventObject::eMissingEt:
-      addTrack((AMisET*)track);
+      addMisET((AMisET*)object);
       break;
     case AEventObject::eShower:
-      addTrack((AShower*)track);
+      addShower((AShower*)object);
+      break;
+    case AEventObject::eFCALShower:
+      addFCALShower((AFCALShower*)object);
+      break;
+    case AEventObject::eUndefined:
+      qDebug() << "Adding undefined object...";
       break;
     default:
-      qDebug() << "Adding unsupported track...";
+      qDebug() << "Adding unknown object...";
       break;
     }
 }
 
-void AEvent::addTrack(ASTrack* track)
+void AEvent::addTrack(ATrack* track)
 {
   if(track->isElectron())
-      numElectrons++;
+    numElectrons++;
   else if(track->isMuon())
     numMuons++;
   else if(track->isPhoton())
@@ -81,40 +84,18 @@ void AEvent::addTrack(ASTrack* track)
     numNeutralHadrons++;
   else if(track->isChargedHadron())
     numChargedHadrons++;
+  
+  QString ttype=track->trackType();
+  if(!_trackTypes.contains(ttype))
+    _trackTypes.push_back(ttype);
 
-  if(!_trackTypes.contains("STrack"))
-    _trackTypes.push_back("STrack");
-
-  STracks.push_back(track);
-  numTracks++;
   Tracks.push_back(track);
-
-}
-
-void AEvent::addTrack(ARTrack* track)
-{
-  if(track->isElectron())
-      numElectrons++;
-  else if(track->isMuon())
-    numMuons++;
-  else if(track->isPhoton())
-    numPhotons++;
-  else if(track->isNeutrino())
-    numNeutrinos++;
-  else if(track->isNeutralHadron())
-    numNeutralHadrons++;
-  else if(track->isChargedHadron())
-    numChargedHadrons++;
-
-  if(!_trackTypes.contains("RTrack"))
-    _trackTypes.push_back("RTrack");
-
-  RTracks.push_back(track);
   numTracks++;
-  Tracks.push_back(track);  
+  Objects.push_back(track);
 }
 
-void AEvent::addTrack(AJet* jet)
+
+void AEvent::addJet(AJet* jet)
 {
   QString jtype=jet->jetType();
   if(!_jetTypes.contains(jtype))
@@ -123,11 +104,11 @@ void AEvent::addTrack(AJet* jet)
   Jets.push_back(jet);
   numTracks++;
   numJets++;
-  Tracks.push_back(jet);
+  Objects.push_back(jet);
 
 }
 
-void AEvent::addTrack(AMisET* miset)
+void AEvent::addMisET(AMisET* miset)
 {
   QString mtype=miset->misETType();
   if(!_misETTypes.contains(mtype))
@@ -135,23 +116,24 @@ void AEvent::addTrack(AMisET* miset)
 
   MisET.push_back(miset);
   numTracks++;
-  Tracks.push_back(miset);
+  Objects.push_back(miset);
 }
 
-void AEvent::addTrack(AShower* shower)
+void AEvent::addShower(AShower* shower)
 {
-  if(shower->calometer=="LAr")
-    LArshowers.push_back(shower);
-  else if(shower->calometer=="HEC")
-    HECshowers.push_back(shower);
-  else if(shower->calometer=="TILE")
-    TILEshowers.push_back(shower);
+  if(shower->calorimeter()=="LAr")
+    LArshowers.insert(shower->ID(),shower);
+  else if(shower->calorimeter()=="HEC")
+    HECshowers.insert(shower->ID(),shower);
+  else if(shower->calorimeter()=="TILE")
+    TILEshowers.insert(shower->ID(),shower);
 
+  Objects.push_back(shower);
 }
 
-void AEvent::addTrack(AFCALShower* shower)
+void AEvent::addFCALShower(AFCALShower* shower)
 {
-  FCALshowers.push_back(shower);
+  FCALshowers.insert(shower->ID(),shower);
 }
 
 void AEvent::tag(QString tag, bool status)
@@ -169,13 +151,13 @@ QSet<QString> AEvent::tags()
   return _tags;
 }
 
-AEventObject* AEvent::getTrackById(unsigned int ID)
+AEventObject* AEvent::getObjectById(unsigned int ID)
 {
-  for ( int i=0;i<Tracks.size();i++)
+  for ( int i=0;i<Objects.size();i++)
     {
-      if ( Tracks[i]->trackID() == ID ) //Found it
+      if ( Objects[i]->ID() == ID ) //Found it
 	{
-	  return Tracks[i];
+	  return Objects[i];
 	}
     }
 

@@ -13,13 +13,7 @@ class AJet3DNode : public AEventObject3DNode
     video::SColor vividColor;
     core::vector3df start;
     core::vector3df end;
-    float getTl();
 
-    virtual void setBoxesVisibility ( bool boxVisibility );
-    int trackNumber;
-
-    virtual int getTrackNumber();
-    virtual void setBoxesSelected ( bool boxesSelected );
     virtual void setStyle( AEventObject3DNode::Style style );
     void setTrack(AJet* track);
 

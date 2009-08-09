@@ -7,7 +7,7 @@
 ASelectionInfoScene::ASelectionInfoScene(QObject* parent):QGraphicsScene(parent)
 {
   combo=new ATrackCombination;
-  analysisData=new ATrackCollection("AGeometry");
+  analysisData=new AEventObjectCollection("AGeometry");
   init();
 }
 
@@ -80,17 +80,14 @@ void ASelectionInfoScene::handleAddTrack()
 {
   for (int i=0;i<combo->size();i++)
     {
-      AEventObject *strack=(*combo)[i];
-      if (strack->selectionID()==0)
-	strack->setSelectionID(++ATrackTreeModel::selectionID);
-      
-      analysisData->addTrack(strack);
+      AEventObject *track=(AEventObject*)combo->getTrack(i);
+      analysisData->add(track);
     }
 }
 
 void ASelectionInfoScene::handleCombTracks()
 {
-  analysisData->addTrack(new ATrackCombination(*combo));
+  analysisData->add(new ATrackCombination(*combo));
 }
 
 void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
@@ -100,7 +97,7 @@ void ASelectionInfoScene::handleNewEventLoaded(AEvent *newEvent)
 
   if(newEvent)
     {
-      analysisData=newEvent->getAnalysisData<ATrackCollection>("AGeometry");
+      analysisData=newEvent->getAnalysisData<AEventObjectCollection>("AGeometry");
       connect(analysisData,SIGNAL(updated()),
 	      this,SLOT(refresh()));
     }
@@ -198,14 +195,14 @@ void ASelectionInfoScene::refresh()
   else if (combo->size()==1)
     //Only 1 thing, we can handle that
     {
-      if ( (*combo)[0]->type() == AEventObject::eSTrack ) //track
+      if ( (*combo)[0]->type() == AEventObject::eTrack ) //track
         {
-	  ASTrack* STrack = static_cast<ASTrack*>((*combo)[0]);
+	  ATrack* Track = static_cast<ATrack*>((*combo)[0]);
 	  header->setPlainText("SELECTED TRACK INFO");
-	  name->setHtml("<b>Name:</b> "+QString(STrack->name()));
-	  charge->setHtml("<b>Charge:</b> "+QString::number(STrack->charge()));
-	  pt->setHtml("<b>Pt:</b> "+QString::number(STrack->Pt()));
-	  id->setHtml("<b>id:</b> "+QString::number(STrack->trackID()));
+	  name->setHtml("<b>Name:</b> "+QString(Track->name()));
+	  charge->setHtml("<b>Charge:</b> "+QString::number(Track->charge()));
+	  pt->setHtml("<b>Pt:</b> "+QString::number(Track->pt()));
+	  id->setHtml("<b>id:</b> "+QString::number(Track->ID()));
 	  
 	  
 	  header->setVisible(true);
@@ -222,7 +219,8 @@ void ASelectionInfoScene::refresh()
 	  AJet* Jet = static_cast<AJet*>((*combo)[0]);
 	  header->setPlainText("SELECTED JET INFO");
 	  name->setHtml("<b>Type:</b> Jet");
-	  pt->setHtml("<b>Et:</b> "+QString::number(Jet->et));
+	  pt->setHtml("<b>Et:</b> "+QString::number(Jet->et()));
+	  //charge->setHtml("<b>EM Frac:</b> "+QString::number(Jet->emFraction()));
 	  
 	  header->setVisible(true);
 	  name->setVisible(true);
@@ -237,7 +235,7 @@ void ASelectionInfoScene::refresh()
 	  AMisET* ET = static_cast<AMisET*>((*combo)[0]);
 	  header->setPlainText("SELECTED MisEt INFO");
 	  name->setHtml("<b>Type:</b> Missing Et");
-	  pt->setHtml("<b>Et:</b> "+QString::number(ET->et));
+	  pt->setHtml("<b>Et:</b> "+QString::number(ET->et()));
 	  
 	  header->setVisible(true);
 	  name->setVisible(true);
@@ -258,11 +256,11 @@ void ASelectionInfoScene::refresh()
 
       for(int i=0;i<analysisData->size();i++)
 	{
-	  ATrackCombination *combination=qobject_cast<ATrackCombination*>(analysisData->getTrack(i));
+	  ATrackCombination *combination=qobject_cast<ATrackCombination*>(analysisData->get(i));
 	  if(combination && (*combo)==(*combination))
 	    {
 	      combTrack->setVisible(false);
-	      combName=analysisData->getTrack(i)->name();
+	      combName=analysisData->get(i)->name();
 	      break;
 	    }
 	}
@@ -286,7 +284,7 @@ void ASelectionInfoScene::refresh()
   addTrack->setVisible(false);
   for (int i=0;i<combo->size();i++)
     {
-      if ( !analysisData->containsTrack((*combo)[i]) )
+      if ( !analysisData->contains((*combo)[i]) )
         {
 	  addTrack->setVisible (true );
         }

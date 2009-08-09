@@ -41,8 +41,11 @@ void ATest::loadEvent(AEvent* event)
 
       for(int i=0;i<size;i++)
 	{
-	  float pt=event->Tracks[i]->Pt();
-	  hist->addData(pt*1000);
+	  if(event->Tracks[i]->type()==ATrack::eTrack)
+	    {
+	      float pt=qobject_cast<ATrack*>(event->Tracks[i])->pt();
+	      hist->addData(pt*1000);
+	    }
 	}
       
       tabs->addTab(hist,event->name());

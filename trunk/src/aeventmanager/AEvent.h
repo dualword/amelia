@@ -13,7 +13,6 @@
 #include "AJet.h"
 #include "AMisET.h"
 #include "AFCALShower.h"
-#include "ATrackFilter.h"
 
 #include "AEventAnalysisData.h"
 
@@ -31,12 +30,17 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int runNumber;
   int eventNumber;
 
-  QList<AEventObject*> Tracks; // Tracks pointers are stored here
+  QList<AEventObject*> Objects; // Tracks pointers are stored here
 
-  QList<ASTrack*> STracks; // Pointers to simulated tracks within "EventTracks" are stored here
-  QList<ARTrack*> RTracks; // Pointers to reconstructed tracks within "EventTracks" are stored here
+  QList<ATrack*> Tracks; // Pointers to simulated tracks within "EventTracks" are stored here
   QList<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
   QList<AMisET*> MisET;  // Pointers to Jets within "EventTracks" are stored here
+
+  // Hash showers by id, to provide fast lookup
+  QHash<int,AShower*> LArshowers;
+  QHash<int,AFCALShower*> FCALshowers;
+  QHash<int,AShower*> HECshowers;
+  QHash<int,AShower*> TILEshowers;
 
   int numTracks;
   int numChargedHadrons;
@@ -48,10 +52,6 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   int numShowers;
   int numJets;
 
-  QList<AShower*> LArshowers;
-  QList<AFCALShower*> FCALshowers;
-  QList<AShower*> HECshowers;
-  QList<AShower*> TILEshowers;
   float ETMis;
   float CaloETMis;
 
@@ -72,7 +72,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QList<QString> availableMisETTypes();
   QList<QString> availableTrackTypes();
 
-  AEventObject* getTrackById(unsigned int id);
+  AEventObject* getObjectById(unsigned int id);
 
   template <class T>
     T* getAnalysisData(QString module)
@@ -101,13 +101,12 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
  protected:
   int highestTrackID;
 
-  void addTrack(AEventObject* track);
-  void addTrack(ASTrack* track);
-  void addTrack(ARTrack* track);
-  void addTrack(AJet* track);
-  void addTrack(AMisET* track);
-  void addTrack(AShower* track);
-  void addTrack(AFCALShower* track);
+  void addObject(AEventObject* object);
+  void addTrack(ATrack* track);
+  void addJet(AJet* track);
+  void addMisET(AMisET* track);
+  void addShower(AShower* track);
+  void addFCALShower(AFCALShower* track);
 
  private:
   QMultiMap<QString,AEventAnalysisData*> _analysisData;

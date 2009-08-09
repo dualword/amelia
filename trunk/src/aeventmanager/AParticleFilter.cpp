@@ -1,7 +1,7 @@
 #include "AParticleFilter.h"
 
-AParticleFilter::AParticleFilter(ATrackFilter *next)
-  :ATrackFilter(next)
+AParticleFilter::AParticleFilter(AEventObjectFilter *next)
+  :AEventObjectFilter(next)
 {
   _showElectrons=true;
   _showMuons=true;
@@ -9,6 +9,7 @@ AParticleFilter::AParticleFilter(ATrackFilter *next)
   _showPhotons=true;
   _showJets=true;
   _showMissingEt=true;
+  _showCalorimeters=true;
  }
 
 void AParticleFilter::setShowElectrons(bool toggle)
@@ -53,6 +54,13 @@ void AParticleFilter::setShowMissingEt(bool toggle)
   emit showMissingEtChanged(toggle);
 }
 
+void AParticleFilter::setShowCalorimeters(bool toggle)
+{
+  _showCalorimeters=toggle;
+  emit filterUpdated();
+  emit showCalorimetersChanged(toggle);
+}
+
 bool AParticleFilter::showElectrons()
 {
   return _showElectrons;
@@ -83,19 +91,25 @@ bool AParticleFilter::showMissingEt()
   return _showMissingEt;
 }
 
-bool AParticleFilter::checkTrack(AEventObject *track)
+bool AParticleFilter::showCalorimeters() 
 {
-  if(track->type()==AEventObject::eSTrack)
+  return _showCalorimeters;
+}
+
+bool AParticleFilter::check(AEventObject *object)
+{
+  if(object->type()==AEventObject::eTrack)
     {
-      ASTrack* strack=(ASTrack*)track;
-      if(!_showElectrons && strack->isElectron()) return false;
-      if(!_showMuons && strack->isMuon()) return false;
-      if(!_showHadrons && (strack->isChargedHadron() || strack->isNeutralHadron() ) ) return false;
-      if(!_showPhotons && strack->isPhoton()) return false;
+      ATrack* track=(ATrack*)object;
+      if(!_showElectrons && track->isElectron()) return false;
+      if(!_showMuons && track->isMuon()) return false;
+      if(!_showHadrons && (track->isChargedHadron() || track->isNeutralHadron() ) ) return false;
+      if(!_showPhotons && track->isPhoton()) return false;
     }
 
-  if(!_showJets && track->type()==AEventObject::eJet) return false;
-  if(!_showMissingEt && track->type()==AEventObject::eMissingEt) return false;
+  if(!_showJets && object->type()==AEventObject::eJet) return false;
+  if(!_showMissingEt && object->type()==AEventObject::eMissingEt) return false;
+  if(!_showCalorimeters && object->type()==AEventObject::eShower) return false;
 
-  return ATrackFilter::checkTrack(track);
+  return AEventObjectFilter::check(object);
 }

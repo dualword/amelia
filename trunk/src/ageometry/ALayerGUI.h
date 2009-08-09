@@ -72,6 +72,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/APtFilter.h>
 #include <aeventmanager/AModelFilter.h>
 #include <aeventmanager/AParticleFilter.h>
+#include <aeventmanager/ACalorimeterFilter.h>
 
 
 class ALayerGUI : public QFrame
@@ -128,7 +129,7 @@ private:
   QSignalMapper smartHideMapper;
   QSignalMapper flapMapper;
   AEventInfoScene *eventInfo;
-  ASelectionInfoScene *trackInfo;
+  ASelectionInfoScene *selectionInfo;
   
   // Pointers to commonly used widgets
   ATrackTreeModel *tracksModel;
@@ -172,6 +173,7 @@ private:
   QDoubleSync ptFilterSync;
   APtFilter *ptFilter;
   AModelFilter *modelFilter;
+  ACalorimeterFilter *calorimeterFilter;
   AParticleFilter *particleFilter;
   AEvent* CompleteEvent;
   AFilteredEvent* FilteredEvent;

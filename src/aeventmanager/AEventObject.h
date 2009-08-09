@@ -1,5 +1,5 @@
-#ifndef ATRACK_H_
-#define ATRACK_H_
+#ifndef AEVENTOBJECT_H_
+#define AEVENTOBJECT_H_
 
 #include <QString>
 #include <QObject>
@@ -9,63 +9,108 @@
 
 #include "AEventManagerDefines.h"
 
-/// A generic "track" of the event. Types: 0 = Undefined, 1 = STrack, 2 = Jet, 3 = Shower, 4 = Missing Energy
+///! A generic "object" of the event.
 class AEVENTMANAGER_EXPORT AEventObject : public QObject
 {
  public:
   enum eType //element type
   {
     eUndefined,
-    eSTrack,
-    eRTrack,
+    eTrack,
     eJet,
     eShower,
     eFCALShower,
     eMissingEt,
     eCombination
   };
-  static unsigned int highestTrackID;
 
-  AEventObject();
+  //! Constructor
   AEventObject(QString name,AEventObject::eType);
+
+  //! Copy-Constructor
   AEventObject(const AEventObject&);
 
+  /*!
+   * \return Type of the event object
+   */
   eType type();
 
-  unsigned int trackID();
-  void setTrackID(unsigned int);
-
-  unsigned int selectionID();
-  void setSelectionID(unsigned int);
-
-  int charge();
-  void setCharge(int);
-
+  /*!
+   * This is usually the ID assigned by Athena
+   * \return ID of the track
+   */
+  unsigned int ID();
+  
+  /*!
+   * \return The human-readable name of the object
+   */
   virtual QString name();
-  void setName(QString);
 
-  float Pt();
-  void setPt(float);
+  /*!
+   * \return The pseudo-rapidity of the particle
+   */
+  float eta();
+  
+  /*!
+   * \return The phi angle of the particle
+   */
+  float phi();
+  
+  /*!
+   * \return The theta angle of the particle, as calculated from the psudo-rapidity.
+   */
+  float theta();
+  
+  /*!
+   * \return What the heck is this? Some hyperbolic angle?
+   */
+  float getTl();
 
+  /*!
+   * \return Transverse momentum of the particle
+   */
+  float pt();
+
+  /*!
+   * \return Transverse energy of the particle
+   */
+  float et();
+  
+  /*!
+   * \return is track interesting
+   */
   virtual bool isInteresting();
-  void setInteresting(bool);
 
  signals:
   void updated();
 
+ protected:
+  /*!
+   * \param name The human-readable name of the object.
+   */
+  void setName(QString name);
+
+  /* Kinematic Variables */
+  float _eta;
+  float _phi;
+  float _theta;
+  float _pt;
+  float _et;
+
  private:
+  /* Data */
   eType _type;
 
   QString _name;
-  unsigned int _trackID;
-  int _selectionID;
+  unsigned int _ID;
 
-  int _charge;
-  float _pt;
+  bool _isInteresting;
 
-  bool _interesting;
+ // AEvent should have acess to all objects, because it is reposible for loading them..
+  friend class AEvent;
+  friend class AXmlEvent;
 
   Q_OBJECT
 };
 
-#endif // ATRACK_H_
+#endif // AEVENTOBJECT_H_

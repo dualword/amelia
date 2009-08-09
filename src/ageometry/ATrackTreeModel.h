@@ -8,7 +8,7 @@
 #include <aeventmanager/AEventObject.h>
 #include <aeventmanager/ATrackCombination.h>
 #include <aeventmanager/AEvent.h>
-#include <aeventmanager/ATrackCollection.h>
+#include <aeventmanager/AEventObjectCollection.h>
 
 #include "QAbstractItemModelWithContextMenu.h"
 #include "QAbstractTreeItem.h"
@@ -16,8 +16,6 @@
 class ATrackTreeModel : public QAbstractItemModelWithContextMenu
 {
 public:
-  static unsigned int selectionID; //Used for assigning reference ID's to tracks
-
   ATrackTreeModel(QWidget* parent=0);
   ~ATrackTreeModel();
   
@@ -45,7 +43,7 @@ public slots:
   void refresh();
 
 private:
-  ATrackCollection *analysisData;
+  AEventObjectCollection *analysisData;
 
   QAbstractTreeItem *topItem;
 

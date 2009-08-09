@@ -51,11 +51,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ASphereControl.h"
 #include "AFOVControl.h"
 #include "APoint3D.h"
-
-#include "ASTrack3DNode.h"
-#include "ARTrack3DNode.h"
-#include "AJet3DNode.h"
-#include "AMisET3DNode.h"
+#include "ACaloTower3DNode.h"
 
 #include "AGeometryDefines.h"
 
@@ -110,7 +106,7 @@ public:
   float cameraFarValue();
 
   AEventObject3DNode* getTrackNodeByID(unsigned int ID );
-  bool isTrackSelected(unsigned int ID);
+  bool isSelected(unsigned int ID);
 
   scene::ISceneNode* cube;
 
@@ -128,7 +124,6 @@ public:
   //Switches for the different modes
   bool detectorMode;
   bool eventAnalysisMode;
-  bool multiMediaMode;
 
   scene::ISceneNode* selectedTrackBox;
 
@@ -205,10 +200,9 @@ private:
 
   // Tracks and the event variables //
   AFilteredEvent* _event;
-  ISceneNode* _rootTracksNode;
-  QList<AEventObject3DNode*> selectedTracks;
-  QList<AEventObject3DNode*> allTracks;
-  QList<AJet3DNode*> allJets;
+  ISceneNode* _rootObjectsNode;
+  QList<AEventObject3DNode*> selectedObjects;
+  QList<AEventObject3DNode*> allObjects;
 
   // GUI stuff //
   QMenu *_comboMenu;
@@ -261,7 +255,7 @@ private:
   void createAtlasGeometry();
   void createFlatGeometry();
 
-  AEventObject3DNode* trackSelection ( core::position2di pos );
+  AEventObject3DNode* objectSelection ( core::position2di pos );
   QString detectorSelection( core::position2di pos );
 
   //Camera stuff
@@ -293,7 +287,7 @@ private:
   QBoolSync _magnetsVisibility;
   QBoolSync _pitVisibility;
 
-  AEventObject3DNode* createTrackNode(AEventObject* track);
+  AEventObject3DNode* createNode(AEventObject* object);
 
   Q_OBJECT
 };

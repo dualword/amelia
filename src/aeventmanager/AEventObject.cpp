@@ -1,23 +1,15 @@
 #include "AEventObject.h"
 
-unsigned int AEventObject::highestTrackID=0;
-
-AEventObject::AEventObject()
- :_type(AEventObject::eUndefined),_interesting(true)
-{}
-
 AEventObject::AEventObject(QString name,AEventObject::eType type)
-  :_type(type),_name(name),_interesting(true)
+  :_type(type),_name(name),_isInteresting(true),
+   _eta(0),_theta(0),_phi(0),_pt(0),_et(0)
 { }
 
 AEventObject::AEventObject(const AEventObject& o)
 {
   this->_type=o._type;
   this->_name=o._name;
-  this->_trackID=o._trackID;
-  this->_selectionID=o._selectionID;
-  this->_charge=o._charge;
-  this->_pt=o._pt;
+  this->_ID=o._ID;
 }
 
 QString AEventObject::name()
@@ -31,57 +23,47 @@ void AEventObject::setName(QString name)
   emit updated();
 }
 
+float AEventObject::eta()
+{
+  return _eta;
+}
+
+float AEventObject::phi()
+{
+  return _phi;
+}
+
+float AEventObject::theta()
+{
+  return _theta;
+}
+
+float AEventObject::pt()
+{
+  return _pt;
+}
+
+float AEventObject::et()
+{
+  return _et;
+}
+
+float AEventObject::getTl()
+{
+  return 0.5 * ( exp (_eta) - exp (-_eta));
+}
+
 AEventObject::eType AEventObject::type()
 {
   return _type;
 }
 
-unsigned int AEventObject::trackID()
+unsigned int AEventObject::ID()
 {
-  return _trackID;
-}
-
-void AEventObject::setTrackID(unsigned int trackID)
-{
-  _trackID=trackID;
-}
-
-unsigned int AEventObject::selectionID()
-{
-  return _selectionID;
-}
-
-void AEventObject::setSelectionID(unsigned int selectionID)
-{
-  _selectionID=selectionID;
-}
-
-int AEventObject::charge()
-{
-  return _charge;
-}
-
-void AEventObject::setCharge(int charge)
-{
-  _charge=charge;
-}
-
-float AEventObject::Pt()
-{
-  return _pt;
-}
-
-void AEventObject::setPt(float pt)
-{
-  _pt=pt;
+  return _ID;
 }
 
 bool AEventObject::isInteresting()
 {
-  return _interesting;
-}
-
-void AEventObject::setInteresting(bool interesting)
-{
-  _interesting=interesting;
+  return _isInteresting;
 }

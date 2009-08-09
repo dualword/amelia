@@ -4,21 +4,56 @@
 #include "AEventObject.h"
 #include "AEventManagerDefines.h"
 
-//!Objects of this class represent Missing Energy
+//! Objects of this class represent Missing Energy
 class AMisET : public AEventObject
 {
 public:
+  //! Constructor
   AMisET();
+  //! Destructor
   ~AMisET();
   
-  float etx;
-  float ety;
-  float et;
+  /*!
+   * \param et
+   */
+  void setEt(float et);
+
+  /*!
+   * \param etx
+   */
+  void setEtX(float etx);
   
+  /*!
+   * \return etx
+   */
+  float etx();
+
+  /*!
+   * \param ety
+   */
+  void setEtY(float ety);
+  
+  /*!
+   * \return ety
+   */
+  float ety();
+
+  /*!
+   * \param type Type of missing et reconstruction
+   */
   void setMisETType(QString type);
+
+  /*!
+   * \return Type of missing et reconstruction
+   */
   QString misETType();
 
 private:
   QString _misETType;
+
+  //! X component of et
+  float _etx;
+  //! Y component of et
+  float _ety;
 };
 #endif //AMISET_H_

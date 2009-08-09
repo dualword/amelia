@@ -9,7 +9,6 @@ public:
   AMisET3DNode ( scene::ISceneNode* parent, ISceneManager* base,  s32 ID , AMisET* miset);
   virtual ~AMisET3DNode();
   
-  virtual int getTrackNumber();
   virtual void setStyle (Style style );
   void setTrack(AMisET* track);
   
@@ -31,7 +30,7 @@ private:
   std::vector<scene::ISceneNode*> boxSegments;
   CRelativeScaleSceneNodeAnimator *boxSizeAnim;
 
-  int trackNumber;
+  Q_OBJECT
 };
 
 #endif // AMISET3DNODE_H_

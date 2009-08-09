@@ -2,7 +2,7 @@
 #define AFILTEREDEVENT_H_
 
 #include "AEvent.h"
-#include "ATrackFilter.h"
+#include "AEventObjectFilter.h"
 
 class AEVENTMANAGER_EXPORT AFilteredEvent : public AEvent
 {
@@ -10,10 +10,10 @@ Q_OBJECT
 
 private:
   AEvent *_completeEvent;
-  ATrackFilter *_filters;
+  AEventObjectFilter *_filters;
 		       
 public:
-  AFilteredEvent(AEvent *,ATrackFilter *);
+  AFilteredEvent(AEvent *,AEventObjectFilter *);
   AEvent *completeEvent();
   
 public slots:

@@ -70,5 +70,5 @@ void ATourSelectTrackAction::undo()
 
 void ATourSelectTrackAction::prepare()
 {
-  state=geo->isTrackSelected(trackid);
+  state=geo->isSelected(trackid);
 }

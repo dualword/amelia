@@ -1,9 +1,10 @@
 #include "AModelFilter.h"
 #include <QDebug>
 #include "ARTrack.h"
+#include "AShower.h"
 
-AModelFilter::AModelFilter(QString jetType,QString misEtType,QString trackType,ATrackFilter *next)
-  :ATrackFilter(next),_jetType(jetType),_misEtType(misEtType),_trackType(trackType)
+AModelFilter::AModelFilter(QString jetType,QString misEtType,QString trackType,AEventObjectFilter *next)
+  :AEventObjectFilter(next),_jetType(jetType),_misEtType(misEtType),_trackType(trackType)
 { }
 
 void AModelFilter::setJetType(QString jetType)
@@ -39,25 +40,25 @@ QString AModelFilter::trackType()
   return _trackType;
 }
 
-bool AModelFilter::checkTrack(AEventObject* track)
+bool AModelFilter::check(AEventObject* object)
 {
-  if(track->type()==AEventObject::eJet &&((AJet*)track)->jetType()!=_jetType)
+  if(object->type()==AEventObject::eJet &&((AJet*)object)->jetType()!=_jetType)
     return false;
 
-  if(track->type()==AEventObject::eMissingEt &&((AMisET*)track)->misETType()!=_misEtType)
+  if(object->type()==AEventObject::eMissingEt &&((AMisET*)object)->misETType()!=_misEtType)
     return false;
 
-  if(track->type()==AEventObject::eRTrack &&
-     (((ARTrack*)track)->RTrackType()!="CombinedInDetTracks" && // 14.x+
-      ((ARTrack*)track)->RTrackType()!="Tracks")) // 12.x
+  if(object->type()==AEventObject::eTrack &&
+     ((ATrack*)object)->trackType()=="RTrack" &&
+     (((ARTrack*)object)->RTrackType()!="CombinedInDetTracks" && // 14.x+
+      ((ARTrack*)object)->RTrackType()!="Tracks")) // 12.x
     {
       return false;
     }
-
-  if((track->type()==AEventObject::eSTrack && _trackType!="STrack")
-     || (track->type()==AEventObject::eRTrack && _trackType!="RTrack"))
-    return false;
   
-  return ATrackFilter::checkTrack(track);
+  if(object->type()==AEventObject::eTrack && ((ATrack*)object)->trackType()!=_trackType)
+    return false;
+
+  return AEventObjectFilter::check(object);
 }
 

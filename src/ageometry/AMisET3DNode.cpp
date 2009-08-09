@@ -17,11 +17,6 @@ AMisET3DNode::~AMisET3DNode()
   boxSizeAnim->drop();
 }
 
-int AMisET3DNode::getTrackNumber()
-{
-  return this->trackNumber;
-}
-
 void AMisET3DNode::setTrack ( AMisET* track )
 {
   AEventObject3DNode::setTrack(track);
@@ -93,7 +88,7 @@ void AMisET3DNode::createMisEtBoxes() //for Missing Et
   AMisET *met=(AMisET*)track();
 
   core::vector3df zero = core::vector3df ( 0,0,0 );  
-  core::vector3df size = core::vector3df ( met->etx, met->ety,0 );
+  core::vector3df size = core::vector3df ( met->etx(), met->ety(),0 );
   float et=size.getLength();
 
   core::vector3df rot = size.getHorizontalAngle();

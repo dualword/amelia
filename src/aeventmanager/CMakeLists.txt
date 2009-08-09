@@ -4,6 +4,8 @@ FIND_PACKAGE (Qt4 REQUIRED)
 FIND_PACKAGE (Irrlicht REQUIRED)
 INCLUDE_DIRECTORIES(${QT_INCLUDE_DIR})
 INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
+LINK_DIRECTORIES(${Irrlicht_LIBRARY_DIR})
+
 INCLUDE(${QT_USE_FILE})
 
 
@@ -18,9 +20,10 @@ SET(aeventmanager_SRCS
   AEventPackage.cpp
 
   AEventAnalysisData.cpp
-  ATrackCollection.cpp
+  AEventObjectCollection.cpp
 
   AEventObject.cpp
+  ATrack.cpp
   ASTrack.cpp
   ARTrack.cpp
   AJet.cpp
@@ -33,10 +36,11 @@ SET(aeventmanager_SRCS
   AEvent.cpp
   AFilteredEvent.cpp
 
-  ATrackFilter.cpp
+  AEventObjectFilter.cpp
   APtFilter.cpp
   AModelFilter.cpp
   AParticleFilter.cpp
+  ACalorimeterFilter.cpp
 )
 
 SET(aeventmanager_H
@@ -46,19 +50,23 @@ SET(aeventmanager_H
   AEventPackage.h
 
   AEventAnalysisData.h
-  ATrackCollection.h
+  AEventObjectCollection.h
 
   AXmlEvent.h
   AEvent.h
   AFilteredEvent.h
 
   AEventObject.h
+  ATrack.h
+  AJet.h
+  AShower.h
   ATrackCombination.h
 
-  ATrackFilter.h
+  AEventObjectFilter.h
   APtFilter.h
   AModelFilter.h
   AParticleFilter.h
+  ACalorimeterFilter.h
 )
 
 QT4_WRAP_CPP(aeventmanager_SRCS ${aeventmanager_H})
@@ -67,7 +75,7 @@ ADD_LIBRARY(AEventManager SHARED ${aeventmanager_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 TARGET_LINK_LIBRARIES(AEventManager
   ${QT_LIBRARIES}
-  Irrlicht
+  ${Irrlicht_LIBRARY}
   amelia)
 
 INSTALL(TARGETS AEventManager

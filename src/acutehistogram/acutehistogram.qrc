@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="acutehistogram">
+    <file>plugin.xml</file>
+  </qresource>
+</RCC>

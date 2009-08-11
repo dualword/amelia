@@ -68,6 +68,7 @@ void AJet3DNode::createJetPyramids()
   core::vector3df zero = core::vector3df ( 0,0,0 );
   //core::vector3df scale = core::vector3df ( 0.5,0.5,1+0.06*log(e));
   core::vector3df scale = core::vector3df ( 0.5,0.5,0.02*e);
+  //core::vector3df scale = core::vector3df ( 0.5,0.5,1.);
   core::vector3df rot = core::vector3df ( -theta * c, 0, -jet->phi() * c ); //
   
   scene::IAnimatedMesh* pyramid = SceneManager->getMesh ( "jet.X" );
@@ -82,7 +83,7 @@ void AJet3DNode::createJetPyramids()
   
   scene::ITriangleSelector* selector = 0;
   selector = SceneManager->createOctTreeTriangleSelector ( pyramid, nodeBox, 128 );
-  nodeBox->setTriangleSelector ( selector );
+  setTriangleSelector ( selector );
   selector->drop();
   
   video::SMaterial* m = &nodeBox->getMaterial ( 0 );

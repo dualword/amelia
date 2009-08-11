@@ -245,6 +245,21 @@ void ASelectionInfoScene::refresh()
 	  combTrack->setVisible(false);
 	  icon->setVisible(false);
         }
+      else if ( (*combo)[0]->type() == AEventObject::eShower ) //Missing Et
+        {
+	  AShower* shower = static_cast<AShower*>((*combo)[0]);
+	  header->setPlainText("SELECTED Calorimeter INFO");
+	  name->setHtml("<b>Type:</b> Calorimeter Tower");
+	  pt->setHtml("<b>Energy:</b> "+QString::number(shower->energy()));
+	  
+	  header->setVisible(true);
+	  name->setVisible(true);
+	  charge->setVisible(false);
+	  invmass->setVisible(false);
+	  pt->setVisible(true);
+	  combTrack->setVisible(false);
+	  icon->setVisible(false);
+        }
     }
   else
     //Multi-track selection

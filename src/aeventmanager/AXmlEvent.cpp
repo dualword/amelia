@@ -515,7 +515,7 @@ void AXmlEvent::GetEventFromFile ( QString filename )
     QList<float> v;
 
     QDomNodeList CaloETMis=doc.elementsByTagName("CaloETMis");
-
+    
     /*for (unsigned int i=0;i<CaloETMis.length();i++)
       {
         QDomElement node=CaloETMis.at(i).toElement();

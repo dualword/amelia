@@ -36,20 +36,21 @@ void AHistogramWidget::addData(QColor color,float value)
 
   subhist[binID]++;
 
-  repaint();
+  update();
 }
 
 void AHistogramWidget::reset()
 {
-  QHash<QColor,int*>::const_iterator iter=data.begin();
+  /*QHash<QColor,int*>::const_iterator iter=data.begin();
   QHash<QColor,int*>::const_iterator iterE=data.end();
   for(;iter!=iterE;iter++)
     {
       int *binInfo=*iter;
-      delete[] binInfo;
-    }
+      for(int i=0;i<_bins;i++)
+	delete binInfo;
+    }*/
   data.clear();
-  repaint();
+  update();
 }
 
 void AHistogramWidget::paintEvent(QPaintEvent *event)
@@ -82,9 +83,8 @@ void AHistogramWidget::paintEvent(QPaintEvent *event)
     }
   if(maxHeight==0) return;
 
-  float scale=size().height()/maxHeight;
-
-  float binWidth=(_max-_min)/_bins;
+  float scale=size().height()/(double)maxHeight;
+  float binWidth=((double)size().width())/((double)_bins);
   iter=data.begin();
   iterE=data.end();
   for(;iter!=iterE;iter++)

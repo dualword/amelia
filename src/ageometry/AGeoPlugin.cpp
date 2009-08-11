@@ -175,7 +175,7 @@ AParticleFilter* AGeoPlugin::particleFilter()
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)
 {
   emit eventLoaded(event);
-  emit eventLoaded(layerGUI->ModelEvent);
+  emit eventLoaded(layerGUI->ModelEvent,layerGUI->FilteredEvent);
 }
 
 void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)

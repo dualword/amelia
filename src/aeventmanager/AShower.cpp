@@ -12,7 +12,8 @@ void AShower::setEta(float eta)
 {
   _eta=eta;
   _theta=2*atan( exp( -_eta ) );
-  _et=_energy*sin(_theta);
+  _et=fabs(_energy*sin(_theta));
+  _pt=_et;
 }
 
 void AShower::setPhi(float phi)
@@ -33,7 +34,8 @@ QString AShower::calorimeter()
 void AShower::setEnergy(float energy)
 {
   _energy=energy;
-  _et=energy*sin(_theta);
+  _et=fabs(energy*sin(_theta));
+  _pt=_et;
 }
 
 float AShower::energy()

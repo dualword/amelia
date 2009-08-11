@@ -44,7 +44,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 ACuteHistogram::ACuteHistogram( QObject *parent )
   : QObject(parent),_event(0)
 {
-  _histWdg=new AHistogramWidget(10,0,100);
+  _histWdg=new AHistogramWidget(100,0,2);
   _histWdg->show();
 }
 
@@ -55,11 +55,11 @@ void ACuteHistogram::load()
 {
   AGeoPlugin *geoplugin=(AGeoPlugin*)AMELIA::global->plugin("AGeometry");
 
-  connect(geoplugin,SIGNAL(eventLoaded(AFilteredEvent *)),
-	  this,SLOT(handleNewEventLoaded(AFilteredEvent *)));
+  connect(geoplugin,SIGNAL(eventLoaded(AEvent *,AFilteredEvent *)),
+	  this,SLOT(handleNewEventLoaded(AEvent *,AFilteredEvent *)));
 }
 
-void ACuteHistogram::handleNewEventLoaded(AFilteredEvent *filteredevent)
+void ACuteHistogram::handleNewEventLoaded(AEvent *event,AFilteredEvent *filteredevent)
 {
   qDebug() << "New event" << filteredevent;
   if(_event)
@@ -80,13 +80,24 @@ void ACuteHistogram::handleNewEventLoaded(AFilteredEvent *filteredevent)
 
 void ACuteHistogram::updateHistogram()
 {
-  qDebug() << "UPDATE!";
-
-  for(int i=0;i<_event->Objects.size();i++)
+  _histWdg->reset();
+  qDebug() << "UPDATED?!?!";
+  for(int i=0;i<_event->completeEvent()->Objects.size();i++)
     {
-      _histWdg->addData(Qt::blue,_event->Objects[i]->pt());
+      AEventObject *obj=_event->completeEvent()->Objects[i];
+      if(obj->type()!=AEventObject::eTrack) continue;
+      
+      if(_event->Objects.contains(obj))
+	{
+	  _histWdg->addData(Qt::blue,obj->pt());
+	  qDebug() << "BLUE " << obj->pt();
+	}
+      else
+	{
+	  _histWdg->addData(Qt::gray,obj->pt());
+	  qDebug() << "GRAY " << obj->pt();
+	}
     }
-  qDebug() << "DONE!";
 }
 
 Q_EXPORT_PLUGIN2(ACuteHistogram, ACuteHistogram)

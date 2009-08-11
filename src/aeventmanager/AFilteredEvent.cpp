@@ -26,14 +26,14 @@ AEvent *AFilteredEvent::completeEvent()
 void AFilteredEvent::updateFilters()
 {
   FCALshowers=_completeEvent->FCALshowers;
-  LArshowers=_completeEvent->LArshowers;
-  HECshowers=_completeEvent->HECshowers;
-  TILEshowers=_completeEvent->TILEshowers;
 
   Objects.clear();
   Tracks.clear();
   Jets.clear();
   MisET.clear();
+  LArshowers.clear();
+  HECshowers.clear();
+  TILEshowers.clear();
   numTracks=0;
   numChargedHadrons=0;
   numNeutralHadrons=0;

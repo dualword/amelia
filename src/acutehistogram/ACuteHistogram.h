@@ -19,7 +19,7 @@ public:
   void load();
 
 public slots:
-  void handleNewEventLoaded(AFilteredEvent *filteredevent);
+  void handleNewEventLoaded(AEvent *Event,AFilteredEvent *FilteredEvent);
   void updateHistogram();
 
 private:

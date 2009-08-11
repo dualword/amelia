@@ -68,6 +68,37 @@ ACaloTower3DNode::ACaloTower3DNode ( scene::ISceneNode* parent, ISceneManager* s
 				 0,-1,0,
 				 color, 0, 0);
 
+
+  /* Create a triangle selector from a mesh containing the above points. */
+  SMeshBuffer* buffer = new SMeshBuffer();
+  // Create indice list
+  u32 indices[]={ 0,1,3, 1,2,3, //Bottom
+		  4,7,5, 5,7,6, //Top
+		  0,4,1, 1,4,5,
+		  0,3,7, 0,7,4,
+		  1,5,2, 2,5,6,
+		  3,2,7, 2,6,7 };
+  buffer->Indices.set_used(36);
+  for (u32 i=0; i<36; ++i)
+    buffer->Indices[i] = indices[i];
+
+  // Create vertices
+  buffer->Vertices.reallocate(12);
+  for(int i=0;i<8;i++)
+    buffer->Vertices.push_back(Vertices[i]);
+
+  // Create mesh
+  SMesh* mesh = new SMesh;
+  mesh->addMeshBuffer(buffer);
+  buffer->drop();
+  mesh->recalculateBoundingBox();
+
+  // Finally, create the selector :D
+  scene::ITriangleSelector* selector = 0;
+  selector = SceneManager->createOctTreeTriangleSelector ( mesh, this, 128 );
+  setTriangleSelector ( selector );
+  selector->drop();
+
   /* Create bounding box */
   Box.reset(Vertices[0].Pos);
   for (s32 i=1; i<8; ++i)
@@ -86,7 +117,6 @@ void ACaloTower3DNode::setTrack ( AShower* shower )
 void ACaloTower3DNode::setStyle ( AEventObject3DNode::Style style )
 {
   AEventObject3DNode::setStyle(style);
-  return;
   switch(style)
     {
     default:
@@ -116,13 +146,12 @@ void ACaloTower3DNode::OnRegisterSceneNode()
 
 void ACaloTower3DNode::render()
 {
-  u16 indices[] = { 0,1,3, 1,2,3, //Bottom
-		    4,7,5, 5,7,6, //Top
-		    0,4,1, 1,4,5,
-		    0,3,7, 0,7,4,
-		    1,5,2, 2,5,6,
-		    3,2,7, 2,6,7
-  };
+  u16 indices[]={ 0,1,3, 1,2,3, //Bottom
+		  4,7,5, 5,7,6, //Top
+		  0,4,1, 1,4,5,
+		  0,3,7, 0,7,4,
+		  1,5,2, 2,5,6,
+		  3,2,7, 2,6,7};
 
   // Set the color of the box, in case it changed
   for(int i=0;i<8;i++)

@@ -468,23 +468,18 @@ AEventObject3DNode* AGeometry::objectSelection ( core::position2di pos )
                 if ( selectedSceneNode->getParent() == allObjects[i] )
                 {
                     selectedNode = allObjects[i];
-
                     break;
                 }
             }
-
-            if ( track->type() == AEventObject::eJet ) //jets
+            else if ( track->type() == AEventObject::eShower || track->type() == AEventObject::eJet ) //jets
             {
-                AJet3DNode* jet =  (AJet3DNode*)allObjects[i];
-                selector = jet->Pyramid->getTriangleSelector();
-
+                selector = allObjects[i]->getTriangleSelector();
                 const ISceneNode *outNode; //TODO: Take advantage of this somehow..
                 if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ,outNode))
                 {
-                    selectedNode = jet;
-                    break;
+		  selectedNode = allObjects[i];
+		  break;
                 }
-
             }
 
         }

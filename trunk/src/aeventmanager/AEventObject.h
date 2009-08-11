@@ -15,13 +15,13 @@ class AEVENTMANAGER_EXPORT AEventObject : public QObject
  public:
   enum eType //element type
   {
-    eUndefined,
-    eTrack,
-    eJet,
-    eShower,
-    eFCALShower,
-    eMissingEt,
-    eCombination
+    eUndefined = 0,
+    eTrack = 1,
+    eJet = 2,
+    eShower = 3,
+    eFCALShower = 4,
+    eMissingEt = 5,
+    eCombination = 5
   };
 
   //! Constructor

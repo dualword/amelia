@@ -38,9 +38,9 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
   // Hash showers by id, to provide fast lookup
   QHash<int,AShower*> LArshowers;
-  QHash<int,AFCALShower*> FCALshowers;
   QHash<int,AShower*> HECshowers;
   QHash<int,AShower*> TILEshowers;
+  QHash<int,AFCALShower*> FCALshowers;
 
   int numTracks;
   int numChargedHadrons;

@@ -54,7 +54,7 @@ public:
 
  signals:
   void eventLoaded(AEvent*);
-  void eventLoaded(AFilteredEvent*);
+  void eventLoaded(AEvent*,AFilteredEvent*);
 
  private:
   QMainWindow* geoWin;

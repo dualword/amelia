@@ -34,7 +34,7 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
 
   QList<ATrack*> Tracks; // Pointers to simulated tracks within "EventTracks" are stored here
   QList<AJet*> Jets;  // Pointers to Jets within "EventTracks" are stored here
-  QList<AMisET*> MisET;  // Pointers to Jets within "EventTracks" are stored here
+  QList<AMisET*> MisET;  // Pointers to the missing energy withing this event.
 
   // Hash showers by id, to provide fast lookup
   QHash<int,AShower*> LArshowers;
@@ -42,18 +42,18 @@ class AEVENTMANAGER_EXPORT AEvent : public QObject
   QHash<int,AShower*> TILEshowers;
   QHash<int,AFCALShower*> FCALshowers;
 
-  int numTracks;
   int numChargedHadrons;
   int numPhotons;
   int numNeutralHadrons;
   int numNeutrinos;
   int numMuons;
   int numElectrons;
+  int numTracks;
+
   int numShowers;
   int numJets;
 
-  float ETMis;
-  float CaloETMis;
+  int numParticles;
 
   virtual void LoadEvent();
 

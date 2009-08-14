@@ -1,8 +1,14 @@
 #include "AFilteredEvent.h"
+#include <QDebug>
 
 AFilteredEvent::AFilteredEvent(AEvent *event,AEventObjectFilter *headFilter)
   :AEvent(),_completeEvent(event),_filters(headFilter)
 {
+  // Copy some data over
+  runNumber=event->runNumber;
+  eventNumber=event->eventNumber;
+  
+  // Setup filter signals
   AEventObjectFilter *filter=headFilter;
   while(filter)
     {
@@ -27,6 +33,7 @@ void AFilteredEvent::updateFilters()
 {
   FCALshowers=_completeEvent->FCALshowers;
 
+  /* Clear everything */
   Objects.clear();
   Tracks.clear();
   Jets.clear();
@@ -34,6 +41,7 @@ void AFilteredEvent::updateFilters()
   LArshowers.clear();
   HECshowers.clear();
   TILEshowers.clear();
+  numParticles=0;
   numTracks=0;
   numChargedHadrons=0;
   numNeutralHadrons=0;

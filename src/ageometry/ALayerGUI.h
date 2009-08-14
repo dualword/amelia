@@ -74,13 +74,27 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AParticleFilter.h>
 #include <aeventmanager/ACalorimeterFilter.h>
 
+#include "AGeometryDefines.h"
 
-class ALayerGUI : public QFrame
+class AGEOMETRY_EXPORT ALayerGUI : public QFrame
 {
 public:
   ALayerGUI(QWidget* parent=0);
   virtual ~ALayerGUI();
   void setupElements(AEventManager*);
+
+  /*!
+   * Model used to manage the event object bookmarks
+   * \return The model used by ageometry to manage bookmarks
+   */
+  ATrackTreeModel* bookmarkModel();
+
+  /*!
+   * Returns the current, unfiltered, event displayed by the ageometry plugin. 0 if none is loaded
+   *
+   * \return Current event
+   */
+  AEvent *completeEvent();
   
 signals:
   // Emitted when an event has finished loading from the JiveXML file
@@ -132,7 +146,7 @@ private:
   ASelectionInfoScene *selectionInfo;
   
   // Pointers to commonly used widgets
-  ATrackTreeModel *tracksModel;
+  ATrackTreeModel *_bookmarkModel;
   AInterestingTrackTableModel *interestingTracksModel;
   
   AGeometry* geo;

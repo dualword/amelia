@@ -46,6 +46,7 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include "ATourMouseConnectAction.h"
 #include "ATourParticleFilterAction.h"
 #include "ATourSelectTrackAction.h"
+#include "ATourBookmarkAction.h"
 #include "config.h"
 
 #include <abase/ABase.h>
@@ -67,6 +68,7 @@ ATours::ATours( QObject *parent )
   ATourAction::addActionType(ATourMouseConnectAction::staticMetaObject); 
   ATourAction::addActionType(ATourParticleFilterAction::staticMetaObject); 
   ATourAction::addActionType(ATourSelectTrackAction::staticMetaObject); 
+  ATourAction::addActionType(ATourBookmarkAction::staticMetaObject); 
 }
 
 ATours::~ATours()
@@ -80,9 +82,9 @@ void ATours::load()
 
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
 
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
-  QMenu *menu=(QMenu*)geoplugin->findWidget("menubar");
-  QWidget *layerGUI=(QWidget*)geoplugin->findWidget("LayerGUI");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
+  QMenuBar *menu=geoplugin->findWidget<QMenuBar*>("menubar");
+  QWidget *layerGUI=geoplugin->findWidget<QWidget*>("LayerGUI");
   
   toursMenu=menu->addMenu("Tours");
   toursListMenu=toursMenu->addMenu("List");

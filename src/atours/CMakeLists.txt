@@ -11,29 +11,9 @@ ADD_DEFINITIONS(-DQT_PLUGIN)
 ADD_DEFINITIONS(-DQT_NO_DEBUG)
 ADD_DEFINITIONS(-DQT_SHARED)
 
-IF(UNIX)
-       MESSAGE(STATUS "System UNIX")
-       FIND_PACKAGE(OpenGL REQUIRED)
-       FIND_PACKAGE(X11)
-       FIND_LIBRARY(XXF86VM_LIBRARY Xxf86vm)
-       SET(SYSTEMSPECIFIC_LIBRARIES
-             ${X11_LIBRARIES}
-             ${XXF86VM_LIBRARY}
-             ${OPENGL_LIBRARIES}
-             jpeg
-             png
-       )
-ENDIF(UNIX)
-
-IF(APPLE)
-	FIND_LIBRARY(IOKIT_LIBRARY IOKit REQUIRED)
-	SET(SYSTEMSPECIFIC_LIBRARIES
-		${SYSTEMSPECIFIC_LIBRARIES}
-		${IOKIT_LIBRARY})
-ENDIF(APPLE)
-
 FIND_PACKAGE (Irrlicht REQUIRED)
 INCLUDE_DIRECTORIES(${Irrlicht_INCLUDE_DIR})
+LINK_DIRECTORIES(${Irrlicht_LIBRARY_DIR})
 
 SET(atours_SRCS
   ATours.cpp
@@ -53,6 +33,7 @@ SET(atours_SRCS
   ATourViewportChangeAction.cpp
   ATourParticleFilterAction.cpp
   ATourSelectTrackAction.cpp
+  ATourBookmarkAction.cpp
   )
 
 SET(atours_H
@@ -72,6 +53,7 @@ SET(atours_H
   ATourViewportChangeAction.h
   ATourParticleFilterAction.h
   ATourSelectTrackAction.h
+  ATourBookmarkAction.h
   )
 
 SET(atours_FILES
@@ -85,7 +67,7 @@ ADD_LIBRARY(ATours SHARED ${atours_SRCS})
 LINK_DIRECTORIES(${LIBRARY_OUTPUT_PATH})
 TARGET_LINK_LIBRARIES(ATours
   ${QT_LIBRARIES} 
-  ${SYSTEMSPECIFIC_LIBRARIES} 
+  ${Irrlicht_LIBRARY} 
   amelia
   ABase
   AGeometry

@@ -55,16 +55,27 @@ and sublicense such enhancements or derivative works thereof, in binary and sour
 #include <aeventmanager/AXmlEvent.h>
 
 ALayerGUI::ALayerGUI(QWidget* parent)
-        : QFrame(parent)
+  : QFrame(parent),_bookmarkModel(0),
+  CompleteEvent(0),ModelEvent(0),FilteredEvent(0)
 {
-  modelFilter=new AModelFilter("Kt4H1TopoJets","MET_Final","ASTrack");
   calorimeterFilter=new ACalorimeterFilter();
-  particleFilter=new AParticleFilter(calorimeterFilter);
+  modelFilter=new AModelFilter("Kt4H1TowerJets","MET_Final","ASTrack",calorimeterFilter);
+  particleFilter=new AParticleFilter();
   ptFilter=new APtFilter(1,particleFilter);
 }
 
 ALayerGUI::~ALayerGUI()
 { }
+
+ATrackTreeModel* ALayerGUI::bookmarkModel()
+{
+  return _bookmarkModel;
+}
+
+AEvent* ALayerGUI::completeEvent()
+{
+  return CompleteEvent;
+}
 
 void ALayerGUI::setupElements(AEventManager *eventmanager)
 {
@@ -126,16 +137,16 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
     eventWidget=findChild<QWidget *>("eventWidget");
     AGeometryFrame=findChild<AMainView *>("AGeometryFrame");
 
-    tracksModel=new ATrackTreeModel(this);
+    _bookmarkModel=new ATrackTreeModel(this);
     connect(this,SIGNAL(eventLoaded(AEvent*)),
-	    tracksModel,SLOT(handleNewEventLoaded(AEvent*)));	    
+	    _bookmarkModel,SLOT(setEvent(AEvent*)));	    
 
     interestingTracksModel=new AInterestingTrackTableModel(this);
 
     //Setup Tables
     if (tableSelectedTracks)
       {
-	tracksModel->addView(tableSelectedTracks);
+	_bookmarkModel->addView(tableSelectedTracks);
 
 	tableSelectedTracks->setColumnWidth ( 0, 110 );
         tableSelectedTracks->setColumnWidth ( 1,  50 );
@@ -151,7 +162,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
       }
     if (detailedSelectedTracksTable)
       {
-        tracksModel->addView(detailedSelectedTracksTable);
+        _bookmarkModel->addView(detailedSelectedTracksTable);
 
 	detailedSelectedTracksTable->hideColumn(0);
 	detailedSelectedTracksTable->hideColumn(1);
@@ -191,9 +202,9 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 
     eventInfoView=new QGraphicsView();
     eventInfo=new AEventInfoScene;
-    eventInfoView->resize(300,200);
+    eventInfoView->resize(250,300);
     eventInfoView->setScene(eventInfo);
-    eventInfoView->ensureVisible(0,0,450,300,10,10);
+    eventInfoView->ensureVisible(0,0,200,200,10,10);
 
     // Setup package list
     mngr=new AEventManagerScene(eventmanager,"AGeometry");
@@ -211,7 +222,7 @@ void ALayerGUI::setupElements(AEventManager *eventmanager)
 	    mngr, SLOT(setActiveEvent()));
     
     //Setup slide widget
-    ASlidyManager *slide=new ASlidyManager(this,250);
+    ASlidyManager *slide=new ASlidyManager(this,275);
     slide->setObjectName("AGeoControl");
     slide->setPosition(125);
     slide->addWidget(eventInfoView,"Event Info",true);
@@ -741,7 +752,7 @@ void ALayerGUI::deleteSelectedTreeTracks()
       else
 	index=rows[i];
 
-      tracksModel->removeRow(index.row(),index.parent());
+      _bookmarkModel->removeRow(index.row(),index.parent());
     }
 }
 

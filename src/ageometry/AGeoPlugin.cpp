@@ -117,17 +117,12 @@ void AGeoPlugin::load()
   geo=geoWin->findChild<AGeometry*>("Geometry");
 
   //Setup the menu for track combinations
-  layerGUI->tracksModel->setMenu(&comboMenu);
+  layerGUI->bookmarkModel()->setMenu(&comboMenu);
 
   AGeometry *Geometry= geoWin->findChild<AGeometry*>("Geometry");
   Geometry->setComboMenu(&comboMenu);
 
   base->addMonitor("ageometry","Default",geoWin,"Enter ATLAS");
-}
-
-QWidget* AGeoPlugin::findWidget(QString name)
-{
-  return geoWin->findChild<QWidget*>(name);
 }
 
 QMenu* AGeoPlugin::addTrackComboMenu(QString text)
@@ -170,7 +165,6 @@ AParticleFilter* AGeoPlugin::particleFilter()
 {
   return layerGUI->particleFilter;
 }
-				   
 
 void AGeoPlugin::handleNewEventLoaded(AEvent* event)
 {
@@ -180,8 +174,8 @@ void AGeoPlugin::handleNewEventLoaded(AEvent* event)
 
 void AGeoPlugin::displayMessage(QString text,QString header,QPixmap img)
 {
-  QGraphicsView *trackInfoView=(QGraphicsView*)findWidget("trackInfo");
-  ASelectionInfoScene *trackInfo=(ASelectionInfoScene*)trackInfoView->scene();
+  QGraphicsView *trackInfoView=findWidget<QGraphicsView*>("selectionInfo");
+  ASelectionInfoScene *trackInfo=qobject_cast<ASelectionInfoScene*>(trackInfoView->scene());
   if(text.isEmpty())
     trackInfo->hideMessage();
   else

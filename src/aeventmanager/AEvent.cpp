@@ -6,7 +6,9 @@
 #include <QStringList>
 
 AEvent::AEvent()
-  :numTracks(0),numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),numJets(0),
+  :runNumber(-1),eventNumber(-1),
+   numParticles(0),
+   numChargedHadrons(0),numPhotons(0),numNeutralHadrons(0),numNeutrinos(0),numMuons(0),numElectrons(0),numJets(0),
    highestTrackID(0),_package(0)
 {}
 
@@ -84,13 +86,15 @@ void AEvent::addTrack(ATrack* track)
     numNeutralHadrons++;
   else if(track->isChargedHadron())
     numChargedHadrons++;
+
+  numParticles++;
+  numTracks++;
   
   QString ttype=track->trackType();
   if(!_trackTypes.contains(ttype))
     _trackTypes.push_back(ttype);
 
   Tracks.push_back(track);
-  numTracks++;
   Objects.push_back(track);
 }
 
@@ -102,7 +106,7 @@ void AEvent::addJet(AJet* jet)
     _jetTypes.push_back(jtype);
   
   Jets.push_back(jet);
-  numTracks++;
+  numParticles++;
   numJets++;
   Objects.push_back(jet);
 
@@ -115,7 +119,6 @@ void AEvent::addMisET(AMisET* miset)
     _misETTypes.push_back(mtype);
 
   MisET.push_back(miset);
-  numTracks++;
   Objects.push_back(miset);
 }
 

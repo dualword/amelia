@@ -13,7 +13,7 @@ ATourSelectTrackAction::ATourSelectTrackAction()
   :ATourAction()
 { 
   AGeoPlugin *geoplugin=(AGeoPlugin*)AMELIA::global->plugin("AGeometry");
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
 
   setWidgetOfInterest("Geometry");
 }
@@ -21,7 +21,7 @@ ATourSelectTrackAction::ATourSelectTrackAction()
 Q_INVOKABLE ATourSelectTrackAction::ATourSelectTrackAction(QString msg)
 {
   AGeoPlugin *geoplugin=(AGeoPlugin*)AMELIA::global->plugin("AGeometry");
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
 
   this->trackid=msg.toInt();
 

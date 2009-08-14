@@ -49,6 +49,19 @@ bool AEventObjectCollection::contains(AEventObject *track)
   return _objects.contains(track);
 }
 
+int AEventObjectCollection::find(AEventObject *track)
+{
+  return _objects.indexOf(track);
+}
+
+void AEventObjectCollection::clear()
+{
+  for(int i=0;i<size();i++)
+    {
+      remove(i);
+    }
+}
+
 void AEventObjectCollection::writeToFile(QTextStream& in)
 {
   beginWriteToFile(in);

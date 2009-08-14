@@ -8,7 +8,7 @@ ATourCameraAction::ATourCameraAction()
 { 
   AGeoPlugin *geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
 
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
 }
 
 void ATourCameraAction::loadFromXML(QDomElement actionElement)

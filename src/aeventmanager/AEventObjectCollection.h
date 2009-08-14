@@ -53,6 +53,17 @@ class AEVENTMANAGER_EXPORT AEventObjectCollection : public AEventAnalysisData
   bool contains(AEventObject *object);
 
   /*!
+   * \param object Object to find
+   * \return The index of the object specified. -1 if not found
+   */
+  int find(AEventObject *object);
+
+  /*!
+   * Removes all of the objects stored in this collection
+   */
+  void clear();
+
+  /*!
    * Writes the data to a file using XML
    * 
    * \param in The stream to write into

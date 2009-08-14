@@ -33,7 +33,17 @@ public:
   
   void load();
   
-  QWidget* findWidget(QString name);
+  /*!
+   * Quick access to subwidgets of the main geometry monitor
+   *
+   * \param name Name of the widget
+   * \return The widget with the name widget matching type T. 0 if not such thing exists..
+   */
+  template<class T> T findWidget(QString name)
+    {
+      return geoWin->findChild<T>(name);
+    }
+
   QMenu* addTrackComboMenu(QString text);
   int  addMainViewWidget(QWidget* widget,QString title="");
   AMainViewTmpWidget* addMainViewTmpWidget(QWidget* widget);

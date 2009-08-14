@@ -8,15 +8,15 @@ ATourViewportChangeAction::ATourViewportChangeAction()
   :ATourAction()
 { 
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
 
   setCursorable(true);
 }
 
 QString ATourViewportChangeAction::widgetOfInterest()
 {
-  AViewport *LeftViewport=(AViewport*)geoplugin->findWidget("LeftViewport");
-  AViewport *RightViewport=(AViewport*)geoplugin->findWidget("RightViewport");
+  AViewport *LeftViewport=geoplugin->findWidget<AViewport*>("LeftViewport");
+  AViewport *RightViewport=geoplugin->findWidget<AViewport*>("RightViewport");
 
   if(LeftViewport->viewport()==viewport)
     return "LeftViewport";

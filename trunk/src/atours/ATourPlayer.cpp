@@ -19,7 +19,7 @@ void ATourPlayer::setupElements()
   geoplugin=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");  
   
   baseplugin=(ABase*)AMELIA::global->plugin("ABase");  
-  geo=(AGeometry*)geoplugin->findWidget("Geometry");
+  geo=geoplugin->findWidget<AGeometry*>("Geometry");
   
   controls=new ASlidyManager(baseplugin,50,Qt::AlignTop);
   controls->setWidth(baseplugin->width()-200);

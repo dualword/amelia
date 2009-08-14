@@ -84,7 +84,7 @@ QVariant AInterestingTrackTableModel::data(const QModelIndex &index, int role) c
 	  case 3:
             if (track->type() == AEventObject::eJet || track->type() == AEventObject::eTrack)
 	      {
-                return QString::number(track->phi());
+                return QString::number(track->phi()*180/3.14);
 	      }
             else
 	      {

@@ -10,31 +10,49 @@
 #include "QAbstractTreeItem.h"
 
 ATrackTreeModel::ATrackTreeModel(QWidget* parent)
-  :QAbstractItemModelWithContextMenu(parent),topItem(0)
+  :QAbstractItemModelWithContextMenu(parent),topItem(0),
+   _collectionName("AGeometry")
 {
-  analysisData=new AEventObjectCollection("AGeometry");
+  analysisData=new AEventObjectCollection(_collectionName);
 }
 
 ATrackTreeModel::~ATrackTreeModel()
 { }
 
-void ATrackTreeModel::handleNewEventLoaded(AEvent *event)
+void ATrackTreeModel::setCollectionName(QString name)
 {
-  // Unload the data loaded before, if any.
+  _collectionName=name;
+  updateAnalysisData();
+}
+
+QString ATrackTreeModel::collectionName()
+{
+  return _collectionName;
+}
+
+void ATrackTreeModel::setEvent(AEvent *event)
+{
+  _event=event;
+  updateAnalysisData();
+}
+
+void ATrackTreeModel::updateAnalysisData()
+{
+  // Unload the previous data loaded before, if any.
   if(analysisData)
     {
       disconnect(analysisData,SIGNAL(updated()),
 		 this,SLOT(refresh()));
-
-      analysisData=new AEventObjectCollection("AGeometry");
+      
+      analysisData=new AEventObjectCollection(_collectionName);
 
       clearInternalTree();
     }
   
   // Load new analysis data.
-  if(event)
+  if(_event)
     {
-      analysisData=event->getAnalysisData<AEventObjectCollection>("AGeometry");
+      analysisData=_event->getAnalysisData<AEventObjectCollection>(_collectionName);
       
       connect(analysisData,SIGNAL(updated()),
 	      this,SLOT(refresh()));

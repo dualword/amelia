@@ -46,6 +46,8 @@
     <action type="ATourSelectTrackAction" time="48000" id="17" multi="true"/>
     <action type="ATourSelectTrackAction" time="51000" id="11" multi="true"/>
 
+    <action type="ATourBookmarkAction" time="55000" id="11" />
+
     <!--<action type="ATourSelectTrackAction" time="30000">
       <track id=""/>
     </action>-->

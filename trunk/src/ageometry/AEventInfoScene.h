@@ -65,6 +65,11 @@ private:
   void init();
   
   QGraphicsTextItem *header;
+
+  QGraphicsTextItem *runInfo;
+  QGraphicsTextItem *eventInfo;
+
+  QGraphicsTextItem *metInfo;
   
   QGraphicsTextItem* dataComplete;
   QGraphicsTextItem* dataLabels;

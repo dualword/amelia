@@ -13,8 +13,17 @@
 #include "QAbstractItemModelWithContextMenu.h"
 #include "QAbstractTreeItem.h"
 
+#include <QApplication>
+#include <QInputDialog>
+#include <QSortFilterProxyModel>
+#include <QDebug>
+#include "AGeometryDefines.h"
+
+#include <QBetterMimeData.h>
+
+
 //! Model that shows a collection of event objects
-class ATrackTreeModel : public QAbstractItemModelWithContextMenu
+class AGEOMETRY_EXPORT ATrackTreeModel : public QAbstractItemModelWithContextMenu
 {
 public:
   //! Constructor
@@ -32,7 +41,7 @@ public:
    * \param view The view to add to
   */
   void addView(QAbstractItemView *view);
-  
+
   /* Standard Qt model/view methods */
   QModelIndex index(int row, int column, const QModelIndex& parent=QModelIndex()) const;
   QModelIndex parent(const QModelIndex &index) const;
@@ -55,13 +64,13 @@ public slots:
    * \param event The event from which to get the collection
    */
   void setEvent(AEvent *event);
-  
+
   /*!
    * Use a different collection form the current event
    * \param name
    */
   void setCollectionName(QString name);
-  
+
   /*!
    * Clear everything
    */
@@ -77,12 +86,12 @@ public slots:
 private:
   //! The name of the collection stored in the event
   QString _collectionName;
-  
+
   //! The collection
   AEventObjectCollection *analysisData;
   //! The event
   AEvent *_event;
-  
+
   /*!
    * Updates the analysis data object from the current collection and current event.
    */

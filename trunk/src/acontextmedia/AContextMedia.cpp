@@ -72,8 +72,8 @@ void AContextMedia::load()
 { 
   geo=(AGeoPlugin *)AMELIA::global->plugin("AGeometry");
   
-  QWidget *ageometry=geo->findWidget("Geometry");
-  
+  QWidget *ageometry=geo->findWidget<QWidget*>("Geometry");
+    
   // Prepare info selections
   connect(ageometry,SIGNAL(detectorPartSelected(const QString&)),
 	  this,SLOT(handleDetectorSelected(const QString&)));

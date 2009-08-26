@@ -5,7 +5,7 @@
 #include "AEventManagerDefines.h"
 
 //! Objects of this class represent Missing Energy
-class AMisET : public AEventObject
+class AEVENTMANAGER_EXPORT AMisET : public AEventObject
 {
 public:
   //! Constructor

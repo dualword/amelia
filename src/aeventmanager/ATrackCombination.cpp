@@ -145,7 +145,7 @@ void ATrackCombination::recalculate()
   /* Update other kinematic variables */
   _pt=sqrt(Px*Px + Py*Py);
   _phi=atan2(Py,Px);
-  _theta=atan2(_pt,Pz); // I think this uses the right axis
+  _theta=atan2(static_cast<double>(_pt),Pz); // I think this uses the right axis
   _eta=-logf(tan(_theta/2)); //Pseudo-rapidity is not additive, right?
   _et=E*sin(_theta);
 }

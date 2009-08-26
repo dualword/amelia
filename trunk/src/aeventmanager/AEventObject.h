@@ -21,7 +21,7 @@ class AEVENTMANAGER_EXPORT AEventObject : public QObject
     eShower = 3,
     eFCALShower = 4,
     eMissingEt = 5,
-    eCombination = 5
+    eCombination = 6
   };
 
   //! Constructor

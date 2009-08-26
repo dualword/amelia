@@ -6,7 +6,7 @@
 #include <QString>
 
 //! Calorimenter showers
-class AShower : public AEventObject
+class AEVENTMANAGER_EXPORT AShower : public AEventObject
 {
 public:
   //! Constructor

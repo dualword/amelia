@@ -55,6 +55,7 @@ class CTimer : public ITimer
   virtual bool isStopped() const;
   virtual void tick();
   virtual f32 getSpeed() const;
+  virtual RealTimeDate getRealTimeAndDate() const;
 };
 
 #ifdef Q_WS_MAC
@@ -93,8 +94,9 @@ namespace os
     class Timer
     {
     public:
-	static void initTimer();
+	//static void initTimer();
 	};
+
 }
 } // end namespace irr
 class CCursorControl : public gui::ICursorControl
@@ -144,10 +146,11 @@ public:
   }
   
   //! Returns the current position of the mouse cursor.
-  virtual core::position2d<s32> getPosition()
+  virtual core::position2d<s32>& getPosition()
   {
     QPoint pos=parent->mapFromGlobal(QCursor::pos());
-    return core::position2d<s32>(pos.x(),pos.y());
+    core::position2d<s32> p(pos.x(),pos.y());
+    return p;
   }
   
   //! Returns the current position of the mouse cursor.
@@ -1055,7 +1058,7 @@ void QIrrUnixWidgetPrivate::initializeGL()
   parent->cursorcontrol = new CCursorControl(parent);
   parent->smgr=scene::createSceneManager(parent->driver,parent->fs,parent->cursorcontrol,parent->gui);
 
-  os::Timer::initTimer();  
+  //os::Timer::initTimer();
   parent->timer = new CTimer();
   
   parent->internalLoad();

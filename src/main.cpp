@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
   AMELIA amelia;
   
   amelia.addSearchPath("plugins");
+  amelia.addSearchPath(".");
   amelia.addSearchPath(PLUGIN_PREFIX);
 
   // VC++ likes to place the binaries into Debug/Release folders

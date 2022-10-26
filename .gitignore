@@ -1,0 +1,12 @@
+#
+.build/
+/bin
+Makefile
+.qmake.stash
+config.h
+
+#
+/.cproject
+/.project
+/.externalToolBuilders
+/.settings

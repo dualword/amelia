@@ -474,7 +474,7 @@ AEventObject3DNode* AGeometry::objectSelection ( core::position2di pos )
             else if ( track->type() == AEventObject::eShower || track->type() == AEventObject::eJet ) //jets
             {
                 selector = allObjects[i]->getTriangleSelector();
-                const ISceneNode *outNode; //TODO: Take advantage of this somehow..
+                ISceneNode *outNode; //TODO: Take advantage of this somehow..
                 if ( colmgr->getCollisionPoint ( ray, selector, target, triangle ,outNode))
                 {
 		  selectedNode = allObjects[i];
@@ -539,7 +539,7 @@ void AGeometry::renderViewport(int view)
     getSceneManager()->setActiveCamera (originalCamera);
     originalCamera->drop();
 
-    uchar* tmpdata=(uchar*)rt->lock (true);
+    uchar* tmpdata=(uchar*)rt->lock ();
 
     dimension2d<u32> size=rt->getSize();
 
